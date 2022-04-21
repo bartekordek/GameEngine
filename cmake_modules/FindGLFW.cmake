@@ -1,0 +1,8 @@
+set( GLFW_ROOT_DIR ${OGLW_DEPS_ROOT}/glfw-repo )
+
+set( GLFW_INCLUDE_DIR ${GLFW_ROOT_DIR}/include )
+set( ENV{GLFW_INCLUDE_DIR} ${GLFW_INCLUDE_DIR} )
+
+set( GLFW_INCLUDE_DIRS ${GLFW_ROOT_DIR}/include )
+
+set( GLFW_ROOT_FOUND true )
