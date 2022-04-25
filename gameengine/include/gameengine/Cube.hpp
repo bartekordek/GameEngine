@@ -11,7 +11,6 @@ NAMESPACE_END( CUL )
 NAMESPACE_BEGIN( LOGLW )
 
 class Camera;
-class Sprite;
 class IGameEngine;
 
 class GAME_ENGINE_API Cube final: public IObject, public IUtilityUser
@@ -24,12 +23,19 @@ public:
     ~Cube();
 protected:
 private:
+    void createPlaceHolders();
+
     void render() override;
     void renderModern();
     void renderLegacy();
+
+    void release();
+
     Camera* m_camera = nullptr;
     IGameEngine* m_engine = nullptr;
-    std::array<Sprite*, 4> m_walls;
+
+    std::array<ITransformable::Pos, 6> m_wallsPositions;
+    std::array<IObject*, 6> m_walls;
 
     // Deleted:
     Cube( const Cube& arg ) = delete;
