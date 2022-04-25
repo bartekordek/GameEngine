@@ -31,7 +31,12 @@ public:
     virtual ~IObject();
 protected:
 private:
+    void removeChild( IObject* child);
+
+
     IObject* m_parent = nullptr;
+
+    std::mutex m_childrenMtx;
     std::set<IObject*> m_children;
 
 // Deleted:

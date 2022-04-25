@@ -29,15 +29,36 @@ const std::set<IObject*>& IObject::getChildren() const
 
 void IObject::addChild(IObject* child)
 {
+    std::lock_guard<std::mutex> locker( m_childrenMtx );
     m_children.insert(child);
 }
 
 
 IObject::~IObject()
 {
+    std::lock_guard<std::mutex> locker( m_childrenMtx );
+    if( m_parent )
+    {
+        m_parent->removeChild(this);
+    }
+
     for( const IObject* child: m_children )
     {
         delete child;
     }
     m_children.clear();
+}
+
+void IObject::removeChild( IObject* child )
+{
+    std::lock_guard<std::mutex> locker( m_childrenMtx );
+    auto it = m_children.find(child);
+    if( it == m_children.end() )
+    {
+        CUL::Assert::simple( false, "Trying to remove already removed child." );
+    }
+    else
+    {
+        m_children.erase(it);
+    }
 }
