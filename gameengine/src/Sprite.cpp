@@ -55,6 +55,7 @@ void Sprite::init()
 {
     m_shaderProgram = std::make_unique<Program>();
     m_shaderProgram->initialize();
+    m_shaderProgram->enable();
 
     const std::string vertexShaderSource =
 #include "embedded_shaders/camera.vert"

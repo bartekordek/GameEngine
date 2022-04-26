@@ -219,7 +219,7 @@ void UtilConcrete::removeProgram( unsigned programId )
 
 void UtilConcrete::useProgram( unsigned programId )
 {
-    log( "glUseProgram(" + String( programId ) + " )" );
+    //log( "glUseProgram( " + String( programId ) + " )" );
     glUseProgram( static_cast<GLuint>( programId ) );
 }
 
@@ -329,9 +329,15 @@ void UtilConcrete::attachShader( unsigned programId, unsigned shaderId )
 {
     glAttachShader( toGluint( programId ), toGluint( shaderId ) );
 
-    const GLenum err = glGetError();
-    const GLubyte* errorAsString = gluErrorString( err );
-    customAssert( GL_NO_ERROR == err, "Error creating program, error numer: " + CUL::String( errorAsString ) );
+    if( true )
+    {
+    }
+    else
+    {
+        const GLenum err = glGetError();
+        const GLubyte* errorAsString = gluErrorString( err );
+        customAssert( GL_NO_ERROR == err, "Error creating program, error numer: " + CUL::String( errorAsString ) );
+    }
 }
 
 void UtilConcrete::dettachShader( unsigned programId, unsigned shaderId )
@@ -1187,7 +1193,7 @@ void UtilConcrete::bindBuffer( const BufferTypes bufferType,
     }
     else
     {
-        log( "bindBuffer already set." );
+        //log( "bindBuffer already set." );
         return;
     }
 
@@ -1204,7 +1210,7 @@ void UtilConcrete::bindBuffer( const BufferTypes bufferType,
         state of the vertex array object, and any previous vertex array object
         binding is broken.
         */
-        log( "glBindVertexArray( " + String( bufferId ) + String( " )" ) );
+        //log( "glBindVertexArray( " + String( bufferId ) + String( " )" ) );
         glBindVertexArray( static_cast<GLuint>( bufferId ) );
     }
     else
@@ -1228,7 +1234,7 @@ void UtilConcrete::bindBuffer( const BufferTypes bufferType,
         buffer object names only if they explicitly enable sharing between
         contexts through the appropriate GL windows interfaces functions.
         */
-        log( "glBindBuffer" );
+        //log( "glBindBuffer" );
         glBindBuffer( static_cast<GLenum>( bufferType ), bufferId );
     }
 }
@@ -1429,14 +1435,14 @@ void UtilConcrete::bindTexture( const unsigned int textureId )
 {
     if( m_lastTextureId != textureId )
     {
-        log( "bindTexture..." );
+        //log( "bindTexture..." );
         glBindTexture( GL_TEXTURE_2D, textureId );
         m_lastTextureId = textureId;
-        log( "bindTexture... DONE." );
+        //log( "bindTexture... DONE." );
     }
     else
     {
-        log( "bindTexture canceled - already set." );
+        //log( "bindTexture canceled - already set." );
     }
 }
 

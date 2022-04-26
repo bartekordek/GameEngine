@@ -34,9 +34,27 @@ void ITransformable::setWorldAngle( CUL::MATH::EulerAngles type, const CUL::MATH
     m_angles[(size_t)type] = angle;
 }
 
+void ITransformable::setWorldRotation( const CUL::MATH::Rotation& rotation )
+{
+    m_angles[(size_t)CUL::MATH::EulerAngles::YAW] = rotation.yaw;
+    m_angles[(size_t)CUL::MATH::EulerAngles::PITCH] = rotation.pitch;
+    m_angles[(size_t)CUL::MATH::EulerAngles::ROLL] = rotation.roll;
+}
+
+const CUL::MATH::Rotation ITransformable::getWorldRotation() const
+{
+    CUL::MATH::Rotation result;
+
+    result.yaw = m_angles[(size_t)CUL::MATH::EulerAngles::YAW];
+    result.pitch = m_angles[(size_t)CUL::MATH::EulerAngles::PITCH];
+    result.roll = m_angles[(size_t)CUL::MATH::EulerAngles::ROLL];
+
+    return result;
+}
+
 float ITransformable::getWorldAngleF( CUL::MATH::EulerAngles type ) const
 {
-    return m_angles[(size_t)type].getValueF();
+    return m_angles[(size_t)type].getValueF( CUL::MATH::Angle::Type::RADIAN );
 }
 
 const CUL::MATH::Angle& ITransformable::getWorldAngle( CUL::MATH::EulerAngles type ) const

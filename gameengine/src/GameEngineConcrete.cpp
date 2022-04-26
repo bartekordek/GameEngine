@@ -407,6 +407,7 @@ void GameEngineConcrete::renderLoop()
         m_currentFrameLengthUs = (int)m_frameTimer->getElapsed().getUs();
 
         calculateNextFrameLengths();
+        calculateFrameWait();
     }
 }
 

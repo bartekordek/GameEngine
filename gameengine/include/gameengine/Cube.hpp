@@ -1,6 +1,9 @@
 #pragma once
 
 #include "gameengine/IObject.hpp"
+#include "gameengine/IUtilityUser.hpp"
+
+#include "CUL/Math/Rotation.hpp"
 
 #include "CUL/STL_IMPORTS/STD_array.hpp"
 
@@ -36,6 +39,7 @@ private:
 
     std::array<ITransformable::Pos, 6> m_wallsPositions;
     std::array<IObject*, 6> m_walls;
+    std::array<CUL::MATH::Rotation, 6> m_rotations;
 
     // Deleted:
     Cube( const Cube& arg ) = delete;

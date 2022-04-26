@@ -34,6 +34,7 @@ class IDebugOverlay;
 class ProjectionData;
 class ITextureFactory;
 class Camera;
+class Cube;
 class Sprite;
 class Quad;
 
@@ -121,6 +122,7 @@ public:
     Sprite* createSprite();
     Quad* createQuad();
     VertexArray* createVAO();
+    Cube* createCube();
 
     void pushPreRenderTask( IPreRenderTask* preRenderTask );
     void pushPreRenderTask( std::function<void(void)> task );

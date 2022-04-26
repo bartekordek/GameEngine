@@ -4,7 +4,7 @@
 
 #include "CUL/Graphics/IPosition3DD.hpp"
 #include "CUL/Math/Point.hpp"
-#include "CUL/Math/Angle.hpp"
+#include "CUL/Math/Rotation.hpp"
 #include "CUL/String.hpp"
 
 #include "CUL/STL_IMPORTS/STD_array.hpp"
@@ -29,6 +29,9 @@ public:
 
     void setWorldAngle( CUL::MATH::EulerAngles type, Pos::Type value );
     void setWorldAngle( CUL::MATH::EulerAngles type, const CUL::MATH::Angle& angle );
+
+    void setWorldRotation(const CUL::MATH::Rotation& rotation);
+    const CUL::MATH::Rotation getWorldRotation() const;
 
     float getWorldAngleF( CUL::MATH::EulerAngles type ) const;
     const CUL::MATH::Angle& getWorldAngle( CUL::MATH::EulerAngles type ) const;

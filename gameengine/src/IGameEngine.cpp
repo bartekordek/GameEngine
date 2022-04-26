@@ -2,6 +2,7 @@
 #include "GameEngineConcrete.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/Primitives/Quad.hpp"
+#include "gameengine/Cube.hpp"
 
 #include "SDL2Wrapper/WindowData.hpp"
 
@@ -74,6 +75,11 @@ VertexArray* IGameEngine::createVAO()
     return result;
 }
 
+Cube* IGameEngine::createCube()
+{
+    return new Cube(getCamera(), this);
+}
+
 void IGameEngine::pushPreRenderTask( IPreRenderTask* preRenderTask )
 {
     std::lock_guard<std::mutex> locker( m_preRenderTasksMtx );
@@ -105,7 +111,9 @@ void IGameEngine::addObjectToRender( IRenderable* renderable )
     else
     {
         std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
-
+        auto it = m_objectsToRender.find( renderable );
+        CUL::Assert::simple( it == m_objectsToRender.end(), "Trying to add already added object." );
+        m_objectsToRender.insert( renderable );
     }
 }
 

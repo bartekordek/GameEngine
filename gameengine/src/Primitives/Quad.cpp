@@ -1,16 +1,25 @@
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/IGameEngine.hpp"
+#include "gameengine/IUtility.hpp"
 #include "gameengine/IObject.hpp"
 #include "gameengine/VertexArray.hpp"
+#include "CUL/ThreadUtils.hpp"
 
 using namespace LOGLW;
 
 Quad::Quad( Camera& camera, IGameEngine& engine ) : m_camera( camera ), m_engine( engine )
 {
-    engine.pushPreRenderTask( [this]() {
+    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
         init();
-    } );
+    }
+    else
+    {
+        engine.pushPreRenderTask( [this]() {
+            init();
+        } );
+    }
 }
 
 void Quad::render()
@@ -20,14 +29,9 @@ void Quad::render()
     glm::vec3 m_pos = position.toGlmVec();
     model = glm::translate( model, m_pos );
 
-    Camera* camera = m_engine.getCamera();
-    auto projectionMatrix = camera->getProjectionMatrix();
-    auto viewMatrix = camera->getViewMatrix();
-
     m_vao->getProgram()->enable();
-    m_vao->getProgram()->setAttrib( "projection", projectionMatrix );
-    m_vao->getProgram()->setAttrib( "view", viewMatrix );
-    m_vao->getProgram()->setAttrib( "model", model );
+    setTransformation();
+    m_vao->getProgram()->disable();
 }
 
 void Quad::setSize( float width, float height )
@@ -66,6 +70,14 @@ void Quad::init()
     m_vao->createShader( "source.vert" );
     m_vao->createShader( "yellow.frag" );
 
+    m_vao->getProgram()->enable();
+    setTransformation();
+
+    m_engine.addObjectToRender(this);
+}
+
+void Quad::setTransformation()
+{
     Camera* camera = m_engine.getCamera();
     auto projectionMatrix = camera->getProjectionMatrix();
     auto viewMatrix = camera->getViewMatrix();
@@ -77,13 +89,51 @@ void Quad::init()
     const Pos& position = getWorldPosition();
     glm::vec3 m_pos = position.toGlmVec();
     model = glm::translate( model, m_pos );
-    m_vao->getProgram()->setAttrib( "model", model );
 
-    m_engine.addObjectToRender(this);
+    CUL::MATH::Rotation rotation = getWorldRotation();
+    rotation.yaw.setCurrentType(CUL::MATH::Angle::Type::RADIAN);
+    rotation.pitch.setCurrentType( CUL::MATH::Angle::Type::RADIAN );
+    rotation.roll.setCurrentType( CUL::MATH::Angle::Type::RADIAN );
+
+    // Yaw
+    {
+        glm::vec3 normal( 0.f, 1.f, 0.f );
+        model = glm::rotate( model, -rotation.yaw.getRad(), normal );
+    }
+
+    // Pitch
+    {
+        glm::vec3 normal( 1.f, 0.f, 0.f );
+        model = glm::rotate( model, rotation.pitch.getRad(), normal );
+    }
+
+    // Roll
+    {
+        glm::vec3 normal( 0.f, 0.f, 1.f );
+        model = glm::rotate( model, rotation.roll.getRad(), normal );
+    }
+
+    m_vao->getProgram()->setAttrib( "model", model );
 }
 
 Quad::~Quad()
 {
+    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        release();
+    }
+    else
+    {
+        m_engine.pushPreRenderTask( [this]() {
+            release();
+        } );
+    }
+}
+
+
+void Quad::release()
+{
+    m_engine.removeObjectToRender(this);
     delete m_vao;
     m_vao = nullptr;
 }

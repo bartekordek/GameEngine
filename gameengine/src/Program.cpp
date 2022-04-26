@@ -66,8 +66,8 @@ void Program::setAttrib( const String& name, const glm::mat3& value )
 void Program::setAttrib( const String& name, const glm::mat4& val )
 {
     auto location = getUtility()->getUniformLocation( m_id, name );
-    const std::string valueAsString = glm::to_string( val );
-    getUtility()->getCUl()->getLogger()->log( "setAttrib: " + name + ", val: " + valueAsString );
+    //const std::string valueAsString = glm::to_string( val );
+    //getUtility()->getCUl()->getLogger()->log( "setAttrib: " + name + ", val: " + valueAsString );
     getUtility()->setUniformValue( location, val );
 }
 

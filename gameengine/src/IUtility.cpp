@@ -60,7 +60,7 @@ void IUtility::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, un
     first - Specifies the starting index in the enabled arrays.
     count - Specifies the number of indices to be rendered.
     */
-    log( "glDrawArrays" );
+    //log( "glDrawArrays" );
     bindBuffer( BufferTypes::VERTEX_ARRAY, vaoId );
     glDrawArrays( static_cast<GLenum>( primitiveType ), static_cast<GLint>( first ), static_cast<GLsizei>( count ) );
 }
