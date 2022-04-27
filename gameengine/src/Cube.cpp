@@ -21,9 +21,11 @@ Cube::Cube( Camera* camera, IGameEngine* engine ) : m_camera( camera ), m_engine
     m_wallsPositions[3] = ITransformable::Pos( 1.f, 0.f, 0.f );
     m_rotations[3].yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
 
-    m_wallsPositions[4] = ITransformable::Pos( 0.f, -2.f, 0.f );
-    //m_rotations[4].roll.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-    m_wallsPositions[5] = ITransformable::Pos( 0.f, 2.f, 0.f );
+    m_wallsPositions[4] = ITransformable::Pos( 0.f, -1.f, 0.f );
+    m_rotations[4].pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+
+    m_wallsPositions[5] = ITransformable::Pos( 0.f, 1.f, 0.f );
+    m_rotations[5].pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
 
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
