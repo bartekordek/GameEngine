@@ -105,8 +105,8 @@ const glm::mat4 TransformComponent::getModel()
     glm::mat4 model = glm::mat4( 1.0f );
 
     const Pos& position = getWorldPosition();
-    glm::vec3 m_pos = position.toGlmVec();
-    model = glm::translate( model, m_pos );
+    glm::vec3 posVec = position.toGlmVec();
+    model = glm::translate( model, posVec );
 
     // CUL::MATH::Rotation rotation = getWorldRotation();
     CUL::MATH::Rotation rotation = getWorldRotation();
