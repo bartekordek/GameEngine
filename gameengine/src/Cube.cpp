@@ -2,6 +2,7 @@
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IObjectFactory.hpp"
 #include "gameengine/Primitives/Quad.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
 
 #include "CUL/ThreadUtils.hpp"
 
@@ -52,9 +53,14 @@ void Cube::createPlaceHolders()
 {
     for( size_t i = 0; i < 6; ++i )
     {
-        m_walls[i] = m_engine->createQuad();
-        m_walls[i]->setWorldPosition( m_wallsPositions[i] );
-        m_walls[i]->setWorldRotation( m_rotations[i] );
+        m_walls[i] = m_engine->createQuad(this);
+        addChild( m_walls[i] );
+        TransformComponent* parentTransform = static_cast<TransformComponent*>( m_walls[i]->getComponent( "TransformComponent" ) );
+        if( parentTransform )
+        {
+            parentTransform->setWorldPosition( m_wallsPositions[i] );
+            parentTransform->setWorldRotation( m_rotations[i] );
+        }
     }
 }
 

@@ -120,7 +120,7 @@ public:
 
     //Object Factory
     Sprite* createSprite();
-    Quad* createQuad();
+    Quad* createQuad(IObject* parent);
     VertexArray* createVAO();
     Cube* createCube();
 

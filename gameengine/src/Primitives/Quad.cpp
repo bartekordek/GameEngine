@@ -4,12 +4,16 @@
 #include "gameengine/IUtility.hpp"
 #include "gameengine/IObject.hpp"
 #include "gameengine/VertexArray.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
+
 #include "CUL/ThreadUtils.hpp"
 
 using namespace LOGLW;
 
-Quad::Quad( Camera& camera, IGameEngine& engine ) : m_camera( camera ), m_engine( engine )
+Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent ) : m_camera( camera ), m_engine( engine )
 {
+    setParent( parent );
+
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         init();
@@ -85,33 +89,7 @@ void Quad::setTransformation()
     m_vao->getProgram()->setAttrib( "projection", projectionMatrix );
     m_vao->getProgram()->setAttrib( "view", viewMatrix );
 
-    glm::mat4 model = glm::mat4( 1.0f );
-    const Pos& position = getWorldPosition();
-    glm::vec3 m_pos = position.toGlmVec();
-    model = glm::translate( model, m_pos );
-
-    CUL::MATH::Rotation rotation = getWorldRotation();
-    rotation.yaw.setCurrentType(CUL::MATH::Angle::Type::RADIAN);
-    rotation.pitch.setCurrentType( CUL::MATH::Angle::Type::RADIAN );
-    rotation.roll.setCurrentType( CUL::MATH::Angle::Type::RADIAN );
-
-    // Yaw
-    {
-        glm::vec3 normal( 0.f, 1.f, 0.f );
-        model = glm::rotate( model, -rotation.yaw.getRad(), normal );
-    }
-
-    // Pitch
-    {
-        glm::vec3 normal( 1.f, 0.f, 0.f );
-        model = glm::rotate( model, rotation.pitch.getRad(), normal );
-    }
-
-    // Roll
-    {
-        glm::vec3 normal( 0.f, 0.f, 1.f );
-        model = glm::rotate( model, rotation.roll.getRad(), normal );
-    }
+    glm::mat4 model = getTransform()->getModel();
 
     m_vao->getProgram()->setAttrib( "model", model );
 }

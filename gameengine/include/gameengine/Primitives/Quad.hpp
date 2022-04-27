@@ -11,7 +11,7 @@ class IGameEngine;
 class GAME_ENGINE_API Quad final: public IUtilityUser, public IObject
 {
 public:
-    Quad( Camera& camera, IGameEngine& engine );
+    Quad( Camera& camera, IGameEngine& engine, IObject* parent );
 
     void setSize(float width, float height);
 

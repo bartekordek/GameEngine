@@ -62,9 +62,9 @@ Sprite* IGameEngine::createSprite()
     return sprite;
 }
 
-Quad* IGameEngine::createQuad()
+Quad* IGameEngine::createQuad( IObject* parent )
 {
-    Quad* result = new Quad( *getCamera(), *this );
+    Quad* result = new Quad( *getCamera(), *this, parent );
 
     return result;
 }
