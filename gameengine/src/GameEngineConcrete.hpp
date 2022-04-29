@@ -16,6 +16,7 @@
 #include "CUL/GenericUtils/DumbPtr.hpp"
 #include "CUL/JSON/IJSONFile.hpp"
 #include "CUL/ITimer.hpp"
+#include "CUL/GenericUtils/Version.hpp"
 
 #include "CUL/STL_IMPORTS/STD_set.hpp"
 #include "CUL/STL_IMPORTS/STD_array.hpp"
@@ -245,6 +246,8 @@ private:
     SafeBool m_drawOrigin = false;
 
     std::array<IObject*, 3> m_axis = { nullptr, nullptr, nullptr };
+
+    std::map<String, CUL::GUTILS::Version> m_renderersVersions;
 
 private: // Deleted
     GameEngineConcrete() = delete;

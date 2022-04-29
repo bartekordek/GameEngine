@@ -14,7 +14,16 @@
 #include "gameengine/ProjectionData.hpp"
 #include "CUL/IMPORT_GLM.hpp"
 
+#include "CUL/GenericUtils/Version.hpp"
+
 NAMESPACE_BEGIN( CUL )
+
+class CULInterface;
+
+NAMESPACE_BEGIN( LOG )
+class ILogger;
+NAMESPACE_END( LOG )
+
 NAMESPACE_BEGIN( Graphics )
 enum class PixelFormat : short;
 NAMESPACE_END( Graphics )
@@ -199,7 +208,7 @@ class Viewport;
 class IUtility
 {
 public:
-    GAME_ENGINE_API IUtility();
+    GAME_ENGINE_API IUtility( CUL::CULInterface* culInterface );
 
     virtual bool isLegacy()  = 0;
 
@@ -231,9 +240,7 @@ public:
                                 unsigned shaderId )  = 0;
     virtual void removeShader( unsigned shaderId )  = 0;
 
-    virtual ContextInfo initContextVersion( SDL2W::IWindow* window,
-                                            unsigned major,
-                                            unsigned minor )  = 0;
+    ContextInfo initContextVersion( SDL2W::IWindow* window );
     virtual void destroyContext( ContextInfo& context ) = 0;
 
     virtual void setAttribValue( int attributeLocation, float value )  = 0;
@@ -367,15 +374,26 @@ public:
     virtual void matrixStackPush() = 0;
     virtual void matrixStackPop() = 0;
 
-    virtual CUL::CULInterface* getCUl() = 0;
+    CUL::GUTILS::Version getVersion() const;
+
+    CUL::CULInterface* getCUl() const;
+
+
 
     virtual ~IUtility();
 
 protected:
+    void log( const String& text, const CUL::LOG::Severity severity = CUL::LOG::Severity::INFO ) const;
+    void customAssert( const bool value, const CUL::String& message ) const;
     std::map<BufferTypes, uint8_t> m_currentBufferId;
 
 private:
-    virtual void log( const String& text, const CUL::LOG::Severity severity = CUL::LOG::Severity::INFO ) = 0;
+    CUL::CULInterface* m_culInterface = nullptr;
+    CUL::LOG::ILogger* m_logger = nullptr;
+    CUL::GUTILS::Version m_supportedVersion;
+
+    mutable String m_lastLog;
+    CUL::LOG::Severity m_lastLogSeverity;
 };
 
 NAMESPACE_END( LOGLW )

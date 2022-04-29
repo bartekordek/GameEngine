@@ -1,11 +1,11 @@
 #pragma once
 
-#include "CUL/Log/ILogger.hpp"
 #include "IMPORT_glew.hpp"
 #include "ImportFreeglut.hpp"
 #include "SDL2Wrapper/IMPORT_SDL_opengl.hpp"
 #include "gameengine/IUtility.hpp"
 #include "gameengine/IndexBuffer.hpp"
+
 
 NAMESPACE_BEGIN( LOGLW )
 
@@ -47,8 +47,6 @@ private:
     void dettachShader( unsigned programId, unsigned shaderId )  override;
     void removeShader( unsigned shaderId )  override;
 
-    ContextInfo initContextVersion( SDL2W::IWindow* window, unsigned major,
-                                    unsigned minor )  override;
     void destroyContext( ContextInfo& context ) override;
     void setAttribValue( int attributeLocation, float value )  override;
     void setAttribValue( int attributeLocation, int value )  override;
@@ -158,9 +156,6 @@ private:
     void draw( const Point& position, const ColorS& color ) override;
 
     void assertOnProgramError( unsigned programId, unsigned val ) ;
-    void log( const String& text, const CUL::LOG::Severity severity =
-                                      CUL::LOG::Severity::INFO ) override;
-    void customAssert( const bool value, const CUL::String& message ) ;
     void setDepthTest( const bool enabled )  override;
     void setBackfaceCUll( const bool enabled )  override;
 
@@ -175,16 +170,10 @@ private:
     void matrixStackPush() override;
     void matrixStackPop() override;
 
-    CUL::CULInterface* getCUl() override;
-
     bool m_legacy = false;
 
-    CUL::CULInterface* m_culInterface = nullptr;
-    CUL::LOG::ILogger* m_logger = nullptr;
     unsigned int m_currentMatrix = 0;
     uint8_t m_lastTextureId = 0u;
-    String m_lastLog;
-    CUL::LOG::Severity m_lastLogSeverity;
 
     UtilConcrete( const UtilConcrete& arg ) = delete;
     UtilConcrete( UtilConcrete&& arg ) = delete;

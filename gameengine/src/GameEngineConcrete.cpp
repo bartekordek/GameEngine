@@ -45,6 +45,7 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool legacy 
     loadFromConfig();
     m_imageLoader = m_cul->getImageLoader();
 
+    m_renderersVersions["OpenGL"] = m_oglUtility->getVersion();
 }
 
 void GameEngineConcrete::registerObjectForUtility()
@@ -432,7 +433,7 @@ void GameEngineConcrete::initialize()
 
     m_logger->log( "GameEngineConcrete::initialize()..." );
 
-    m_glContext = m_oglUtility->initContextVersion( m_activeWindow, 4, 3 );
+    m_glContext = m_oglUtility->initContextVersion( m_activeWindow);
     // m_glContext = m_oglUtility->initContextVersion( m_activeWindow, 3, 1 );
     m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
     m_logger->log( m_glContext.glVersion );
