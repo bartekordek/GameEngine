@@ -193,8 +193,8 @@ void renderScene()
     g_redTriangle->setWorldPosition( oldPosRedYellow );
     g_yellowTriangle->setWorldPosition( oldPosRedYellow );
 
-    g_sprite->setWorldPosition( 0.f, 80.f * sin( g_angle.getValueF() ),
-                                40.f * cos( g_angle.getValueF() ) );
+    g_sprite->setWorldPosition( 0.f, 80.f * std::sin( g_angle.getRad() ),
+                                40.f * std::cos( g_angle.getRad() ) );
 
     g_angle += 0.01f;
 
@@ -214,8 +214,8 @@ void renderScene()
     const auto amp = 64.f;
     const auto frac = 0.8f;
 
-    blueTriangleZ = amp + sin( g_angle.getValueF() * frac ) * amp;
-    redTriangleZ = amp + cos( g_angle.getValueF() * frac ) * amp;
+    blueTriangleZ = amp + std::sin( g_angle.getRad() * frac ) * amp;
+    redTriangleZ = amp + std::cos( g_angle.getRad() * frac ) * amp;
 }
 
 void reloadConfig()
