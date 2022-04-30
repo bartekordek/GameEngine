@@ -67,7 +67,7 @@ UtilConcrete::UtilConcrete( CUL::CULInterface* culInterface, bool legacy ) : IUt
 
 bool UtilConcrete::isLegacy()
 {
-    return m_legacy;
+    return getVersion().major < 2;
 }
 
 // TODO: Remove:

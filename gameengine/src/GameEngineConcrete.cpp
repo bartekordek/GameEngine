@@ -257,16 +257,18 @@ ITriangle* GameEngineConcrete::createTriangle( const TriangleData& data,
     return triangle;
 }
 
-IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool legacy,
+IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool,
                                           const ColorS& color )
 {
     IQuad* quad = nullptr;
-    if ( legacy )
+    if ( m_oglUtility->isLegacy() )
     {
+        m_logger->log( "GameEngineConcrete::createQuad - legacy." );
         quad = new QuadImplLegacy();
     }
     else
     {
+        m_logger->log( "GameEngineConcrete::createQuad - modern." );
         quad = new QuadImpl();
     }
     quad->setValues( data );

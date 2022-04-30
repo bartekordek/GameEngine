@@ -77,7 +77,7 @@ void VertexArray::addVertexBuffer( VertexBufferData& data )
 }
 
 void VertexArray::render()
-{
+{ 
     runTasks();
 
     bind();
