@@ -564,8 +564,11 @@ void GameEngineConcrete::renderFrame()
     executeTasks();
     renderObjects();
 
-    m_oglUtility->bindBuffer( BufferTypes::ARRAY_BUFFER, 0u );
-    m_oglUtility->bindBuffer( BufferTypes::VERTEX_ARRAY, 0u );
+    if ( !m_oglUtility->isLegacy() )
+    {
+        m_oglUtility->bindBuffer( BufferTypes::ARRAY_BUFFER, 0u );
+        m_oglUtility->bindBuffer( BufferTypes::VERTEX_ARRAY, 0u );
+    }
 
     if( m_debugDrawInitialized && m_enableDebugDraw )
     {
