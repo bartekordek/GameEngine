@@ -51,92 +51,6 @@ CUL::Graphics::DataType* Sprite::getData() const
     return m_image->getData();
 }
 
-void Sprite::init()
-{
-    m_shaderProgram = std::make_unique<Program>();
-    m_shaderProgram->initialize();
-    m_shaderProgram->enable();
-
-    const std::string vertexShaderSource =
-#include "embedded_shaders/camera.vert"
-        ;
-
-    const std::string fragmentShaderSource =
-#include "embedded_shaders/camera.frag"
-        ;
-
-    auto fragmentShaderFile = m_cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.frag" );
-    fragmentShaderFile->loadFromString( fragmentShaderSource );
-    auto fragmentShader = new Shader( fragmentShaderFile );
-
-    auto vertexShaderCode = m_cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.vert" );
-    vertexShaderCode->loadFromString( vertexShaderSource );
-    auto vertexShader = new Shader( vertexShaderCode );
-
-    m_shaderProgram->attachShader( vertexShader );
-    m_shaderProgram->attachShader( fragmentShader );
-    m_shaderProgram->link();
-    m_shaderProgram->validate();
-
-    m_textureId = getUtility()->generateTexture();
-
-    const auto& ii = getImageInfo();
-    TextureInfo td;
-    td.pixelFormat = CUL::Graphics::PixelFormat::RGBA;
-    td.size = ii.canvasSize;
-    td.data = getData();
-    td.textureId = m_textureId;
-
-    getUtility()->setTextureData( m_textureId, td );
-
-    getUtility()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
-    getUtility()->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
-
-    m_vao = getUtility()->generateBuffer( LOGLW::BufferTypes::VERTEX_ARRAY );
-    getUtility()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao );
-    getUtility()->enableVertexAttribArray( 0 );
-    getUtility()->enableVertexAttribArray( 1 );
-
-    m_vbo = getUtility()->generateBuffer( BufferTypes::ARRAY_BUFFER );
-
-    std::vector<float> data = {
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f };
-
-    getUtility()->bufferData( m_vbo, data, BufferTypes::ARRAY_BUFFER );
-
-    VertexAttributePtrMeta meta;
-    meta.vertexAttributeId = 0;
-    meta.componentsPerVertexAttribute = 3;
-    meta.vao = m_vao;
-    meta.vbo = m_vbo;
-    meta.dataType = DataType::FLOAT;
-    meta.normalized = false;
-    meta.stride = 5 * sizeof( float );
-
-    getUtility()->vertexAttribPointer( meta );
-
-    meta.vertexAttributeId = 1;
-    meta.componentsPerVertexAttribute = 2;
-    meta.offset = (void*)( 3 * sizeof( float ) );
-    getUtility()->vertexAttribPointer( meta );
-
-
-    getUtility()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
-    getUtility()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
-
-
-    m_shaderProgram->enable();
-    m_shaderProgram->setAttrib( "texture1", 0 );
-    m_shaderProgram->disable();
-
-    m_initialized = true;
-}
-
 void Sprite::renderModern()
 {
     if( !m_initialized )
@@ -144,7 +58,7 @@ void Sprite::renderModern()
         init();
     }
 
-    getUtility()->setActiveTexture(0);
+    getUtility()->setActiveTexture( m_textureId );
     getUtility()->bindTexture( m_textureId );
 
     m_shaderProgram->enable();
@@ -174,7 +88,17 @@ void Sprite::renderModern()
 
 void Sprite::renderLegacy()
 {
+    if( !m_initialized )
+    {
+        init();
+    }
+
     QuadCUL quad1;
+
+    /*
+    00   10
+    10   11
+    */
 
     std::array<std::array<float, 3>, 4> values;
     values[3] = { 0.f, 0.f, 0.f };
@@ -185,22 +109,30 @@ void Sprite::renderLegacy()
 
     QuadCUL quad2;
     const auto& size = m_image->getImageInfo().size;
-    values[0] = {
-        0.f,
-        0.f,
-        0.f,
-    };
+
+    float x0 = -(float)size.width / 2.f;
+    float x1 = (float)size.width / 2.f;
+
+    float y0 = -(float)size.height / 2.f;
+    float y1 = (float)size.height / 2.f;
+
+    /*
+    00 10
+    01 11
+    */
+
+    values[0] = { x0, y0, 0.f };
     values[1] = {
-        (float)size.width,
-        0.f,
+        x1,
+        y0,
         0.f,
     };
     values[2] = {
-        (float)size.width,
-        (float)size.height,
+        x1,
+        y1,
         0.f,
     };
-    values[3] = { 0.f, (float)size.height, 0.f };
+    values[3] = { x0, y1, 0.f };
 
     quad2.setData( values );
 
@@ -216,6 +148,90 @@ void Sprite::renderLegacy()
     getUtility()->matrixStackPop();
 
     getUtility()->bindTexture( 0 );
+}
+
+void Sprite::init()
+{
+    if( !getUtility()->isLegacy() )
+    {
+        m_shaderProgram = std::make_unique<Program>();
+        m_shaderProgram->initialize();
+        m_shaderProgram->enable();
+
+        const std::string vertexShaderSource =
+#include "embedded_shaders/camera.vert"
+            ;
+
+        const std::string fragmentShaderSource =
+#include "embedded_shaders/camera.frag"
+            ;
+
+        auto fragmentShaderFile = m_cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.frag" );
+        fragmentShaderFile->loadFromString( fragmentShaderSource );
+        auto fragmentShader = new Shader( fragmentShaderFile );
+
+        auto vertexShaderCode = m_cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.vert" );
+        vertexShaderCode->loadFromString( vertexShaderSource );
+        auto vertexShader = new Shader( vertexShaderCode );
+
+        m_shaderProgram->attachShader( vertexShader );
+        m_shaderProgram->attachShader( fragmentShader );
+        m_shaderProgram->link();
+        m_shaderProgram->validate();
+    }
+
+    m_textureId = getUtility()->generateTexture();
+
+    const auto& ii = getImageInfo();
+    TextureInfo td;
+    td.pixelFormat = CUL::Graphics::PixelFormat::RGBA;
+    td.size = ii.canvasSize;
+    td.data = getData();
+    td.textureId = m_textureId;
+
+    getUtility()->setTextureData( m_textureId, td );
+
+    getUtility()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
+    getUtility()->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
+
+    if( !getUtility()->isLegacy() )
+    {
+        m_vao = getUtility()->generateBuffer( LOGLW::BufferTypes::VERTEX_ARRAY );
+        getUtility()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao );
+        getUtility()->enableVertexAttribArray( 0 );
+        getUtility()->enableVertexAttribArray( 1 );
+
+        m_vbo = getUtility()->generateBuffer( BufferTypes::ARRAY_BUFFER );
+
+        std::vector<float> data = { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+                                    0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f };
+
+        getUtility()->bufferData( m_vbo, data, BufferTypes::ARRAY_BUFFER );
+
+        VertexAttributePtrMeta meta;
+        meta.vertexAttributeId = 0;
+        meta.componentsPerVertexAttribute = 3;
+        meta.vao = m_vao;
+        meta.vbo = m_vbo;
+        meta.dataType = DataType::FLOAT;
+        meta.normalized = false;
+        meta.stride = 5 * sizeof( float );
+
+        getUtility()->vertexAttribPointer( meta );
+
+        meta.vertexAttributeId = 1;
+        meta.componentsPerVertexAttribute = 2;
+        meta.offset = (void*)( 3 * sizeof( float ) );
+        getUtility()->vertexAttribPointer( meta );
+
+        getUtility()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
+        getUtility()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
+
+        m_shaderProgram->enable();
+        m_shaderProgram->setAttrib( "texture1", 0 );
+        m_shaderProgram->disable();
+    }
+    m_initialized = true;
 }
 
 Sprite::~Sprite()

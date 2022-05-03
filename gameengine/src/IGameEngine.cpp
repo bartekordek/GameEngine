@@ -38,7 +38,7 @@ IGameEngine* IGameEngine::createGameEngine( bool legacy, const CUL::Graphics::Po
 
 void IGameEngine::initialize()
 {
-    m_camera = std::make_unique<Camera>( &getProjectionData() );
+    m_camera = std::make_unique<Camera>();
 }
 
 Camera* IGameEngine::getCamera()

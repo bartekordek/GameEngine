@@ -1,4 +1,5 @@
 #include "UtilConcrete.hpp"
+#include "gameengine/Camera.hpp"
 
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 #include "CUL/STL_IMPORTS/STD_iostream.hpp"
@@ -43,8 +44,7 @@ GLenum glCheckError_( const char* file, int line )
                 break;
         }
 
-        g_interface->getLogger()->log( CUL::String( file ) + ":" +
-                                       CUL::String( line ) + " " + error );
+        g_interface->getLogger()->log( CUL::String( file ) + ":" + CUL::String( line ) + " " + error );
         error = true;
     }
 
@@ -54,19 +54,23 @@ GLenum glCheckError_( const char* file, int line )
 }
 #define glCheckError() glCheckError_( __FILE__, __LINE__ )
 
-void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id,
-                             GLenum severity, GLsizei length,
-                             const char* message, const void* userParam );
+void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message,
+                             const void* userParam );
 
 CUL::String enumToString( const GLenum val );
 GLuint toGluint( unsigned value );
 
-UtilConcrete::UtilConcrete( CUL::CULInterface* culInterface, bool legacy ) : IUtility( culInterface ), m_legacy( legacy )
+UtilConcrete::UtilConcrete( CUL::CULInterface* culInterface, bool forceLegacy ) : IUtility( culInterface, forceLegacy )
 {
 }
 
 bool UtilConcrete::isLegacy()
 {
+    if( m_forceLegacy )
+    {
+        return true;
+    }
+
     return getVersion().major < 2;
 }
 
@@ -75,88 +79,26 @@ bool UtilConcrete::isLegacy()
 #pragma warning( push )
 #pragma warning( disable : 4100 )
 #endif
-void UtilConcrete::setProjection( const ProjectionData& )
+void UtilConcrete::setProjection( const Camera& )
 {
 }
 void UtilConcrete::setViewport( const Viewport& viewport )
 {
-    glViewport( viewport.pos.getX(), viewport.pos.getY(),
-                viewport.size.getWidth(), viewport.size.getHeight() );
+    glViewport( viewport.pos.getX(), viewport.pos.getY(), viewport.size.getWidth(), viewport.size.getHeight() );
 }
 #if _MSC_VER
 #pragma warning( pop )
 #endif
 
-void UtilConcrete::setPerspective( const Angle& angle,
-                                   double widthToHeightRatio, double m_zNear,
-                                   double m_zFar )
+void UtilConcrete::setPerspective( const Angle& angle, double widthToHeightRatio, double m_zNear, double m_zFar )
 {
-    gluPerspective( angle.getValueD( CUL::MATH::Angle::Type::DEGREE ),
-                    widthToHeightRatio, m_zNear, m_zFar );
+    gluPerspective( angle.getValueD( CUL::MATH::Angle::Type::DEGREE ), widthToHeightRatio, m_zNear, m_zFar );
 }
-
-void UtilConcrete::setOrthogonalPerspective( const ProjectionData& vp )
-{
-    const auto left = vp.getLeft();
-    const auto right = vp.getRight();
-
-    const auto bottom = vp.getBottom();
-    const auto top = vp.getTop();
-
-    const auto zNear = vp.getZnear();
-    const auto zFar = vp.getZfar();
-
-    // glOrtho - multiply the current matrix with an orthographic matrix
-    // left, right
-    //    Specify the coordinates for the leftand right vertical clipping
-    //    planes.
-
-    // bottom, top
-    //    Specify the coordinates for the bottomand top horizontal clipping
-    //    planes.
-
-    // nearVal, farVal
-    //    Specify the distances to the nearerand farther depth clipping
-    //    planes.These values are negative if the plane is to be behind the
-    //    viewer.
-
-    // glOrtho describes a transformation that produces a parallel
-    // projection.The current matrix( see glMatrixMode ) is multiplied by this
-    // matrixand the result replaces the current matrix, as if glMultMatrix were
-    // called with the following matrix as its argument :
-
-    // 2 right - left 0 0 t x 0 2 top - bottom 0 t y 0 0 - 2 farVal - nearVal t
-    // z 0 0 0 1
-    //    where
-
-    //    t x = -right + left right - left
-    //    t y = -top + bottom top - bottom
-    //    t z = -farVal + nearVal farVal - nearVal
-    //    Typically, the matrix mode is GL_PROJECTION, and left bottom - nearVal
-    //    and right top - nearVal specify the points on the near clipping plane
-    //    that are mapped to the lower left and upper right corners of the
-    //    window, respectively, assuming that the eye is located at( 0, 0, 0 ).
-    //    - farVal specifies the location of the far clipping plane.Both nearVal
-    //    and farVal can be either positive or negative.
-
-    //    Use glPushMatrix and glPopMatrix to save and restore the current
-    //    matrix stack.
-    // https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glOrtho.xml
-    glOrtho( left,    // left
-             right,   // right
-             bottom,  // bottom
-             top,     // top
-             zNear,   // near
-             zFar     // far
-    );
-}
-
 #if _MSC_VER
 #pragma warning( push )
 #pragma warning( disable : 4189 )
 #endif
-void UtilConcrete::setPerspectiveProjection(
-    const ProjectionData& projectionData )
+void UtilConcrete::setPerspectiveProjection( const Camera& projectionData )
 {
     auto fov = projectionData.getFov();
     auto ar = projectionData.getAspectRatio();
@@ -167,13 +109,12 @@ void UtilConcrete::setPerspectiveProjection(
 #ifdef _MSC_VER
 #pragma warning( pop )
 #endif
-void UtilConcrete::lookAt( const ProjectionData& vp )
+void UtilConcrete::lookAt( const Camera& vp )
 {
     const auto& eye = vp.getEye();
     const auto& center = vp.getCenter();
     const auto& up = vp.getUp();
-    gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y,
-               up.z );
+    gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z );
 }
 
 void UtilConcrete::lookAt( const std::array<Pos3Dd, 3>& vec )
@@ -181,11 +122,9 @@ void UtilConcrete::lookAt( const std::array<Pos3Dd, 3>& vec )
     lookAt( vec[0], vec[1], vec[2] );
 }
 
-void UtilConcrete::lookAt( const Pos3Dd& eye, const Pos3Dd& center,
-                           const Pos3Dd& up )
+void UtilConcrete::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up )
 {
-    gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y,
-               up.z );
+    gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z );
 }
 
 unsigned int UtilConcrete::createProgram()
@@ -196,9 +135,7 @@ unsigned int UtilConcrete::createProgram()
     if( 0 == programId )
     {
         const GLenum err = glGetError();
-        customAssert(
-            GL_NO_ERROR == programId,
-            "Error creating program, error numer: " + CUL::String( err ) );
+        customAssert( GL_NO_ERROR == programId, "Error creating program, error numer: " + CUL::String( err ) );
         return 0;
     }
 
@@ -215,7 +152,7 @@ void UtilConcrete::removeProgram( unsigned programId )
 
 void UtilConcrete::useProgram( unsigned programId )
 {
-    //log( "glUseProgram( " + String( programId ) + " )" );
+    // log( "glUseProgram( " + String( programId ) + " )" );
     glUseProgram( static_cast<GLuint>( programId ) );
 }
 
@@ -234,11 +171,9 @@ void UtilConcrete::validateProgram( unsigned programId )
 
 unsigned int UtilConcrete::createShader( const IFile& shaderCode )
 {
-    const auto shaderType =
-        UtilConcrete::getShaderType( shaderCode.getPath().getExtension() );
+    const auto shaderType = UtilConcrete::getShaderType( shaderCode.getPath().getExtension() );
     log( "[UtilConcrete] glCreateShader( " + String( static_cast<GLenum>( shaderType ) ) + ");" );
-    const auto id = static_cast<unsigned int>(
-        glCreateShader( static_cast<GLenum>( shaderType ) ) );
+    const auto id = static_cast<unsigned int>( glCreateShader( static_cast<GLenum>( shaderType ) ) );
 
     auto codeLength = static_cast<GLint>( shaderCode.getLinesCount() );
     log( "[UtilConcrete] glCreateShader( " + String( static_cast<GLenum>( shaderType ) ) + ");" );
@@ -252,18 +187,15 @@ unsigned int UtilConcrete::createShader( const IFile& shaderCode )
         GLchar eLog[1024] = { 0 };
         glGetShaderInfoLog( id, sizeof( eLog ), nullptr, eLog );
         auto errorAsString = std::string( eLog );
-        CUL::String shaderCompilationErrorMessage =
-            "Error compiling shader: " + errorAsString + "\n";
-        shaderCompilationErrorMessage +=
-            "Shader Path: " + shaderCode.getPath().getPath() + "\n";
+        CUL::String shaderCompilationErrorMessage = "Error compiling shader: " + errorAsString + "\n";
+        shaderCompilationErrorMessage += "Shader Path: " + shaderCode.getPath().getPath() + "\n";
         customAssert( false, shaderCompilationErrorMessage );
     }
 
     return id;
 }
 
-void UtilConcrete::assertOnProgramError( unsigned programId,
-                                         unsigned val )
+void UtilConcrete::assertOnProgramError( unsigned programId, unsigned val )
 {
     GLint result = 0;
     glGetProgramiv( programId, val, &result );
@@ -271,8 +203,7 @@ void UtilConcrete::assertOnProgramError( unsigned programId,
     {
         GLchar eLog[1024] = { 0 };
         glGetProgramInfoLog( programId, sizeof( eLog ), nullptr, eLog );
-        CUL::String message =
-            "Error on " + enumToString( val ) + std::string( eLog );
+        CUL::String message = "Error on " + enumToString( val ) + std::string( eLog );
         customAssert( false, message );
     }
 }
@@ -294,8 +225,7 @@ CUL::String enumToString( const GLenum val )
     }
 }
 
-ShaderTypes UtilConcrete::getShaderType(
-    const CUL::String& fileExtension )
+ShaderTypes UtilConcrete::getShaderType( const CUL::String& fileExtension )
 {
     /*
     .vert - a vertex shader
@@ -370,14 +300,12 @@ void UtilConcrete::setAttribValue( int attributeLocation, int value )
 
 void UtilConcrete::setAttribValue( int attributeLocation, unsigned value )
 {
-    glUniform1i( static_cast<GLint>( attributeLocation ),
-                 static_cast<int>( value ) );
+    glUniform1i( static_cast<GLint>( attributeLocation ), static_cast<int>( value ) );
 }
 
 void UtilConcrete::setAttribValue( int attributeLocation, bool value )
 {
-    glUniform1i( static_cast<GLint>( attributeLocation ),
-                 static_cast<int>( value ) );
+    glUniform1i( static_cast<GLint>( attributeLocation ), static_cast<int>( value ) );
 }
 
 void UtilConcrete::setAttribValue( int, const CUL::String& )
@@ -424,8 +352,7 @@ void UtilConcrete::translate( const float x, const float y, const float z )
     // glLoadMatrixf( mat );
 }
 
-void UtilConcrete::rotate( const float angle, const float x, const float y,
-                           const float z )
+void UtilConcrete::rotate( const float angle, const float x, const float y, const float z )
 {
     glRotatef( angle, x, y, z );
 }
@@ -488,17 +415,13 @@ void UtilConcrete::draw( const QuadData& quad, const ColorS& color )
 void UtilConcrete::draw( const QuadData& quad, const QuadColors& color )
 {
     glBegin( GL_QUADS );
-    glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(),
-               color[0].getAF() );
+    glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
     glVertex3f( quad[0][0], quad[0][1], quad[0][2] );
-    glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(),
-               color[1].getAF() );
+    glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(), color[1].getAF() );
     glVertex3f( quad[1][0], quad[1][1], quad[1][2] );
-    glColor4f( color[2].getRF(), color[2].getGF(), color[2].getBF(),
-               color[2].getAF() );
+    glColor4f( color[2].getRF(), color[2].getGF(), color[2].getBF(), color[2].getAF() );
     glVertex3f( quad[2][0], quad[2][1], quad[2][2] );
-    glColor4f( color[3].getRF(), color[3].getGF(), color[3].getBF(),
-               color[3].getAF() );
+    glColor4f( color[3].getRF(), color[3].getGF(), color[3].getBF(), color[3].getAF() );
     glVertex3f( quad[3][0], quad[3][1], quad[3][2] );
     glEnd();
 }
@@ -506,17 +429,13 @@ void UtilConcrete::draw( const QuadData& quad, const QuadColors& color )
 void UtilConcrete::draw( const QuadCUL& quad, const std::array<ColorS, 4>& color )
 {
     glBegin( GL_QUADS );
-    glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(),
-               color[0].getAF() );
+    glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
     glVertex3f( quad[0][0], quad[0][1], quad[0][2] );
-    glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(),
-               color[1].getAF() );
+    glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(), color[1].getAF() );
     glVertex3f( quad[1][0], quad[1][1], quad[1][2] );
-    glColor4f( color[2].getRF(), color[2].getGF(), color[2].getBF(),
-               color[2].getAF() );
+    glColor4f( color[2].getRF(), color[2].getGF(), color[2].getBF(), color[2].getAF() );
     glVertex3f( quad[2][0], quad[2][1], quad[2][2] );
-    glColor4f( color[3].getRF(), color[3].getGF(), color[3].getBF(),
-               color[3].getAF() );
+    glColor4f( color[3].getRF(), color[3].getGF(), color[3].getBF(), color[3].getAF() );
     glVertex3f( quad[3][0], quad[3][1], quad[3][2] );
     glEnd();
 }
@@ -531,34 +450,26 @@ void UtilConcrete::draw( const Triangle& triangle, const ColorS& color )
     glEnd();
 }
 
-void UtilConcrete::draw( const Triangle& quad,
-                         const std::array<ColorS, 4>& color )
+void UtilConcrete::draw( const Triangle& quad, const std::array<ColorS, 4>& color )
 {
     glBegin( GL_TRIANGLES );
-    glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(),
-               color[0].getAF() );
+    glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
     glVertex3f( quad[0][0], quad[0][1], quad[0][2] );
-    glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(),
-               color[1].getAF() );
+    glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(), color[1].getAF() );
     glVertex3f( quad[1][0], quad[1][1], quad[1][2] );
-    glColor4f( color[2].getRF(), color[2].getGF(), color[2].getBF(),
-               color[2].getAF() );
+    glColor4f( color[2].getRF(), color[2].getGF(), color[2].getBF(), color[2].getAF() );
     glVertex3f( quad[2][0], quad[2][1], quad[2][2] );
     glEnd();
 }
 
-void UtilConcrete::draw( const TriangleData& values,
-                         const std::array<ColorS, 3>& color )
+void UtilConcrete::draw( const TriangleData& values, const std::array<ColorS, 3>& color )
 {
     glBegin( GL_TRIANGLES );
-    glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(),
-               color[0].getAF() );
+    glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
     glVertex3f( values[0][0], values[0][1], values[0][2] );
-    glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(),
-               color[1].getAF() );
+    glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(), color[1].getAF() );
     glVertex3f( values[1][0], values[1][1], values[1][2] );
-    glColor4f( color[2].getRF(), color[2].getGF(), color[2].getBF(),
-               color[2].getAF() );
+    glColor4f( color[2].getRF(), color[2].getGF(), color[2].getBF(), color[2].getAF() );
     glVertex3f( values[2][0], values[2][1], values[2][2] );
     glEnd();
 }
@@ -566,11 +477,9 @@ void UtilConcrete::draw( const TriangleData& values,
 void UtilConcrete::draw( const LineData& values, const LineColors& color )
 {
     glBegin( GL_LINES );
-    glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(),
-               color[0].getAF() );
+    glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
     glVertex3f( values[0][0], values[0][1], values[0][2] );
-    glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(),
-               color[1].getAF() );
+    glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(), color[1].getAF() );
     glVertex3f( values[1][0], values[1][1], values[1][2] );
     glEnd();
 }
@@ -611,9 +520,7 @@ void UtilConcrete::createQuad( float scale )
 
 void UtilConcrete::clearColorTo( const ColorS color )
 {
-    glClearColor( static_cast<GLclampf>( color.getRF() ),
-                  static_cast<GLclampf>( color.getGF() ),
-                  static_cast<GLclampf>( color.getBF() ),
+    glClearColor( static_cast<GLclampf>( color.getRF() ), static_cast<GLclampf>( color.getGF() ), static_cast<GLclampf>( color.getBF() ),
                   static_cast<GLclampf>( color.getAF() ) );
 }
 
@@ -634,7 +541,7 @@ void UtilConcrete::setClientState( ClientStateTypes cs, bool enabled )
     }
 }
 
-void UtilConcrete::texCoordPointer(int coordinatesPerElement, DataType dataType, int stride, void* pointer)
+void UtilConcrete::texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
 {
     glTexCoordPointer( coordinatesPerElement, (GLenum)dataType, stride, pointer );
 
@@ -716,30 +623,23 @@ unsigned int UtilConcrete::generateVertexArray( const int size )
     return vao;
 }
 
-void UtilConcrete::bufferData( uint8_t bufferId, const CUL::MATH::Primitives::Quad& data,
-                               const BufferTypes type )
+void UtilConcrete::bufferData( uint8_t bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type )
 {
     bindBuffer( type, bufferId );
     auto dataVal = (void*)( &data.data );
-    bufferDataImpl( dataVal, static_cast<GLenum>( type ),
-                    static_cast<GLsizeiptr>( 4 * sizeof( QuadCUL::PointType ) ) );
+    bufferDataImpl( dataVal, static_cast<GLenum>( type ), static_cast<GLsizeiptr>( 4 * sizeof( QuadCUL::PointType ) ) );
 }
 
-void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<unsigned int>& data,
-                               const BufferTypes type )
+void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<unsigned int>& data, const BufferTypes type )
 {
     bindBuffer( type, bufferId );
-    bufferDataImpl(
-        data.data(), static_cast<GLenum>( type ),
-        static_cast<GLsizeiptr>( data.size() * sizeof( unsigned int ) ) );
+    bufferDataImpl( data.data(), static_cast<GLenum>( type ), static_cast<GLsizeiptr>( data.size() * sizeof( unsigned int ) ) );
 }
 
-void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<float>& data,
-                               const BufferTypes type )
+void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<float>& data, const BufferTypes type )
 {
     bindBuffer( type, bufferId );
-    bufferDataImpl( data.data(), static_cast<GLenum>( type ),
-                    static_cast<GLsizeiptr>( data.size() * sizeof( float ) ) );
+    bufferDataImpl( data.data(), static_cast<GLenum>( type ), static_cast<GLsizeiptr>( data.size() * sizeof( float ) ) );
 }
 
 void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<TextureData2D>& data, const BufferTypes type )
@@ -748,22 +648,20 @@ void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<TextureData2D
     glBufferData( static_cast<GLenum>( type ), data.size() * sizeof( TextureData2D ), data.data(), GL_DYNAMIC_DRAW );
 }
 
-void UtilConcrete::bufferDataImpl( const void* data, const GLenum target,
-                                   const GLsizeiptr dataSize )
+void UtilConcrete::bufferDataImpl( const void* data, const GLenum target, const GLsizeiptr dataSize )
 {
     /*
     Creates and initializes a buffer object's data store
     */
     log( "glBufferData" );
-    glBufferData(
-        target,  // Specifies the target to which the buffer object is bound for
-                 // glBufferData.
-        dataSize,  // Specifies the size in bytes of the buffer object's new
-                   // data store.
-        data,  // Specifies a pointer to data that will be copied into the data
-               // store for initialization, or NULL if no data is to be copied.
-        GL_STATIC_DRAW  // usage - Specifies the expected usage pattern of the
-                        // data store.
+    glBufferData( target,         // Specifies the target to which the buffer object is bound for
+                                  // glBufferData.
+                  dataSize,       // Specifies the size in bytes of the buffer object's new
+                                  // data store.
+                  data,           // Specifies a pointer to data that will be copied into the data
+                                  // store for initialization, or NULL if no data is to be copied.
+                  GL_STATIC_DRAW  // usage - Specifies the expected usage pattern of the
+                                  // data store.
     );
     /*
     target:
@@ -873,28 +771,23 @@ void UtilConcrete::bufferSubdata( uint8_t bufferId, const BufferTypes type, std:
 {
     log( "bufferSubdata" );
     bindBuffer( type, bufferId );
-    size_t dataSize = data.size() * sizeof(data.front());
+    size_t dataSize = data.size() * sizeof( data.front() );
     glBufferSubData( GL_ARRAY_BUFFER, 0, dataSize, data.data() );
 }
 
-unsigned int UtilConcrete::generateAndBindBuffer( const BufferTypes bufferType,
-                                                  const int size )
+unsigned int UtilConcrete::generateAndBindBuffer( const BufferTypes bufferType, const int size )
 {
     const auto bufferId = generateBuffer( bufferType, size );
     bindBuffer( bufferType, bufferId );
     return bufferId;
 }
 
-unsigned int UtilConcrete::generateElementArrayBuffer(
-    const std::vector<unsigned int>& data, const int size )
+unsigned int UtilConcrete::generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size )
 {
     const auto ebo = generateBuffer( BufferTypes::ELEMENT_ARRAY_BUFFER, size );
     bindBuffer( BufferTypes::ELEMENT_ARRAY_BUFFER, ebo );
     log( "glBufferData" );
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        static_cast<GLsizeiptr>( data.size() * sizeof( unsigned int ) ),
-        data.data(), GL_STATIC_DRAW );
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>( data.size() * sizeof( unsigned int ) ), data.data(), GL_STATIC_DRAW );
 
     /*
 glVertexAttribPointer - define an array of generic vertex attribute data
@@ -920,8 +813,7 @@ pointer - Specifies a offset of the first component of the first generic vertex
 attribute in the array in the data store of the buffer currently bound to the
 GL_ARRAY_BUFFER target. The initial value is 0.
 */
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof( float ),
-                           (void*)0 );
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof( float ), (void*)0 );
     return ebo;
 }
 
@@ -929,21 +821,16 @@ void UtilConcrete::bufferData( uint8_t bufferId, const float vertices[], BufferT
 {
     log( "glBufferData" );
     bindBuffer( bufferType, bufferId );
-    glBufferData( GL_ARRAY_BUFFER, sizeof( *vertices ), vertices,
-                  GL_STATIC_DRAW );
+    glBufferData( GL_ARRAY_BUFFER, sizeof( *vertices ), vertices, GL_STATIC_DRAW );
 }
 
-void UtilConcrete::enableVertexAttribiute( unsigned programId,
-                                           const String& attribName )
+void UtilConcrete::enableVertexAttribiute( unsigned programId, const String& attribName )
 {
-    const auto attributeLocation =
-        UtilConcrete::getAttribLocation( programId, attribName );
+    const auto attributeLocation = UtilConcrete::getAttribLocation( programId, attribName );
     glEnableVertexAttribArray( attributeLocation );
 }
 
-void UtilConcrete::setVertexPointer( int coordinatesPerVertex,
-                                     DataType dataType, int stride,
-                                     const void* data )
+void UtilConcrete::setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data )
 {
     // glVertexPointer — define an array of vertex data
     // glVertexPointer specifies the location and data format of an array of
@@ -974,11 +861,9 @@ void UtilConcrete::setVertexPointer( int coordinatesPerVertex,
     glVertexPointer( coordinatesPerVertex, (GLenum)dataType, stride, data );
 }
 
-void UtilConcrete::disableVertexAttribiute( unsigned programId,
-                                            const String& attribName )
+void UtilConcrete::disableVertexAttribiute( unsigned programId, const String& attribName )
 {
-    const auto attributeLocation =
-        UtilConcrete::getAttribLocation( programId, attribName );
+    const auto attributeLocation = UtilConcrete::getAttribLocation( programId, attribName );
     glDisableVertexAttribArray( attributeLocation );
 }
 
@@ -998,22 +883,18 @@ void UtilConcrete::deleteBuffer( BufferTypes bufferType, unsigned& id )
         }
         else
         {
-            CUL::Assert::simple( false,
-                                 "Type " + CUL::String( (unsigned)bufferType ) +
-                                     " is not implemented." );
+            CUL::Assert::simple( false, "Type " + CUL::String( (unsigned)bufferType ) + " is not implemented." );
         }
     }
 }
 
-unsigned int UtilConcrete::getAttribLocation( unsigned programId,
-                                              const String& attribName )
+unsigned int UtilConcrete::getAttribLocation( unsigned programId, const String& attribName )
 {
     auto attribLocation = glGetAttribLocation( programId, attribName.cStr() );
     return static_cast<unsigned int>( attribLocation );
 }
 
-unsigned int UtilConcrete::getUniformLocation( unsigned programId,
-                                               const String& attribName )
+unsigned int UtilConcrete::getUniformLocation( unsigned programId, const String& attribName )
 {
     auto attribLocation = glGetUniformLocation( programId, attribName.cStr() );
     return static_cast<unsigned int>( attribLocation );
@@ -1029,8 +910,7 @@ void UtilConcrete::unbindBuffer( const BufferTypes bufferType )
 //    bindBuffer( BufferTypes::VERTEX_ARRAY, vao->getId() );
 //}
 
-void UtilConcrete::bindBuffer( const BufferTypes bufferType,
-                               unsigned bufferId )
+void UtilConcrete::bindBuffer( const BufferTypes bufferType, unsigned bufferId )
 {
     auto it = m_currentBufferId.find( bufferType );
     if( it == m_currentBufferId.end() || it->second != bufferId )
@@ -1039,7 +919,7 @@ void UtilConcrete::bindBuffer( const BufferTypes bufferType,
     }
     else
     {
-        //log( "bindBuffer already set." );
+        // log( "bindBuffer already set." );
         return;
     }
 
@@ -1056,7 +936,7 @@ void UtilConcrete::bindBuffer( const BufferTypes bufferType,
         state of the vertex array object, and any previous vertex array object
         binding is broken.
         */
-        //log( "glBindVertexArray( " + String( bufferId ) + String( " )" ) );
+        // log( "glBindVertexArray( " + String( bufferId ) + String( " )" ) );
         glBindVertexArray( static_cast<GLuint>( bufferId ) );
     }
     else
@@ -1080,14 +960,13 @@ void UtilConcrete::bindBuffer( const BufferTypes bufferType,
         buffer object names only if they explicitly enable sharing between
         contexts through the appropriate GL windows interfaces functions.
         */
-        //log( "glBindBuffer" );
+        // log( "glBindBuffer" );
         glBindBuffer( static_cast<GLenum>( bufferType ), bufferId );
     }
 }
 
 // TODO: Remove type?
-unsigned int UtilConcrete::generateBuffer( const BufferTypes bufferType,
-                                           const int size )
+unsigned int UtilConcrete::generateBuffer( const BufferTypes bufferType, const int size )
 {
     GLuint bufferId = 0;
     if( BufferTypes::VERTEX_ARRAY == bufferType )
@@ -1104,8 +983,7 @@ unsigned int UtilConcrete::generateBuffer( const BufferTypes bufferType,
     return bufferId;
 }
 
-void UtilConcrete::drawElements( const PrimitiveType type,
-                                 const std::vector<unsigned int>& data )
+void UtilConcrete::drawElements( const PrimitiveType type, const std::vector<unsigned int>& data )
 {
     // glDrawElements — render primitives from array data
     // mode
@@ -1139,25 +1017,17 @@ void UtilConcrete::drawElements( const PrimitiveType type,
     // value after glDrawElements returns.Attributes that aren't modified
     // maintain their previous values.
 
-    glDrawElements( static_cast<GLenum>( type ),
-                    static_cast<GLsizei>( data.size() ), GL_UNSIGNED_INT, 0 );
+    glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( data.size() ), GL_UNSIGNED_INT, 0 );
 }
 
-void UtilConcrete::drawElements( const PrimitiveType type,
-                                 const std::vector<float>& data )
+void UtilConcrete::drawElements( const PrimitiveType type, const std::vector<float>& data )
 {
-    glDrawElements( static_cast<GLenum>( type ),
-                    static_cast<GLsizei>( data.size() ), GL_FLOAT,
-                    data.data() );
+    glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( data.size() ), GL_FLOAT, data.data() );
 }
 
-void UtilConcrete::drawElementsFromLastBuffer(
-    const PrimitiveType primitiveType, const DataType dataType,
-    unsigned count )
+void UtilConcrete::drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count )
 {
-    glDrawElements( static_cast<GLenum>( primitiveType ),
-                    static_cast<GLsizei>( count ),
-                    static_cast<GLenum>( dataType ), nullptr );
+    glDrawElements( static_cast<GLenum>( primitiveType ), static_cast<GLsizei>( count ), static_cast<GLenum>( dataType ), nullptr );
 }
 
 void UtilConcrete::enableVertexAttribArray( unsigned attributeId )
@@ -1262,14 +1132,14 @@ void UtilConcrete::bindTexture( const unsigned int textureId )
 {
     if( m_lastTextureId != textureId )
     {
-        //log( "bindTexture..." );
+        // log( "bindTexture..." );
         glBindTexture( GL_TEXTURE_2D, textureId );
         m_lastTextureId = textureId;
-        //log( "bindTexture... DONE." );
+        // log( "bindTexture... DONE." );
     }
     else
     {
-        //log( "bindTexture canceled - already set." );
+        // log( "bindTexture canceled - already set." );
     }
 }
 
@@ -1284,8 +1154,7 @@ void UtilConcrete::setTextureData( uint8_t textureId, const TextureInfo& ti )
 {
     log( "glTexImage2D(" + ti.toString() + ")" );
     bindTexture( textureId );
-    glTexImage2D( GL_TEXTURE_2D, ti.level, (GLint)ti.pixelFormat, ti.size.width,
-                  ti.size.height, ti.border, (GLenum)ti.pixelFormat,
+    glTexImage2D( GL_TEXTURE_2D, ti.level, (GLint)ti.pixelFormat, ti.size.width, ti.size.height, ti.border, (GLenum)ti.pixelFormat,
                   (GLenum)GL_UNSIGNED_BYTE, ti.data );
 }
 
@@ -1315,6 +1184,5 @@ void UtilConcrete::matrixStackPop()
 
 UtilConcrete::~UtilConcrete()
 {
-    CUL::Assert::simple( 0 == m_currentMatrix,
-                         "ERROR PUSH COUNT IS NOT EQUAL TO POP COUNT." );
+    CUL::Assert::simple( 0 == m_currentMatrix, "ERROR PUSH COUNT IS NOT EQUAL TO POP COUNT." );
 }

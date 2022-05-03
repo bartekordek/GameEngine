@@ -1,6 +1,7 @@
 #include "GameEngineConcrete.hpp"
 
 #include "gameengine/Model.hpp"
+#include "gameengine/Camera.hpp"
 
 #include "Primitives/LineImpl.hpp"
 #include "Primitives/PointImpl.hpp"
@@ -29,21 +30,25 @@
 #undef LoadImage
 using namespace LOGLW;
 
-GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool legacy ):
-    m_sdlW( sdl2w ),
-    m_activeWindow( sdl2w->getMainWindow() ),
-    m_cul( sdl2w->getCul() ),
-    m_logger( sdl2w->getCul()->getLogger() ),
-    m_oglUtility( new UtilConcrete( sdl2w->getCul(), legacy ) ),
-    m_frameTimer( CUL::TimerFactory::getChronoTimer() )
+GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool legacy )
+    : m_sdlW( sdl2w ),
+      m_activeWindow( sdl2w->getMainWindow() ),
+      m_cul( sdl2w->getCul() ),
+      m_logger( sdl2w->getCul()->getLogger() ),
+      m_frameTimer( CUL::TimerFactory::getChronoTimer() )
 {
     CUL::Assert::simple( nullptr != sdl2w, "NO SDL WRAPPER." );
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );
     CUL::Assert::simple( nullptr != m_logger, "NO LOGGER." );
 
-    registerObjectForUtility();
     loadFromConfig();
     m_imageLoader = m_cul->getImageLoader();
+
+    const auto& forceLegacy = m_sdlW->getConfig()->getValue( "OPENGL_FORCE_LEGACY" );
+    forceLegacy.toBool();
+
+    m_oglUtility = new UtilConcrete( sdl2w->getCul(), forceLegacy.toBool() );
+    registerObjectForUtility();
 
     m_renderersVersions["OpenGL"] = m_oglUtility->getVersion();
 }
@@ -56,7 +61,7 @@ void GameEngineConcrete::registerObjectForUtility()
 void GameEngineConcrete::loadFromConfig()
 {
     auto config = m_sdlW->getConfig();
-    if ( config )
+    if( config )
     {
         const auto& drawDebug = m_sdlW->getConfig()->getValue( "DRAW_DEBUG" );
         drawDebugInfo( drawDebug == "true" );
@@ -66,8 +71,7 @@ void GameEngineConcrete::loadFromConfig()
 void GameEngineConcrete::startRenderingLoop()
 {
     m_logger->log( "GameEngineConcrete::startRenderingLoop()..." );
-    m_renderingLoopThread =
-        std::thread( &GameEngineConcrete::mainThread, this );
+    m_renderingLoopThread = std::thread( &GameEngineConcrete::mainThread, this );
     m_logger->log( "GameEngineConcrete::startRenderingLoop() Done." );
 }
 
@@ -81,18 +85,16 @@ void GameEngineConcrete::stopRenderingLoop()
         m_taskLoopThread.join();
     }
 
-    if ( m_renderingLoopThread.joinable() )
+    if( m_renderingLoopThread.joinable() )
     {
         m_renderingLoopThread.join();
     }
     m_logger->log( "GameEngineConcrete::stopRenderingLoop() Done." );
 }
 
-void GameEngineConcrete::onInitialize(
-    const EmptyFunctionCallback& callback )
+void GameEngineConcrete::onInitialize( const EmptyFunctionCallback& callback )
 {
-    CUL::Assert::simple( m_hasBeenInitialized == false,
-                         "Wrapper already initialized, no need in defining " );
+    CUL::Assert::simple( m_hasBeenInitialized == false, "Wrapper already initialized, no need in defining " );
     m_onInitializeCallback = callback;
 }
 
@@ -100,7 +102,6 @@ void GameEngineConcrete::beforeFrame( const EmptyFunctionCallback& callback )
 {
     m_onBeforeFrame = callback;
 }
-
 
 IShaderFactory* GameEngineConcrete::getShaderFactory()
 {
@@ -137,11 +138,10 @@ const Viewport& GameEngineConcrete::getViewport() const
     return m_viewport;
 }
 
-ProjectionData& GameEngineConcrete::getProjectionData()
-{
-    return m_projectionData;
-}
-
+// ProjectionData& GameEngineConcrete::getProjectionData()
+//{
+//     return m_projectionData;
+// }
 
 VertexBuffer* GameEngineConcrete::createVBO( std::vector<float>& )
 {
@@ -161,18 +161,18 @@ const ContextInfo& GameEngineConcrete::getContext() const
 IObject* GameEngineConcrete::createFromFile( const String& path )
 {
     const CUL::FS::Path filePath( path );
-    if ( ".json" == filePath.getExtension() )
+    if( ".json" == filePath.getExtension() )
     {
         const auto file = m_cul->getFF()->createJSONFileRawPtr( path );
         file->load();
         return createFromFile( file );
     }
-    else if ( ".obj" == filePath.getExtension() )
+    else if( ".obj" == filePath.getExtension() )
     {
         auto objData = ObjLoader::loadObj( path );
 
         const auto verticesSize = objData->attrib.vertices.size();
-        for ( size_t i = 0; i < verticesSize; ++i )
+        for( size_t i = 0; i < verticesSize; ++i )
         {
             // val = objData->attrib.vertices[i];
             // auto dsadas = 0;
@@ -187,9 +187,8 @@ IObject* GameEngineConcrete::createFromFile( CUL::JSON::IJSONFile* file )
 {
     auto root = file->getRoot();
     const auto nameNode = root->findChild( "name" );
-    CUL::Assert::simple( nameNode->getType() == CUL::JSON::ElementType::STRING,
-                         "Wrong JSON definition: type of name value." );
-    if ( "default triangle" == nameNode->getString() )
+    CUL::Assert::simple( nameNode->getType() == CUL::JSON::ElementType::STRING, "Wrong JSON definition: type of name value." );
+    if( "default triangle" == nameNode->getString() )
     {
         return createTriangle( root->findChild( "vertices" ) );
     }
@@ -199,7 +198,7 @@ IObject* GameEngineConcrete::createFromFile( CUL::JSON::IJSONFile* file )
 IObject* GameEngineConcrete::createFromFile( IFile* file )
 {
     const auto& fileExtension = file->getPath().getExtension();
-    if ( ".json" == fileExtension )
+    if( ".json" == fileExtension )
     {
         const auto jsonFile = static_cast<const CUL::JSON::IJSONFile*>( file );
         const auto root = jsonFile->getRoot();
@@ -214,16 +213,14 @@ IObject* GameEngineConcrete::createFromFile( IFile* file )
 
 IObject* GameEngineConcrete::createTriangle( CUL::JSON::INode* jNode )
 {
-    CUL::Assert::simple( CUL::JSON::ElementType::ARRAY == jNode->getType(),
-                         "Different types." );
-    CUL::Assert::simple( 3 == jNode->getArray().size(),
-                         "Defined triangle vertices count mismatch." );
+    CUL::Assert::simple( CUL::JSON::ElementType::ARRAY == jNode->getType(), "Different types." );
+    CUL::Assert::simple( 3 == jNode->getArray().size(), "Defined triangle vertices count mismatch." );
 
     auto triangle = new TriangleImpl();
 
-    auto jsonToPoint = []( CUL::JSON::INode* node ) -> Point {
-        CUL::Assert::simple( node->getType() == CUL::JSON::ElementType::ARRAY,
-                             "Vertice data type mismatch." );
+    auto jsonToPoint = []( CUL::JSON::INode* node ) -> Point
+    {
+        CUL::Assert::simple( node->getType() == CUL::JSON::ElementType::ARRAY, "Vertice data type mismatch." );
 
         auto px = node->findChild( "x" );
         auto py = node->findChild( "y" );
@@ -247,8 +244,7 @@ IObject* GameEngineConcrete::createTriangle( CUL::JSON::INode* jNode )
     return triangle;
 }
 
-ITriangle* GameEngineConcrete::createTriangle( const TriangleData& data,
-                                                  const ColorS& color )
+ITriangle* GameEngineConcrete::createTriangle( const TriangleData& data, const ColorS& color )
 {
     ITriangle* triangle = new TriangleImpl();
     triangle->setValues( data );
@@ -257,11 +253,10 @@ ITriangle* GameEngineConcrete::createTriangle( const TriangleData& data,
     return triangle;
 }
 
-IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool,
-                                          const ColorS& color )
+IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS& color )
 {
     IQuad* quad = nullptr;
-    if ( m_oglUtility->isLegacy() )
+    if( m_oglUtility->isLegacy() )
     {
         m_logger->log( "GameEngineConcrete::createQuad - legacy." );
         quad = new QuadImplLegacy();
@@ -277,8 +272,7 @@ IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool,
     return quad;
 }
 
-ILine* GameEngineConcrete::createLine( const LineData& data,
-                                          const ColorS& color )
+ILine* GameEngineConcrete::createLine( const LineData& data, const ColorS& color )
 {
     ILine* line = new LineImpl();
     line->setValues( data );
@@ -288,8 +282,7 @@ ILine* GameEngineConcrete::createLine( const LineData& data,
     return line;
 }
 
-IPoint* GameEngineConcrete::createPoint( const Point& position,
-                                            const ColorS& color )
+IPoint* GameEngineConcrete::createPoint( const Point& position, const ColorS& color )
 {
     auto result = new PointImpl();
     result->setColor( color );
@@ -299,10 +292,9 @@ IPoint* GameEngineConcrete::createPoint( const Point& position,
     return result;
 }
 
-Sprite* GameEngineConcrete::createSprite( const String& path,
-                                             bool  )
+Sprite* GameEngineConcrete::createSprite( const String& path, bool )
 {
-    auto sprite = new Sprite( getCamera(), getCul());
+    auto sprite = new Sprite( getCamera(), getCul() );
 
     CUL::FS::Path fsPath = path;
     CUL::Assert::simple( fsPath.exists(), "File " + path + " does not exist.", m_logger );
@@ -314,13 +306,11 @@ Sprite* GameEngineConcrete::createSprite( const String& path,
     return sprite;
 }
 
-Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width,
-                                             unsigned height, bool )
+Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width, unsigned height, bool )
 {
     auto sprite = new Sprite( getCamera(), getCul() );
     auto textureId = m_oglUtility->generateTexture();
-    sprite->LoadImage( (CUL::Graphics::DataType*)data, width, height,
-                       m_imageLoader, textureId );
+    sprite->LoadImage( (CUL::Graphics::DataType*)data, width, height, m_imageLoader, textureId );
     m_oglUtility->bindTexture( textureId );
 
     const auto& ii = sprite->getImageInfo();
@@ -343,7 +333,7 @@ Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width,
 
 void GameEngineConcrete::removeObject( IObject* object )
 {
-    if ( object )
+    if( object )
     {
         removeObjectToRender( object );
     }
@@ -356,13 +346,12 @@ void GameEngineConcrete::mainThread()
     initialize();
 
     m_logger->log( "GameEngineConcrete::start task thread()..." );
-    m_taskLoopThread =
-        std::thread( &GameEngineConcrete::taskThread, this );
+    m_taskLoopThread = std::thread( &GameEngineConcrete::taskThread, this );
     m_logger->log( "GameEngineConcrete::start task thread()... Done." );
 
     renderLoop();
 
-    if ( m_debugDrawInitialized )
+    if( m_debugDrawInitialized )
     {
         ImGui_ImplOpenGL2_Shutdown();
         ImGui_ImplSDL2_Shutdown();
@@ -388,13 +377,13 @@ void GameEngineConcrete::taskThread()
 
 void GameEngineConcrete::renderLoop()
 {
-    while ( m_runRenderLoop )
+    while( m_runRenderLoop )
     {
         m_frameTimer->start();
 
         {
             std::lock_guard<std::mutex> lock( m_taskMutex );
-            while ( !m_tasks.empty() )
+            while( !m_tasks.empty() )
             {
                 auto task = m_tasks.top();
                 m_tasks.pop();
@@ -435,7 +424,7 @@ void GameEngineConcrete::initialize()
 
     m_logger->log( "GameEngineConcrete::initialize()..." );
 
-    m_glContext = m_oglUtility->initContextVersion( m_activeWindow);
+    m_glContext = m_oglUtility->initContextVersion( m_activeWindow );
     // m_glContext = m_oglUtility->initContextVersion( m_activeWindow, 3, 1 );
     m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
     m_logger->log( m_glContext.glVersion );
@@ -462,27 +451,33 @@ void GameEngineConcrete::initialize()
     showExtensions();
 
     calculateFrameWait();
-
-    m_projectionData.m_depthTest.setOnChange( [this]() {
-        m_projectionChanged = true;
-    } );
-
-    m_projectionData.setOnChange( [this]() {
-        m_projectionChanged = true;
-    } );
-
-    m_isPerspective.setOnChange( [this]() {
-        if ( m_isPerspective )
+    /*
+    m_projectionData.m_depthTest.setOnChange(
+        [this]()
         {
-            m_projectionData.m_projectionType = ProjectionType::PERSPECTIVE;
-        }
-        else
+            m_projectionChanged = true;
+        } );
+    
+    m_projectionData.setOnChange(
+        [this]()
         {
-            m_projectionData.m_projectionType = ProjectionType::ORTO;
-        }
+            m_projectionChanged = true;
+        } );
 
-        m_projectionChanged = true;
-    } );
+    m_isPerspective.setOnChange(
+        [this]()
+        {
+            if( m_isPerspective )
+            {
+                m_projectionData.m_projectionType = ProjectionType::PERSPECTIVE;
+            }
+            else
+            {
+                m_projectionData.m_projectionType = ProjectionType::ORTO;
+            }
+
+            m_projectionChanged = true;
+        } );*/
 
     // m_oglUtility->setBackfaceCUll(  );
     // m_oglUtility->setDepthTest( true );
@@ -494,23 +489,21 @@ void GameEngineConcrete::initialize()
 void GameEngineConcrete::showExtensions()
 {
     auto extensionList = m_oglUtility->listExtensions();
-    for ( const auto& extension : extensionList )
+    for( const auto& extension : extensionList )
     {
         m_logger->log( "Extension: " + extension );
     }
 
-    m_logger->log( "Extension count: " +
-                   std::to_string( extensionList.size() ) );
+    m_logger->log( "Extension count: " + std::to_string( extensionList.size() ) );
 }
 
-void GameEngineConcrete::setupProjectionData(
-    const SDL2W::WindowSize& winSize )
+void GameEngineConcrete::setupProjectionData( const SDL2W::WindowSize& winSize )
 {
-    ProjectionData projectionData;
+    Camera projectionData;
     projectionData.setSize( winSize );
-    projectionData.setEyePos( Pos3Df( 0.0f, 0.0f, 220.0f ) );
-    projectionData.setCenter( Pos3Df( 0.f, 0.f, 0.0f ) );
-    projectionData.setUp( Pos3Df( 0.0f, 1.0f, 0.0f ) );
+    projectionData.setEyePos( glm::vec3( 0.0f, 0.0f, 220.0f ) );
+    projectionData.setCenter( glm::vec3( 0.f, 0.f, 0.0f ) );
+    projectionData.setUp( glm::vec3( 0.0f, 1.0f, 0.0f ) );
     projectionData.m_zFar = -64.f;
     projectionData.m_zNear = 64.f;
     setProjection( projectionData );
@@ -518,9 +511,9 @@ void GameEngineConcrete::setupProjectionData(
 
 void GameEngineConcrete::renderFrame()
 {
-    if ( m_userInitialized == false )
+    if( m_userInitialized == false )
     {
-        if ( m_onInitializeCallback )
+        if( m_onInitializeCallback )
         {
             m_onInitializeCallback();
             m_userInitialized = true;
@@ -528,26 +521,21 @@ void GameEngineConcrete::renderFrame()
     }
 
     // setBackgroundColor( m_backgroundColor );
-    if ( m_clearEveryFrame )
+    if( m_clearEveryFrame )
     {
         m_oglUtility->clearColorAndDepthBuffer();
     }
 
-    m_oglUtility->setDepthTest( m_projectionData.m_depthTest );
+    m_oglUtility->setDepthTest( getCamera()->getDepthTestIsEnabled() );
 
-    m_projectionChanged = true;
-    if ( m_projectionChanged )
-    {
-        changeProjectionType();
-        m_projectionChanged = false;
-    }
+    changeProjectionType();
 
-    if ( m_clearModelView )
+    if( m_clearModelView )
     {
         // m_oglUtility->resetMatrixToIdentity( MatrixTypes::MODELVIEW );
     }
 
-    if ( m_onBeforeFrame )
+    if( m_onBeforeFrame )
     {
         m_onBeforeFrame();
     }
@@ -555,7 +543,7 @@ void GameEngineConcrete::renderFrame()
     // m_oglUtility->setDepthTest( true );
     // m_oglUtility->setBackfaceCUll( true );
 
-    if ( m_viewportChanged )
+    if( m_viewportChanged )
     {
         m_oglUtility->setViewport( m_viewport );
         m_viewportChanged = false;
@@ -564,7 +552,7 @@ void GameEngineConcrete::renderFrame()
     executeTasks();
     renderObjects();
 
-    if ( !m_oglUtility->isLegacy() )
+    if( !m_oglUtility->isLegacy() )
     {
         m_oglUtility->bindBuffer( BufferTypes::ARRAY_BUFFER, 0u );
         m_oglUtility->bindBuffer( BufferTypes::VERTEX_ARRAY, 0u );
@@ -580,15 +568,15 @@ void GameEngineConcrete::renderFrame()
 
 void GameEngineConcrete::calculateNextFrameLengths()
 {
-    if ( m_currentFrameLengthUs > m_targetFrameLengthUs + m_usRes )
+    if( m_currentFrameLengthUs > m_targetFrameLengthUs + m_usRes )
     {
         m_frameSleepUs -= m_usDelta;
-        if ( m_frameSleepUs < 0 )
+        if( m_frameSleepUs < 0 )
         {
             m_frameSleepUs = 0;
         }
     }
-    else if ( m_currentFrameLengthUs < m_targetFrameLengthUs - m_usRes )
+    else if( m_currentFrameLengthUs < m_targetFrameLengthUs - m_usRes )
     {
         m_frameSleepUs += m_usDelta;
     }
@@ -612,106 +600,96 @@ void GameEngineConcrete::renderInfo()
 
     String name = "INFO LOG";
     ImGui::Begin( name.cStr() );
-    ImGui::SetWindowSize( { (float)winSize.getWidth() * 0.3f,
-                            (float)winSize.getHeight() * 1.f } );
+    ImGui::SetWindowSize( { (float)winSize.getWidth() * 0.3f, (float)winSize.getHeight() * 1.f } );
 
     auto res = false;
-    ImGui::Checkbox( "Projection is Perspective", &m_isPerspective.getRef() );
-    m_isPerspective.runIfChanged();
+    //ImGui::Checkbox( "Projection is Perspective", &m_isPerspective.getRef() );
 
-    ImGui::Checkbox( "Depth test", &m_projectionData.m_depthTest.getRef() );
-    m_projectionData.m_depthTest.runIfChanged();
+    //ImGui::Checkbox( "Depth test", &m_projectionData.m_depthTest.getRef() );
+    //m_projectionData.m_depthTest.runIfChanged();
 
-    ImGui::Text( "Projection: %s", ( m_projectionData.m_projectionType ==
-                                     ProjectionType::PERSPECTIVE )
-                                       ? "Perspective"
-                                       : "Orthogonal" );
-    ImGui::Text( "Aspect Ratio: %f", m_projectionData.getAspectRatio() );
-    ImGui::Text( "FOV-Y: %f", m_projectionData.getFov() );
+    //ImGui::Text( "Projection: %s", ( m_projectionData.m_projectionType == ProjectionType::PERSPECTIVE ) ? "Perspective" : "Orthogonal" );
+    ImGui::Text( "Aspect Ratio: %f", getCamera()->getAspectRatio() );
+    ImGui::Text( "FOV-Y: %f", getCamera()->getFov() );
 
-    String text = "Center:" + m_projectionData.getCenter().serialize( 0 );
+    CUL::Graphics::Pos3Dd centerPos = getCamera()->getCenter();
+    String text = "Center:" + centerPos.serialize( 0 );
     ImGui::Text( "%s", text.cStr() );
 
-    text = "Eye:" + m_projectionData.getEye().serialize( 0 );
+    CUL::Graphics::Pos3Dd eyePos = getCamera()->getEye();
+    text = "Eye:" + eyePos.serialize( 0 );
     ImGui::Text( "%s", text.cStr() );
 
-    text = "Up:" + m_projectionData.getUp().serialize( 0 );
+    CUL::Graphics::Pos3Dd upPos = getCamera()->getEye();
+    text = "Up:" + upPos.serialize( 0 );
     ImGui::Text( "%s", text.cStr() );
 
     const auto& mData = m_sdlW->getMouseData();
-    text = "Mouse = ( " + String( mData.getX() ) + ", " +
-           String( mData.getY() ) + " )";
+    text = "Mouse = ( " + String( mData.getX() ) + ", " + String( mData.getY() ) + " )";
     ImGui::Text( "%s", text.cStr() );
 
-    res = ImGui::SliderFloat( "Z Far", &m_projectionData.m_zFar, -64.f, 64.f );
-    if ( res )
+    res = ImGui::SliderFloat( "Z Far", &getCamera()->m_zFar, -64.f, 64.f );
+    if( res )
     {
         m_projectionChanged = true;
     }
 
-    res =
-        ImGui::SliderFloat( "Z Near", &m_projectionData.m_zNear, -63.f, 255.f );
-    if ( res )
+    res = ImGui::SliderFloat( "Z Near", &getCamera()->m_zNear, -63.f, 255.f );
+    if( res )
     {
         m_projectionChanged = true;
     }
 
-    res =
-        ImGui::SliderFloat( "Eye-Z", &m_projectionData.m_eye.z, 0.0f, 255.0f );
-    if ( res )
+    res = ImGui::SliderFloat( "Eye-Z", &getCamera()->m_pos.z, 0.0f, 255.0f );
+    if( res )
     {
         // m_projectionData.setZnear( m_projectionData.m_eye.z );
         m_projectionChanged = true;
     }
 
-    res = ImGui::SliderFloat( "Center-Z", &m_projectionData.m_center.z, -64.0f,
-                              255.0f );
-    if ( res )
+    res = ImGui::SliderFloat( "Center-Z", &getCamera()->m_center.z, -64.0f, 255.0f );
+    if( res )
     {
         m_projectionChanged = true;
     }
 
-    text = "Left: " + String( m_projectionData.getLeft() );
+    text = "Left: " + String( getCamera()->getLeft() );
     ImGui::Text( "%s", text.cStr() );
 
-    text = "Right: " + String( m_projectionData.getRight() );
+    text = "Right: " + String( getCamera()->getRight() );
     ImGui::Text( "%s", text.cStr() );
 
-    text = "Top: " + String( m_projectionData.getTop() );
+    text = "Top: " + String( getCamera()->getTop() );
     ImGui::Text( "%s", text.cStr() );
 
-    text = "Bottom: " + String( m_projectionData.getBottom() );
+    text = "Bottom: " + String( getCamera()->getBottom() );
     ImGui::Text( "%s", text.cStr() );
 
-    for ( const auto& pair : m_debugValues )
+    for( const auto& pair : m_debugValues )
     {
-        if ( pair.second.type == DebugType::TEXT )
+        if( pair.second.type == DebugType::TEXT )
         {
             const size_t id = pair.second.value.index();
-            switch ( id )
+            switch( id )
             {
                 case 0:
-                    ImGui::Text(
-                        pair.second.text.cStr(),
-                        *(const char*)std::get<String*>( pair.second.value ) );
+                    ImGui::Text( pair.second.text.cStr(), *(const char*)std::get<String*>( pair.second.value ) );
                     break;
                 case 1:
-                    ImGui::Text( pair.second.text.cStr(),
-                                 *std::get<float*>( pair.second.value ) );
+                    ImGui::Text( pair.second.text.cStr(), *std::get<float*>( pair.second.value ) );
                     break;
                 case 2:
-                    ImGui::Text( pair.second.text.cStr(),
-                                 *std::get<int*>( pair.second.value ) );
+                    ImGui::Text( pair.second.text.cStr(), *std::get<int*>( pair.second.value ) );
                     break;
                 default:
                     break;
             }
         }
-        else if ( pair.second.type == DebugType::SLIDER )
+        else if( pair.second.type == DebugType::SLIDER )
         {
             const size_t id = pair.second.value.index();
             bool changed = false;
-            switch ( id )
+            switch( id )
             {
                 case 0:
                     // ImGui::Text( pair.second.text.cStr(),  );
@@ -720,22 +698,18 @@ void GameEngineConcrete::renderInfo()
                     // pair.second.value ) 0.0f, 192.0f );
                     break;
                 case 1:
-                    changed = ImGui::SliderFloat(
-                        pair.second.text.cStr(),
-                        std::get<float*>( pair.second.value ), pair.second.min,
-                        pair.second.max );
+                    changed = ImGui::SliderFloat( pair.second.text.cStr(), std::get<float*>( pair.second.value ), pair.second.min,
+                                                  pair.second.max );
                     break;
                 case 2:
-                    changed = ImGui::SliderInt(
-                        pair.second.text.cStr(),
-                        std::get<int*>( pair.second.value ),
-                        (int)pair.second.min, (int)pair.second.max );
+                    changed = ImGui::SliderInt( pair.second.text.cStr(), std::get<int*>( pair.second.value ), (int)pair.second.min,
+                                                (int)pair.second.max );
                     break;
                 default:
                     break;
             }
 
-            if ( changed && pair.second.onChange )
+            if( changed && pair.second.onChange )
             {
                 pair.second.onChange();
             }
@@ -743,8 +717,7 @@ void GameEngineConcrete::renderInfo()
     }
 
     ImGui::Text( "FrameTime: %4.2f ms", 1000.f / ImGui::GetIO().Framerate );
-    ImGui::Text( "FPS: %4.2f",
-                 m_activeWindow->getFpsCounter()->getCurrentFps() );
+    ImGui::Text( "FPS: %4.2f", m_activeWindow->getFpsCounter()->getCurrentFps() );
 
     ImGui::Text( "m_frameSleepUs: %d", m_frameSleepUs.getValCopy() );
     ImGui::Text( "m_usDelta: %d", m_usDelta );
@@ -759,12 +732,12 @@ void GameEngineConcrete::renderInfo()
 #pragma warning( pop )
 #endif
 
-void GameEngineConcrete::setProjectionType( const ProjectionType type )
-{
-    m_projectionData.m_projectionType = type;
-    prepareProjection();
-    m_projectionChanged = true;
-}
+// void GameEngineConcrete::setProjectionType( const ProjectionType* type )
+//{
+//     m_projectionData.m_projectionType = *type;
+//     prepareProjection();
+//     m_projectionChanged = true;
+// }
 
 void GameEngineConcrete::prepareProjection()
 {
@@ -786,24 +759,24 @@ void GameEngineConcrete::prepareProjection()
 void GameEngineConcrete::changeProjectionType()
 {
     m_oglUtility->resetMatrixToIdentity( MatrixTypes::PROJECTION );
-    if ( ProjectionType::ORTO == m_projectionData.m_projectionType )
+    
+    if( ProjectionType::ORTO == getCamera()->m_projectionType )
     {
-        m_oglUtility->setOrthogonalPerspective( m_projectionData );
+        m_oglUtility->setOrthogonalPerspective( *getCamera() );
     }
-    else if ( ProjectionType::PERSPECTIVE == m_projectionData.m_projectionType )
+    else if( ProjectionType::PERSPECTIVE == getCamera()->m_projectionType )
     {
-        m_oglUtility->setPerspectiveProjection( m_projectionData );
+        m_oglUtility->setPerspectiveProjection( *getCamera() );
     }
     m_oglUtility->resetMatrixToIdentity( MatrixTypes::MODELVIEW );
-    m_oglUtility->lookAt( m_projectionData );
-    m_currentProjection = m_projectionData.m_projectionType;
-    setProjection( m_projectionData );
-    m_oglUtility->setDepthTest( m_projectionData.m_depthTest );
+    m_oglUtility->lookAt( *getCamera() );
+    setProjection( *getCamera() );
+    m_oglUtility->setDepthTest( getCamera()->getDepthTestIsEnabled() );
 }
 
-void GameEngineConcrete::setEyePos( const Pos3Df& pos )
+void GameEngineConcrete::setEyePos( const glm::vec3& pos )
 {
-    m_projectionData.setEyePos( pos );
+    getCamera()->setEyePos( pos );
     m_projectionChanged = true;
 }
 
@@ -811,7 +784,7 @@ void GameEngineConcrete::executeTasks()
 {
     std::lock_guard<std::mutex> locker( m_preRenderTasksMtx );
 
-    while ( false == m_preRenderTasks.empty() )
+    while( false == m_preRenderTasks.empty() )
     {
         auto task = m_preRenderTasks.front();
         task->execute();
@@ -829,37 +802,35 @@ void GameEngineConcrete::executeTasks()
 void GameEngineConcrete::renderObjects()
 {
     std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
-    for ( auto& renderableObject : m_objectsToRender )
+    for( auto& renderableObject : m_objectsToRender )
     {
         renderableObject->render();
     }
-    if ( m_drawQuad )
+    if( m_drawQuad )
         m_oglUtility->createQuad();
 }
 
 void GameEngineConcrete::refreshBuffers()
 {
-    if ( m_updateBuffers )
+    if( m_updateBuffers )
     {
         m_activeWindow->updateScreenBuffers();
     }
 }
 
-void GameEngineConcrete::setProjection( const ProjectionData& rect )
+void GameEngineConcrete::setProjection( const Camera& rect )
 {
     m_oglUtility->setProjection( rect );
 
-    m_projectionData = rect;
     m_projectionChanged = true;
 }
 
-void GameEngineConcrete::setViewport( const Viewport& viewport,
-                                         const bool instant )
+void GameEngineConcrete::setViewport( const Viewport& viewport, const bool instant )
 {
-    if ( m_viewport != viewport )
+    if( m_viewport != viewport )
     {
         m_viewport = viewport;
-        if ( false == instant )
+        if( false == instant )
         {
             m_viewportChanged = true;
         }
@@ -908,8 +879,7 @@ void GameEngineConcrete::calculateFrameWait()
 
 CUL::GUTILS::IConfigFile* GameEngineConcrete::getConfig()
 {
-    CUL::Assert::simple( m_sdlW != nullptr,
-                         "No proper SDL2 pointer initialized." );
+    CUL::Assert::simple( m_sdlW != nullptr, "No proper SDL2 pointer initialized." );
     return m_sdlW->getConfig();
 }
 
@@ -925,9 +895,11 @@ void GameEngineConcrete::drawDebugInfo( const bool enable )
     }
     else
     {
-        addRenderThreadTask( [this]() {
-            initDebugInfo();
-        } );
+        addRenderThreadTask(
+            [this]()
+            {
+                initDebugInfo();
+            } );
     }
 
     m_sdlW->getMainWindow()->toggleFpsCounter( enable );
@@ -935,9 +907,9 @@ void GameEngineConcrete::drawDebugInfo( const bool enable )
 
 void GameEngineConcrete::drawOrigin( bool enable )
 {
-    if ( enable )
+    if( enable )
     {
-        if ( m_axis[0] == nullptr )
+        if( m_axis[0] == nullptr )
         {
             const float length = 1024.f;
             LineData lineData;
@@ -960,9 +932,9 @@ void GameEngineConcrete::drawOrigin( bool enable )
     }
     else
     {
-        if ( m_axis[0] == nullptr )
+        if( m_axis[0] == nullptr )
         {
-            for ( const auto& axis : m_axis )
+            for( const auto& axis : m_axis )
             {
                 removeObject( axis );
             }
@@ -977,15 +949,14 @@ IDebugOverlay* GameEngineConcrete::getDebugOverlay()
 
 void GameEngineConcrete::handleEvent( const SDL_Event& event )
 {
-    if ( m_debugDrawInitialized )
+    if( m_debugDrawInitialized )
     {
         ImGui_ImplSDL2_ProcessEvent( &event );
     }
 }
 
-unsigned GameEngineConcrete::addSliderValue(
-    const CUL::String& text, float* val, float min, float max,
-    const std::function<void( void )>& onUpdate )
+unsigned GameEngineConcrete::addSliderValue( const CUL::String& text, float* val, float min, float max,
+                                             const std::function<void( void )>& onUpdate )
 {
     const unsigned size = (unsigned)m_debugValues.size();
     const auto newId = size + 1u;
@@ -1040,30 +1011,25 @@ ITextureFactory* GameEngineConcrete::getTextureFactory()
     return this;
 }
 
-ITexture* GameEngineConcrete::createTexture( const CUL::FS::Path& path,
-                                                const bool )
+ITexture* GameEngineConcrete::createTexture( const CUL::FS::Path& path, const bool )
 {
     // auto image = m_sdlW->getCul()->getImageLoader()->loadImage( path, rgba );
-    auto textureConcrete = new TextureConcrete(
-        getUtility(), m_sdlW->getCul()->getImageLoader(), path );
+    auto textureConcrete = new TextureConcrete( getUtility(), m_sdlW->getCul()->getImageLoader(), path );
     return textureConcrete;
 }
 
 // SDL2W::IMouseObservable
-void GameEngineConcrete::addMouseEventCallback(
-    const SDL2W::IMouseObservable::MouseCallback& callback )
+void GameEngineConcrete::addMouseEventCallback( const SDL2W::IMouseObservable::MouseCallback& callback )
 {
     m_sdlW->addMouseEventCallback( callback );
 }
 
-void GameEngineConcrete::registerMouseEventListener(
-    SDL2W::IMouseObserver* observer )
+void GameEngineConcrete::registerMouseEventListener( SDL2W::IMouseObserver* observer )
 {
     m_sdlW->registerMouseEventListener( observer );
 }
 
-void GameEngineConcrete::unregisterMouseEventListener(
-    SDL2W::IMouseObserver* observer )
+void GameEngineConcrete::unregisterMouseEventListener( SDL2W::IMouseObserver* observer )
 {
     m_sdlW->unregisterMouseEventListener( observer );
 }
@@ -1074,20 +1040,17 @@ SDL2W::MouseData& GameEngineConcrete::getMouseData()
 }
 
 // SDL2W::IKeyboardObservable
-void GameEngineConcrete::registerKeyboardEventCallback(
-    const std::function<void( const SDL2W::IKey& key )>& callback )
+void GameEngineConcrete::registerKeyboardEventCallback( const std::function<void( const SDL2W::IKey& key )>& callback )
 {
     m_sdlW->registerKeyboardEventCallback( callback );
 }
 
-void GameEngineConcrete::registerKeyboardEventListener(
-    SDL2W::IKeyboardObserver* observer )
+void GameEngineConcrete::registerKeyboardEventListener( SDL2W::IKeyboardObserver* observer )
 {
     m_sdlW->registerKeyboardEventListener( observer );
 }
 
-void GameEngineConcrete::unregisterKeyboardEventListener(
-    SDL2W::IKeyboardObserver* observer )
+void GameEngineConcrete::unregisterKeyboardEventListener( SDL2W::IKeyboardObserver* observer )
 {
     m_sdlW->unregisterKeyboardEventListener( observer );
 }
@@ -1097,8 +1060,7 @@ bool GameEngineConcrete::isKeyUp( const String& keyName ) const
     return m_sdlW->isKeyUp( keyName );
 }
 
-void GameEngineConcrete::registerWindowEventCallback(
-    const SDL2W::WindowCallback& callback )
+void GameEngineConcrete::registerWindowEventCallback( const SDL2W::WindowCallback& callback )
 {
     m_sdlW->registerWindowEventCallback( callback );
 }

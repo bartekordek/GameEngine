@@ -1,4 +1,5 @@
 #include "gameengine/IUtility.hpp"
+#include "gameengine/Camera.hpp"
 
 #include "IMPORT_glew.hpp"
 #include "ImportFreeglut.hpp"
@@ -95,7 +96,8 @@ void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum
 }
 
 
-IUtility::IUtility( CUL::CULInterface* culInterface ) : m_culInterface( culInterface ), m_logger(m_culInterface->getLogger())
+IUtility::IUtility( CUL::CULInterface* culInterface, bool forceLegacy )
+    : m_forceLegacy( forceLegacy ), m_culInterface( culInterface ), m_logger( m_culInterface->getLogger() )
 {
     glGetIntegerv( GL_MAJOR_VERSION, &m_supportedVersion.major );
     glGetIntegerv( GL_MINOR_VERSION, &m_supportedVersion.minor );
@@ -153,6 +155,65 @@ ContextInfo IUtility::initContextVersion( SDL2W::IWindow* window )
     }
     return result;
 }
+
+
+
+void IUtility::setOrthogonalPerspective( const Camera& camera )
+{
+    const auto left = camera.getLeft();
+    const auto right = camera.getRight();
+
+    const auto bottom = camera.getBottom();
+    const auto top = camera.getTop();
+
+    const auto zNear = camera.getZnear();
+    const auto zFar = camera.getZfar();
+
+    // glOrtho - multiply the current matrix with an orthographic matrix
+    // left, right
+    //    Specify the coordinates for the leftand right vertical clipping
+    //    planes.
+
+    // bottom, top
+    //    Specify the coordinates for the bottomand top horizontal clipping
+    //    planes.
+
+    // nearVal, farVal
+    //    Specify the distances to the nearerand farther depth clipping
+    //    planes.These values are negative if the plane is to be behind the
+    //    viewer.
+
+    // glOrtho describes a transformation that produces a parallel
+    // projection.The current matrix( see glMatrixMode ) is multiplied by this
+    // matrixand the result replaces the current matrix, as if glMultMatrix were
+    // called with the following matrix as its argument :
+
+    // 2 right - left 0 0 t x 0 2 top - bottom 0 t y 0 0 - 2 farVal - nearVal t
+    // z 0 0 0 1
+    //    where
+
+    //    t x = -right + left right - left
+    //    t y = -top + bottom top - bottom
+    //    t z = -farVal + nearVal farVal - nearVal
+    //    Typically, the matrix mode is GL_PROJECTION, and left bottom - nearVal
+    //    and right top - nearVal specify the points on the near clipping plane
+    //    that are mapped to the lower left and upper right corners of the
+    //    window, respectively, assuming that the eye is located at( 0, 0, 0 ).
+    //    - farVal specifies the location of the far clipping plane.Both nearVal
+    //    and farVal can be either positive or negative.
+
+    //    Use glPushMatrix and glPopMatrix to save and restore the current
+    //    matrix stack.
+    // https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glOrtho.xml
+    glOrtho( left,    // left
+             right,   // right
+             bottom,  // bottom
+             top,     // top
+             zNear,   // near
+             zFar     // far
+    );
+}
+
 
 void IUtility::setUniformValue( int uniformLocation, const glm::vec2& val )
 {

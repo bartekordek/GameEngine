@@ -37,7 +37,6 @@ protected:
     LOGLW::IShaderFactory* m_shaderfactory = nullptr;
     CUL::LOG::ILogger* m_logger = nullptr;
     LOGLW::IUtility* m_gutil = nullptr;
-    LOGLW::ProjectionData m_projectionData;
 
 
     Ptr<SDL2W::ISDL2Wrapper> m_sdlw;

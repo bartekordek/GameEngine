@@ -27,7 +27,8 @@ using ColorS = CUL::Graphics::ColorS;
 using ColorE = CUL::Graphics::ColorE;
 using WinEventType = SDL2W::WindowEvent::Type;
 using ShaderFile = CUL::FS::IFile;
-template <typename TYPE> using DumbPtr = CUL::GUTILS::DumbPtr<TYPE>;
+template <typename TYPE>
+using DumbPtr = CUL::GUTILS::DumbPtr<TYPE>;
 using GLWrap = DumbPtr<LOGLW::IGameEngine>;
 using FF = CUL::FS::FileFactory;
 using Rect = CUL::Graphics::Rect3Di;
@@ -35,9 +36,7 @@ using Pos3Df = CUL::Graphics::Pos3Df;
 using Triangle = CUL::MATH::Primitives::Triangle;
 using String = CUL::String;
 
-class Game final:
-    public SDL2W::IMouseObserver,
-    public SDL2W::IKeyboardObserver
+class Game final: public SDL2W::IMouseObserver, public SDL2W::IKeyboardObserver
 {
 public:
     Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const WindowSize& winSize );
@@ -45,6 +44,7 @@ public:
 
     void stopGame();
     ~Game();
+
 protected:
 private:
     void reloadConfig();
@@ -57,7 +57,7 @@ private:
     void moveSnake();
     void randomizeCandy();
     bool isCandy( const Snake::Pos& pos ) const;
-    void changeSnakeMoveDirection(Snake::HeadDirection direction);
+    void changeSnakeMoveDirection( Snake::HeadDirection direction );
 
     void closeApp();
     Game() = delete;
@@ -90,7 +90,6 @@ private:
     CUL::TimeConcrete configModificationTime;
     SDL2W::IWindow* m_mainWindow = nullptr;
 
-
     int m_mouseX = 0.0f;
 
     CUL::MATH::Angle m_ang90 = { 90, CUL::MATH::Angle::Type::DEGREE };
@@ -98,7 +97,7 @@ private:
     CUL::MATH::Angle m_ang270 = { 270, CUL::MATH::Angle::Type::DEGREE };
     Pos3Df m_eyePos;
 
-    ColorS red =  ColorE::RED;
+    ColorS red = ColorE::RED;
     ColorS yellow = ColorE::YELLOW;
     ColorS blue = ColorE::BLUE;
     ColorS white = ColorE::WHITE;
@@ -109,7 +108,7 @@ private:
     LOGLW::Program* program = nullptr;
     float blueTriangleZ = -1.0f;
     float redTriangleZ = 1.0f;
-    LOGLW::ProjectionData m_projectionData;
+    LOGLW::Camera m_projectionData;
 
     unsigned m_secondsToStartGame = 2;
     std::atomic<unsigned> m_moveDelayMs = 600;

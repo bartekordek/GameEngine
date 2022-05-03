@@ -7,7 +7,6 @@
 #include "gameengine/Viewport.hpp"
 #include "gameengine/VertexArray.hpp"
 
-
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
 #include "SDL2Wrapper/IWindowEventObservable.hpp"
@@ -48,10 +47,9 @@ using CMString = const String;
 using IImageLoader = CUL::Graphics::IImageLoader;
 using EmptyFunctionCallback = std::function<void()>;
 using IPreRenderTask = CUL::GUTILS::ITask;
+using Pos3Df = CUL::Graphics::Pos3Dd;
 
-class GAME_ENGINE_API IGameEngine : public SDL2W::IMouseObservable,
-                                            public SDL2W::IKeyboardObservable,
-                                            public SDL2W::IWindowEventObservable
+class GAME_ENGINE_API IGameEngine: public SDL2W::IMouseObservable, public SDL2W::IKeyboardObservable, public SDL2W::IWindowEventObservable
 {
 public:
     IGameEngine();
@@ -74,7 +72,7 @@ public:
     virtual IImageLoader* getImageLoader() = 0;
     virtual IUtility* getUtility() = 0;
     virtual const Viewport& getViewport() const = 0;
-    virtual ProjectionData& getProjectionData() = 0;
+    // virtual ProjectionData& getProjectionData() = 0;
 
     virtual CUL::CULInterface* getCul() = 0;
     virtual CUL::LOG::ILogger* getLoger() = 0;
@@ -83,11 +81,9 @@ public:
 
     virtual void beforeFrame( const EmptyFunctionCallback& callback ) = 0;
 
-    virtual void setProjection( const ProjectionData& rect ) = 0;
-    virtual void setEyePos( const Pos3Df& pos ) = 0;
-    virtual void setProjectionType( const ProjectionType type ) = 0;
-    virtual void setViewport( const Viewport& viewport,
-                              const bool instant = false ) = 0;
+    virtual void setProjection( const Camera& rect ) = 0;
+    virtual void setEyePos( const glm::vec3& pos ) = 0;
+    virtual void setViewport( const Viewport& viewport, const bool instant = false ) = 0;
 
     virtual void drawQuad( const bool draw = true ) = 0;
 
@@ -108,24 +104,22 @@ public:
     virtual VertexBuffer* createVBO( std::vector<float>& data ) = 0;
 
     static IGameEngine* createGameEngine( SDL2W::ISDL2Wrapper* sdl2w, bool legacy = false );
-    static IGameEngine* createGameEngine( bool legacy,
-        const CUL::Graphics::Pos2Di& pos, const SDL2W::WindowSize& winSize,
-        const String& configPath, const String& winName = "",
-        const String& renderername = "opengl" );
+    static IGameEngine* createGameEngine( bool legacy, const CUL::Graphics::Pos2Di& pos, const SDL2W::WindowSize& winSize,
+                                          const String& configPath, const String& winName = "", const String& renderername = "opengl" );
 
     static IGameEngine* getInstance();
 
     virtual void setFpsLimit( float maxFps ) = 0;
     virtual float getFpsLimit() const = 0;
 
-    //Object Factory
+    // Object Factory
     Sprite* createSprite();
-    Quad* createQuad(IObject* parent);
+    Quad* createQuad( IObject* parent );
     VertexArray* createVAO();
     Cube* createCube();
 
     void pushPreRenderTask( IPreRenderTask* preRenderTask );
-    void pushPreRenderTask( std::function<void(void)> task );
+    void pushPreRenderTask( std::function<void( void )> task );
 
     void addObjectToRender( IRenderable* renderable );
     void removeObjectToRender( IRenderable* renderable );
@@ -142,7 +136,7 @@ protected:
 
 private:
     std::unique_ptr<Camera> m_camera;
-    
+    bool m_forceLegacy = false;
 
     IGameEngine( const IGameEngine& val ) = delete;
     IGameEngine( IGameEngine&& val ) = delete;

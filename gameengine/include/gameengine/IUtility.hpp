@@ -1,20 +1,24 @@
 #pragma once
 
+#include "gameengine/Import.hpp"
+
 #include "CUL/CULInterface.hpp"
 #include "CUL/Filesystem/IFile.hpp"
 #include "CUL/Graphics/Color.hpp"
 #include "CUL/Graphics/Rect2D.hpp"
+#include "CUL/Graphics/Pos3D.hpp"
 #include "CUL/Math/Angle.hpp"
 #include "CUL/Math/Primitives/Line.hpp"
 #include "CUL/Math/Primitives/Quad.hpp"
 #include "CUL/Math/Primitives/Triangle.hpp"
 #include "CUL/Math/Primitives/Triangle3D.hpp"
-#include "CUL/STL_IMPORTS/STD_array.hpp"
-#include "CUL/STL_IMPORTS/STD_vector.hpp"
-#include "gameengine/ProjectionData.hpp"
+
 #include "CUL/IMPORT_GLM.hpp"
 
 #include "CUL/GenericUtils/Version.hpp"
+
+#include "CUL/STL_IMPORTS/STD_array.hpp"
+#include "CUL/STL_IMPORTS/STD_vector.hpp"
 
 NAMESPACE_BEGIN( CUL )
 
@@ -34,6 +38,9 @@ class IWindow;
 NAMESPACE_END( SDL2W )
 
 NAMESPACE_BEGIN( LOGLW )
+
+class Camera;
+class Camera;
 
 using Angle = CUL::MATH::Angle;
 using String = CUL::String;
@@ -171,7 +178,6 @@ struct GAME_ENGINE_API TextureInfo
 
         return result;
     }
-
 };
 
 struct TextureData2D
@@ -208,53 +214,45 @@ class Viewport;
 class IUtility
 {
 public:
-    GAME_ENGINE_API IUtility( CUL::CULInterface* culInterface );
+    GAME_ENGINE_API IUtility( CUL::CULInterface* culInterface, bool forceLegacy );
 
-    virtual bool isLegacy()  = 0;
+    virtual bool isLegacy() = 0;
 
-    virtual void resetMatrixToIdentity( const MatrixTypes matrix )  = 0;
-    virtual void setProjection( const ProjectionData& rect )  = 0;
-    virtual void setViewport( const Viewport& viewport )  = 0;
-    virtual void setPerspective( const Angle& angle, double widthToHeightRatio,
-                                 double m_zNear, double m_zFar )  = 0;
-    virtual void setOrthogonalPerspective( const ProjectionData& vp )  = 0;
-    virtual void setPerspectiveProjection( const ProjectionData& vp )  = 0;
-    virtual void lookAt( const ProjectionData& vp )  = 0;
-    virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec )  = 0;
-    virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center,
-                         const Pos3Dd& up )  = 0;
+    virtual void resetMatrixToIdentity( const MatrixTypes matrix ) = 0;
+    virtual void setProjection( const Camera& rect ) = 0;
+    virtual void setViewport( const Viewport& viewport ) = 0;
+    virtual void setPerspective( const Angle& angle, double widthToHeightRatio, double m_zNear, double m_zFar ) = 0;
+    void setOrthogonalPerspective( const Camera& vp );
+    virtual void setPerspectiveProjection( const Camera& vp ) = 0;
+    virtual void lookAt( const Camera& vp ) = 0;
+    virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) = 0;
+    virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) = 0;
 
-    virtual ShaderTypes getShaderType(
-        const CUL::String& fileExtension )  = 0;
+    virtual ShaderTypes getShaderType( const CUL::String& fileExtension ) = 0;
 
     virtual unsigned int createProgram() = 0;
-    virtual void removeProgram( unsigned programId )  = 0;
-    virtual void useProgram( unsigned programId )  = 0;
-    virtual void linkProgram( unsigned programId )  = 0;
-    virtual void validateProgram( unsigned programId )  = 0;
+    virtual void removeProgram( unsigned programId ) = 0;
+    virtual void useProgram( unsigned programId ) = 0;
+    virtual void linkProgram( unsigned programId ) = 0;
+    virtual void validateProgram( unsigned programId ) = 0;
 
     virtual unsigned int createShader( const IFile& shaderCode ) = 0;
-    virtual void attachShader( unsigned programId,
-                               unsigned shaderId )  = 0;
-    virtual void dettachShader( unsigned programId,
-                                unsigned shaderId )  = 0;
-    virtual void removeShader( unsigned shaderId )  = 0;
+    virtual void attachShader( unsigned programId, unsigned shaderId ) = 0;
+    virtual void dettachShader( unsigned programId, unsigned shaderId ) = 0;
+    virtual void removeShader( unsigned shaderId ) = 0;
 
     ContextInfo initContextVersion( SDL2W::IWindow* window );
     virtual void destroyContext( ContextInfo& context ) = 0;
 
-    virtual void setAttribValue( int attributeLocation, float value )  = 0;
-    virtual void setAttribValue( int attributeLocation, int value )  = 0;
-    virtual void setAttribValue( int attributeLocation,
-                                 unsigned value )  = 0;
-    virtual void setAttribValue( int attributeLocation, bool value )  = 0;
-    virtual void setAttribValue( int attributeLocation,
-                                 const CUL::String& value )  = 0;
+    virtual void setAttribValue( int attributeLocation, float value ) = 0;
+    virtual void setAttribValue( int attributeLocation, int value ) = 0;
+    virtual void setAttribValue( int attributeLocation, unsigned value ) = 0;
+    virtual void setAttribValue( int attributeLocation, bool value ) = 0;
+    virtual void setAttribValue( int attributeLocation, const CUL::String& value ) = 0;
 
-    virtual void setUniformValue( int uniformLocation, float value )  = 0;
-    virtual void setUniformValue( int uniformLocation, int value )  = 0;
-    virtual void setUniformValue( int uniformLocation,
-                                  unsigned value )  = 0;
+    virtual void setUniformValue( int uniformLocation, float value ) = 0;
+    virtual void setUniformValue( int uniformLocation, int value ) = 0;
+    virtual void setUniformValue( int uniformLocation, unsigned value ) = 0;
 
     void setUniformValue( int uniformLocation, const glm::vec2& val );
     void setUniformValue( int uniformLocation, const glm::vec3& val );
@@ -264,22 +262,19 @@ public:
     void setUniformValue( int uniformLocation, const glm::mat3& val );
     void setUniformValue( int uniformLocation, const glm::mat4& val );
 
-    virtual void setProjectionAndModelToIdentity()  = 0;
-    virtual void clearColorAndDepthBuffer()  = 0;
-    virtual void createQuad( float scale = 1.0f )  = 0;
-    virtual void clearColorTo( const ColorS color )  = 0;
-    virtual void clearBuffer( const ClearMasks mask )  = 0;
+    virtual void setProjectionAndModelToIdentity() = 0;
+    virtual void clearColorAndDepthBuffer() = 0;
+    virtual void createQuad( float scale = 1.0f ) = 0;
+    virtual void clearColorTo( const ColorS color ) = 0;
+    virtual void clearBuffer( const ClearMasks mask ) = 0;
 
-    virtual unsigned int generateVertexArray( const int size = 1 )  = 0;
+    virtual unsigned int generateVertexArray( const int size = 1 ) = 0;
 
-    virtual void bufferData( uint8_t bufferId, const CUL::MATH::Primitives::Quad& data,
-                             const BufferTypes type ) = 0;
+    virtual void bufferData( uint8_t bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type ) = 0;
 
-    virtual void bufferData( uint8_t bufferId, const std::vector<unsigned int>& data,
-                             const BufferTypes type ) = 0;
+    virtual void bufferData( uint8_t bufferId, const std::vector<unsigned int>& data, const BufferTypes type ) = 0;
 
-    virtual void bufferData( uint8_t bufferId, const std::vector<float>& data,
-                             const BufferTypes type ) = 0;
+    virtual void bufferData( uint8_t bufferId, const std::vector<float>& data, const BufferTypes type ) = 0;
 
     virtual void bufferData( uint8_t bufferId, const float vertices[], BufferTypes type ) = 0;
 
@@ -287,48 +282,33 @@ public:
 
     virtual void bufferSubdata( uint8_t bufferId, const BufferTypes type, std::vector<TextureData2D>& data ) = 0;
 
-    virtual void setClientState( ClientStateTypes cs, bool enabled )  = 0;
-    virtual void texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )  = 0;
-    virtual void vertexPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )  = 0;
+    virtual void setClientState( ClientStateTypes cs, bool enabled ) = 0;
+    virtual void texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer ) = 0;
+    virtual void vertexPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer ) = 0;
 
     // VAO, VBO
-    virtual void setVertexArrayClientState( const bool enable )  = 0;
-    virtual void setColorClientState( bool enable )  = 0;
-    virtual unsigned int generateElementArrayBuffer(
-        const std::vector<unsigned int>& data, const int size = 1 ) = 0;
-    virtual unsigned int generateAndBindBuffer( const BufferTypes bufferType,
-                                                const int size = 1 ) = 0;
-    virtual void deleteBuffer( BufferTypes bufferType, unsigned& id )  = 0;
+    virtual void setVertexArrayClientState( const bool enable ) = 0;
+    virtual void setColorClientState( bool enable ) = 0;
+    virtual unsigned int generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size = 1 ) = 0;
+    virtual unsigned int generateAndBindBuffer( const BufferTypes bufferType, const int size = 1 ) = 0;
+    virtual void deleteBuffer( BufferTypes bufferType, unsigned& id ) = 0;
 
-    virtual void enableVertexAttribiute( unsigned programId,
-                                         const String& attribName )  = 0;
-    virtual void disableVertexAttribiute( unsigned programId,
-                                          const String& attribName )  = 0;
-    virtual unsigned int getAttribLocation(
-        unsigned programId, const String& attribName )  = 0;
-    virtual unsigned int getUniformLocation(
-        unsigned programId, const String& attribName )  = 0;
+    virtual void enableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
+    virtual void disableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
+    virtual unsigned int getAttribLocation( unsigned programId, const String& attribName ) = 0;
+    virtual unsigned int getUniformLocation( unsigned programId, const String& attribName ) = 0;
     virtual void unbindBuffer( const BufferTypes bufferType ) = 0;
-    virtual void bindBuffer( const BufferTypes bufferType,
-                             unsigned bufferId ) = 0;
+    virtual void bindBuffer( const BufferTypes bufferType, unsigned bufferId ) = 0;
     // virtual void bindBuffer( VertexArray* vao )  = 0;
-    virtual unsigned int generateBuffer( const BufferTypes type,
-                                         const int size = 1 )  = 0;
+    virtual unsigned int generateBuffer( const BufferTypes type, const int size = 1 ) = 0;
 
-    virtual void drawElements(
-        const PrimitiveType type,
-        const std::vector<unsigned int>& data )  = 0;
-    virtual void drawElements( const PrimitiveType type,
-                               const std::vector<float>& data )  = 0;
-    virtual void drawElementsFromLastBuffer( const PrimitiveType primitiveType,
-                                             const DataType dataType,
-                                             unsigned count )  = 0;
-    void drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first,
-                             unsigned count );
+    virtual void drawElements( const PrimitiveType type, const std::vector<unsigned int>& data ) = 0;
+    virtual void drawElements( const PrimitiveType type, const std::vector<float>& data ) = 0;
+    virtual void drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count ) = 0;
+    void drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count );
     void vertexAttribPointer( const VertexAttributePtrMeta& meta );
-    virtual void enableVertexAttribArray( unsigned attributeId )  = 0;
-    virtual void setVertexPointer( int coordinatesPerVertex, DataType dataType,
-                                   int stride, const void* data )  = 0;
+    virtual void enableVertexAttribArray( unsigned attributeId ) = 0;
+    virtual void setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data ) = 0;
 
     virtual std::vector<std::string> listExtensions() = 0;
 
@@ -338,14 +318,11 @@ public:
     virtual void draw( const QuadCUL& quad, const QuadColors& color ) = 0;
 
     virtual void draw( const QuadData& quad, const ColorS& color ) = 0;
-    virtual void draw( const QuadData& quad,
-                       const std::array<ColorS, 4>& color ) = 0;
+    virtual void draw( const QuadData& quad, const std::array<ColorS, 4>& color ) = 0;
 
     virtual void draw( const Triangle& triangle, const ColorS& color ) = 0;
-    virtual void draw( const Triangle& quad,
-                       const std::array<ColorS, 4>& color ) = 0;
-    virtual void draw( const TriangleData& values,
-                       const std::array<ColorS, 3>& color ) = 0;
+    virtual void draw( const Triangle& quad, const std::array<ColorS, 4>& color ) = 0;
+    virtual void draw( const TriangleData& values, const std::array<ColorS, 3>& color ) = 0;
 
     virtual void draw( const LineData& values, const ColorS& color ) = 0;
     virtual void draw( const LineData& values, const LineColors& color ) = 0;
@@ -354,22 +331,20 @@ public:
 
     virtual void translate( const Point& point ) = 0;
     virtual void translate( const float x, const float y, const float z ) = 0;
-    virtual void rotate( const float angle, const float x = 0.0f,
-                         const float y = 0.0f, const float z = 0.0f ) = 0;
-    virtual void scale( const CUL::MATH::Vector3Df& scale )  = 0;
-    virtual void scale( const float scale )  = 0;
-    virtual void setDepthTest( const bool enabled )  = 0;
-    virtual void setBackfaceCUll( const bool enabled )  = 0;
+    virtual void rotate( const float angle, const float x = 0.0f, const float y = 0.0f, const float z = 0.0f ) = 0;
+    virtual void scale( const CUL::MATH::Vector3Df& scale ) = 0;
+    virtual void scale( const float scale ) = 0;
+    virtual void setDepthTest( const bool enabled ) = 0;
+    virtual void setBackfaceCUll( const bool enabled ) = 0;
 
     // Texturing
-    virtual void setTexuring( const bool enabled )  = 0;
-    virtual unsigned generateTexture()  = 0;
-    void setActiveTexture(unsigned id);
+    virtual void setTexuring( const bool enabled ) = 0;
+    virtual unsigned generateTexture() = 0;
+    void setActiveTexture( unsigned id );
     virtual void bindTexture( const unsigned int textureId ) = 0;
-    virtual void setTextureParameter( uint8_t textureId, const TextureParameters type,
-                                      const TextureFilterType val ) = 0;
+    virtual void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) = 0;
     virtual void setTextureData( uint8_t textureId, const TextureInfo& ti ) = 0;
-    virtual void freeTexture( unsigned int& textureId )  = 0;
+    virtual void freeTexture( unsigned int& textureId ) = 0;
 
     virtual void matrixStackPush() = 0;
     virtual void matrixStackPop() = 0;
@@ -378,13 +353,14 @@ public:
 
     CUL::CULInterface* getCUl() const;
 
-
-
     virtual ~IUtility();
 
 protected:
     void log( const String& text, const CUL::LOG::Severity severity = CUL::LOG::Severity::INFO ) const;
     void customAssert( const bool value, const CUL::String& message ) const;
+
+    bool m_forceLegacy = false;
+
     std::map<BufferTypes, uint8_t> m_currentBufferId;
 
 private:

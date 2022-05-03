@@ -42,7 +42,7 @@ CUL::FS::Path fragmentShaderFile;
 LOGLW::Program* program = nullptr;
 float blueTriangleZ = -1.0f;
 float redTriangleZ = 1.0f;
-LOGLW::ProjectionData g_projectionData;
+LOGLW::Camera g_projectionData;
 Pos3Df g_eyePos;
 LOGLW::IObject* g_triangle0 = nullptr;
 CUL::TimeConcrete configModificationTime;
@@ -98,9 +98,7 @@ int main( int argc, char** argv )
 
     CUL::Graphics::Pos2Di winPos = { 200, 200 };
     WindowSize winSize = { width, height };
-    g_oglw = LOGLW::IGameEngine::createGameEngine( false,
-        winPos, winSize, "../media/Config.txt", "gameenginePlaygroundApp",
-        "opengl" );
+    g_oglw = LOGLW::IGameEngine::createGameEngine( false, winPos, winSize, "../media/Config.txt", "gameenginePlaygroundApp", "opengl" );
     g_oglw->addMouseEventCallback( onMouseEvent );
     g_configFile = g_oglw->getConfig();
 
@@ -139,14 +137,12 @@ void afterInit()
     g_oglw->drawDebugInfo( true );
 
     // g_oglw->getDebugOverlay()->addText( "Blue Z: %f", &blueTriangleZ );
-    g_oglw->getDebugOverlay()->addSliderValue( "Blue Z", &blueTriangleZ, -64.0f,
-                                               128.f,
+    g_oglw->getDebugOverlay()->addSliderValue( "Blue Z", &blueTriangleZ, -64.0f, 128.f,
                                                []()
                                                {
                                                } );
 
-    g_oglw->getDebugOverlay()->addSliderValue( "Red Z", &redTriangleZ, -64.0f,
-                                               128.f,
+    g_oglw->getDebugOverlay()->addSliderValue( "Red Z", &redTriangleZ, -64.0f, 128.f,
                                                []()
                                                {
                                                } );
@@ -159,29 +155,22 @@ void afterInit()
     values[1] = LOGLW::PointType{ -size, -size, 0.0f };
     values[2] = LOGLW::PointType{ -size, size, 0.0f };
 
-    g_blueTriangle = g_oglw->getObjectFactory()->createTriangle(
-        values, LOGLW::ColorE::BLUE );
-    g_whiteTriangle = g_oglw->getObjectFactory()->createTriangle(
-        values, LOGLW::ColorE::WHITE );
+    g_blueTriangle = g_oglw->getObjectFactory()->createTriangle( values, LOGLW::ColorE::BLUE );
+    g_whiteTriangle = g_oglw->getObjectFactory()->createTriangle( values, LOGLW::ColorE::WHITE );
 
-    g_redTriangle = g_oglw->getObjectFactory()->createTriangle(
-        values, LOGLW::ColorE::RED );
-    g_yellowTriangle = g_oglw->getObjectFactory()->createTriangle(
-        values, LOGLW::ColorE::YELLOW );
+    g_redTriangle = g_oglw->getObjectFactory()->createTriangle( values, LOGLW::ColorE::RED );
+    g_yellowTriangle = g_oglw->getObjectFactory()->createTriangle( values, LOGLW::ColorE::YELLOW );
 
-    g_sprite =
-        g_oglw->getObjectFactory()->createSprite( "../media/texture.png" );
+    g_sprite = g_oglw->getObjectFactory()->createSprite( "../media/texture.png" );
 }
 
 void renderScene()
 {
     g_blueTriangle->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle );
-    g_whiteTriangle->setWorldAngle( CUL::MATH::EulerAngles::YAW,
-                                    g_angle + ang180 );
+    g_whiteTriangle->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle + ang180 );
 
     g_redTriangle->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle );
-    g_yellowTriangle->setWorldAngle( CUL::MATH::EulerAngles::YAW,
-                                     g_angle + ang180 );
+    g_yellowTriangle->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle + ang180 );
 
     auto oldPosWhiteBlue = g_blueTriangle->getWorldPosition();
     oldPosWhiteBlue.z() = blueTriangleZ;
@@ -193,8 +182,7 @@ void renderScene()
     g_redTriangle->setWorldPosition( oldPosRedYellow );
     g_yellowTriangle->setWorldPosition( oldPosRedYellow );
 
-    g_sprite->setWorldPosition( 0.f, 80.f * std::sin( g_angle.getRad() ),
-                                40.f * std::cos( g_angle.getRad() ) );
+    g_sprite->setWorldPosition( 0.f, 80.f * std::sin( g_angle.getRad() ), 40.f * std::cos( g_angle.getRad() ) );
 
     g_angle += 0.01f;
 
@@ -227,8 +215,7 @@ void reloadConfig()
         const auto x = 0.0f;
 
         g_projectionData.setCenter(
-            Pos3Df( x, g_configFile->getValue( "CENTER_Y" ).toFloat(),
-                    g_configFile->getValue( "CENTER_Z" ).toFloat() ) );
+            Pos3Df( x, g_configFile->getValue( "CENTER_Y" ).toFloat(), g_configFile->getValue( "CENTER_Z" ).toFloat() ) );
         g_eyePos = g_projectionData.getEye();
         g_eyePos.z = g_configFile->getValue( "EYE_Z" ).toFloat();
         g_projectionData.setEyePos( g_eyePos );
@@ -264,8 +251,7 @@ void onMouseEvent( const SDL2W::MouseData& mouseData )
         const auto bottom = ( winH - rectH ) / 2;
         const auto top = winH - bottom;
 
-        if( mouseX < rightX && mouseX > leftX && mouseY < top &&
-            mouseY > bottom )
+        if( mouseX < rightX && mouseX > leftX && mouseY < top && mouseY > bottom )
 
         {
             auto eye = g_oglw->getProjectionData().getEye();

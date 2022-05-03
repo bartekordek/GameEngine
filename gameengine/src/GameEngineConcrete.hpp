@@ -5,6 +5,7 @@
 #include "gameengine/ITextureFactory.hpp"
 #include "gameengine/IObjectFactory.hpp"
 #include "gameengine/Sprite.hpp"
+#include "gameengine/Camera.hpp"
 
 #include "OpenGLShaderFactory.hpp"
 
@@ -35,8 +36,10 @@ NAMESPACE_END( SDL2W )
 NAMESPACE_BEGIN( LOGLW )
 
 using SafeBool = CUL::GUTILS::LckPrim<bool>;
-template <typename Type> using DumbPtr = CUL::GUTILS::DumbPtr<Type>;
-template <typename Type> using Safe = CUL::GUTILS::LckPrim<Type>;
+template <typename Type>
+using DumbPtr = CUL::GUTILS::DumbPtr<Type>;
+template <typename Type>
+using Safe = CUL::GUTILS::LckPrim<Type>;
 
 enum class DebugType
 {
@@ -65,12 +68,11 @@ struct DebugValueRow
     std::function<void( void )> onChange;
 };
 
-class GameEngineConcrete final:
-      public IGameEngine
-    , private IObjectFactory
-    , private IDebugOverlay
-    , private SDL2W::ISDLEventObserver
-    , private ITextureFactory
+class GameEngineConcrete final: public IGameEngine,
+                                private IObjectFactory,
+                                private IDebugOverlay,
+                                private SDL2W::ISDLEventObserver,
+                                private ITextureFactory
 {
 public:
     GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool legacy );
@@ -86,7 +88,7 @@ private:
     CUL::CULInterface* getCul() override;
 
     void refreshBuffers();
-    void setProjection( const ProjectionData& rect ) override;
+    void setProjection( const Camera& rect ) override;
     void setViewport( const Viewport& viewport, const bool instant = false ) override;
 
     IObject* createFromFile( const String& path ) override;
@@ -97,11 +99,10 @@ private:
     IQuad* createQuad( const QuadData& data, bool legacy = false, const ColorS& color = ColorE::WHITE ) override;
     ILine* createLine( const LineData& data, const ColorS& color = ColorE::WHITE ) override;
 
-    IPoint* createPoint(const Point& position, const ColorS& color = ColorE::WHITE) override;
+    IPoint* createPoint( const Point& position, const ColorS& color = ColorE::WHITE ) override;
 
     Sprite* createSprite( const String& path, bool withVBO = false ) override;
-    Sprite* createSprite( unsigned* data, unsigned width, unsigned height,
-                          bool withVBO = false ) override;
+    Sprite* createSprite( unsigned* data, unsigned width, unsigned height, bool withVBO = false ) override;
 
     void removeObject( IObject* object ) override;
 
@@ -118,7 +119,7 @@ private:
     CUL::LOG::ILogger* getLoger() override;
     IUtility* getUtility() override;
     const Viewport& getViewport() const override;
-    ProjectionData& getProjectionData() override;
+    // ProjectionData& getProjectionData() override;
 
     // VBO HANDLE:
     VertexBuffer* createVBO( std::vector<float>& data ) override;
@@ -132,10 +133,9 @@ private:
     void initDebugInfo();
     void renderFrame() override;
     void renderInfo();
-    void setProjectionType( const ProjectionType type ) override;
     void changeProjectionType();
     void prepareProjection();
-    void setEyePos( const Pos3Df& pos ) override;
+    void setEyePos( const glm::vec3& pos ) override;
     void renderObjects();
 
     void executeTasks();
@@ -155,26 +155,25 @@ private:
     IDebugOverlay* getDebugOverlay() override;
     void handleEvent( const SDL_Event& event ) override;
 
-    unsigned addSliderValue( const CUL::String& valName, float* value, float min, float max, const std::function<void( void )>& onUpdate = nullptr ) override;
+    unsigned addSliderValue( const CUL::String& valName, float* value, float min, float max,
+                             const std::function<void( void )>& onUpdate = nullptr ) override;
     unsigned addText( const CUL::String& text, float* value ) override;
 
     void runEventLoop() override;
     void stopEventLoop() override;
     SDL2W::IWindow* getMainWindow() override;
 
-
-// ITextureFactory
+    // ITextureFactory
     ITextureFactory* getTextureFactory() override;
     ITexture* createTexture( const CUL::FS::Path& path, const bool rgba = false ) override;
 
-
-// SDL2W::IMouseObservable
+    // SDL2W::IMouseObservable
     void addMouseEventCallback( const SDL2W::IMouseObservable::MouseCallback& callback ) override;
     void registerMouseEventListener( SDL2W::IMouseObserver* observer ) override;
     void unregisterMouseEventListener( SDL2W::IMouseObserver* observer ) override;
     SDL2W::MouseData& getMouseData() override;
 
-// SDL2W::IKeyboardObservable
+    // SDL2W::IKeyboardObservable
     void registerKeyboardEventCallback( const std::function<void( const SDL2W::IKey& key )>& callback ) override;
 
     void registerKeyboardEventListener( SDL2W::IKeyboardObserver* observer ) override;
@@ -182,7 +181,7 @@ private:
 
     bool isKeyUp( const String& keyName ) const override;
 
-// SDL2W::IWindowEventOBservable
+    // SDL2W::IWindowEventOBservable
     void registerWindowEventCallback( const SDL2W::WindowCallback& callback ) override;
 
     void addRenderThreadTask( const std::function<void( void )>& task );
@@ -206,7 +205,7 @@ private:
     std::thread m_renderingLoopThread;
     std::thread m_taskLoopThread;
 
-    CUL::GUTILS::ValueChangeHook<bool> m_isPerspective = true;
+    // CUL::GUTILS::ValueChangeHook<bool> m_isPerspective = true;
     SafeBool m_runRenderLoop = true;
     SafeBool m_clearEveryFrame = true;
     SafeBool m_clearModelView = true;
@@ -215,14 +214,12 @@ private:
     Viewport m_viewport;
     SafeBool m_viewportChanged = false;
 
-    ProjectionData m_projectionData;
     SafeBool m_projectionChanged = false;
-    Safe<ProjectionType> m_currentProjection = ProjectionType::ORTO;
 
     ColorS m_backgroundColor = ColorS( ColorE::BLACK );
 
     std::mutex m_taskMutex;
-    std::stack< std::function<void( void )>> m_tasks;
+    std::stack<std::function<void( void )>> m_tasks;
 
     EmptyFunctionCallback m_onInitializeCallback;
     EmptyFunctionCallback m_onBeforeFrame;
@@ -249,7 +246,7 @@ private:
 
     std::map<String, CUL::GUTILS::Version> m_renderersVersions;
 
-private: // Deleted
+private:  // Deleted
     GameEngineConcrete() = delete;
     GameEngineConcrete( const GameEngineConcrete& val ) = delete;
     GameEngineConcrete( GameEngineConcrete&& val ) = delete;

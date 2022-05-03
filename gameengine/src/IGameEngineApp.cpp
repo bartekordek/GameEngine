@@ -68,15 +68,15 @@ void IGameEngineApp::init( const SDL2W::WindowData& windowData,
 
     m_sdlw->getMainWindow()->setFullscreen( fullscreen );
 
-    LOGLW::ProjectionData g_projectionData;
-    const auto& winSize = m_sdlw->getMainWindow()->getSize();
-    g_projectionData.setSize( { winSize.getWidth(), winSize.getHeight() } );
-    g_projectionData.setZnear( 127.0f );
-    g_projectionData.setZfar( -64.0f );
-    g_projectionData.setCenter( { 0.f, 0.f } );
-    g_projectionData.setEyePos( { 0.f, 0.f, 128.f } );
-    g_projectionData.m_projectionType = LOGLW::ProjectionType::PERSPECTIVE;
-    m_oglw->setProjection( g_projectionData );
+    //LOGLW::ProjectionData g_projectionData;
+    //const auto& winSize = m_sdlw->getMainWindow()->getSize();
+    //g_projectionData.setSize( { winSize.getWidth(), winSize.getHeight() } );
+    //g_projectionData.setZnear( 127.0f );
+    //g_projectionData.setZfar( -64.0f );
+    //g_projectionData.setCenter( { 0.f, 0.f } );
+    //g_projectionData.setEyePos( { 0.f, 0.f, 128.f } );
+    //g_projectionData.m_projectionType = LOGLW::ProjectionType::PERSPECTIVE;
+    //m_oglw->setProjection( g_projectionData );
 
     m_logicThread = std::thread( &IGameEngineApp::logicThread, this );
 }

@@ -13,13 +13,6 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
-enum class ProjectionType: char
-{
-    UNSET = -1,
-    ORTO = 0,
-    PERSPECTIVE
-};
-
 using Pos3Di = CUL::Graphics::Pos3Di;
 using Pos3Df = CUL::Graphics::Pos3Df;
 using Pos2Di = CUL::Graphics::Pos2Di;
@@ -73,7 +66,6 @@ public:
     float m_top = 0.0f;
     float m_bottom = 0.0f;
 
-    ProjectionType m_projectionType = ProjectionType::PERSPECTIVE;
 
 protected:
 private:

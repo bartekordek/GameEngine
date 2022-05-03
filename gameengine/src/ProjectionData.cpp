@@ -19,8 +19,7 @@ ProjectionData::ProjectionData( const ProjectionData& val ):
     m_left( val.m_left ),
     m_right( val.m_right ),
     m_top( val.m_top ),
-    m_bottom( val.m_bottom ),
-    m_projectionType( val.m_projectionType )
+    m_bottom( val.m_bottom )
 {
 }
 
@@ -35,8 +34,7 @@ ProjectionData::ProjectionData( ProjectionData&& val ):
     m_left( val.m_left ),
     m_right( val.m_right ),
     m_top( val.m_top ),
-    m_bottom( val.m_bottom ),
-    m_projectionType( val.m_projectionType )
+    m_bottom( val.m_bottom )
 {
 }
 
@@ -60,7 +58,6 @@ ProjectionData& ProjectionData::operator=( const ProjectionData& rhv )
         m_right = rhv.m_right;
         m_top = rhv.m_top;
         m_bottom = rhv.m_bottom;
-        m_projectionType = rhv.m_projectionType;
     }
     return *this;
 }
@@ -80,7 +77,6 @@ ProjectionData& ProjectionData::operator=( ProjectionData&& rhv )
         m_right = rhv.m_right;
         m_top = rhv.m_top;
         m_bottom = rhv.m_bottom;
-        m_projectionType = rhv.m_projectionType;
     }
     return *this;
 }
