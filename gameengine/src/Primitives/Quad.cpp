@@ -46,8 +46,20 @@ void Quad::render()
         ColorS color;
         color.setRF(1.f);
 
+        getUtility()->matrixStackPush();
+
+        const auto position = getTransform()->getWorldPosition();
+
+        getUtility()->translate( position );
+
+        static const auto type = CUL::MATH::Angle::Type::DEGREE;
+        getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::YAW ).getValueF( type ), 0.f, 0.f, 1.f );
+        getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::PITCH ).getValueF( type ), 0.f, 1.f, 0.f );
+        getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::ROLL ).getValueF( type ), 1.f, 0.f, 0.f );
 
         getUtility()->draw( quad, color );
+
+        getUtility()->matrixStackPop();
     }
     else
     {
