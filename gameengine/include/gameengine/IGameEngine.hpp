@@ -77,7 +77,7 @@ public:
     virtual CUL::CULInterface* getCul() = 0;
     virtual CUL::LOG::ILogger* getLoger() = 0;
 
-    Camera* getCamera();
+    Camera& getCamera();
 
     virtual void beforeFrame( const EmptyFunctionCallback& callback ) = 0;
 
@@ -124,6 +124,8 @@ public:
     void addObjectToRender( IRenderable* renderable );
     void removeObjectToRender( IRenderable* renderable );
 
+    void toggleGrid(bool enableGrid);
+
     virtual ~IGameEngine();
 
 protected:
@@ -133,6 +135,7 @@ protected:
 
     std::mutex m_objectsToRenderMtx;
     std::set<IRenderable*> m_objectsToRender;
+    bool m_gridEnabled = false;
 
 private:
     std::unique_ptr<Camera> m_camera;

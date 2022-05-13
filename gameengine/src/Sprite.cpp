@@ -122,16 +122,8 @@ void Sprite::renderLegacy()
     */
 
     values[0] = { x0, y0, 0.f };
-    values[1] = {
-        x1,
-        y0,
-        0.f,
-    };
-    values[2] = {
-        x1,
-        y1,
-        0.f,
-    };
+    values[1] = { x1, y0, 0.f };
+    values[2] = { x1, y1, 0.f };
     values[3] = { x0, y1, 0.f };
 
     quad2.setData( values );
@@ -203,8 +195,13 @@ void Sprite::init()
 
         m_vbo = getUtility()->generateBuffer( BufferTypes::ARRAY_BUFFER );
 
-        std::vector<float> data = { -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
-                                    0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f };
+        std::vector<float> data = {
+            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f,  0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f,  1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f,  1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,  1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f };
 
         getUtility()->bufferData( m_vbo, data, BufferTypes::ARRAY_BUFFER );
 

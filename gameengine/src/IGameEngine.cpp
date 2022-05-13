@@ -41,9 +41,9 @@ void IGameEngine::initialize()
     m_camera = std::make_unique<Camera>();
 }
 
-Camera* IGameEngine::getCamera()
+Camera& IGameEngine::getCamera()
 {
-    return m_camera.get();
+    return *m_camera.get();
 }
 
 IGameEngine* IGameEngine::getInstance()
@@ -53,7 +53,7 @@ IGameEngine* IGameEngine::getInstance()
 
 Sprite* IGameEngine::createSprite()
 {
-    auto sprite = new Sprite( getCamera(), getCul() );
+    auto sprite = new Sprite( &getCamera(), getCul() );
 
     // sprite->LoadImage( path, m_imageLoader );
 
@@ -64,7 +64,7 @@ Sprite* IGameEngine::createSprite()
 
 Quad* IGameEngine::createQuad( IObject* parent )
 {
-    Quad* result = new Quad( *getCamera(), *this, parent );
+    Quad* result = new Quad( getCamera(), *this, parent );
 
     return result;
 }
@@ -77,7 +77,7 @@ VertexArray* IGameEngine::createVAO()
 
 Cube* IGameEngine::createCube()
 {
-    return new Cube(getCamera(), this);
+    return new Cube( &getCamera(), this );
 }
 
 void IGameEngine::pushPreRenderTask( IPreRenderTask* preRenderTask )
@@ -132,6 +132,11 @@ void IGameEngine::removeObjectToRender( IRenderable* renderable )
         CUL::Assert::simple( it == m_objectsToRender.end(), "Trying to remove already removed object." );
         m_objectsToRender.erase( renderable );
     }
+}
+
+void IGameEngine::toggleGrid( bool enableGrid )
+{
+    m_gridEnabled = enableGrid;
 }
 
 IGameEngine::~IGameEngine()

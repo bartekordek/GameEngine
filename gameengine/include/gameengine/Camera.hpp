@@ -29,13 +29,12 @@ public:
 
     float m_fov = 90.f;
     float m_aspectRatio = 16.f / 9.f;
-    glm::vec3 m_pos = {0.f, 0.f, 0.f};
-    glm::vec3 m_up = { 0.f, -1.f, 0.f };
+    glm::vec3 m_pos = { 0.f, 0.f, 0.f };
+    glm::vec3 m_up = { 0.f, 1.f, 0.f };
     glm::vec3 m_center = { 0.f, 0.f, 0.f };
-    glm::vec3 m_target = { 0.f, 0.f, -8.f };
+    glm::vec3 m_target = { 0.f, 0.f, -255.f };
     WindowSize m_size;
     float m_zNear = 64.0f;
-    float m_zFar = -64.0f;
     float m_left = 0.0f;
     float m_right = 0.0f;
     float m_top = 0.0f;

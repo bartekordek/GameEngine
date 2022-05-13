@@ -294,7 +294,7 @@ IPoint* GameEngineConcrete::createPoint( const Point& position, const ColorS& co
 
 Sprite* GameEngineConcrete::createSprite( const String& path, bool )
 {
-    auto sprite = new Sprite( getCamera(), getCul() );
+    auto sprite = new Sprite( &getCamera(), getCul() );
 
     CUL::FS::Path fsPath = path;
     CUL::Assert::simple( fsPath.exists(), "File " + path + " does not exist.", m_logger );
@@ -308,7 +308,7 @@ Sprite* GameEngineConcrete::createSprite( const String& path, bool )
 
 Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width, unsigned height, bool )
 {
-    auto sprite = new Sprite( getCamera(), getCul() );
+    auto sprite = new Sprite( &getCamera(), getCul() );
     auto textureId = m_oglUtility->generateTexture();
     sprite->LoadImage( (CUL::Graphics::DataType*)data, width, height, m_imageLoader, textureId );
     m_oglUtility->bindTexture( textureId );
@@ -504,8 +504,6 @@ void GameEngineConcrete::setupProjectionData( const SDL2W::WindowSize& winSize )
     projectionData.setEyePos( glm::vec3( 0.0f, 0.0f, 220.0f ) );
     projectionData.setCenter( glm::vec3( 0.f, 0.f, 0.0f ) );
     projectionData.setUp( glm::vec3( 0.0f, 1.0f, 0.0f ) );
-    projectionData.m_zFar = -64.f;
-    projectionData.m_zNear = 64.f;
     setProjection( projectionData );
 }
 
@@ -526,7 +524,7 @@ void GameEngineConcrete::renderFrame()
         m_oglUtility->clearColorAndDepthBuffer();
     }
 
-    m_oglUtility->setDepthTest( getCamera()->getDepthTestIsEnabled() );
+    m_oglUtility->setDepthTest( getCamera().getDepthTestIsEnabled() );
 
     changeProjectionType();
 
@@ -556,6 +554,49 @@ void GameEngineConcrete::renderFrame()
     {
         m_oglUtility->bindBuffer( BufferTypes::ARRAY_BUFFER, 0u );
         m_oglUtility->bindBuffer( BufferTypes::VERTEX_ARRAY, 0u );
+    }
+
+    if( m_gridEnabled )
+    {
+        float max = 4.f;
+        float incr = 0.1f;
+        float width = 32.f;
+        
+        auto drawLine = [this, width]( float x, float y, float z ) {
+            // x
+            {
+                LOGLW::LineData lineData;
+                lineData[0] = { -width + x, 0.f, 0.f };
+                lineData[1] = {  width + x, 0.f, 0.f };
+                m_oglUtility->draw( lineData, ColorE::RED );
+            }
+            
+            // y
+            {
+                LOGLW::LineData lineData;
+                lineData[0] = { 0.f, -width + y, 0.f };
+                lineData[1] = { 0.f,  width + y, 0.f };
+                m_oglUtility->draw( lineData, ColorE::GREEN );
+            }
+
+            // z
+            {
+                LOGLW::LineData lineData;
+                lineData[0] = { 0.f, 0.f, -width + z };
+                lineData[1] = { 0.f, 0.f,  width + z };
+                m_oglUtility->draw( lineData, ColorE::BLUE );
+            }
+        };
+        for( float x = -max; x <= max; x += incr )
+        {
+            for( float y = -max; y <= max; y += incr )
+            {
+                for( float z = -max; z <= max; z += incr )
+                {
+                    drawLine(x, y, z);
+                }
+            }
+        }
     }
 
     if( m_debugDrawInitialized && m_enableDebugDraw )
@@ -609,18 +650,18 @@ void GameEngineConcrete::renderInfo()
     //m_projectionData.m_depthTest.runIfChanged();
 
     //ImGui::Text( "Projection: %s", ( m_projectionData.m_projectionType == ProjectionType::PERSPECTIVE ) ? "Perspective" : "Orthogonal" );
-    ImGui::Text( "Aspect Ratio: %f", getCamera()->getAspectRatio() );
-    ImGui::Text( "FOV-Y: %f", getCamera()->getFov() );
+    ImGui::Text( "Aspect Ratio: %f", getCamera().getAspectRatio() );
+    ImGui::Text( "FOV-Y: %f", getCamera().getFov() );
 
-    CUL::Graphics::Pos3Dd centerPos = getCamera()->getCenter();
-    String text = "Center:" + centerPos.serialize( 0 );
+    CUL::Graphics::Pos3Dd centerPos = getCamera().m_target;
+    String text = "Target:" + centerPos.serialize( 0 );
     ImGui::Text( "%s", text.cStr() );
 
-    CUL::Graphics::Pos3Dd eyePos = getCamera()->getEye();
+    CUL::Graphics::Pos3Dd eyePos = getCamera().getEye();
     text = "Eye:" + eyePos.serialize( 0 );
     ImGui::Text( "%s", text.cStr() );
 
-    CUL::Graphics::Pos3Dd upPos = getCamera()->getEye();
+    CUL::Graphics::Pos3Dd upPos = getCamera().getUp();
     text = "Up:" + upPos.serialize( 0 );
     ImGui::Text( "%s", text.cStr() );
 
@@ -628,41 +669,41 @@ void GameEngineConcrete::renderInfo()
     text = "Mouse = ( " + String( mData.getX() ) + ", " + String( mData.getY() ) + " )";
     ImGui::Text( "%s", text.cStr() );
 
-    res = ImGui::SliderFloat( "Z Far", &getCamera()->m_zFar, -64.f, 64.f );
+    res = ImGui::SliderFloat( "Z Far", &getCamera().m_target.z, -512.f, 1024.f );
     if( res )
     {
         m_projectionChanged = true;
     }
 
-    res = ImGui::SliderFloat( "Z Near", &getCamera()->m_zNear, -63.f, 255.f );
+    res = ImGui::SliderFloat( "Z Near", &getCamera().m_zNear, -512.f, 255.f );
     if( res )
     {
         m_projectionChanged = true;
     }
 
-    res = ImGui::SliderFloat( "Eye-Z", &getCamera()->m_pos.z, 0.0f, 255.0f );
+    res = ImGui::SliderFloat( "Eye-Z", &getCamera().m_pos.z, -512.f, 1024.0f );
     if( res )
     {
         // m_projectionData.setZnear( m_projectionData.m_eye.z );
         m_projectionChanged = true;
     }
 
-    res = ImGui::SliderFloat( "Center-Z", &getCamera()->m_center.z, -64.0f, 255.0f );
+    res = ImGui::SliderFloat( "Center-Z", &getCamera().m_center.z, -64.0f, 255.0f );
     if( res )
     {
         m_projectionChanged = true;
     }
 
-    text = "Left: " + String( getCamera()->getLeft() );
+    text = "Left: " + String( getCamera().getLeft() );
     ImGui::Text( "%s", text.cStr() );
 
-    text = "Right: " + String( getCamera()->getRight() );
+    text = "Right: " + String( getCamera().getRight() );
     ImGui::Text( "%s", text.cStr() );
 
-    text = "Top: " + String( getCamera()->getTop() );
+    text = "Top: " + String( getCamera().getTop() );
     ImGui::Text( "%s", text.cStr() );
 
-    text = "Bottom: " + String( getCamera()->getBottom() );
+    text = "Bottom: " + String( getCamera().getBottom() );
     ImGui::Text( "%s", text.cStr() );
 
     for( const auto& pair : m_debugValues )
@@ -760,23 +801,23 @@ void GameEngineConcrete::changeProjectionType()
 {
     m_oglUtility->resetMatrixToIdentity( MatrixTypes::PROJECTION );
     
-    if( ProjectionType::ORTO == getCamera()->m_projectionType )
+    if( ProjectionType::ORTO == getCamera().m_projectionType )
     {
-        m_oglUtility->setOrthogonalPerspective( *getCamera() );
+        m_oglUtility->setOrthogonalPerspective( getCamera() );
     }
-    else if( ProjectionType::PERSPECTIVE == getCamera()->m_projectionType )
+    else if( ProjectionType::PERSPECTIVE == getCamera().m_projectionType )
     {
-        m_oglUtility->setPerspectiveProjection( *getCamera() );
+        m_oglUtility->setPerspectiveProjection( getCamera() );
     }
     m_oglUtility->resetMatrixToIdentity( MatrixTypes::MODELVIEW );
-    m_oglUtility->lookAt( *getCamera() );
-    setProjection( *getCamera() );
-    m_oglUtility->setDepthTest( getCamera()->getDepthTestIsEnabled() );
+    m_oglUtility->lookAt( getCamera() );
+    setProjection( getCamera() );
+    m_oglUtility->setDepthTest( getCamera().getDepthTestIsEnabled() );
 }
 
 void GameEngineConcrete::setEyePos( const glm::vec3& pos )
 {
-    getCamera()->setEyePos( pos );
+    getCamera().setEyePos( pos );
     m_projectionChanged = true;
 }
 

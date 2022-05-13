@@ -124,9 +124,9 @@ void Quad::init()
 
 void Quad::setTransformation()
 {
-    Camera* camera = m_engine.getCamera();
-    auto projectionMatrix = camera->getProjectionMatrix();
-    auto viewMatrix = camera->getViewMatrix();
+    Camera& camera = m_engine.getCamera();
+    auto projectionMatrix = camera.getProjectionMatrix();
+    auto viewMatrix = camera.getViewMatrix();
 
     m_vao->getProgram()->setAttrib( "projection", projectionMatrix );
     m_vao->getProgram()->setAttrib( "view", viewMatrix );

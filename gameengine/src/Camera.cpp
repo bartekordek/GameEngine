@@ -14,7 +14,7 @@ glm::mat4 Camera::getViewMatrix()
 
 glm::mat4 Camera::getProjectionMatrix()
 {
-    glm::mat4 projection = glm::perspective( glm::radians( m_fov ), m_aspectRatio, m_zNear, m_zFar );
+    glm::mat4 projection = glm::perspective( glm::radians( m_fov ), m_aspectRatio, m_zNear, m_target.z );
     return projection;
 }
 
@@ -45,7 +45,7 @@ float Camera::getZnear() const
 
 float Camera::getZfar() const
 {
-    return m_zFar;
+    return m_target.z;
 }
 
 float Camera::getFov() const
@@ -85,7 +85,7 @@ void Camera::setZnear( float val )
 
 void Camera::setZfar( float val )
 {
-    m_zFar = val;
+    m_target.z = val;
 }
 
 void Camera::setFov( float val )

@@ -156,8 +156,6 @@ ContextInfo IUtility::initContextVersion( SDL2W::IWindow* window )
     return result;
 }
 
-
-
 void IUtility::setOrthogonalPerspective( const Camera& camera )
 {
     const auto left = camera.getLeft();
