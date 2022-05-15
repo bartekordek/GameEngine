@@ -1,14 +1,16 @@
 #pragma once
 
-#include "gameengine/Import.hpp"
+#include "gameengine/IEngineUser.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
 
-class GAME_ENGINE_API IRenderable
+class GAME_ENGINE_API IRenderable: public IEngineUser
 {
 public:
-    IRenderable() = default;
+    IRenderable( IGameEngine* engine );
     virtual ~IRenderable() = default;
+
+    void setDisableRenderOnMyOwn( bool disable );
 
     virtual void render() = 0;
 

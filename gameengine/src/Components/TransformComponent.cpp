@@ -142,7 +142,6 @@ const glm::mat4 TransformComponent::getModel()
         }
     }
 
-
     return model;
 }
 

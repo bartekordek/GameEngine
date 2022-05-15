@@ -4,10 +4,9 @@
 using namespace LOGLW;
 #include "gameengine/IUtility.hpp"
 
-VertexBuffer::VertexBuffer( VertexBufferData& vertexData )
-    : m_vertexData( std::move( vertexData ) )
+VertexBuffer::VertexBuffer( VertexBufferData& vertexData, IGameEngine* engine )
+    : IRenderable( engine ), m_vertexData( std::move( vertexData ) )
 {
-
     loadData();
 }
 

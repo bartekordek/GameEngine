@@ -59,7 +59,6 @@ public:
 
     void setUp( const glm::vec3& pos );
     void setZnear( float val );
-    void setZfar( float val );
     void setFov( float val );
     void setSize( const WindowSize& winSize );
     void setEyePos( const glm::vec3& pos );

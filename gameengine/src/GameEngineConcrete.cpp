@@ -30,7 +30,7 @@
 #undef LoadImage
 using namespace LOGLW;
 
-GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool legacy )
+GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
     : m_sdlW( sdl2w ),
       m_activeWindow( sdl2w->getMainWindow() ),
       m_cul( sdl2w->getCul() ),
@@ -216,7 +216,7 @@ IObject* GameEngineConcrete::createTriangle( CUL::JSON::INode* jNode )
     CUL::Assert::simple( CUL::JSON::ElementType::ARRAY == jNode->getType(), "Different types." );
     CUL::Assert::simple( 3 == jNode->getArray().size(), "Defined triangle vertices count mismatch." );
 
-    auto triangle = new TriangleImpl();
+    auto triangle = new TriangleImpl(this);
 
     auto jsonToPoint = []( CUL::JSON::INode* node ) -> Point
     {
@@ -246,7 +246,7 @@ IObject* GameEngineConcrete::createTriangle( CUL::JSON::INode* jNode )
 
 ITriangle* GameEngineConcrete::createTriangle( const TriangleData& data, const ColorS& color )
 {
-    ITriangle* triangle = new TriangleImpl();
+    ITriangle* triangle = new TriangleImpl(this);
     triangle->setValues( data );
     triangle->setColor( color );
     addObjectToRender( triangle );
@@ -259,12 +259,12 @@ IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS&
     if( m_oglUtility->isLegacy() )
     {
         m_logger->log( "GameEngineConcrete::createQuad - legacy." );
-        quad = new QuadImplLegacy();
+        quad = new QuadImplLegacy(this);
     }
     else
     {
         m_logger->log( "GameEngineConcrete::createQuad - modern." );
-        quad = new QuadImpl();
+        quad = new QuadImpl(this);
     }
     quad->setValues( data );
     quad->setColor( color );
@@ -274,7 +274,7 @@ IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS&
 
 ILine* GameEngineConcrete::createLine( const LineData& data, const ColorS& color )
 {
-    ILine* line = new LineImpl();
+    ILine* line = new LineImpl(this);
     line->setValues( data );
     line->setColor( color );
     addObjectToRender( line );
@@ -284,7 +284,7 @@ ILine* GameEngineConcrete::createLine( const LineData& data, const ColorS& color
 
 IPoint* GameEngineConcrete::createPoint( const Point& position, const ColorS& color )
 {
-    auto result = new PointImpl();
+    auto result = new PointImpl(this);
     result->setColor( color );
     result->setWorldPosition( position );
     addObjectToRender( result );
@@ -294,21 +294,19 @@ IPoint* GameEngineConcrete::createPoint( const Point& position, const ColorS& co
 
 Sprite* GameEngineConcrete::createSprite( const String& path, bool )
 {
-    auto sprite = new Sprite( &getCamera(), getCul() );
+    auto sprite = new Sprite( &getCamera(), getCul(), this );
 
     CUL::FS::Path fsPath = path;
     CUL::Assert::simple( fsPath.exists(), "File " + path + " does not exist.", m_logger );
 
     sprite->LoadImage( path, m_imageLoader );
 
-    addObjectToRender( sprite );
-
     return sprite;
 }
 
 Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width, unsigned height, bool )
 {
-    auto sprite = new Sprite( &getCamera(), getCul() );
+    auto sprite = new Sprite( &getCamera(), getCul(), this );
     auto textureId = m_oglUtility->generateTexture();
     sprite->LoadImage( (CUL::Graphics::DataType*)data, width, height, m_imageLoader, textureId );
     m_oglUtility->bindTexture( textureId );
@@ -457,7 +455,7 @@ void GameEngineConcrete::initialize()
         {
             m_projectionChanged = true;
         } );
-    
+
     m_projectionData.setOnChange(
         [this]()
         {
@@ -518,7 +516,6 @@ void GameEngineConcrete::renderFrame()
         }
     }
 
-    // setBackgroundColor( m_backgroundColor );
     if( m_clearEveryFrame )
     {
         m_oglUtility->clearColorAndDepthBuffer();
@@ -528,18 +525,10 @@ void GameEngineConcrete::renderFrame()
 
     changeProjectionType();
 
-    if( m_clearModelView )
-    {
-        // m_oglUtility->resetMatrixToIdentity( MatrixTypes::MODELVIEW );
-    }
-
     if( m_onBeforeFrame )
     {
         m_onBeforeFrame();
     }
-
-    // m_oglUtility->setDepthTest( true );
-    // m_oglUtility->setBackfaceCUll( true );
 
     if( m_viewportChanged )
     {
@@ -554,49 +543,6 @@ void GameEngineConcrete::renderFrame()
     {
         m_oglUtility->bindBuffer( BufferTypes::ARRAY_BUFFER, 0u );
         m_oglUtility->bindBuffer( BufferTypes::VERTEX_ARRAY, 0u );
-    }
-
-    if( m_gridEnabled )
-    {
-        float max = 4.f;
-        float incr = 0.1f;
-        float width = 32.f;
-        
-        auto drawLine = [this, width]( float x, float y, float z ) {
-            // x
-            {
-                LOGLW::LineData lineData;
-                lineData[0] = { -width + x, 0.f, 0.f };
-                lineData[1] = {  width + x, 0.f, 0.f };
-                m_oglUtility->draw( lineData, ColorE::RED );
-            }
-            
-            // y
-            {
-                LOGLW::LineData lineData;
-                lineData[0] = { 0.f, -width + y, 0.f };
-                lineData[1] = { 0.f,  width + y, 0.f };
-                m_oglUtility->draw( lineData, ColorE::GREEN );
-            }
-
-            // z
-            {
-                LOGLW::LineData lineData;
-                lineData[0] = { 0.f, 0.f, -width + z };
-                lineData[1] = { 0.f, 0.f,  width + z };
-                m_oglUtility->draw( lineData, ColorE::BLUE );
-            }
-        };
-        for( float x = -max; x <= max; x += incr )
-        {
-            for( float y = -max; y <= max; y += incr )
-            {
-                for( float z = -max; z <= max; z += incr )
-                {
-                    drawLine(x, y, z);
-                }
-            }
-        }
     }
 
     if( m_debugDrawInitialized && m_enableDebugDraw )
@@ -643,6 +589,8 @@ void GameEngineConcrete::renderInfo()
     ImGui::Begin( name.cStr() );
     ImGui::SetWindowSize( { (float)winSize.getWidth() * 0.3f, (float)winSize.getHeight() * 1.f } );
 
+    ImGui::Text( "Legacy: %s", getUtility()->isLegacy() ? "true": "false" );
+
     auto res = false;
     //ImGui::Checkbox( "Projection is Perspective", &m_isPerspective.getRef() );
 
@@ -669,11 +617,7 @@ void GameEngineConcrete::renderInfo()
     text = "Mouse = ( " + String( mData.getX() ) + ", " + String( mData.getY() ) + " )";
     ImGui::Text( "%s", text.cStr() );
 
-    res = ImGui::SliderFloat( "Z Far", &getCamera().m_target.z, -512.f, 1024.f );
-    if( res )
-    {
-        m_projectionChanged = true;
-    }
+    ImGui::Text( "Z Far: %f", getCamera().getZfar() );
 
     res = ImGui::SliderFloat( "Z Near", &getCamera().m_zNear, -512.f, 255.f );
     if( res )
@@ -800,7 +744,7 @@ void GameEngineConcrete::prepareProjection()
 void GameEngineConcrete::changeProjectionType()
 {
     m_oglUtility->resetMatrixToIdentity( MatrixTypes::PROJECTION );
-    
+
     if( ProjectionType::ORTO == getCamera().m_projectionType )
     {
         m_oglUtility->setOrthogonalPerspective( getCamera() );
@@ -847,8 +791,6 @@ void GameEngineConcrete::renderObjects()
     {
         renderableObject->render();
     }
-    if( m_drawQuad )
-        m_oglUtility->createQuad();
 }
 
 void GameEngineConcrete::refreshBuffers()

@@ -2,7 +2,7 @@
 
 using namespace LOGLW;
 
-Model::Model()
+Model::Model( IGameEngine* engine ) : IObject(engine)
 {
 
 }

@@ -2,7 +2,7 @@
 
 using namespace LOGLW;
 
-TriangleImpl::TriangleImpl()
+TriangleImpl::TriangleImpl( IGameEngine* engine ) : ITriangle(engine)
 {
 }
 

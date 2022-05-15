@@ -11,7 +11,7 @@ class LineImpl final:
 public:
     LineData m_data;
 
-    LineImpl();
+    LineImpl( IGameEngine* engine );
 
     void setColor( const LineColors& colors ) override;
     void setColor( const ColorS& color ) override;

@@ -331,7 +331,9 @@ public:
 
     virtual void translate( const Point& point ) = 0;
     virtual void translate( const float x, const float y, const float z ) = 0;
-    virtual void rotate( const float angle, const float x = 0.0f, const float y = 0.0f, const float z = 0.0f ) = 0;
+
+
+    void rotate( const float angleDeg, const float x = 0.0f, const float y = 0.0f, const float z = 0.0f );
     virtual void scale( const CUL::MATH::Vector3Df& scale ) = 0;
     virtual void scale( const float scale ) = 0;
     virtual void setDepthTest( const bool enabled ) = 0;

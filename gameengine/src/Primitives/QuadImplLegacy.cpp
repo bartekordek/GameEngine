@@ -2,7 +2,7 @@
 
 using namespace LOGLW;
 
-QuadImplLegacy::QuadImplLegacy()
+QuadImplLegacy::QuadImplLegacy( IGameEngine* engine ) : IQuad(engine)
 {
     m_data[ 0 ] = m_data[ 1 ] = m_data[ 2 ] = m_data[ 3 ] = { 0.0f, 0.0f, 0.0f };
 }

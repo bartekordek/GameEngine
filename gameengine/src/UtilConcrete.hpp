@@ -106,7 +106,6 @@ private:
 
     void translate( const Point& point ) override;
     void translate( const float x, const float y, const float z ) override;
-    void rotate( const float angle, const float x = 0.0f, const float y = 0.0f, const float z = 0.0f ) override;
 
     virtual void scale( const CUL::MATH::Vector3Df& scale ) override;
     virtual void scale( const float scale ) override;

@@ -12,7 +12,7 @@ class GAME_ENGINE_API ITriangle:
     public IObject
 {
 public:
-    ITriangle();
+    ITriangle(IGameEngine* engine);
 
     virtual void setValues( const TriangleData& values ) = 0;
     virtual void setColor( const TriangleColors& colors ) = 0;

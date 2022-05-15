@@ -10,7 +10,7 @@
 
 using namespace LOGLW;
 
-Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent ) : m_camera( camera ), m_engine( engine )
+Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &engine ), m_camera( camera ), m_engine( engine )
 {
     setParent( parent );
 
@@ -31,17 +31,18 @@ void Quad::render()
     if( getUtility()->isLegacy() )
     {
         QuadCUL quad; 
-        quad[0][0] = -2.f;
-        quad[0][1] = -2.f;
+        static float size = 1.f;
+        quad[0][0] = -size;
+        quad[0][1] = -size;
 
-        quad[1][0] = -2.f;
-        quad[1][1] =  2.f;
+        quad[1][0] = -size;
+        quad[1][1] =  size;
 
-        quad[2][0] =  2.f;
-        quad[2][1] =  2.f;
+        quad[2][0] =  size;
+        quad[2][1] =  size;
 
-        quad[3][0] =  2.f;
-        quad[3][1] = -2.f;
+        quad[3][0] =  size;
+        quad[3][1] = -size;
         
         ColorS color;
         color.setRF(1.f);
@@ -49,13 +50,15 @@ void Quad::render()
         getUtility()->matrixStackPush();
 
         const auto position = getTransform()->getWorldPosition();
+        const auto rotation = getTransform()->getWorldRotation();
 
         getUtility()->translate( position );
 
         static const auto type = CUL::MATH::Angle::Type::DEGREE;
-        getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::YAW ).getValueF( type ), 0.f, 0.f, 1.f );
-        getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::PITCH ).getValueF( type ), 0.f, 1.f, 0.f );
-        getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::ROLL ).getValueF( type ), 1.f, 0.f, 0.f );
+
+        getUtility()->rotate( rotation.yaw.getDeg(), 0.f, 0.f, 1.f );
+        getUtility()->rotate( rotation.pitch.getDeg(), 0.f, 1.f, 0.f );
+        getUtility()->rotate( rotation.roll.getDeg(), 1.f, 0.f, 0.f );
 
         getUtility()->draw( quad, color );
 
@@ -63,13 +66,9 @@ void Quad::render()
     }
     else
     {
-        glm::mat4 model = glm::mat4( 1.0f );
-        const Pos& position = getWorldPosition();
-        glm::vec3 m_pos = position.toGlmVec();
-        model = glm::translate( model, m_pos );
-
         m_vao->getProgram()->enable();
         setTransformation();
+        m_vao->render();
         m_vao->getProgram()->disable();
     }
 }
@@ -111,6 +110,8 @@ void Quad::init()
         vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
 
         m_vao = m_engine.createVAO();
+        m_vao->setDisableRenderOnMyOwn( true );
+
         m_vao->addVertexBuffer( vboData );
         m_vao->createShader( "source.vert" );
         m_vao->createShader( "yellow.frag" );
@@ -118,8 +119,6 @@ void Quad::init()
         m_vao->getProgram()->enable();
         setTransformation();
     }
-
-    m_engine.addObjectToRender(this);
 }
 
 void Quad::setTransformation()

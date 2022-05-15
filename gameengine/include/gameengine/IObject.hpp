@@ -18,7 +18,7 @@ class TransformComponent;
 class GAME_ENGINE_API IObject: public IRenderable, public ITransformable
 {
 public:
-    IObject();
+    IObject(IGameEngine* engine);
 
     virtual void addShader( const CUL::FS::Path& filePath, IShaderFactory* sf );
 

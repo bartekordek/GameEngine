@@ -10,7 +10,7 @@ class GAME_ENGINE_API Model final:
     private IUtilityUser
 {
 public:
-    Model();
+    Model(IGameEngine* engine);
 
     virtual ~Model() = default;
 

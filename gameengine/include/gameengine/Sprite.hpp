@@ -14,11 +14,12 @@ NAMESPACE_END( CUL )
 NAMESPACE_BEGIN( LOGLW )
 
 class Camera;
+class TransformComponent;
 
 class GAME_ENGINE_API Sprite final: public IObject, public IUtilityUser
 {
 public:
-    Sprite( Camera* camera, CUL::CULInterface* cul );
+    Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine );
 
     void LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
     void LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader*, unsigned textureId );
@@ -44,6 +45,8 @@ private:
 
     void renderModern();
     void renderLegacy();
+
+    TransformComponent* m_transformComponent = nullptr;
 
     Camera* m_camera = nullptr;
     CUL::CULInterface* m_cul = nullptr;

@@ -3,7 +3,7 @@
 
 using namespace LOGLW;
 
-ITriangle::ITriangle()
+ITriangle::ITriangle( IGameEngine* engine ) : IObject(engine)
 {
 }
 

@@ -9,7 +9,9 @@ class GAME_ENGINE_API IPoint:
     public IObject
 {
 public:
-    IPoint() = default;
+    IPoint( IGameEngine* engine ) : IObject( engine )
+    {
+    }
 
     virtual void setColor( const ColorS& color ) = 0;
 

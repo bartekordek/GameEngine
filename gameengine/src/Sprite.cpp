@@ -4,6 +4,7 @@
 #include "gameengine/Program.hpp"
 #include "gameengine/Shader.hpp"
 #include "gameengine/Camera.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
 
 #include "CUL/Graphics/IImageLoader.hpp"
 #include "CUL/Math/Algorithms.hpp"
@@ -14,8 +15,9 @@
 
 using namespace LOGLW;
 
-Sprite::Sprite( Camera* camera, CUL::CULInterface* cul ): m_camera(camera), m_cul( cul )
+Sprite::Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine ) : IObject( engine ), m_camera( camera ), m_cul( cul )
 {
+    m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 }
 
 void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader )
@@ -64,7 +66,7 @@ void Sprite::renderModern()
     m_shaderProgram->enable();
 
     glm::mat4 model = glm::mat4( 1.0f );  // make sure to initialize matrix to identity matrix first
-    const Pos& position = getWorldPosition();
+    const Pos& position = m_transformComponent->getWorldPosition();
     glm::vec3 m_pos = position.toGlmVec();
     model = glm::translate( model, m_pos );
 
@@ -93,50 +95,49 @@ void Sprite::renderLegacy()
         init();
     }
 
-    QuadCUL quad1;
-
-    /*
-    00   10
-    10   11
-    */
-
     std::array<std::array<float, 3>, 4> values;
     values[3] = { 0.f, 0.f, 0.f };
     values[2] = { 1.f, 0.f, 0.f };
     values[1] = { 1.f, 1.f, 0.f };
     values[0] = { 0.f, 1.f, 0.f };
-    quad1.setData( values );
+    QuadCUL colors = values;
 
-    QuadCUL quad2;
     const auto& size = m_image->getImageInfo().size;
 
-    float x0 = -(float)size.width / 2.f;
-    float x1 = (float)size.width / 2.f;
+    const float denominator = 8.f;
 
-    float y0 = -(float)size.height / 2.f;
-    float y1 = (float)size.height / 2.f;
+#ifdef OLD_VER
+    float x0 = -(float)size.width / denominator;
+    float x1 = (float)size.width / denominator;
 
-    /*
-    00 10
-    01 11
-    */
+    float y0 = -(float)size.height / denominator;
+    float y1 = (float)size.height / denominator;
+#else
+    float x0 = -0.5f;
+    float x1 = 0.5f;
+
+    float y0 = -0.5f;
+    float y1 = 0.5f;
+#endif
+
 
     values[0] = { x0, y0, 0.f };
     values[1] = { x1, y0, 0.f };
     values[2] = { x1, y1, 0.f };
     values[3] = { x0, y1, 0.f };
-
-    quad2.setData( values );
+    QuadCUL positions = values;
 
     getUtility()->bindTexture( m_textureId );
 
+    const auto position = getTransform()->getWorldPosition();
+
     getUtility()->matrixStackPush();
-    getUtility()->translate( getWorldPosition() );
+    getUtility()->translate( position );
     static const auto type = CUL::MATH::Angle::Type::DEGREE;
     getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::YAW ).getValueF( type ), 0.f, 0.f, 1.f );
     getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::PITCH ).getValueF( type ), 0.f, 1.f, 0.f );
     getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::ROLL ).getValueF( type ), 1.f, 0.f, 0.f );
-    getUtility()->draw( quad2, quad1 );
+    getUtility()->draw( positions, colors );
     getUtility()->matrixStackPop();
 
     getUtility()->bindTexture( 0 );

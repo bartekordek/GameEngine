@@ -9,7 +9,7 @@ class PointImpl final:
     public IUtilityUser
 {
 public:
-    PointImpl()
+    PointImpl( IGameEngine* engine ) : IPoint(engine)
     {
 
     }

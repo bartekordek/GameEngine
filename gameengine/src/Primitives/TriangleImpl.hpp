@@ -16,7 +16,7 @@ class TriangleImpl final:
 public:
     TriangleData m_values;
 
-    TriangleImpl();
+    TriangleImpl(IGameEngine* engine);
 
     ~TriangleImpl();
 

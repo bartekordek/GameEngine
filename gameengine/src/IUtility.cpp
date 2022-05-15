@@ -306,6 +306,11 @@ void IUtility::vertexAttribPointer( const VertexAttributePtrMeta& meta )
                            meta.offset );
 }
 
+void IUtility::rotate( const float angleDeg, const float x, const float y, const float z )
+{
+    glRotatef( angleDeg, x, y, z );
+}
+
 CUL::GUTILS::Version IUtility::getVersion() const
 {
     return m_supportedVersion;

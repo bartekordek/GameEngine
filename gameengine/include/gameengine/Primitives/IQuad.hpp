@@ -14,7 +14,7 @@ class GAME_ENGINE_API IQuad:
     public IObject
 {
 public:
-    IQuad() = default;
+    IQuad(IGameEngine* engine);
 
     virtual void setValues( const QuadData& values ) = 0;
     virtual void setColor( const QuadColors& colors ) = 0;
@@ -24,6 +24,7 @@ public:
 
 protected:
 private:
+    IQuad() = delete;
     IQuad( const IQuad& arg ) = delete;
     IQuad( IQuad&& arg ) = delete;
     IQuad& operator=( const IQuad& rhv ) = delete;

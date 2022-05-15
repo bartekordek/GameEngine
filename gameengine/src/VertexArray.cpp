@@ -6,12 +6,11 @@
 
 using namespace LOGLW;
 
-VertexArray::VertexArray( IGameEngine& engine ) : m_engine(engine)
+VertexArray::VertexArray( IGameEngine& engine ) : IRenderable(&engine)
 {
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         createVAO();
-        m_engine.addObjectToRender( this );
     }
     else
     {
@@ -175,7 +174,8 @@ void VertexArray::createVBOs()
     {
         auto vboData = m_vboDataToPrepare.back();
         vboData.vao = this;
-        auto vbo = new VertexBuffer( vboData );
+        auto vbo = new VertexBuffer( vboData, getEngine() );
+        vbo->setDisableRenderOnMyOwn( true );
         m_vbos.emplace_back( vbo );
         m_vboDataToPrepare.pop_back();
         ++m_vbosCount;
@@ -206,7 +206,7 @@ VertexArray::~VertexArray()
     }
     else
     {
-        m_engine.pushPreRenderTask( [this]() {
+        getEngine()->pushPreRenderTask( [this]() {
             release();
         } );
     }
@@ -214,6 +214,6 @@ VertexArray::~VertexArray()
 
 void VertexArray::release()
 {
-    m_engine.removeObjectToRender(this);
+    getEngine()->removeObjectToRender( this );
     getUtility()->deleteBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, m_vaoId );
 }

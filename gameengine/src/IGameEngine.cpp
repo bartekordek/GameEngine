@@ -53,7 +53,7 @@ IGameEngine* IGameEngine::getInstance()
 
 Sprite* IGameEngine::createSprite()
 {
-    auto sprite = new Sprite( &getCamera(), getCul() );
+    auto sprite = new Sprite( &getCamera(), getCul(), this );
 
     // sprite->LoadImage( path, m_imageLoader );
 
@@ -122,7 +122,7 @@ void IGameEngine::removeObjectToRender( IRenderable* renderable )
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
-        CUL::Assert::simple( it == m_objectsToRender.end(), "Trying to remove already removed object." );
+        CUL::Assert::simple( it != m_objectsToRender.end(), "Trying to remove already removed object." );
         m_objectsToRender.erase( renderable );
     }
     else

@@ -4,7 +4,7 @@
 
 using namespace LOGLW;
 
-IObject::IObject()
+IObject::IObject(IGameEngine* engine): IRenderable(engine)
 {
     auto transofrmComponent = new TransformComponent(*this);
     addComponent( "TransformComponent", transofrmComponent );

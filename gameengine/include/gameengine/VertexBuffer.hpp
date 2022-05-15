@@ -56,7 +56,7 @@ class GAME_ENGINE_API VertexBuffer final : public IUtilityUser,
                                                 public IRenderable
 {
 public:
-    VertexBuffer( VertexBufferData& VertexData );
+    VertexBuffer( VertexBufferData& VertexData, IGameEngine* engine );
     void render() override;
     unsigned getId()const;
     int getSize() const;

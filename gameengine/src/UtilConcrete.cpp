@@ -352,11 +352,6 @@ void UtilConcrete::translate( const float x, const float y, const float z )
     // glLoadMatrixf( mat );
 }
 
-void UtilConcrete::rotate( const float angle, const float x, const float y, const float z )
-{
-    glRotatef( angle, x, y, z );
-}
-
 void UtilConcrete::scale( const CUL::MATH::Vector3Df& scale )
 {
     glScalef( scale.getX(), scale.getY(), scale.getZ() );

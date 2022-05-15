@@ -85,9 +85,6 @@ private:
     void createVAO();
     void createVBOs();
 
-    IGameEngine& m_engine;
-
-
     unsigned m_vaoId = 0;
 
     std::mutex m_tasksMtx;

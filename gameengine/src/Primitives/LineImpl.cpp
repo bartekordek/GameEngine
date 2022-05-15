@@ -2,9 +2,9 @@
 
 using namespace LOGLW;
 
-LineImpl::LineImpl()
+LineImpl::LineImpl( IGameEngine* engine ) : ILine( engine )
 {
-    m_data[ 0 ] = m_data[ 1 ] = { 0.0f, 0.0f, 0.0f };
+    m_data[0] = m_data[1] = { 0.0f, 0.0f, 0.0f };
 }
 
 void LineImpl::setValues( const LineData& values )

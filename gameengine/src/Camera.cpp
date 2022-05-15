@@ -45,7 +45,7 @@ float Camera::getZnear() const
 
 float Camera::getZfar() const
 {
-    return m_target.z;
+    return std::abs( m_target.z );
 }
 
 float Camera::getFov() const
@@ -81,11 +81,6 @@ void Camera::setUp( const glm::vec3& pos )
 void Camera::setZnear( float val )
 {
     m_zNear = val;
-}
-
-void Camera::setZfar( float val )
-{
-    m_target.z = val;
 }
 
 void Camera::setFov( float val )
