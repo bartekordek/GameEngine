@@ -26,7 +26,6 @@ public:
 
     TransformComponent(IObject& owner);
 
-
     void setWorldPosition( const Pos& position );
     void setWorldPosition( Pos::Type x, Pos::Type y, Pos::Type z );
     const Pos getWorldPosition() const;
@@ -39,6 +38,11 @@ public:
 
     const CUL::MATH::Angle& getWorldAngle( CUL::MATH::EulerAngles type ) const;
     const glm::mat4 getModel();
+    glm::mat4 getRotation();
+    glm::mat4 getTranslation();
+
+    void setSize( const Pos& size );
+    const Pos& getSize() const;
 
     const Pos& getPivot() const;
     void setPivot( const Pos& pivot );
@@ -51,8 +55,9 @@ protected:
 private:
     IObject& m_owner;
 
+    Pos m_size;
     Pos m_pos;
-    Pos m_pivot;
+    Pos m_pivot = Pos(0.5f, 0.5f, 0.0f);
 
     CUL::MATH::Rotation m_rotation;
 

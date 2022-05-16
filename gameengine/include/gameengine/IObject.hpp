@@ -14,6 +14,7 @@ NAMESPACE_BEGIN( LOGLW )
 
 class IComponent;
 class TransformComponent;
+class Name;
 
 class GAME_ENGINE_API IObject: public IRenderable, public ITransformable
 {
@@ -34,6 +35,7 @@ public:
     void addComponent( const String& name, IComponent* component );
 
     TransformComponent* getTransform();
+    Name* getnameCmp();
 
     virtual ~IObject();
 
@@ -44,6 +46,9 @@ private:
     IObject* m_parent = nullptr;
 
     std::map<String, IComponent*> m_components;
+
+    TransformComponent* m_transform = nullptr;
+    Name* m_nameCmp = nullptr;
 
     std::mutex m_childrenMtx;
     std::set<IObject*> m_children;

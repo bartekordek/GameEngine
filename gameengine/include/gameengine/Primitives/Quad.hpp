@@ -7,13 +7,12 @@ NAMESPACE_BEGIN( LOGLW )
 
 class Camera;
 class IGameEngine;
+class TransformComponent;
 
 class GAME_ENGINE_API Quad final: public IUtilityUser, public IObject
 {
 public:
     Quad( Camera& camera, IGameEngine& engine, IObject* parent );
-
-    void setSize(float width, float height);
 
     ~Quad();
 protected:
@@ -23,8 +22,7 @@ private:
     void setTransformation();
     void release();
 
-    float m_width = 2.f;
-    float m_height = 2.f;
+    TransformComponent* m_transformComponent = nullptr;
 
     class VertexArray* m_vao = nullptr;
 

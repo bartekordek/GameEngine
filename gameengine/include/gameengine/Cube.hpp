@@ -15,6 +15,7 @@ NAMESPACE_BEGIN( LOGLW )
 
 class Camera;
 class IGameEngine;
+class TransformComponent;
 
 class GAME_ENGINE_API Cube final: public IObject, public IUtilityUser
 {
@@ -33,6 +34,8 @@ private:
     void renderLegacy();
 
     void release();
+
+    TransformComponent* m_transformComponent = nullptr;
 
     Camera* m_camera = nullptr;
     IGameEngine* m_engine = nullptr;

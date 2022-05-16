@@ -3,30 +3,16 @@
 #include "gameengine/IObjectFactory.hpp"
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/Components/Name.hpp"
 
-#include "CUL/ThreadUtils.hpp"
+#include "CUL/Threading/ThreadUtils.hpp"
 
 using namespace LOGLW;
 
 Cube::Cube( Camera* camera, IGameEngine* engine ) : IObject( engine ), m_camera( camera ), m_engine( engine )
 {
-    m_wallsPositions[0] = ITransformable::Pos( 0.f, 0.f, 1.f );
-    // m_rotations[0].roll.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-
-    m_wallsPositions[1] = ITransformable::Pos( 0.f, 0.f, -1.f );
-    // m_rotations[1].roll.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-
-    m_wallsPositions[2] = ITransformable::Pos( -1.f, 0.f, 0.f );
-    m_rotations[2].pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-
-    m_wallsPositions[3] = ITransformable::Pos( 1.f, 0.f, 0.f );
-    m_rotations[3].pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-
-    m_wallsPositions[4] = ITransformable::Pos( 0.f, -1.f, 0.f );
-    m_rotations[4].roll.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-
-    m_wallsPositions[5] = ITransformable::Pos( 0.f, 1.f, 0.f );
-    m_rotations[5].roll.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+    m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
+    m_transformComponent->setPivot( { 1.f, 0.f, 0.f } );
 
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -50,18 +36,90 @@ void Cube::setImage( unsigned, const CUL::FS::Path&, CUL::Graphics::IImageLoader
 
 void Cube::createPlaceHolders()
 {
-    for( size_t i = 0; i < 6; ++i )
+    TransformComponent::Pos quadSize(2.f, 2.f, 0.f);
+    TransformComponent::Pos pivot;
+    // 0
     {
         LOGLW::Quad* quad = m_engine->createQuad( this );
-        m_walls[i] = quad;
-        quad->setDisableRenderOnMyOwn(true);
+        quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
-        TransformComponent* transformCmp = static_cast<TransformComponent*>( quad->getComponent( "TransformComponent" ) );
-        if( transformCmp )
-        {
-            transformCmp->setWorldPosition( m_wallsPositions[i] );
-            transformCmp->setWorldRotation( m_rotations[i] );
-        }
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setWorldPosition( ITransformable::Pos( 0.f, 0.f, 1.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        quad->getnameCmp()->setName( "Wall00" );
+    }
+
+    // 1
+    {
+        LOGLW::Quad* quad = m_engine->createQuad( this );
+        quad->setDisableRenderOnMyOwn( true );
+        addChild( quad );
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setWorldPosition( ITransformable::Pos( 0.f, 0.f, -1.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        quad->getnameCmp()->setName( "Wall01" );
+    }
+
+    // 2
+    {
+        LOGLW::Quad* quad = m_engine->createQuad( this );
+        quad->setDisableRenderOnMyOwn( true );
+        addChild( quad );
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setWorldPosition( ITransformable::Pos( -1.f, 0.f, 0.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        CUL::MATH::Rotation rotation;
+        rotation.yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        transformCmp->setWorldRotation( rotation );
+        quad->getnameCmp()->setName( "Wall02" );
+    }
+
+    // 3
+    {
+        LOGLW::Quad* quad = m_engine->createQuad( this );
+        quad->setDisableRenderOnMyOwn( true );
+        addChild( quad );
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setWorldPosition( ITransformable::Pos( 1.f, 0.f, 0.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        CUL::MATH::Rotation rotation;
+        rotation.yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        transformCmp->setWorldRotation( rotation );
+        quad->getnameCmp()->setName( "Wall03" );
+    }
+
+    // 4
+    {
+        LOGLW::Quad* quad = m_engine->createQuad( this );
+        quad->setDisableRenderOnMyOwn( true );
+        addChild( quad );
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setWorldPosition( ITransformable::Pos( 0.f, -1.f, 0.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        CUL::MATH::Rotation rotation;
+        rotation.pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        transformCmp->setWorldRotation( rotation );
+        quad->getnameCmp()->setName( "Wall04" );
+    }
+
+    // 5
+    {
+        LOGLW::Quad* quad = m_engine->createQuad( this );
+        quad->setDisableRenderOnMyOwn( true );
+        addChild( quad );
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setWorldPosition( ITransformable::Pos( 0.f, 1.f, 0.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        CUL::MATH::Rotation rotation;
+        rotation.pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        transformCmp->setWorldRotation( rotation );
+        quad->getnameCmp()->setName( "Wall05" );
     }
 }
 
@@ -75,10 +133,7 @@ void Cube::render()
         const auto rotation = getTransform()->getWorldRotation();
 
         getUtility()->translate( position );
-
-        getUtility()->rotate( rotation.yaw.getDeg(), 0.f, 0.f, 1.f );
-        getUtility()->rotate( rotation.pitch.getDeg(), 0.f, 1.f, 0.f );
-        getUtility()->rotate( rotation.roll.getDeg(), 1.f, 0.f, 0.f );
+        getUtility()->rotate( rotation );
     }
 
     const auto children = getChildren();
@@ -91,15 +146,6 @@ void Cube::render()
     {
         getUtility()->matrixStackPop();
     }
-
-    // if( getUtility()->isLegacy() )
-    // {
-    //     renderLegacy();
-    // }
-    // else
-    // {
-    //     renderModern();
-    // }
 }
 
 void Cube::renderModern()

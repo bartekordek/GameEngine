@@ -12,6 +12,7 @@
 #include "CUL/Math/Primitives/Quad.hpp"
 #include "CUL/Math/Primitives/Triangle.hpp"
 #include "CUL/Math/Primitives/Triangle3D.hpp"
+#include "CUL/Math/Rotation.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
 
@@ -332,7 +333,7 @@ public:
     virtual void translate( const Point& point ) = 0;
     virtual void translate( const float x, const float y, const float z ) = 0;
 
-
+    void rotate( const CUL::MATH::Rotation& rotation );
     void rotate( const float angleDeg, const float x = 0.0f, const float y = 0.0f, const float z = 0.0f );
     virtual void scale( const CUL::MATH::Vector3Df& scale ) = 0;
     virtual void scale( const float scale ) = 0;
