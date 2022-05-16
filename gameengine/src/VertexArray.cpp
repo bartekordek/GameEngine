@@ -2,7 +2,7 @@
 #include "gameengine/IndexBuffer.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IUtility.hpp"
-#include "CUL/ThreadUtils.hpp"
+#include "CUL/Threading/ThreadUtils.hpp"
 
 using namespace LOGLW;
 

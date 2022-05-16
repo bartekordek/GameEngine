@@ -24,19 +24,18 @@ void TransformComponent::setWorldPosition( Pos::Type x, Pos::Type y, Pos::Type z
 const TransformComponent::Pos TransformComponent::getWorldPosition() const
 {
     IObject* parent = m_owner.getParent();
-    if(parent)
-    {
-        TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
-        if( parentTransform )
-        {
-            TransformComponent::Pos parentPos = parentTransform->getWorldPosition();
-            return m_pos + parentPos;
-        }
-    }
+    //if(parent)
+    //{
+    //    TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
+    //    if( parentTransform )
+    //    {
+    //        TransformComponent::Pos parentPos = parentTransform->getWorldPosition();
+    //        return m_pos + parentPos;
+    //    }
+    //}
 
     return m_pos;
 }
-
 
 void TransformComponent::setWorldAngle( CUL::MATH::EulerAngles type, const CUL::MATH::Angle& angle )
 {
@@ -102,17 +101,51 @@ const CUL::MATH::Angle& TransformComponent::getWorldAngle( CUL::MATH::EulerAngle
 
 const glm::mat4 TransformComponent::getModel()
 {
-    glm::mat4 model = glm::mat4( 1.0f );
+    bool old = true;
+    if( old )
+    {
+        glm::vec3 pivot = m_pivot.toGlmVec();
 
-    const Pos& position = getWorldPosition();
-    glm::vec3 posVec = position.toGlmVec();
-    model = glm::translate( model, posVec );
+        glm::vec3 pivotReal = pivot * m_size.toGlmVec();
 
-    // CUL::MATH::Rotation rotation = getWorldRotation();
-    CUL::MATH::Rotation rotation = getWorldRotation();
-    rotation.yaw.setCurrentType( CUL::MATH::Angle::Type::RADIAN );
-    rotation.pitch.setCurrentType( CUL::MATH::Angle::Type::RADIAN );
-    rotation.roll.setCurrentType( CUL::MATH::Angle::Type::RADIAN );
+        glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), pivotReal );
+        glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), -pivotReal );
+
+        glm::mat4 model = getTranslation() * trans_to_pivot * getRotation() * trans_from_pivot;
+
+        IObject* parent = m_owner.getParent();
+        if( parent )
+        {
+            TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
+            if( parentTransform )
+            {
+                return parentTransform->getModel() * model;
+            }
+        }
+
+        return model;
+    }
+    else
+    {
+        glm::mat4 model = glm::mat4( 1.0f );
+
+        glm::vec3 pivot = m_pivot.toGlmVec();
+        glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), -pivot );
+        glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), pivot );
+        glm::mat4 rotation(1.f);
+        //rotation = 
+        //glm::mat4 rotate = trans_from_pivot * rotate_matrix * trans_to_pivot;
+
+        return model;
+    }
+}
+
+glm::mat4 TransformComponent::getRotation()
+{
+    glm::mat4 model(1.f);
+
+    CUL::MATH::Rotation rotation = m_rotation;
+
 
     // Yaw
     {
@@ -122,7 +155,7 @@ const glm::mat4 TransformComponent::getModel()
 
     // Pitch
     {
-        glm::vec3 normal( 1.f, 0.f, 0.f );
+        glm::vec3 normal( -1.f, 0.f, 0.f );
         model = glm::rotate( model, rotation.pitch.getRad(), normal );
     }
 
@@ -132,17 +165,18 @@ const glm::mat4 TransformComponent::getModel()
         model = glm::rotate( model, rotation.roll.getRad(), normal );
     }
 
-    IObject* parent = m_owner.getParent();
-    if( parent )
-    {
-        TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
-        if( parentTransform )
-        {
-            return parentTransform->getModel() * model;
-        }
-    }
-
     return model;
+}
+
+glm::mat4 TransformComponent::getTranslation()
+{
+    glm::mat4 result(1.f);
+
+    const Pos& position = getWorldPosition();
+    glm::vec3 posVec = position.toGlmVec();
+    result = glm::translate( result, posVec );
+
+    return result;
 }
 
 const TransformComponent::Pos& TransformComponent::getPivot() const
@@ -166,6 +200,16 @@ void TransformComponent::addOnChangeCallback(const String& callbackName, const s
     {
         CUL::Assert::simple(false, "Callback already places: " + callbackName);
     }
+}
+
+void TransformComponent::setSize(const Pos& size)
+{
+    m_size = size;
+}
+
+const TransformComponent::Pos& TransformComponent::TransformComponent::getSize() const
+{
+    return m_size;
 }
 
 void TransformComponent::removeCallback(const String& callbackName)

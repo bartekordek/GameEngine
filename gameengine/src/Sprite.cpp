@@ -18,6 +18,7 @@ using namespace LOGLW;
 Sprite::Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine ) : IObject( engine ), m_camera( camera ), m_cul( cul )
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
+    m_transformComponent->setSize( Pos( 2.f, 2.f, 2.f ) );
 }
 
 void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader )
@@ -51,96 +52,6 @@ const CUL::Graphics::ImageInfo& Sprite::getImageInfo() const
 CUL::Graphics::DataType* Sprite::getData() const
 {
     return m_image->getData();
-}
-
-void Sprite::renderModern()
-{
-    if( !m_initialized )
-    {
-        init();
-    }
-
-    getUtility()->setActiveTexture( m_textureId );
-    getUtility()->bindTexture( m_textureId );
-
-    m_shaderProgram->enable();
-
-    glm::mat4 model = glm::mat4( 1.0f );  // make sure to initialize matrix to identity matrix first
-    const Pos& position = m_transformComponent->getWorldPosition();
-    glm::vec3 m_pos = position.toGlmVec();
-    model = glm::translate( model, m_pos );
-
-    auto projectionMatrix = m_camera->getProjectionMatrix();
-    auto viewMatrix = m_camera->getViewMatrix();
-
-    m_shaderProgram->setAttrib( "projection", projectionMatrix );
-    m_shaderProgram->setAttrib( "view", viewMatrix );
-    m_shaderProgram->setAttrib( "model", model );
-
-    getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo );
-
-    getUtility()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 36 );
-
-    m_shaderProgram->disable();
-
-    getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, 0 );
-    getUtility()->bindBuffer( BufferTypes::VERTEX_ARRAY, 0 );
-    getUtility()->bindTexture( 0u );
-}
-
-void Sprite::renderLegacy()
-{
-    if( !m_initialized )
-    {
-        init();
-    }
-
-    std::array<std::array<float, 3>, 4> values;
-    values[3] = { 0.f, 0.f, 0.f };
-    values[2] = { 1.f, 0.f, 0.f };
-    values[1] = { 1.f, 1.f, 0.f };
-    values[0] = { 0.f, 1.f, 0.f };
-    QuadCUL colors = values;
-
-    const auto& size = m_image->getImageInfo().size;
-
-    const float denominator = 8.f;
-
-#ifdef OLD_VER
-    float x0 = -(float)size.width / denominator;
-    float x1 = (float)size.width / denominator;
-
-    float y0 = -(float)size.height / denominator;
-    float y1 = (float)size.height / denominator;
-#else
-    float x0 = -0.5f;
-    float x1 = 0.5f;
-
-    float y0 = -0.5f;
-    float y1 = 0.5f;
-#endif
-
-
-    values[0] = { x0, y0, 0.f };
-    values[1] = { x1, y0, 0.f };
-    values[2] = { x1, y1, 0.f };
-    values[3] = { x0, y1, 0.f };
-    QuadCUL positions = values;
-
-    getUtility()->bindTexture( m_textureId );
-
-    const auto position = getTransform()->getWorldPosition();
-
-    getUtility()->matrixStackPush();
-    getUtility()->translate( position );
-    static const auto type = CUL::MATH::Angle::Type::DEGREE;
-    getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::YAW ).getValueF( type ), 0.f, 0.f, 1.f );
-    getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::PITCH ).getValueF( type ), 0.f, 1.f, 0.f );
-    getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::ROLL ).getValueF( type ), 1.f, 0.f, 0.f );
-    getUtility()->draw( positions, colors );
-    getUtility()->matrixStackPop();
-
-    getUtility()->bindTexture( 0 );
 }
 
 void Sprite::init()
@@ -196,15 +107,43 @@ void Sprite::init()
 
         m_vbo = getUtility()->generateBuffer( BufferTypes::ARRAY_BUFFER );
 
-        std::vector<float> data = {
-            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f,  0.0f,
-             0.5f, -0.5f, -0.5f,  1.0f,  1.0f,
-             0.5f, -0.5f, -0.5f,  1.0f,  1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,  1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f };
+        const Pos& size = m_transformComponent->getSize();
+        float x0 = -size.x() / 2.f;
+        float x1 = size.x() / 2.f;
 
-        getUtility()->bufferData( m_vbo, data, BufferTypes::ARRAY_BUFFER );
+        float y0 = -size.y() / 2.f;
+        float y1 = size.y() / 2.f;
+
+        float z0 = -size.z() / 2.f;
+        //float z1 = size.z() / 2.f;
+
+        std::array<std::array<float, 5>, 6> data;
+        data[0] = { x0, y1, z0, 0.0f, 0.0f };
+        data[1] = { x1, y1, z0, 1.0f, 0.0f };
+        data[2] = { x1, y0, z0, 1.0f, 1.0f };
+        data[3] = { x1, y0, z0, 1.0f, 1.0f };
+        data[4] = { x0, y0, z0, 0.0f, 1.0f };
+        data[5] = { x0, y1, z0, 0.0f, 0.0f };
+
+        std::vector<float> dataVec;
+
+        for( size_t i = 0; i < data.size(); ++i )
+        {
+            for( size_t j = 0; j < data[i].size(); ++j )
+            {
+                dataVec.push_back(data[i][j]);
+            }
+        }
+
+        //std::vector<float> data = {
+        //    -0.5f,  0.5f, -0.5f, 0.0f, 0.0f,
+        //     0.5f,  0.5f, -0.5f, 1.0f, 0.0f,
+        //     0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+        //     0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+        //    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+        //    -0.5f,  0.5f, -0.5f, 0.0f, 0.0f };
+
+        getUtility()->bufferData( m_vbo, dataVec, BufferTypes::ARRAY_BUFFER );
 
         VertexAttributePtrMeta meta;
         meta.vertexAttributeId = 0;
@@ -230,6 +169,95 @@ void Sprite::init()
         m_shaderProgram->disable();
     }
     m_initialized = true;
+}
+
+void Sprite::renderModern()
+{
+    if( !m_initialized )
+    {
+        init();
+    }
+
+    getUtility()->setActiveTexture( m_textureId );
+    getUtility()->bindTexture( m_textureId );
+
+    m_shaderProgram->enable();
+
+    const glm::mat4 model = m_transformComponent->getModel();
+
+    auto projectionMatrix = m_camera->getProjectionMatrix();
+    auto viewMatrix = m_camera->getViewMatrix();
+
+    m_shaderProgram->setAttrib( "projection", projectionMatrix );
+    m_shaderProgram->setAttrib( "view", viewMatrix );
+    m_shaderProgram->setAttrib( "model", model );
+
+    getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo );
+
+    getUtility()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 36 );
+
+    m_shaderProgram->disable();
+
+    getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, 0 );
+    getUtility()->bindBuffer( BufferTypes::VERTEX_ARRAY, 0 );
+    getUtility()->bindTexture( 0u );
+}
+
+void Sprite::renderLegacy()
+{
+    if( !m_initialized )
+    {
+        init();
+    }
+
+    std::array<std::array<float, 3>, 4> values;
+    values[3] = { 0.f, 0.f, 0.f };
+    values[2] = { 1.f, 0.f, 0.f };
+    values[1] = { 1.f, 1.f, 0.f };
+    values[0] = { 0.f, 1.f, 0.f };
+    QuadCUL colors = values;
+
+    const float denominator = 8.f;
+
+#ifdef OLD_VER
+    const auto& size = m_image->getImageInfo().size;
+    float x0 = -(float)size.width / denominator;
+    float x1 = (float)size.width / denominator;
+
+    float y0 = -(float)size.height / denominator;
+    float y1 = (float)size.height / denominator;
+#else
+    const Pos& size = m_transformComponent->getSize();
+    float x0 = -size.x() / 2.f;
+    float x1 = size.x() / 2.f;
+
+    float y0 = -size.y() / 2.f;
+    float y1 = size.y() / 2.f;
+
+    float z0 = -size.z() / 2.f;
+    //float z1 = size.z() / 2.f;
+#endif
+
+
+    values[0] = { x0, y0, z0 };
+    values[1] = { x1, y0, z0 };
+    values[2] = { x1, y1, z0 };
+    values[3] = { x0, y1, z0 };
+    QuadCUL positions = values;
+
+    getUtility()->bindTexture( m_textureId );
+
+    const auto position = m_transformComponent->getWorldPosition();
+
+    getUtility()->matrixStackPush();
+    getUtility()->translate( position );
+    static const auto type = CUL::MATH::Angle::Type::DEGREE;
+    const auto rotation = m_transformComponent->getWorldRotation();
+    getUtility()->rotate( rotation );
+    getUtility()->draw( positions, colors );
+    getUtility()->matrixStackPop();
+
+    getUtility()->bindTexture( 0 );
 }
 
 Sprite::~Sprite()

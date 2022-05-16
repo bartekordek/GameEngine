@@ -306,6 +306,13 @@ void IUtility::vertexAttribPointer( const VertexAttributePtrMeta& meta )
                            meta.offset );
 }
 
+void IUtility::rotate( const CUL::MATH::Rotation& rotation )
+{
+    glRotatef( rotation.yaw.getDeg(), 0.f, -1.f, 0.f );
+    glRotatef( rotation.pitch.getDeg(), 1.f, 0.f, 0.f );
+    glRotatef( rotation.roll.getDeg(), 0.f, 0.f, 1.f );
+}
+
 void IUtility::rotate( const float angleDeg, const float x, const float y, const float z )
 {
     glRotatef( angleDeg, x, y, z );

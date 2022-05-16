@@ -1,13 +1,17 @@
 #include "gameengine/IObject.hpp"
 
 #include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/Components/Name.hpp"
 
 using namespace LOGLW;
 
 IObject::IObject(IGameEngine* engine): IRenderable(engine)
 {
-    auto transofrmComponent = new TransformComponent(*this);
-    addComponent( "TransformComponent", transofrmComponent );
+    m_transform = new TransformComponent( *this );
+    addComponent( "TransformComponent", m_transform );
+
+    m_nameCmp = new Name( *this );
+    addComponent( "Name", m_nameCmp );
 }
 
 // Dummy
@@ -59,7 +63,12 @@ void IObject::addComponent(const String& name, IComponent* component)
 
 TransformComponent* IObject::getTransform()
 {
-    return static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
+    return m_transform;
+}
+
+Name* IObject::getnameCmp()
+{
+    return m_nameCmp;
 }
 
 IObject::~IObject()
