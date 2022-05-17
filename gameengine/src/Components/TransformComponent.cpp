@@ -104,9 +104,7 @@ const glm::mat4 TransformComponent::getModel()
     bool old = true;
     if( old )
     {
-        glm::vec3 pivot = m_pivot.toGlmVec();
-
-        glm::vec3 pivotReal = pivot * m_size.toGlmVec();
+        glm::vec3 pivotReal = getPivotReal();
 
         glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), pivotReal );
         glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), -pivotReal );
@@ -138,6 +136,16 @@ const glm::mat4 TransformComponent::getModel()
 
         return model;
     }
+}
+
+glm::vec3 TransformComponent::getPivotReal()
+{
+    return m_pivot.toGlmVec() * m_size.toGlmVec() / 2.f;
+}
+
+glm::vec3 TransformComponent::getPivotNormalized()
+{
+    return m_pivot;
 }
 
 glm::mat4 TransformComponent::getRotation()
@@ -173,7 +181,7 @@ glm::mat4 TransformComponent::getTranslation()
     glm::mat4 result(1.f);
 
     const Pos& position = getWorldPosition();
-    glm::vec3 posVec = position.toGlmVec();
+    glm::vec3 posVec = position.toGlmVec() - getPivotReal();
     result = glm::translate( result, posVec );
 
     return result;

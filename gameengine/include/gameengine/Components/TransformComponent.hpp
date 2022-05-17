@@ -23,17 +23,15 @@ public:
     using Pos = CUL::MATH::Point;
     using TranslationVector = CUL::MATH::Point;
 
-
-    TransformComponent(IObject& owner);
+    TransformComponent( IObject& owner );
 
     void setWorldPosition( const Pos& position );
     void setWorldPosition( Pos::Type x, Pos::Type y, Pos::Type z );
     const Pos getWorldPosition() const;
 
-
     void setWorldAngle( CUL::MATH::EulerAngles type, const CUL::MATH::Angle& angle );
 
-    void setWorldRotation(const CUL::MATH::Rotation& rotation);
+    void setWorldRotation( const CUL::MATH::Rotation& rotation );
     const CUL::MATH::Rotation getWorldRotation() const;
 
     const CUL::MATH::Angle& getWorldAngle( CUL::MATH::EulerAngles type ) const;
@@ -47,17 +45,21 @@ public:
     const Pos& getPivot() const;
     void setPivot( const Pos& pivot );
 
+    glm::vec3 getPivotReal();
+    glm::vec3 getPivotNormalized();
+
     void addOnChangeCallback( const String& callbackName, const std::function<void( const Pos& position )> callback );
     void removeCallback( const String& callbackName );
 
     ~TransformComponent();
+
 protected:
 private:
     IObject& m_owner;
 
     Pos m_size;
     Pos m_pos;
-    Pos m_pivot = Pos(0.5f, 0.5f, 0.0f);
+    Pos m_pivot = Pos( 0.5f, 0.5f, 0.0f );
 
     CUL::MATH::Rotation m_rotation;
 
