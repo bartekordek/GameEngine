@@ -212,10 +212,10 @@ struct VertexAttributePtrMeta
 
 class Viewport;
 
-class IUtility
+class GAME_ENGINE_API IUtility
 {
 public:
-    GAME_ENGINE_API IUtility( CUL::CULInterface* culInterface, bool forceLegacy );
+    IUtility( CUL::CULInterface* culInterface, bool forceLegacy );
 
     virtual bool isLegacy() = 0;
 
