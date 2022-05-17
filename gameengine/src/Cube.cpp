@@ -12,7 +12,6 @@ using namespace LOGLW;
 Cube::Cube( Camera* camera, IGameEngine* engine ) : IObject( engine ), m_camera( camera ), m_engine( engine )
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    m_transformComponent->setPivot( { 1.f, 0.f, 0.f } );
 
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -36,7 +35,12 @@ void Cube::setImage( unsigned, const CUL::FS::Path&, CUL::Graphics::IImageLoader
 
 void Cube::createPlaceHolders()
 {
-    TransformComponent::Pos quadSize(2.f, 2.f, 0.f);
+    TransformComponent::Pos cubeSize( 2.f, 2.f, 2.f );
+    TransformComponent::Pos quadSize( 2.f, 2.f, 0.f );
+
+    m_transformComponent->setSize( cubeSize );
+    m_transformComponent->setPivot( { 0.0f, 0.f, 0.f } );
+
     TransformComponent::Pos pivot;
     // 0
     {
