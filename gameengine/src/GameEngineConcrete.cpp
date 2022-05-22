@@ -44,10 +44,15 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
     loadFromConfig();
     m_imageLoader = m_cul->getImageLoader();
 
-    const auto& forceLegacy = m_sdlW->getConfig()->getValue( "OPENGL_FORCE_LEGACY" );
-    forceLegacy.toBool();
+    bool forceLegacy = false;
 
-    m_oglUtility = new UtilConcrete( sdl2w->getCul(), forceLegacy.toBool() );
+    const auto config = m_sdlW->getConfig();
+    if( config )
+    {
+        forceLegacy = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool();
+    }
+
+    m_oglUtility = new UtilConcrete( sdl2w->getCul(), forceLegacy );
     registerObjectForUtility();
 
     m_renderersVersions["OpenGL"] = m_oglUtility->getVersion();
@@ -576,7 +581,7 @@ void GameEngineConcrete::calculateNextFrameLengths()
 #endif
 void GameEngineConcrete::renderInfo()
 {
-    ImGui::SetNextWindowPos( { 0, 0 } );
+    
     const auto& winSize = m_activeWindow->getSize();
 
     ImGui_ImplOpenGL2_NewFrame();
@@ -586,8 +591,10 @@ void GameEngineConcrete::renderInfo()
     ImGui::NewFrame();
 
     String name = "INFO LOG";
-    ImGui::Begin( name.cStr() );
-    ImGui::SetWindowSize( { (float)winSize.getWidth() * 0.3f, (float)winSize.getHeight() * 1.f } );
+    ImGui::Begin( name.cStr(), nullptr,
+                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
+    ImGui::SetWindowPos( { 0, 0 } );
+    ImGui::SetWindowSize( { (float)winSize.getWidth() * 0.2f, (float)winSize.getHeight() * 1.f } );
 
     ImGui::Text( "Legacy: %s", getUtility()->isLegacy() ? "true": "false" );
 
