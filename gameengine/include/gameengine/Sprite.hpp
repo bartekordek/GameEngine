@@ -45,6 +45,7 @@ private:
 
     void renderModern();
     void renderLegacy();
+    void release();
 
     TransformComponent* m_transformComponent = nullptr;
 

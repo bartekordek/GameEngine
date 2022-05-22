@@ -135,14 +135,6 @@ void Sprite::init()
             }
         }
 
-        //std::vector<float> data = {
-        //    -0.5f,  0.5f, -0.5f, 0.0f, 0.0f,
-        //     0.5f,  0.5f, -0.5f, 1.0f, 0.0f,
-        //     0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-        //     0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-        //    -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        //    -0.5f,  0.5f, -0.5f, 0.0f, 0.0f };
-
         getUtility()->bufferData( m_vbo, dataVec, BufferTypes::ARRAY_BUFFER );
 
         VertexAttributePtrMeta meta;
@@ -217,7 +209,7 @@ void Sprite::renderLegacy()
     values[0] = { 0.f, 1.f, 0.f };
     QuadCUL colors = values;
 
-    const float denominator = 8.f;
+    //pconst float denominator = 8.f;
 
 #ifdef OLD_VER
     const auto& size = m_image->getImageInfo().size;
@@ -251,7 +243,7 @@ void Sprite::renderLegacy()
 
     getUtility()->matrixStackPush();
     getUtility()->translate( position );
-    static const auto type = CUL::MATH::Angle::Type::DEGREE;
+    //static const auto type = CUL::MATH::Angle::Type::DEGREE;
     const auto rotation = m_transformComponent->getWorldRotation();
     getUtility()->rotate( rotation );
     getUtility()->draw( positions, colors );
@@ -262,4 +254,10 @@ void Sprite::renderLegacy()
 
 Sprite::~Sprite()
 {
+    release();
+}
+
+void Sprite::release()
+{
+    m_shaderProgram.reset();
 }
