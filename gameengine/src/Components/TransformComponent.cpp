@@ -23,7 +23,7 @@ void TransformComponent::setWorldPosition( Pos::Type x, Pos::Type y, Pos::Type z
 
 const TransformComponent::Pos TransformComponent::getWorldPosition() const
 {
-    IObject* parent = m_owner.getParent();
+    //IObject* parent = m_owner.getParent();
     //if(parent)
     //{
     //    TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
@@ -127,11 +127,11 @@ const glm::mat4 TransformComponent::getModel()
     {
         glm::mat4 model = glm::mat4( 1.0f );
 
-        glm::vec3 pivot = m_pivot.toGlmVec();
-        glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), -pivot );
-        glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), pivot );
-        glm::mat4 rotation(1.f);
-        //rotation = 
+        //glm::vec3 pivot = m_pivot.toGlmVec();
+        // glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), -pivot );
+        // glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), pivot );
+        // glm::mat4 rotation(1.f);
+        //rotation =
         //glm::mat4 rotate = trans_from_pivot * rotate_matrix * trans_to_pivot;
 
         return model;

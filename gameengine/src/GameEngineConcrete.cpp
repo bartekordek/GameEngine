@@ -560,19 +560,13 @@ void GameEngineConcrete::renderFrame()
 
 void GameEngineConcrete::calculateNextFrameLengths()
 {
-    if( m_currentFrameLengthUs > m_targetFrameLengthUs + m_usRes )
+    m_usDelta = ( m_targetFrameLengthUs - m_currentFrameLengthUs ) / 200;
+    m_frameSleepUs += m_usDelta;
+
+    if( m_usDelta < 0 )
     {
-        m_frameSleepUs -= m_usDelta;
-        if( m_frameSleepUs < 0 )
-        {
-            m_frameSleepUs = 0;
-        }
+        m_usDelta = 0;
     }
-    else if( m_currentFrameLengthUs < m_targetFrameLengthUs - m_usRes )
-    {
-        m_frameSleepUs += m_usDelta;
-    }
-    m_usDelta = std::abs( m_currentFrameLengthUs - m_targetFrameLengthUs ) / 4;
 }
 
 #if _MSC_VER
@@ -608,7 +602,7 @@ void GameEngineConcrete::renderInfo()
     ImGui::Text( "Aspect Ratio: %f", getCamera().getAspectRatio() );
     ImGui::Text( "FOV-Y: %f", getCamera().getFov() );
 
-    CUL::Graphics::Pos3Dd centerPos = getCamera().m_target;
+    CUL::Graphics::Pos3Dd centerPos = getCamera().getCenter();
     String text = "Target:" + centerPos.serialize( 0 );
     ImGui::Text( "%s", text.cStr() );
 
@@ -639,7 +633,7 @@ void GameEngineConcrete::renderInfo()
         m_projectionChanged = true;
     }
 
-    res = ImGui::SliderFloat( "Center-Z", &getCamera().m_center.z, -64.0f, 255.0f );
+    res = ImGui::SliderFloat( "Center-Z", &getCamera().getCenter().z, -64.0f, 255.0f );
     if( res )
     {
         m_projectionChanged = true;
@@ -711,6 +705,8 @@ void GameEngineConcrete::renderInfo()
     ImGui::Text( "FrameTime: %4.2f ms", 1000.f / ImGui::GetIO().Framerate );
     ImGui::Text( "FPS: %4.2f", m_activeWindow->getFpsCounter()->getCurrentFps() );
 
+    ImGui::Text( "m_currentFrameLengthUs: %d", m_currentFrameLengthUs.getValCopy() );
+    ImGui::Text( "m_targetFrameLengthUs: %d", m_targetFrameLengthUs.getValCopy() );
     ImGui::Text( "m_frameSleepUs: %d", m_frameSleepUs.getValCopy() );
     ImGui::Text( "m_usDelta: %d", m_usDelta );
 

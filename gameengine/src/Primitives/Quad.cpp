@@ -53,7 +53,7 @@ void Quad::init()
         float y0 = -size.y() / denominator;
         float y1 = size.y() / denominator;
 
-        float z0 = -size.z() / denominator;
+        //float z0 = -size.z() / denominator;
 
         vboData.vertices = {
             x1, y1, 0.f,  // top right
@@ -105,7 +105,7 @@ void Quad::render()
 
         getUtility()->translate( position );
 
-        static const auto type = CUL::MATH::Angle::Type::DEGREE;
+        //static const auto type = CUL::MATH::Angle::Type::DEGREE;
         getUtility()->rotate( rotation );
         getUtility()->draw( quad, color );
 

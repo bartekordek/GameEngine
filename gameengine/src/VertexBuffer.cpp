@@ -126,10 +126,10 @@ void VertexBuffer::loadData()
 
 void VertexBuffer::render()
 {
-    m_indexBuffer->bind();
     bind();
     if( m_indexBuffer.get() )
     {
+        m_indexBuffer->bind();
         getUtility()->drawElements( m_vertexData.primitiveType, m_indexBuffer->getData() );
         //getUtility()->drawElementsFromLastBuffer( m_vertexData.primitiveType, DataType::UNSIGNED_INT, m_indexBuffer->getData().size() );
     }

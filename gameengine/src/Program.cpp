@@ -201,6 +201,13 @@ unsigned int Program::getProgramId()
 
 Program::~Program()
 {
+    for( auto shaderPair : m_attachedShaders )
+    {
+        delete shaderPair.second;
+    }
+
+    m_attachedShaders.clear();
+
     getUtility()->removeProgram( m_id );
     m_id = 0;
 }
