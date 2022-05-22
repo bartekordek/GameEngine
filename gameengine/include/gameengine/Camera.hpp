@@ -31,8 +31,6 @@ public:
     float m_aspectRatio = 16.f / 9.f;
     glm::vec3 m_pos = { 0.f, 0.f, 0.f };
     glm::vec3 m_up = { 0.f, 1.f, 0.f };
-    glm::vec3 m_center = { 0.f, 0.f, 0.f };
-    glm::vec3 m_target = { 0.f, 0.f, -255.f };
     WindowSize m_size;
     float m_zNear = 64.0f;
     float m_left = 0.0f;
@@ -54,6 +52,8 @@ public:
     float getAspectRatio() const;
 
     const glm::vec3& getCenter() const;
+    glm::vec3& getCenter();
+
     const glm::vec3& getEye() const;
     const glm::vec3& getUp() const;
 
@@ -71,6 +71,7 @@ public:
 protected:
 private:
     bool m_depthTest = true;
+    glm::vec3 m_target = { 0.f, 0.f, -255.f };
 
     Camera( const Camera& arg ) = delete;
     Camera( Camera&& arg ) = delete;

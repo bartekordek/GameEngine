@@ -60,7 +60,12 @@ float Camera::getAspectRatio() const
 
 const glm::vec3& Camera::getCenter() const
 {
-    return m_center;
+    return m_target;
+}
+
+glm::vec3& Camera::getCenter()
+{
+    return m_target;
 }
 
 const glm::vec3& Camera::getEye() const
@@ -92,11 +97,11 @@ void Camera::setSize( const WindowSize& winSize )
 {
     m_size = winSize;
 
-    m_left = m_center.x - 0.5f * (float)m_size.getWidth();
-    m_right = m_center.x + 0.5f * (float)m_size.getWidth();
+    m_left = m_target.x - 0.5f * (float)m_size.getWidth();
+    m_right = m_target.x + 0.5f * (float)m_size.getWidth();
 
-    m_bottom = m_center.y - 0.5f * (float)m_size.getHeight();
-    m_top = m_center.y + 0.5f * (float)m_size.getHeight();
+    m_bottom = m_target.y - 0.5f * (float)m_size.getHeight();
+    m_top = m_target.y + 0.5f * (float)m_size.getHeight();
 }
 
 void Camera::setEyePos( const glm::vec3& pos )
@@ -106,7 +111,7 @@ void Camera::setEyePos( const glm::vec3& pos )
 
 void Camera::setCenter( const glm::vec3& pos )
 {
-    m_center = pos;
+    m_target = pos;
 }
 
 void Camera::toggleDepthTest( bool enable )
