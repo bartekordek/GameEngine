@@ -25,6 +25,7 @@ private:
     void setValues( const QuadData& values ) override;
     void render() override;
 
+    class Camera* m_camera = nullptr;
     std::unique_ptr<class Program> m_shaderProgram;
     TransformComponent* m_transformComponent = nullptr;
 

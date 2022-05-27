@@ -1,6 +1,8 @@
 #include "Primitives/QuadImpl.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Program.hpp"
+#include "gameengine/IGameEngine.hpp"
+#include "gameengine/Camera.hpp"
 
 #include "CUL/CULInterface.hpp"
 
@@ -12,6 +14,8 @@ QuadImpl::QuadImpl( IGameEngine* engine ) : IQuad(engine)
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     m_transformComponent->setSize( Pos( 2.f, 2.f, 2.f ) );
+
+    m_camera = &engine->getCamera();
 }
 
 void QuadImpl::setValues( const QuadData& values )
@@ -115,7 +119,19 @@ void QuadImpl::render()
     getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vao );
     getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo );
 
-    getUtility()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 36 );
+    //m_shaderProgram->enable();
+
+    const glm::mat4 model = m_transformComponent->getModel();
+
+    auto projectionMatrix = m_camera->getProjectionMatrix();
+    auto viewMatrix = m_camera->getViewMatrix();
+
+    m_shaderProgram->setAttrib( "projection", projectionMatrix );
+    m_shaderProgram->setAttrib( "view", viewMatrix );
+    m_shaderProgram->setAttrib( "model", model );
+
+    getUtility()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 6 );
+    //m_shaderProgram->disable();
 
     getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, 0 );
     getUtility()->bindBuffer( BufferTypes::VERTEX_ARRAY, 0 );
