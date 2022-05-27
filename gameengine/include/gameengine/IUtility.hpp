@@ -2,7 +2,6 @@
 
 #include "gameengine/Import.hpp"
 
-#include "CUL/CULInterface.hpp"
 #include "CUL/Filesystem/IFile.hpp"
 #include "CUL/Graphics/Color.hpp"
 #include "CUL/Graphics/Rect2D.hpp"
@@ -13,6 +12,8 @@
 #include "CUL/Math/Primitives/Triangle.hpp"
 #include "CUL/Math/Primitives/Triangle3D.hpp"
 #include "CUL/Math/Rotation.hpp"
+#include "CUL/Graphics/SimpleSize2D.hpp"
+#include "CUL/Log/ILogger.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
 
@@ -157,6 +158,8 @@ enum class TextureTypes : short
 
 struct GAME_ENGINE_API TextureInfo
 {
+    bool initialized = false;
+
     unsigned int textureId = 0;
     int level = 0;
     CUL::Graphics::PixelFormat pixelFormat;
@@ -346,7 +349,7 @@ public:
     void setActiveTexture( unsigned id );
     virtual void bindTexture( const unsigned int textureId ) = 0;
     virtual void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) = 0;
-    virtual void setTextureData( uint8_t textureId, const TextureInfo& ti ) = 0;
+    void setTextureData( uint8_t textureId, const TextureInfo& ti );
     virtual void freeTexture( unsigned int& textureId ) = 0;
 
     virtual void matrixStackPush() = 0;

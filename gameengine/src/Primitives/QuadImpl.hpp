@@ -4,6 +4,8 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
+class TransformComponent;
+
 class QuadImpl final:
     public IQuad,
     public IUtilityUser
@@ -19,10 +21,19 @@ public:
     ~QuadImpl();
 protected:
 private:
+    void init();
     void setValues( const QuadData& values ) override;
     void render() override;
 
+    std::unique_ptr<class Program> m_shaderProgram;
+    TransformComponent* m_transformComponent = nullptr;
+
+    bool m_initialized = false;
+
     QuadColors m_colors;
+
+    unsigned m_vao = 0;
+    unsigned m_vbo = 0;
 
 };
 

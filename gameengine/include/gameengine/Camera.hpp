@@ -55,6 +55,8 @@ public:
     glm::vec3& getCenter();
 
     const glm::vec3& getEye() const;
+    glm::vec3& getEye();
+
     const glm::vec3& getUp() const;
 
     void setUp( const glm::vec3& pos );

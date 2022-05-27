@@ -1,12 +1,15 @@
 #include "UtilConcrete.hpp"
 #include "gameengine/Camera.hpp"
+#include "gameengine/Viewport.hpp"
 
+#include "SDL2Wrapper/IWindow.hpp"
+
+#include "CUL/CULInterface.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
+
 #include "CUL/STL_IMPORTS/STD_iostream.hpp"
 #include "CUL/STL_IMPORTS/STD_sstream.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
-#include "SDL2Wrapper/IWindow.hpp"
-#include "gameengine/Viewport.hpp"
 
 using namespace LOGLW;
 
@@ -1143,14 +1146,6 @@ void UtilConcrete::setTextureParameter( uint8_t textureId, const TextureParamete
     log( "glTexParameteri" );
     bindTexture( textureId );
     glTexParameteri( GL_TEXTURE_2D, (GLenum)type, (GLint)val );
-}
-
-void UtilConcrete::setTextureData( uint8_t textureId, const TextureInfo& ti )
-{
-    log( "glTexImage2D(" + ti.toString() + ")" );
-    bindTexture( textureId );
-    glTexImage2D( GL_TEXTURE_2D, ti.level, (GLint)ti.pixelFormat, ti.size.width, ti.size.height, ti.border, (GLenum)ti.pixelFormat,
-                  (GLenum)GL_UNSIGNED_BYTE, ti.data );
 }
 
 void UtilConcrete::freeTexture( unsigned int& textureId )

@@ -136,7 +136,6 @@ private:
     unsigned generateTexture() override;
     void bindTexture( const unsigned int textureId ) override;
     void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) override;
-    void setTextureData( uint8_t textureId, const TextureInfo& ti ) override;
     void freeTexture( unsigned int& textureId ) override;
 
     void matrixStackPush() override;

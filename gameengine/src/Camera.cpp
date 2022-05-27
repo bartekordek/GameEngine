@@ -73,6 +73,11 @@ const glm::vec3& Camera::getEye() const
     return m_pos;
 }
 
+glm::vec3& Camera::getEye()
+{
+    return m_pos;
+}
+
 const glm::vec3& Camera::getUp() const
 {
     return m_up;

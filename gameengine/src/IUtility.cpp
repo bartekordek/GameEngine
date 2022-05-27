@@ -1,6 +1,8 @@
 #include "gameengine/IUtility.hpp"
 #include "gameengine/Camera.hpp"
 
+#include "CUL/CULInterface.hpp"
+
 #include "IMPORT_glew.hpp"
 #include "ImportFreeglut.hpp"
 #include "SDL2Wrapper/IMPORT_SDL_opengl.hpp"
@@ -305,6 +307,15 @@ void IUtility::vertexAttribPointer( const VertexAttributePtrMeta& meta )
                            static_cast<GLsizei>( meta.stride ),
                            meta.offset );
 }
+
+void IUtility::setTextureData( uint8_t textureId, const TextureInfo& ti )
+{
+    log( "glTexImage2D(" + ti.toString() + ")" );
+    bindTexture( textureId );
+    glTexImage2D( GL_TEXTURE_2D, ti.level, (GLint)ti.pixelFormat, ti.size.width, ti.size.height, ti.border, (GLenum)ti.pixelFormat,
+                  (GLenum)GL_UNSIGNED_BYTE, ti.data );
+}
+
 
 void IUtility::rotate( const CUL::MATH::Rotation& rotation )
 {

@@ -30,6 +30,20 @@ void Sprite::LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned 
                         unsigned )
 {
     m_image = imageLoader->loadImage( (unsigned char*)data, width, height );
+
+    m_textureId = getUtility()->generateTexture();
+
+    m_textureInfo.data = data;
+    m_textureInfo.level = 0;
+    m_textureInfo.border = 0;
+    m_textureInfo.dataType = DataType::UNSIGNED_BYTE;
+    m_textureInfo.pixelFormat = CUL::Graphics::PixelFormat::RGBA;
+    m_textureInfo.textureId = m_textureId;
+    m_textureInfo.size.width = width;
+    m_textureInfo.size.height = height;
+    m_textureInfo.initialized = true;
+
+    getUtility()->setTextureData( m_textureId, m_textureInfo );
 }
 
 void Sprite::render()
@@ -84,16 +98,23 @@ void Sprite::init()
         m_shaderProgram->validate();
     }
 
-    m_textureId = getUtility()->generateTexture();
+    if( m_textureId == 0u )
+    {
+        m_textureId = getUtility()->generateTexture();
+    }
 
     const auto& ii = getImageInfo();
-    TextureInfo td;
-    td.pixelFormat = CUL::Graphics::PixelFormat::RGBA;
-    td.size = ii.canvasSize;
-    td.data = getData();
-    td.textureId = m_textureId;
 
-    getUtility()->setTextureData( m_textureId, td );
+    if( !m_textureInfo.initialized )
+    {
+        m_textureInfo.pixelFormat = CUL::Graphics::PixelFormat::RGBA;
+        m_textureInfo.size = ii.canvasSize;
+        m_textureInfo.data = getData();
+        m_textureInfo.textureId = m_textureId;
+        m_textureInfo.initialized = true;
+
+        getUtility()->setTextureData( m_textureId, m_textureInfo );
+    }
 
     getUtility()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
     getUtility()->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );

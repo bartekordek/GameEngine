@@ -273,7 +273,7 @@ IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS&
     }
     quad->setValues( data );
     quad->setColor( color );
-    addObjectToRender( quad );
+
     return quad;
 }
 
@@ -328,8 +328,6 @@ Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width, unsign
     m_oglUtility->setTextureParameter( textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
 
     m_oglUtility->bindTexture( 0 );
-
-    addObjectToRender( sprite );
 
     return sprite;
 }

@@ -9,6 +9,11 @@
 
 NAMESPACE_BEGIN( CUL )
 class CULInterface;
+
+NAMESPACE_BEGIN( Graphics )
+class IImageLoader;
+NAMESPACE_END( Graphics )
+
 NAMESPACE_END( CUL )
 
 NAMESPACE_BEGIN( LOGLW )

@@ -9,6 +9,11 @@
 
 NAMESPACE_BEGIN( CUL )
 class CULInterface;
+
+NAMESPACE_BEGIN( Graphics )
+class IImageLoader;
+NAMESPACE_END( Graphics )
+
 NAMESPACE_END( CUL )
 
 NAMESPACE_BEGIN( LOGLW )
@@ -36,6 +41,7 @@ protected:
 private:
     void init();
     bool m_initialized = false;
+
     enum class TaskType : short
     {
         CREATE_VAO = 1,
@@ -55,6 +61,8 @@ private:
     CUL::Graphics::IImage* m_image = nullptr;
 
     std::unique_ptr<class Program> m_shaderProgram;
+
+    TextureInfo m_textureInfo;
 
     unsigned m_elementBufferId = 0u;
     unsigned m_vao = 0u;
