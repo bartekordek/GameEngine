@@ -1,13 +1,12 @@
 #pragma once
 
-#include "gameengine/IGameEngine.hpp"
+#include "gameengine/Import.hpp"
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/Input/IKeyboardObserver.hpp"
 #include "SDL2Wrapper/Input/IMouseObserver.hpp"
 
-template <typename TYPE>
-using Ptr = CUL::GUTILS::DumbPtr<TYPE>;
+#include "CUL/STL_IMPORTS/STD_memory.hpp"
 
 NAMESPACE_BEGIN(LOGLW)
 
@@ -32,15 +31,14 @@ public:
 
     virtual ~IGameEngineApp();
 protected:
-    LOGLW::IObjectFactory* m_objFactory = nullptr;
-    LOGLW::IProgramFactory* m_programFactory = nullptr;
-    LOGLW::IShaderFactory* m_shaderfactory = nullptr;
-    CUL::LOG::ILogger* m_logger = nullptr;
-    LOGLW::IUtility* m_gutil = nullptr;
+    class IObjectFactory* m_objFactory = nullptr;
+    class IProgramFactory* m_programFactory = nullptr;
+    class IShaderFactory* m_shaderfactory = nullptr;
+    class CUL::LOG::ILogger* m_logger = nullptr;
+    class IUtility* m_gutil = nullptr;
 
-
-    Ptr<SDL2W::ISDL2Wrapper> m_sdlw;
-    Ptr<LOGLW::IGameEngine> m_oglw;
+    std::unique_ptr<SDL2W::ISDL2Wrapper> m_sdlw;
+    std::unique_ptr<IGameEngine> m_oglw;
 private:
     void init( const SDL2W::WindowData& windowData, bool fullscreen, const char* configPath, bool legacy );
     void logicThread();

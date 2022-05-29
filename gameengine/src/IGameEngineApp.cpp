@@ -1,5 +1,7 @@
 #include "gameengine/IGameEngineApp.hpp"
+#include "gameengine/IGameEngine.hpp"
 
+#include "SDL2Wrapper/IWindow.hpp"
 #include "SDL2Wrapper/WindowData.hpp"
 
 using namespace LOGLW;
@@ -46,13 +48,13 @@ IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width,
 void IGameEngineApp::init( const SDL2W::WindowData& windowData,
                               bool fullscreen, const char* configPath, bool legacy )
 {
-    m_sdlw = SDL2W::ISDL2Wrapper::createSDL2Wrapper();
+    m_sdlw.reset( SDL2W::ISDL2Wrapper::createSDL2Wrapper() );
     m_sdlw->init( windowData, configPath );
     m_sdlw->registerWindowEventListener( this );
     m_sdlw->registerKeyboardEventListener( this );
     m_sdlw->registerMouseEventListener( this );
 
-    m_oglw = LOGLW::IGameEngine::createGameEngine( m_sdlw.get(), legacy);
+    m_oglw.reset( LOGLW::IGameEngine::createGameEngine( m_sdlw.get(), legacy ) );
     m_logger = m_oglw->getLoger();
     m_gutil = m_oglw->getUtility();
 
