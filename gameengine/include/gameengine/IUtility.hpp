@@ -168,20 +168,7 @@ struct GAME_ENGINE_API TextureInfo
     void* data = nullptr;
     CUL::Graphics::SSize2Di size;
 
-    const String toString() const
-    {
-        String result;
-
-        result = "textureId: " + String( textureId );
-        result += ", level: " + String( level );
-        result += ", pixelFormat = " + String( (unsigned)pixelFormat );
-        result += ", border = " + String( border );
-        result += ", dataType = " + String( (int)dataType );
-        result += ", data = " + String( (void*)data );
-        result += ", size = " + size.toString();
-
-        return result;
-    }
+    const String toString() const;
 };
 
 struct TextureData2D

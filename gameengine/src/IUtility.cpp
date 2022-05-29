@@ -11,6 +11,24 @@ using namespace LOGLW;
 
 static CUL::LOG::ILogger* g_logger = nullptr;
 
+#pragma warning( push )
+#pragma warning( disable : 4800 )
+const String TextureInfo::toString() const
+{
+    String result;
+
+    result = "textureId: " + String( textureId );
+    result += ", level: " + String( level );
+    result += ", pixelFormat = " + String( (unsigned)pixelFormat );
+    result += ", border = " + String( border );
+    result += ", dataType = " + String( (int)dataType );
+    result += ", data = " + String( (void*)data );
+    result += ", size = " + size.toString();
+
+    return result;
+}
+#pragma warning( pop ) 
+
 void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length,
                              const char*  // message
                              ,
