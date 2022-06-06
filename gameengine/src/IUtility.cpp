@@ -245,8 +245,6 @@ void IUtility::setUniformValue( int uniformLocation, const glm::vec3& val )
 
 void IUtility::setUniformValue( int uniformLocation, const glm::vec4& val )
 {
-
-
     glUniform4fv( uniformLocation, 1, &val[0] );
 }
 
