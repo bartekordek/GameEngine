@@ -207,7 +207,7 @@ void Sprite::renderModern()
 
     getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo );
 
-    getUtility()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 36 );
+    getUtility()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 6 );
 
     m_shaderProgram->disable();
 
@@ -230,16 +230,6 @@ void Sprite::renderLegacy()
     values[0] = { 0.f, 1.f, 0.f };
     QuadCUL colors = values;
 
-    //pconst float denominator = 8.f;
-
-#ifdef OLD_VER
-    const auto& size = m_image->getImageInfo().size;
-    float x0 = -(float)size.width / denominator;
-    float x1 = (float)size.width / denominator;
-
-    float y0 = -(float)size.height / denominator;
-    float y1 = (float)size.height / denominator;
-#else
     const Pos& size = m_transformComponent->getSize();
     float x0 = -size.x() / 2.f;
     float x1 = size.x() / 2.f;
@@ -249,8 +239,6 @@ void Sprite::renderLegacy()
 
     float z0 = -size.z() / 2.f;
     //float z1 = size.z() / 2.f;
-#endif
-
 
     values[0] = { x0, y0, z0 };
     values[1] = { x1, y0, z0 };
