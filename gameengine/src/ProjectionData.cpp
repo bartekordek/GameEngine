@@ -81,7 +81,7 @@ ProjectionData& ProjectionData::operator=( ProjectionData&& rhv )
     return *this;
 }
 
-void ProjectionData::setSize( const SDL2W::WindowSize& winSize )
+void ProjectionData::setSize( const SDL2W::WinSize& winSize )
 {
     m_size = winSize;
 
@@ -135,7 +135,7 @@ void ProjectionData::setFov( const float val )
     onChange();
 }
 
-const SDL2W::WindowSize& ProjectionData::getSize() const
+const SDL2W::WinSize& ProjectionData::getSize() const
 {
     return m_size;
 }

@@ -19,6 +19,7 @@ using String = CUL::String;
 using ShaderList = std::map<String, Shader*>;
 
 class VertexArray;
+class IGameEngine;
 
 class GAME_ENGINE_API Program final: private IUtilityUser
 {
@@ -30,7 +31,7 @@ public:
     };
     using ValueToSet = Pair;
 
-    Program();
+    Program( IGameEngine& engine );
 
     void setAttrib( const String& name, const char* value );
     void setAttrib( const String& name, float value );
@@ -53,6 +54,8 @@ public:
     void disable();
     void validate();
 
+    void reloadShader();
+
     void bufferData(
         std::vector<float>& data,
         const BufferTypes type );
@@ -69,12 +72,18 @@ public:
 protected:
 
 private:
+    void reloadShaderImpl();
+    void release();
+    void releaseProgram();
+
     void pushTask( ValueToSet& task );
     void goThroughTasks();
     void processTask( const ValueToSet& task );
 
-    unsigned int m_dataBufferId = 0;
-    unsigned int m_id = 0;
+    IGameEngine& m_engine;
+
+    unsigned int m_dataBufferId = 0u;
+    unsigned int m_id = 0u;
 
     ShaderList m_attachedShaders;
     std::mutex m_operationMutex;
@@ -82,6 +91,7 @@ private:
     std::deque<ValueToSet> m_tasks;
 
 private:
+    Program() = delete;
     Program( const Program& arg ) = delete;
     Program( Program&& arg ) = delete;
     Program& operator=( const Program& rhv ) = delete;

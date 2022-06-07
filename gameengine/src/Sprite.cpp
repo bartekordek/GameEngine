@@ -5,6 +5,7 @@
 #include "gameengine/Shader.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/IGameEngine.hpp"
 
 #include "CUL/Graphics/IImageLoader.hpp"
 #include "CUL/Math/Algorithms.hpp"
@@ -72,7 +73,7 @@ void Sprite::init()
 {
     if( !getUtility()->isLegacy() )
     {
-        m_shaderProgram = std::make_unique<Program>();
+        m_shaderProgram = std::make_unique<Program>( getEngine() );
         m_shaderProgram->initialize();
         m_shaderProgram->enable();
 

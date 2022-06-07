@@ -292,7 +292,6 @@ void UtilConcrete::destroyContext( ContextInfo& context )
 
 void UtilConcrete::setAttribValue( int attributeLocation, float value )
 {
-    log( "UtilConcrete::setAttribValue, value = " + String( value ) );
     glUniform1f( static_cast<GLfloat>( attributeLocation ), value );
 }
 

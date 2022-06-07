@@ -17,6 +17,7 @@
 #include "VAOOpengl.hpp"
 #include "VBOConcrete.hpp"
 
+#include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
@@ -498,7 +499,7 @@ void GameEngineConcrete::showExtensions()
     m_logger->log( "Extension count: " + std::to_string( extensionList.size() ) );
 }
 
-void GameEngineConcrete::setupProjectionData( const SDL2W::WindowSize& winSize )
+void GameEngineConcrete::setupProjectionData( const SDL2W::WinSize& winSize )
 {
     Camera projectionData;
     projectionData.setSize( winSize );
@@ -589,6 +590,15 @@ void GameEngineConcrete::renderInfo()
     ImGui::SetWindowSize( { (float)winSize.getWidth() * 0.2f, (float)winSize.getHeight() * 1.f } );
 
     ImGui::Text( "Legacy: %s", getUtility()->isLegacy() ? "true": "false" );
+
+
+    auto gputTotal = getGPUTotalAvailableMemoryKb();
+    gputTotal /= 1024;
+    ImGui::Text( "GPU TOTAL: %i MB", gputTotal );
+
+    auto gpuCurrent = getGPUCurrentAvailableMemoryKb();
+    gpuCurrent /= 1024;
+    ImGui::Text( "GPU CURRENT: %i MB", gpuCurrent );
 
     auto res = false;
     //ImGui::Checkbox( "Projection is Perspective", &m_isPerspective.getRef() );

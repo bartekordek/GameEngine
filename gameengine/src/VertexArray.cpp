@@ -6,7 +6,7 @@
 
 using namespace LOGLW;
 
-VertexArray::VertexArray( IGameEngine& engine ) : IRenderable(&engine)
+VertexArray::VertexArray( IGameEngine& engine ) : IRenderable( &engine ), m_shaderProgram( new Program(engine) )
 {
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -29,7 +29,7 @@ void VertexArray::addVBO( VertexBuffer* )
 
 Program* VertexArray::getProgram()
 {
-    return &m_shaderProgram;
+    return m_shaderProgram.get();
 }
 
 void VertexArray::createShader( const CUL::FS::Path& path )
@@ -38,7 +38,7 @@ void VertexArray::createShader( const CUL::FS::Path& path )
 
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
-        if( m_shaderProgram.initialized() == false )
+        if( m_shaderProgram->initialized() == false )
         {
             registerTask( TaskType::CREATE_PROGRAM );
         }
@@ -49,7 +49,7 @@ void VertexArray::createShader( const CUL::FS::Path& path )
     else
     {
         std::lock_guard<std::mutex> guard( m_shadersMtx );
-        if( m_shaderProgram.initialized() == false )
+        if( m_shaderProgram->initialized() == false )
         {
             registerTask( TaskType::CREATE_PROGRAM );
         }
@@ -80,14 +80,14 @@ void VertexArray::render()
     runTasks();
 
     bind();
-    m_shaderProgram.render();
+    m_shaderProgram->render();
 
     size_t vbosCount = (size_t)m_vbosCount;
     for( size_t i = 0; i < vbosCount; ++i )
     {
         m_vbos[i]->render();
     }
-    m_shaderProgram.disable();
+    m_shaderProgram->disable();
     unbind();
 }
 
@@ -117,14 +117,14 @@ void VertexArray::runTasks()
         }
         else if( task == TaskType::CREATE_PROGRAM )
         {
-            if( m_shaderProgram.initialized() == false )
+            if( m_shaderProgram->initialized() == false )
             {
-                m_shaderProgram.initialize();
+                m_shaderProgram->initialize();
             }
         }
         else if( task == TaskType::ADD_SHADER )
         {
-            if( m_shaderProgram.initialized() == false)
+            if( m_shaderProgram->initialized() == false)
             {
                 if( !taskIsAlreadyPlaced( TaskType::CREATE_PROGRAM ) )
                 {
@@ -142,11 +142,11 @@ void VertexArray::runTasks()
                     auto shaderFile = getUtility()->getCUl()->getFF()->createFileFromPath( shaderPath );
                     shaderFile->load(true);
                     auto shader = new Shader( shaderFile );
-                    m_shaderProgram.attachShader( shader );
+                    m_shaderProgram->attachShader( shader );
 
                     m_shadersPaths.pop();
                 }
-                m_shaderProgram.link();
+                m_shaderProgram->link();
             }
         }
 

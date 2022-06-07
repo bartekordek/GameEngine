@@ -16,7 +16,7 @@ NAMESPACE_BEGIN( LOGLW )
 using Pos3Di = CUL::Graphics::Pos3Di;
 using Pos3Df = CUL::Graphics::Pos3Df;
 using Pos2Di = CUL::Graphics::Pos2Di;
-using WindowSize = SDL2W::WindowSize;
+using WindowSize = SDL2W::WinSize;
 
 class GAME_ENGINE_API ProjectionData final:
     public CUL::GUTILS::IOnChange

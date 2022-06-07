@@ -1,11 +1,14 @@
 #include "gameengine/Program.hpp"
+#include "gameengine/IGameEngine.hpp"
 
+#include "CUL/CULInterface.hpp"
+#include "CUL/Threading/ThreadUtils.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 #include "CUL/Filesystem/FileFactory.hpp"
 
 using namespace LOGLW;
 
-Program::Program()
+Program::Program( IGameEngine& engine ) : m_engine( engine )
 {
 }
 
@@ -91,6 +94,50 @@ int Program::getAttributeI( const String& )
     return int();
 }
 
+void Program::reloadShader()
+{
+    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        reloadShaderImpl();
+    }
+    else
+    {
+        m_engine.addRenderThreadTask(
+            [this]()
+            {
+                reloadShaderImpl();
+            } );
+    }
+}
+
+void Program::reloadShaderImpl()
+{
+    auto attachedShadersSize = m_attachedShaders.size();
+
+    std::vector<Shader*> shaderCopy;
+
+    while( attachedShadersSize )
+    {
+        auto it = m_attachedShaders.begin();
+        shaderCopy.push_back( it->second );
+        dettachShader( it->second );
+        it = m_attachedShaders.begin();
+        attachedShadersSize = m_attachedShaders.size();
+    }
+
+    releaseProgram();
+    initialize();
+
+    for( auto shader: shaderCopy )
+    {
+        shader->reload();
+        attachShader( shader );
+    }
+
+    link();
+    validate();
+}
+
 void Program::attachShader( Shader* shader )
 {
     std::lock_guard<std::mutex> lock( m_operationMutex );
@@ -103,8 +150,9 @@ void Program::dettachShader( Shader* shader )
 {
     std::lock_guard<std::mutex> lock( m_operationMutex );
     auto shaderId = shader->getId();
-    getUtility()->dettachShader( m_id, shaderId );
-    m_attachedShaders[shader->getPath()] = nullptr;
+    //getUtility()->dettachShader( m_id, shaderId );
+    auto it = m_attachedShaders.find( shader->getPath() );
+    m_attachedShaders.erase( it );
 }
 
 void Program::link()
@@ -201,6 +249,11 @@ unsigned int Program::getProgramId()
 
 Program::~Program()
 {
+    release();
+}
+
+void Program::release()
+{
     for( auto shaderPair : m_attachedShaders )
     {
         delete shaderPair.second;
@@ -208,6 +261,11 @@ Program::~Program()
 
     m_attachedShaders.clear();
 
+    releaseProgram();
+}
+
+void Program::releaseProgram()
+{
     getUtility()->removeProgram( m_id );
     m_id = 0;
 }

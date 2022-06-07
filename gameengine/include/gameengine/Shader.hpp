@@ -22,6 +22,7 @@ public:
 
 protected:
 private:
+    void create();
     void release();
 
     CUL::GUTILS::DumbPtr<CUL::FS::IFile> m_shaderCode;

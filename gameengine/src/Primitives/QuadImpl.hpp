@@ -5,6 +5,7 @@
 NAMESPACE_BEGIN( LOGLW )
 
 class TransformComponent;
+class IGameEngine;
 
 class QuadImpl final:
     public IQuad,
@@ -25,6 +26,7 @@ private:
     void setValues( const QuadData& values ) override;
     void render() override;
 
+    IGameEngine& m_engine;
     class Camera* m_camera = nullptr;
     std::unique_ptr<class Program> m_shaderProgram;
     TransformComponent* m_transformComponent = nullptr;

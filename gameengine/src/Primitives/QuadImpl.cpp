@@ -8,7 +8,7 @@
 
 using namespace LOGLW;
 
-QuadImpl::QuadImpl( IGameEngine* engine ) : IQuad(engine)
+QuadImpl::QuadImpl( IGameEngine* engine ) : IQuad( engine ), m_engine(*engine)
 {
     m_data[ 0 ] = m_data[ 1 ] = m_data[ 2 ] = m_data[ 3 ] = { 0.0f, 0.0f, 0.0f };
 
@@ -25,7 +25,7 @@ void QuadImpl::setValues( const QuadData& values )
 
 void QuadImpl::init()
 {
-    m_shaderProgram = std::make_unique<Program>();
+    m_shaderProgram = std::make_unique<Program>( m_engine );
     m_shaderProgram->initialize();
     m_shaderProgram->enable();
 

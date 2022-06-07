@@ -1,6 +1,5 @@
 #pragma once
 
-#include "gameengine/Program.hpp"
 #include "gameengine/IRenderable.hpp"
 #include "gameengine/VertexBuffer.hpp"
 #include "gameengine/Shader.hpp"
@@ -34,6 +33,7 @@ vertices as well as a color for each vertex.
 NAMESPACE_BEGIN( LOGLW )
 
 class IGameEngine;
+class Program;
 
 using BuffIDType = uint8_t;
 
@@ -90,7 +90,7 @@ private:
     std::mutex m_tasksMtx;
     std::deque<TaskType> m_tasks;
 
-    Program m_shaderProgram;
+    std::unique_ptr<Program> m_shaderProgram;
     std::vector<Ptr<Shader>> m_shaders;
     std::mutex m_shadersMtx;
     std::queue<CUL::FS::Path> m_shadersPaths;

@@ -4,28 +4,34 @@
 #include "gameengine/IProgramFactory.hpp"
 #include "gameengine/IShaderFactory.hpp"
 #include "gameengine/IUtility.hpp"
-#include "gameengine/Viewport.hpp"
 #include "gameengine/VertexArray.hpp"
 
-#include "SDL2Wrapper/ISDL2Wrapper.hpp"
-#include "SDL2Wrapper/IWindow.hpp"
+#include "SDL2Wrapper/Input/IKeyboardObservable.hpp"
 #include "SDL2Wrapper/IWindowEventObservable.hpp"
 #include "SDL2Wrapper/Input/IMouseObservable.hpp"
 
 #include "CUL/Graphics/Color.hpp"
+#include "CUL/Graphics/Pos2D.hpp"
 #include "CUL/GenericUtils/ITask.hpp"
-#include "CUL/STL_IMPORTS/STD_thread.hpp"
-#include "CUL/STL_IMPORTS/STD_queue.hpp"
 #include "CUL/Graphics/IImageLoader.hpp"
 #include "CUL/Log/ILogContainer.hpp"
 #include "CUL/Math/Vector3D.hpp"
 #include "CUL/String.hpp"
+
+#include "CUL/STL_IMPORTS/STD_thread.hpp"
+#include "CUL/STL_IMPORTS/STD_queue.hpp"
 
 NAMESPACE_BEGIN( CUL )
 NAMESPACE_BEGIN( GUTILS )
 class IConfigFile;
 NAMESPACE_END( GUTILS )
 NAMESPACE_END( CUL )
+
+NAMESPACE_BEGIN( SDL2W )
+class IWindow;
+class ISDL2Wrapper;
+struct WinSize;
+NAMESPACE_END( SDL2W )
 
 NAMESPACE_BEGIN( LOGLW )
 
@@ -36,6 +42,7 @@ class Camera;
 class Cube;
 class Sprite;
 class Quad;
+class Viewport;
 
 using String = CUL::String;
 
@@ -72,7 +79,6 @@ public:
     virtual IImageLoader* getImageLoader() = 0;
     virtual IUtility* getUtility() = 0;
     virtual const Viewport& getViewport() const = 0;
-    // virtual ProjectionData& getProjectionData() = 0;
 
     virtual CUL::CULInterface* getCul() = 0;
     virtual CUL::LOG::ILogger* getLoger() = 0;
@@ -104,7 +110,7 @@ public:
     virtual VertexBuffer* createVBO( std::vector<float>& data ) = 0;
 
     static IGameEngine* createGameEngine( SDL2W::ISDL2Wrapper* sdl2w, bool legacy = false );
-    static IGameEngine* createGameEngine( bool legacy, const CUL::Graphics::Pos2Di& pos, const SDL2W::WindowSize& winSize,
+    static IGameEngine* createGameEngine( bool legacy, const CUL::Graphics::Pos2Di& pos, const SDL2W::WinSize& winSize,
                                           const String& configPath, const String& winName = "", const String& renderername = "opengl" );
 
     static IGameEngine* getInstance();
@@ -126,9 +132,15 @@ public:
 
     void toggleGrid(bool enableGrid);
 
+    unsigned getGPUTotalAvailableMemoryKb();
+    unsigned getGPUCurrentAvailableMemoryKb();
+
+    virtual void addRenderThreadTask( const std::function<void( void )>& task ) = 0;
+
     virtual ~IGameEngine();
 
 protected:
+
     std::mutex m_preRenderTasksMtx;
     std::queue<IPreRenderTask*> m_preRenderTasks;
     std::queue<std::function<void( void )>> m_preRenderTasksFunction;

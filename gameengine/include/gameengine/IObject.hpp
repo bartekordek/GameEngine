@@ -19,7 +19,7 @@ class Name;
 class GAME_ENGINE_API IObject: public IRenderable, public ITransformable
 {
 public:
-    IObject(IGameEngine* engine);
+    IObject( IGameEngine* engine );
 
     virtual void addShader( const CUL::FS::Path& filePath, IShaderFactory* sf );
 
@@ -40,8 +40,12 @@ public:
     virtual ~IObject();
 
 protected:
+    IGameEngine& getEngine();
+
 private:
     void removeChild( IObject* child );
+
+    IGameEngine& m_engine;
 
     IObject* m_parent = nullptr;
 

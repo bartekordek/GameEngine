@@ -5,6 +5,7 @@
 #include "gameengine/Cube.hpp"
 
 #include "SDL2Wrapper/WindowData.hpp"
+#include "SDL2Wrapper/ISDL2Wrapper.hpp"
 
 using namespace LOGLW;
 
@@ -20,7 +21,7 @@ IGameEngine* IGameEngine::createGameEngine( SDL2W::ISDL2Wrapper* sdl2w, bool leg
     return s_instance;
 }
 
-IGameEngine* IGameEngine::createGameEngine( bool legacy, const CUL::Graphics::Pos2Di& pos, const SDL2W::WindowSize& winSize,
+IGameEngine* IGameEngine::createGameEngine( bool legacy, const CUL::Graphics::Pos2Di& pos, const SDL2W::WinSize& winSize,
                                             const String& configPath, const String& winName, const String& renderername )
 {
     SDL2W::WindowData windowData;
@@ -137,6 +138,16 @@ void IGameEngine::removeObjectToRender( IRenderable* renderable )
 void IGameEngine::toggleGrid( bool enableGrid )
 {
     m_gridEnabled = enableGrid;
+}
+
+unsigned IGameEngine::getGPUTotalAvailableMemoryKb()
+{
+    return getUtility()->getGPUTotalAvailableMemoryKb();
+}
+
+unsigned IGameEngine::getGPUCurrentAvailableMemoryKb()
+{
+    return getUtility()->getGPUCurrentAvailableMemoryKb();
 }
 
 IGameEngine::~IGameEngine()

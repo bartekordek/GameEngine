@@ -11,7 +11,7 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
-using WindowSize = SDL2W::WindowSize;
+using WindowSize = SDL2W::WinSize;
 
 class ProjectionData;
 

@@ -346,6 +346,9 @@ public:
 
     CUL::CULInterface* getCUl() const;
 
+    unsigned getGPUTotalAvailableMemoryKb();
+    unsigned getGPUCurrentAvailableMemoryKb();
+
     virtual ~IUtility();
 
 protected:

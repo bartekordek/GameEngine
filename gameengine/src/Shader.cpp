@@ -5,7 +5,7 @@ using namespace LOGLW;
 Shader::Shader( CUL::FS::IFile* file ):
     m_shaderCode( file )
 {
-    m_id = getUtility()->createShader( *m_shaderCode );
+    create();
 }
 
 unsigned int Shader::getId() const
@@ -20,7 +20,14 @@ void Shader::useShader() const
 
 void Shader::reload()
 {
+    m_shaderCode->reload();
+    release();
+    create();
+}
 
+void Shader::create()
+{
+    m_id = getUtility()->createShader( *m_shaderCode );
 }
 
 const CUL::FS::Path& Shader::getPath() const

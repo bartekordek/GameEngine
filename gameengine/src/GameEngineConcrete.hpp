@@ -6,6 +6,7 @@
 #include "gameengine/IObjectFactory.hpp"
 #include "gameengine/Sprite.hpp"
 #include "gameengine/Camera.hpp"
+#include "gameengine/Viewport.hpp"
 
 #include "OpenGLShaderFactory.hpp"
 
@@ -84,7 +85,7 @@ private:
     void initialize() override;
     void loadFromConfig();
     void showExtensions();
-    void setupProjectionData( const SDL2W::WindowSize& winSize );
+    void setupProjectionData( const SDL2W::WinSize& winSize );
     CUL::CULInterface* getCul() override;
 
     void refreshBuffers();
@@ -181,10 +182,9 @@ private:
 
     bool isKeyUp( const String& keyName ) const override;
 
-    // SDL2W::IWindowEventOBservable
     void registerWindowEventCallback( const SDL2W::WindowCallback& callback ) override;
 
-    void addRenderThreadTask( const std::function<void( void )>& task );
+    void addRenderThreadTask( const std::function<void( void )>& task ) override;
 
     std::map<unsigned, DebugValueRow> m_debugValues;
 
