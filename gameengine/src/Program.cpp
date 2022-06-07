@@ -114,23 +114,20 @@ void Program::reloadShaderImpl()
 {
     auto attachedShadersSize = m_attachedShaders.size();
 
-    std::vector<Shader*> shaderCopy;
-
-    while( attachedShadersSize )
+    std::vector<String> shadersPaths;
+    for( const auto shader : m_attachedShaders )
     {
-        auto it = m_attachedShaders.begin();
-        shaderCopy.push_back( it->second );
-        dettachShader( it->second );
-        it = m_attachedShaders.begin();
-        attachedShadersSize = m_attachedShaders.size();
+        shadersPaths.push_back(shader.first);
     }
 
-    releaseProgram();
+    release();
     initialize();
 
-    for( auto shader: shaderCopy )
+    for( auto shaderPath : shadersPaths )
     {
-        shader->reload();
+        auto shaderFile = getUtility()->getCUl()->getFF()->createFileFromPath( shaderPath );
+        shaderFile->load(true);
+        auto shader = new Shader( shaderFile );
         attachShader( shader );
     }
 
@@ -254,6 +251,11 @@ Program::~Program()
 
 void Program::release()
 {
+    const int shadersSize = m_attachedShaders.size();
+    String logVal;
+    logVal = String( "Shaders to free: " ) + String( shadersSize );
+    m_engine.getLoger()->log( logVal );
+
     for( auto shaderPair : m_attachedShaders )
     {
         delete shaderPair.second;
