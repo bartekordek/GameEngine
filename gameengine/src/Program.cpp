@@ -112,8 +112,6 @@ void Program::reloadShader()
 
 void Program::reloadShaderImpl()
 {
-    auto attachedShadersSize = m_attachedShaders.size();
-
     std::vector<String> shadersPaths;
     for( const auto shader : m_attachedShaders )
     {
@@ -146,8 +144,6 @@ void Program::attachShader( Shader* shader )
 void Program::dettachShader( Shader* shader )
 {
     std::lock_guard<std::mutex> lock( m_operationMutex );
-    auto shaderId = shader->getId();
-    //getUtility()->dettachShader( m_id, shaderId );
     auto it = m_attachedShaders.find( shader->getPath() );
     m_attachedShaders.erase( it );
 }
@@ -251,9 +247,9 @@ Program::~Program()
 
 void Program::release()
 {
-    const int shadersSize = m_attachedShaders.size();
+    const auto shadersSize = m_attachedShaders.size();
     String logVal;
-    logVal = String( "Shaders to free: " ) + String( shadersSize );
+    logVal = String( "Shaders to free: " ) + String( (int)shadersSize );
     m_engine.getLoger()->log( logVal );
 
     for( auto shaderPair : m_attachedShaders )
