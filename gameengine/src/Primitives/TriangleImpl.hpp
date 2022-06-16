@@ -22,7 +22,6 @@ public:
 
 protected:
     void setValues( const TriangleData& values ) override;
-    void addShader( const CUL::FS::Path& filePath, IShaderFactory* sf ) override;
     const std::vector<float> getVertices() const override;
     void setColor( const TriangleColors& colors ) override;
     void setColor( const ColorS& color ) override;

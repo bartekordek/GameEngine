@@ -3,6 +3,8 @@
 #include "gameengine/Camera.hpp"
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Cube.hpp"
+#include "gameengine/Program.hpp"
+#include "gameengine/VertexArray.hpp"
 
 #include "SDL2Wrapper/WindowData.hpp"
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
@@ -79,6 +81,22 @@ VertexArray* IGameEngine::createVAO()
 Cube* IGameEngine::createCube()
 {
     return new Cube( &getCamera(), this );
+}
+
+Program* IGameEngine::createProgram()
+{
+    Program* result = new Program( *this );
+    m_shadersPrograms.insert( std::make_pair(result, std::unique_ptr<Program>(result)) );
+    return result;
+}
+
+void IGameEngine::removeProgram( Program* program )
+{
+    auto it = m_shadersPrograms.find( program );
+    if( it != m_shadersPrograms.end() )
+    {
+        m_shadersPrograms.erase( it );
+    }
 }
 
 void IGameEngine::pushPreRenderTask( IPreRenderTask* preRenderTask )

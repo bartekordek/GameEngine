@@ -8,8 +8,6 @@
 #include "gameengine/Camera.hpp"
 #include "gameengine/Viewport.hpp"
 
-#include "OpenGLShaderFactory.hpp"
-
 #include "SDL2Wrapper/IMPORT_SDL_video.hpp"
 #include "SDL2Wrapper/ISDLEventObserver.hpp"
 
@@ -113,9 +111,7 @@ private:
     void onInitialize( const EmptyFunctionCallback& callback ) override;
     void beforeFrame( const EmptyFunctionCallback& callback ) override;
 
-    IShaderFactory* getShaderFactory() override;
     IObjectFactory* getObjectFactory() override;
-    IProgramFactory* getProgramFactory() override;
     IImageLoader* getImageLoader() override;
     CUL::LOG::ILogger* getLoger() override;
     IUtility* getUtility() override;
@@ -191,7 +187,6 @@ private:
     std::atomic<bool> m_enableDebugDraw = false;
     std::atomic<bool> m_debugDrawInitialized = false;
 
-    DumbPtr<OpenGLShaderFactory> m_shaderFactory;
     ContextInfo m_glContext;
 
     SDL2W::ISDL2Wrapper* m_sdlW = nullptr;

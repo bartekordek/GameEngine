@@ -1,9 +1,13 @@
 #include "gameengine/Shader.hpp"
+#include "gameengine/IUtility.hpp"
+#include "gameengine/IGameEngine.hpp"
+
+#include "CUL/CULInterface.hpp"
+#include "CUL/Threading/ThreadUtils.hpp"
 
 using namespace LOGLW;
 
-Shader::Shader( CUL::FS::IFile* file ):
-    m_shaderCode( file )
+Shader::Shader( IGameEngine& engine, CUL::FS::IFile* file ) : m_engine( engine ), m_shaderCode( file )
 {
     create();
 }
@@ -27,7 +31,20 @@ void Shader::reload()
 
 void Shader::create()
 {
-    m_id = getUtility()->createShader( *m_shaderCode );
+    auto createTask = [this]() {
+        m_id = getUtility()->createShader( *m_shaderCode );
+    };
+
+    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
+    {
+        createTask();
+    }
+    else
+    {
+        m_engine.addRenderThreadTask( [createTask]() {
+            createTask();
+        } );
+    }
 }
 
 const CUL::FS::Path& Shader::getPath() const

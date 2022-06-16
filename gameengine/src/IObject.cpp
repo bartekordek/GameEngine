@@ -15,11 +15,6 @@ IObject::IObject( IGameEngine* engine ) : IRenderable( engine ), m_engine( *engi
 }
 
 // Dummy
-void IObject::addShader( const CUL::FS::Path&, IShaderFactory* )
-{
-}
-
-// Dummy
 const std::vector<float> IObject::getVertices() const
 {
     return std::vector<float>();

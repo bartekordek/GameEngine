@@ -1,17 +1,15 @@
 #pragma once
 
 #include "gameengine/IObject.hpp"
-#include "gameengine/VertexArray.hpp"
-
-#include "CUL/Graphics/IImage.hpp"
-
-#include "CUL/STL_IMPORTS/STD_deque.hpp"
+#include "gameengine/IUtilityUser.hpp"
 
 NAMESPACE_BEGIN( CUL )
 class CULInterface;
 
 NAMESPACE_BEGIN( Graphics )
 class IImageLoader;
+class IImage;
+class ImageInfo;
 NAMESPACE_END( Graphics )
 
 NAMESPACE_END( CUL )
@@ -27,13 +25,13 @@ public:
     Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine );
 
     void LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
-    void LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader*, unsigned textureId );
+    void LoadImage( unsigned char* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader*, unsigned textureId );
 
     unsigned m_textureId = 0u;
 
     void render() override;
     const CUL::Graphics::ImageInfo& getImageInfo() const;
-    CUL::Graphics::DataType* getData() const;
+    unsigned char* getData() const;
 
     ~Sprite();
 
@@ -60,7 +58,7 @@ private:
 
     CUL::Graphics::IImage* m_image = nullptr;
 
-    std::unique_ptr<class Program> m_shaderProgram;
+    class Program* m_shaderProgram = nullptr;
 
     TextureInfo m_textureInfo;
 

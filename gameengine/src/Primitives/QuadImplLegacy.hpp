@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gameengine/IUtilityUser.hpp"
 #include "gameengine/Primitives/IQuad.hpp"
 
 NAMESPACE_BEGIN( LOGLW )

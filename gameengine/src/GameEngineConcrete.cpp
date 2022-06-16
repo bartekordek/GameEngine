@@ -109,19 +109,9 @@ void GameEngineConcrete::beforeFrame( const EmptyFunctionCallback& callback )
     m_onBeforeFrame = callback;
 }
 
-IShaderFactory* GameEngineConcrete::getShaderFactory()
-{
-    return m_shaderFactory.get();
-}
-
 IObjectFactory* GameEngineConcrete::getObjectFactory()
 {
     return this;
-}
-
-IProgramFactory* GameEngineConcrete::getProgramFactory()
-{
-    return &*m_shaderFactory;
 }
 
 IImageLoader* GameEngineConcrete::getImageLoader()
@@ -431,8 +421,6 @@ void GameEngineConcrete::initialize()
     m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
     m_logger->log( m_glContext.glVersion );
 
-    m_shaderFactory = new OpenGLShaderFactory( this );
-
     m_sdlW->registerSDLEventObserver( this );
 
     m_oglUtility->setProjectionAndModelToIdentity();
@@ -574,7 +562,7 @@ void GameEngineConcrete::calculateNextFrameLengths()
 #endif
 void GameEngineConcrete::renderInfo()
 {
-    
+
     const auto& winSize = m_activeWindow->getSize();
 
     ImGui_ImplOpenGL2_NewFrame();
@@ -846,8 +834,6 @@ void GameEngineConcrete::release()
     m_logger->log( "GameEngineConcrete::release()..." );
 
     m_sdlW->unRegisterSDLEventObserver( this );
-
-    m_shaderFactory.release();
 
     m_oglUtility->destroyContext( m_glContext );
 

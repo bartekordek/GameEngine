@@ -5,6 +5,7 @@
 #include "gameengine/IObject.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/Program.hpp"
 
 #include "CUL/Threading/ThreadUtils.hpp"
 

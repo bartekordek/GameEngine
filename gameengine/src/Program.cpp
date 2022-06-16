@@ -10,6 +10,16 @@ using namespace LOGLW;
 
 Program::Program( IGameEngine& engine ) : m_engine( engine )
 {
+    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        initialize();
+    }
+    else
+    {
+        m_engine.addRenderThreadTask( [this]() {
+            initialize();
+        } );
+    }
 }
 
 bool Program::initialized() const
@@ -74,6 +84,17 @@ void Program::setAttrib( const String& name, const glm::mat4& val )
     getUtility()->setUniformValue( location, val );
 }
 
+Shader* Program::loadShader( const char* path )
+{
+    auto fragmentShaderFile = getUtility()->getCUl()->getFF()->createRegularFileRawPtr( path );
+    fragmentShaderFile->load( true );
+    Shader* result = new Shader( m_engine, fragmentShaderFile );
+    attachShader( result );
+    link();
+    validate();
+    return result;
+}
+
 String Program::getAttributeStr( const String& )
 {
     return String();
@@ -125,7 +146,7 @@ void Program::reloadShaderImpl()
     {
         auto shaderFile = getUtility()->getCUl()->getFF()->createFileFromPath( shaderPath );
         shaderFile->load(true);
-        auto shader = new Shader( shaderFile );
+        auto shader = new Shader( m_engine, shaderFile );
         attachShader( shader );
     }
 
@@ -137,7 +158,23 @@ void Program::attachShader( Shader* shader )
 {
     std::lock_guard<std::mutex> lock( m_operationMutex );
     auto shaderId = shader->getId();
-    getUtility()->attachShader( m_id, shaderId );
+
+    auto attachTask = [this, shaderId]() {
+        getUtility()->attachShader( m_id, shaderId );
+    };
+
+    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        attachTask();
+    }
+    else
+    {
+        m_engine.addRenderThreadTask( [attachTask]() {
+            attachTask();
+        } );
+    }
+
+
     m_attachedShaders[shader->getPath()] = shader;
 }
 
@@ -150,8 +187,21 @@ void Program::dettachShader( Shader* shader )
 
 void Program::link()
 {
-    std::lock_guard<std::mutex> lock( m_operationMutex );
-    getUtility()->linkProgram( m_id );
+    auto linkTask = [this]() {
+        std::lock_guard<std::mutex> lock( m_operationMutex );
+        getUtility()->linkProgram( m_id );
+    };
+
+    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        linkTask();
+    }
+    else
+    {
+        m_engine.addRenderThreadTask( [linkTask]() {
+            linkTask();
+        } );
+    }
 }
 
 void Program::enable()
@@ -167,8 +217,21 @@ void Program::disable()
 
 void Program::validate()
 {
-    std::lock_guard<std::mutex> lock( m_operationMutex );
-    getUtility()->validateProgram( m_id );
+    auto validateTask = [this]() {
+        std::lock_guard<std::mutex> lock( m_operationMutex );
+        getUtility()->validateProgram( m_id );
+    };
+
+    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        validateTask();
+    }
+    else
+    {
+        m_engine.addRenderThreadTask( [validateTask]() {
+            validateTask();
+        } );
+    }
 }
 
 void Program::render()

@@ -60,8 +60,6 @@ void IGameEngineApp::init( const SDL2W::WindowData& windowData,
 
     m_oglw->onInitialize( [this]() {
         m_objFactory = m_oglw->getObjectFactory();
-        m_shaderfactory = m_oglw->getShaderFactory();
-        m_programFactory = m_oglw->getProgramFactory();
         onInit();
     } );
     m_oglw->beforeFrame( [this]() {

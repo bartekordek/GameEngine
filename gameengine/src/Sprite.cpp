@@ -73,7 +73,7 @@ void Sprite::init()
 {
     if( !getUtility()->isLegacy() )
     {
-        m_shaderProgram = std::make_unique<Program>( getEngine() );
+        m_shaderProgram = getEngine().createProgram();
         m_shaderProgram->initialize();
         m_shaderProgram->enable();
 
@@ -87,11 +87,11 @@ void Sprite::init()
 
         auto fragmentShaderFile = m_cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.frag" );
         fragmentShaderFile->loadFromString( fragmentShaderSource );
-        auto fragmentShader = new Shader( fragmentShaderFile );
+        auto fragmentShader = new Shader( getEngine(), fragmentShaderFile );
 
         auto vertexShaderCode = m_cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.vert" );
         vertexShaderCode->loadFromString( vertexShaderSource );
-        auto vertexShader = new Shader( vertexShaderCode );
+        auto vertexShader = new Shader( getEngine(), vertexShaderCode );
 
         m_shaderProgram->attachShader( vertexShader );
         m_shaderProgram->attachShader( fragmentShader );
@@ -269,5 +269,5 @@ Sprite::~Sprite()
 
 void Sprite::release()
 {
-    m_shaderProgram.reset();
+    getEngine().removeProgram( m_shaderProgram );
 }

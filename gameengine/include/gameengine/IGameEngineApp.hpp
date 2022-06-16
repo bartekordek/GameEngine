@@ -32,8 +32,6 @@ public:
     virtual ~IGameEngineApp();
 protected:
     class IObjectFactory* m_objFactory = nullptr;
-    class IProgramFactory* m_programFactory = nullptr;
-    class IShaderFactory* m_shaderfactory = nullptr;
     class CUL::LOG::ILogger* m_logger = nullptr;
     class IUtility* m_gutil = nullptr;
 

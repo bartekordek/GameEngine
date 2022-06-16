@@ -2,7 +2,6 @@
 
 #include "gameengine/IRenderable.hpp"
 #include "gameengine/ITransformable.hpp"
-#include "gameengine/IShaderFactory.hpp"
 
 #include "CUL/Filesystem/IFile.hpp"
 
@@ -20,8 +19,6 @@ class GAME_ENGINE_API IObject: public IRenderable, public ITransformable
 {
 public:
     IObject( IGameEngine* engine );
-
-    virtual void addShader( const CUL::FS::Path& filePath, IShaderFactory* sf );
 
     virtual const std::vector<float> getVertices() const;
 

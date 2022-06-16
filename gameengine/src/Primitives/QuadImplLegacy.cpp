@@ -1,4 +1,5 @@
 #include "Primitives/QuadImplLegacy.hpp"
+#include "gameengine/IUtilityUser.hpp"
 
 using namespace LOGLW;
 

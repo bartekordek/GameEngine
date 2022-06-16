@@ -24,11 +24,6 @@ void TriangleImpl::setValues( const TriangleData& values )
     m_triangle.setValues( values );
 }
 
-void TriangleImpl::addShader(const CUL::FS::Path&, IShaderFactory* )
-{
-
-}
-
 const std::vector<float> TriangleImpl::getVertices() const
 {
     std::vector<float> result;

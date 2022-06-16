@@ -1,10 +1,7 @@
 #pragma once
 
 #include "gameengine/IObjectFactory.hpp"
-#include "gameengine/IProgramFactory.hpp"
-#include "gameengine/IShaderFactory.hpp"
 #include "gameengine/IUtility.hpp"
-#include "gameengine/VertexArray.hpp"
 
 #include "SDL2Wrapper/Input/IKeyboardObservable.hpp"
 #include "SDL2Wrapper/IWindowEventObservable.hpp"
@@ -73,9 +70,7 @@ public:
     virtual void stopRenderingLoop() = 0;
     virtual void onInitialize( const EmptyFunctionCallback& callback ) = 0;
 
-    virtual IShaderFactory* getShaderFactory() = 0;
     virtual IObjectFactory* getObjectFactory() = 0;
-    virtual IProgramFactory* getProgramFactory() = 0;
     virtual IImageLoader* getImageLoader() = 0;
     virtual IUtility* getUtility() = 0;
     virtual const Viewport& getViewport() const = 0;
@@ -107,7 +102,7 @@ public:
     virtual ITextureFactory* getTextureFactory() = 0;
 
     // VBO HANDLE:
-    virtual VertexBuffer* createVBO( std::vector<float>& data ) = 0;
+    virtual class VertexBuffer* createVBO( std::vector<float>& data ) = 0;
 
     static IGameEngine* createGameEngine( SDL2W::ISDL2Wrapper* sdl2w, bool legacy = false );
     static IGameEngine* createGameEngine( bool legacy, const CUL::Graphics::Pos2Di& pos, const SDL2W::WinSize& winSize,
@@ -121,7 +116,7 @@ public:
     // Object Factory
     Sprite* createSprite();
     Quad* createQuad( IObject* parent );
-    VertexArray* createVAO();
+    class VertexArray* createVAO();
     Cube* createCube();
 
     void pushPreRenderTask( IPreRenderTask* preRenderTask );
@@ -136,6 +131,11 @@ public:
     unsigned getGPUCurrentAvailableMemoryKb();
 
     virtual void addRenderThreadTask( const std::function<void( void )>& task ) = 0;
+
+
+    // Shaders
+    class Program* createProgram();
+    void removeProgram(Program* program);
 
     virtual ~IGameEngine();
 
@@ -159,6 +159,8 @@ private:
     IGameEngine& operator=( IGameEngine&& rhv ) = delete;
 
     static IGameEngine* s_instance;
+
+    std::map<Program*, std::unique_ptr<Program>> m_shadersPrograms;
 };
 
 NAMESPACE_END( LOGLW )

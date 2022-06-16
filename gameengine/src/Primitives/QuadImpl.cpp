@@ -3,6 +3,7 @@
 #include "gameengine/Program.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/Camera.hpp"
+#include "gameengine/IUtilityUser.hpp"
 
 #include "CUL/CULInterface.hpp"
 
@@ -39,11 +40,11 @@ void QuadImpl::init()
     auto cul = getUtility()->getCUl();
     auto fragmentShaderFile = cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.frag" );
     fragmentShaderFile->loadFromString( fragmentShaderSource );
-    auto fragmentShader = new Shader( fragmentShaderFile );
+    auto fragmentShader = new Shader( m_engine, fragmentShaderFile );
 
     auto vertexShaderCode = cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.vert" );
     vertexShaderCode->loadFromString( vertexShaderSource );
-    auto vertexShader = new Shader( vertexShaderCode );
+    auto vertexShader = new Shader( m_engine, vertexShaderCode );
 
     m_shaderProgram->attachShader( vertexShader );
     m_shaderProgram->attachShader( fragmentShader );

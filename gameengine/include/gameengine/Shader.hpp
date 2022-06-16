@@ -7,11 +7,13 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
+class IGameEngine;
+
 class GAME_ENGINE_API Shader final:
     private IUtilityUser
 {
 public:
-    Shader( CUL::FS::IFile* file );
+    Shader( IGameEngine& engine, CUL::FS::IFile* file );
 
     unsigned int getId() const;
     void useShader() const;
@@ -25,6 +27,7 @@ private:
     void create();
     void release();
 
+    IGameEngine& m_engine;
     CUL::GUTILS::DumbPtr<CUL::FS::IFile> m_shaderCode;
     unsigned int m_id = 0;
 

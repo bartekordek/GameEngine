@@ -2,7 +2,6 @@
 
 #include "gameengine/IUtility.hpp"
 #include "gameengine/Shader.hpp"
-#include "gameengine/IShaderFactory.hpp"
 
 #include "CUL/STL_IMPORTS/STD_map.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -41,6 +40,8 @@ public:
     void setAttrib( const String& name, const glm::mat2& mat );
     void setAttrib( const String& name, const glm::mat3& mat );
     void setAttrib( const String& name, const glm::mat4& mat );
+
+    Shader* loadShader( const char* path );
 
     String getAttributeStr( const String& name );
     float getAttributeF( const String& name );

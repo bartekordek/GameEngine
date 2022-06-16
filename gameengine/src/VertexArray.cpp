@@ -2,11 +2,13 @@
 #include "gameengine/IndexBuffer.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IUtility.hpp"
+#include "gameengine/Program.hpp"
+
 #include "CUL/Threading/ThreadUtils.hpp"
 
 using namespace LOGLW;
 
-VertexArray::VertexArray( IGameEngine& engine ) : IRenderable( &engine ), m_shaderProgram( new Program(engine) )
+VertexArray::VertexArray( IGameEngine& engine ) : IRenderable( &engine ), m_shaderProgram( engine.createProgram() )
 {
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -141,7 +143,7 @@ void VertexArray::runTasks()
 
                     auto shaderFile = getUtility()->getCUl()->getFF()->createFileFromPath( shaderPath );
                     shaderFile->load(true);
-                    auto shader = new Shader( shaderFile );
+                    auto shader = new Shader( *getEngine(), shaderFile );
                     m_shaderProgram->attachShader( shader );
 
                     m_shadersPaths.pop();
