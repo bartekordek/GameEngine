@@ -74,6 +74,7 @@ protected:
 private:
     bool m_depthTest = true;
     glm::vec3 m_target = { 0.f, 0.f, -255.f };
+    glm::vec3 m_rightVec = { 0.f, 0.f, 0.f };
 
     Camera( const Camera& arg ) = delete;
     Camera( Camera&& arg ) = delete;
