@@ -90,7 +90,7 @@ private:
     std::mutex m_tasksMtx;
     std::deque<TaskType> m_tasks;
 
-    std::unique_ptr<Program> m_shaderProgram;
+    Program* m_shaderProgram = nullptr;
     std::vector<Ptr<Shader>> m_shaders;
     std::mutex m_shadersMtx;
     std::queue<CUL::FS::Path> m_shadersPaths;
