@@ -170,4 +170,5 @@ unsigned IGameEngine::getGPUCurrentAvailableMemoryKb()
 
 IGameEngine::~IGameEngine()
 {
+    m_shadersPrograms.clear();
 }
