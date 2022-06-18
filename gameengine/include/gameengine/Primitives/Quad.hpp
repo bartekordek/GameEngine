@@ -24,6 +24,7 @@ private:
 
     TransformComponent* m_transformComponent = nullptr;
 
+    class Program* m_shaderProgram = nullptr;
     class VertexArray* m_vao = nullptr;
 
     Camera& m_camera;

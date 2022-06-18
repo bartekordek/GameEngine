@@ -6,6 +6,7 @@
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Program.hpp"
+#include "CUL/Filesystem/FileFactory.hpp"
 
 #include "CUL/Threading/ThreadUtils.hpp"
 
@@ -54,7 +55,7 @@ void Quad::init()
         float y0 = -size.y() / denominator;
         float y1 = size.y() / denominator;
 
-        //float z0 = -size.z() / denominator;
+        // float z0 = -size.z() / denominator;
 
         vboData.vertices = {
             x1, y1, 0.f,  // top right
@@ -70,10 +71,32 @@ void Quad::init()
         m_vao->setDisableRenderOnMyOwn( true );
 
         m_vao->addVertexBuffer( vboData );
-        m_vao->createShader( "source.vert" );
-        m_vao->createShader( "yellow.frag" );
 
-        m_vao->getProgram()->enable();
+        m_shaderProgram = getEngine().createProgram();
+
+        const std::string vertexShaderSource =
+#include "embedded_shaders/basic_pos.vert"
+            ;
+
+        const std::string fragmentShaderSource =
+#include "embedded_shaders/basic_color.frag"
+            ;
+
+        auto fragmentShaderFile = getEngine().getCul()->getFF()->createRegularFileRawPtr( "embedded_shaders/basic_color.frag" );
+        fragmentShaderFile->loadFromString( fragmentShaderSource );
+        auto fragmentShader = new Shader( getEngine(), fragmentShaderFile );
+
+        auto vertexShaderCode = getEngine().getCul()->getFF()->createRegularFileRawPtr( "embedded_shaders/basic_pos.vert" );
+        vertexShaderCode->loadFromString( vertexShaderSource );
+        auto vertexShader = new Shader( getEngine(), vertexShaderCode );
+
+        m_shaderProgram->attachShader( vertexShader );
+        m_shaderProgram->attachShader( fragmentShader );
+        m_shaderProgram->link();
+        m_shaderProgram->validate();
+
+        m_shaderProgram->enable();
+
         setTransformation();
     }
 }
@@ -114,10 +137,12 @@ void Quad::render()
     }
     else
     {
-        m_vao->getProgram()->enable();
+        m_shaderProgram->enable();
+
         setTransformation();
         m_vao->render();
-        m_vao->getProgram()->disable();
+
+        m_shaderProgram->disable();
     }
 }
 
@@ -129,9 +154,9 @@ void Quad::setTransformation()
 
     glm::mat4 model = getTransform()->getModel();
 
-    m_vao->getProgram()->setAttrib( "projection", projectionMatrix );
-    m_vao->getProgram()->setAttrib( "view", viewMatrix );
-    m_vao->getProgram()->setAttrib( "model", model );
+    m_shaderProgram->setAttrib( "projection", projectionMatrix );
+    m_shaderProgram->setAttrib( "view", viewMatrix );
+    m_shaderProgram->setAttrib( "model", model );
 }
 
 Quad::~Quad()
