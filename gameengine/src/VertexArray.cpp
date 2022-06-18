@@ -8,7 +8,7 @@
 
 using namespace LOGLW;
 
-VertexArray::VertexArray( IGameEngine& engine ) : IRenderable( &engine ), m_shaderProgram( engine.createProgram() )
+VertexArray::VertexArray( IGameEngine& engine ) : IRenderable( &engine )
 {
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -31,7 +31,7 @@ void VertexArray::addVBO( VertexBuffer* )
 
 Program* VertexArray::getProgram()
 {
-    return m_shaderProgram.get();
+    return m_shaderProgram;
 }
 
 void VertexArray::createShader( const CUL::FS::Path& path )
@@ -40,7 +40,7 @@ void VertexArray::createShader( const CUL::FS::Path& path )
 
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
-        if( m_shaderProgram->initialized() == false )
+        if( !m_shaderProgram )
         {
             registerTask( TaskType::CREATE_PROGRAM );
         }
@@ -51,7 +51,7 @@ void VertexArray::createShader( const CUL::FS::Path& path )
     else
     {
         std::lock_guard<std::mutex> guard( m_shadersMtx );
-        if( m_shaderProgram->initialized() == false )
+        if( !m_shaderProgram )
         {
             registerTask( TaskType::CREATE_PROGRAM );
         }
@@ -82,14 +82,20 @@ void VertexArray::render()
     runTasks();
 
     bind();
-    m_shaderProgram->render();
+    if( m_shaderProgram )
+    {
+        m_shaderProgram->render();
+    }
 
     size_t vbosCount = (size_t)m_vbosCount;
     for( size_t i = 0; i < vbosCount; ++i )
     {
         m_vbos[i]->render();
     }
-    m_shaderProgram->disable();
+    if( m_shaderProgram )
+    {
+        m_shaderProgram->disable();
+    }
     unbind();
 }
 
@@ -119,14 +125,14 @@ void VertexArray::runTasks()
         }
         else if( task == TaskType::CREATE_PROGRAM )
         {
-            if( m_shaderProgram->initialized() == false )
+            if( !m_shaderProgram )
             {
-                m_shaderProgram->initialize();
+                m_shaderProgram = getEngine()->createProgram();
             }
         }
         else if( task == TaskType::ADD_SHADER )
         {
-            if( m_shaderProgram->initialized() == false)
+            if( !m_shaderProgram )
             {
                 if( !taskIsAlreadyPlaced( TaskType::CREATE_PROGRAM ) )
                 {
