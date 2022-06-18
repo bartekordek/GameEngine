@@ -12,6 +12,14 @@
 
 #include "CUL/Filesystem/Path.hpp"
 
+NAMESPACE_BEGIN( CUL )
+NAMESPACE_BEGIN( LOG )
+
+class ILogger;
+
+NAMESPACE_END( LOG )
+NAMESPACE_END( CUL )
+
 NAMESPACE_BEGIN( LOGLW )
 
 using String = CUL::String;
@@ -90,6 +98,8 @@ private:
     std::mutex m_operationMutex;
 
     std::deque<ValueToSet> m_tasks;
+
+    CUL::LOG::ILogger* m_logger = nullptr;
 
 private:
     Program() = delete;

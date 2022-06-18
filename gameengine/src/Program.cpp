@@ -10,6 +10,8 @@ using namespace LOGLW;
 
 Program::Program( IGameEngine& engine ) : m_engine( engine )
 {
+    m_logger = m_engine.getLoger();
+
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         initialize();
@@ -94,6 +96,7 @@ Shader* Program::loadShader( const char* path )
     validate();
     return result;
 }
+
 
 String Program::getAttributeStr( const String& )
 {
@@ -313,7 +316,7 @@ void Program::release()
     const auto shadersSize = m_attachedShaders.size();
     String logVal;
     logVal = String( "Shaders to free: " ) + String( (int)shadersSize );
-    m_engine.getLoger()->log( logVal );
+    m_logger->log( logVal );
 
     for( auto shaderPair : m_attachedShaders )
     {
