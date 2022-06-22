@@ -4,6 +4,7 @@
 #include "gameengine/IUtility.hpp"
 #include "gameengine/Program.hpp"
 
+#include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/Threading/ThreadUtils.hpp"
 
 using namespace LOGLW;
