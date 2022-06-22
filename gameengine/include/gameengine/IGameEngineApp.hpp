@@ -7,6 +7,8 @@
 #include "SDL2Wrapper/Input/IMouseObserver.hpp"
 
 #include "CUL/STL_IMPORTS/STD_memory.hpp"
+#include "CUL/STL_IMPORTS/STD_atomic.hpp"
+#include "CUL/STL_IMPORTS/STD_thread.hpp"
 
 NAMESPACE_BEGIN(LOGLW)
 
