@@ -171,4 +171,7 @@ unsigned IGameEngine::getGPUCurrentAvailableMemoryKb()
 IGameEngine::~IGameEngine()
 {
     m_shadersPrograms.clear();
+
+    delete m_oglUtility;
+    m_oglUtility = nullptr;
 }

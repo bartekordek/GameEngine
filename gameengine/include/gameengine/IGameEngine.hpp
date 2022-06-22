@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gameengine/IObjectFactory.hpp"
-#include "gameengine/IUtility.hpp"
 
 #include "SDL2Wrapper/Input/IKeyboardObservable.hpp"
 #include "SDL2Wrapper/IWindowEventObservable.hpp"
@@ -40,6 +39,7 @@ class Cube;
 class Sprite;
 class Quad;
 class Viewport;
+class IUtility;
 
 using String = CUL::String;
 
@@ -140,7 +140,7 @@ public:
     virtual ~IGameEngine();
 
 protected:
-
+    IUtility* m_oglUtility = nullptr;
     std::mutex m_preRenderTasksMtx;
     std::queue<IPreRenderTask*> m_preRenderTasks;
     std::queue<std::function<void( void )>> m_preRenderTasksFunction;

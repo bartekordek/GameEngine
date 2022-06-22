@@ -837,8 +837,6 @@ void GameEngineConcrete::release()
 
     m_oglUtility->destroyContext( m_glContext );
 
-    delete m_oglUtility;
-    m_oglUtility = nullptr;
     m_logger->log( "GameEngineConcrete::release()... Done." );
 }
 

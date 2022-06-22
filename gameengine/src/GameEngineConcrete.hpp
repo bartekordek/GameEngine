@@ -193,7 +193,6 @@ private:
     SDL2W::IWindow* m_activeWindow = nullptr;
     CUL::CULInterface* m_cul = nullptr;
     CUL::LOG::ILogger* m_logger = nullptr;
-    IUtility* m_oglUtility = nullptr;
 
     IImageLoader* m_imageLoader = nullptr;
 
