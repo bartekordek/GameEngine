@@ -5,6 +5,7 @@
 #include "gameengine/Camera.hpp"
 #include "gameengine/IUtilityUser.hpp"
 
+#include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/CULInterface.hpp"
 
 using namespace LOGLW;

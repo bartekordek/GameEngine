@@ -16,6 +16,7 @@ Cube::Cube( Camera* camera, IGameEngine* engine ) : IObject( engine ), m_camera(
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         createPlaceHolders();
+        m_initialized = true;
     }
     else
     {
@@ -23,6 +24,7 @@ Cube::Cube( Camera* camera, IGameEngine* engine ) : IObject( engine ), m_camera(
             [this]()
             {
                 createPlaceHolders();
+                m_initialized = true;
                 m_engine->addObjectToRender( this );
             } );
     }
@@ -31,6 +33,24 @@ Cube::Cube( Camera* camera, IGameEngine* engine ) : IObject( engine ), m_camera(
 // void Cube::setImage(unsigned wallIndex, const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader)
 void Cube::setImage( unsigned, const CUL::FS::Path&, CUL::Graphics::IImageLoader* )
 {
+}
+
+void Cube::setColor( const CUL::Graphics::ColorS& color )
+{
+    m_color = color;
+
+    if( !m_initialized )
+    {
+        return;
+    }
+
+    std::lock_guard<std::mutex> renderLock( m_renderMutex );
+
+    static const size_t wallsSize = m_walls.size();
+    for( size_t i = 0; i < wallsSize; ++i )
+    {
+        m_walls[i]->setColor( m_color );
+    }
 }
 
 void Cube::createPlaceHolders()
@@ -44,7 +64,7 @@ void Cube::createPlaceHolders()
     TransformComponent::Pos pivot;
     // 0
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this );
+        Quad* quad = m_engine->createQuad( this );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -52,6 +72,7 @@ void Cube::createPlaceHolders()
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         quad->getnameCmp()->setName( "Wall00" );
+        m_walls[0] = quad;
     }
 
     // 1
@@ -64,6 +85,8 @@ void Cube::createPlaceHolders()
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         quad->getnameCmp()->setName( "Wall01" );
+        quad->setColor( m_color );
+        m_walls[1] = quad;
     }
 
     // 2
@@ -79,6 +102,8 @@ void Cube::createPlaceHolders()
         rotation.yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
         quad->getnameCmp()->setName( "Wall02" );
+        quad->setColor( m_color );
+        m_walls[2] = quad;
     }
 
     // 3
@@ -94,6 +119,8 @@ void Cube::createPlaceHolders()
         rotation.yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
         quad->getnameCmp()->setName( "Wall03" );
+        quad->setColor( m_color );
+        m_walls[3] = quad;
     }
 
     // 4
@@ -109,6 +136,8 @@ void Cube::createPlaceHolders()
         rotation.pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
         quad->getnameCmp()->setName( "Wall04" );
+        quad->setColor( m_color );
+        m_walls[4] = quad;
     }
 
     // 5
@@ -124,11 +153,14 @@ void Cube::createPlaceHolders()
         rotation.pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
         quad->getnameCmp()->setName( "Wall05" );
+        quad->setColor( m_color );
+        m_walls[5] = quad;
     }
 }
 
 void Cube::render()
 {
+    std::lock_guard<std::mutex> renderLock( m_renderMutex );
     if( getUtility()->isLegacy() )
     {
         getUtility()->matrixStackPush();

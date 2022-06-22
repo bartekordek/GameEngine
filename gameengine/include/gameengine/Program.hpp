@@ -3,14 +3,15 @@
 #include "gameengine/IUtility.hpp"
 #include "gameengine/Shader.hpp"
 
+#include "CUL/Filesystem/Path.hpp"
+
 #include "CUL/STL_IMPORTS/STD_map.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
 #include "CUL/STL_IMPORTS/STD_variant.hpp"
 #include "CUL/STL_IMPORTS/STD_deque.hpp"
+#include "CUL/STL_IMPORTS/STD_mutex.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
-
-#include "CUL/Filesystem/Path.hpp"
 
 NAMESPACE_BEGIN( CUL )
 NAMESPACE_BEGIN( LOG )
@@ -48,6 +49,7 @@ public:
     void setAttrib( const String& name, const glm::mat2& mat );
     void setAttrib( const String& name, const glm::mat3& mat );
     void setAttrib( const String& name, const glm::mat4& mat );
+    void setAttrib( const String& name, const glm::vec4& value );
 
     Shader* loadShader( const char* path );
 

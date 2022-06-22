@@ -31,6 +31,17 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &e
     }
 }
 
+void Quad::setColor( const CUL::Graphics::ColorS& color )
+{
+    m_color = color;
+    glm::vec4 colorVec;
+    colorVec.x = m_color.getRF();
+    colorVec.y = m_color.getGF();
+    colorVec.z = m_color.getBF();
+    colorVec.w = m_color.getAF();
+    m_shaderProgram->setAttrib( "color", colorVec );
+}
+
 void Quad::init()
 {
     if( getUtility()->isLegacy() )
@@ -140,6 +151,7 @@ void Quad::render()
         m_shaderProgram->enable();
 
         setTransformation();
+        applyColor();
         m_vao->render();
 
         m_shaderProgram->disable();
@@ -157,6 +169,11 @@ void Quad::setTransformation()
     m_shaderProgram->setAttrib( "projection", projectionMatrix );
     m_shaderProgram->setAttrib( "view", viewMatrix );
     m_shaderProgram->setAttrib( "model", model );
+}
+
+void Quad::applyColor()
+{
+    m_shaderProgram->setAttrib( "color", m_color.getVec4() );
 }
 
 Quad::~Quad()

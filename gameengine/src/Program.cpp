@@ -86,6 +86,12 @@ void Program::setAttrib( const String& name, const glm::mat4& val )
     getUtility()->setUniformValue( location, val );
 }
 
+void Program::setAttrib( const String& name, const glm::vec4& value )
+{
+    auto location = getUtility()->getUniformLocation( m_id, name );
+    getUtility()->setUniformValue( location, value );
+}
+
 Shader* Program::loadShader( const char* path )
 {
     auto fragmentShaderFile = getUtility()->getCUl()->getFF()->createRegularFileRawPtr( path );

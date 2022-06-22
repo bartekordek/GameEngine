@@ -4,8 +4,10 @@
 #include "gameengine/IUtilityUser.hpp"
 
 #include "CUL/Math/Rotation.hpp"
+#include "CUL/Graphics/Color.hpp"
 
 #include "CUL/STL_IMPORTS/STD_array.hpp"
+#include "CUL/STL_IMPORTS/STD_mutex.hpp"
 
 NAMESPACE_BEGIN( CUL )
 class CULInterface;
@@ -28,6 +30,7 @@ public:
     Cube( Camera* camera, IGameEngine* engine );
 
     void setImage(unsigned wallIndex, const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader);
+    void setColor( const CUL::Graphics::ColorS& color );
 
     ~Cube();
 protected:
@@ -41,13 +44,18 @@ private:
     void release();
 
     TransformComponent* m_transformComponent = nullptr;
+    bool m_initialized = false;
 
     Camera* m_camera = nullptr;
     IGameEngine* m_engine = nullptr;
 
+    std::mutex m_renderMutex;
+
     std::array<ITransformable::Pos, 6> m_wallsPositions;
-    std::array<IObject*, 6> m_walls;
+    std::array<class Quad*, 6> m_walls = {};
     std::array<CUL::MATH::Rotation, 6> m_rotations;
+
+    CUL::Graphics::ColorS m_color;
 
     // Deleted:
     Cube( const Cube& arg ) = delete;
