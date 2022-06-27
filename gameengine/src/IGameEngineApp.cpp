@@ -78,6 +78,8 @@ void IGameEngineApp::init( const SDL2W::WindowData& windowData,
     //g_projectionData.m_projectionType = LOGLW::ProjectionType::PERSPECTIVE;
     //m_oglw->setProjection( g_projectionData );
 
+
+    m_logicTimer.reset( CUL::TimerFactory::getChronoTimer() );
     m_logicThread = std::thread( &IGameEngineApp::logicThread, this );
 }
 
@@ -89,9 +91,15 @@ void IGameEngineApp::run()
 
 void IGameEngineApp::logicThread()
 {
+    m_logicTimer->start();
+    unsigned int msDuration = 0;
     while( m_runLogicThread )
     {
-        customLogicThreadFrame();
+        m_logicTimer->stop();
+        msDuration = m_logicTimer->getElapsed().getMs();
+        customLogicThreadFrame( msDuration );
+        m_logicTimer->start();
+        CUL::ITimer::sleepMiliSeconds( m_logicThreadSleepMs );
     }
 }
 
@@ -113,6 +121,11 @@ void IGameEngineApp::close()
     m_logicThread.join();
     m_oglw->stopRenderingLoop();
     m_sdlw->stopEventLoop();
+}
+
+void IGameEngineApp::setLogicThreadSleep( int sleepInMs )
+{
+    m_logicThreadSleepMs = sleepInMs;
 }
 
 IGameEngineApp::~IGameEngineApp()

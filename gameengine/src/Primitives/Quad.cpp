@@ -39,7 +39,15 @@ void Quad::setColor( const CUL::Graphics::ColorS& color )
     colorVec.y = m_color.getGF();
     colorVec.z = m_color.getBF();
     colorVec.w = m_color.getAF();
-    m_shaderProgram->setAttrib( "color", colorVec );
+
+    if( getUtility()->isLegacy() )
+    {
+
+    }
+    else
+    {
+        m_shaderProgram->setAttrib( "color", colorVec );
+    }
 }
 
 void Quad::init()
@@ -130,9 +138,6 @@ void Quad::render()
         quad[3][0] =  size;
         quad[3][1] = -size;
 
-        ColorS color;
-        color.setRF(1.f);
-
         getUtility()->matrixStackPush();
 
         const auto position = getTransform()->getWorldPosition();
@@ -142,7 +147,7 @@ void Quad::render()
 
         //static const auto type = CUL::MATH::Angle::Type::DEGREE;
         getUtility()->rotate( rotation );
-        getUtility()->draw( quad, color );
+        getUtility()->draw( quad, m_color );
 
         getUtility()->matrixStackPop();
     }
