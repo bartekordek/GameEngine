@@ -1,7 +1,7 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "Windows",
             "browse": {
                 "path": [
                     "${workspaceFolder}"
@@ -27,6 +27,33 @@
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "msvc-x64"
+        },
+        {
+            "name": "Linux",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "${workspaceFolder}/gameengine/include",
+                "${workspaceFolder}/gameengine/src",
+                "${workspaceFolder}/deps/SDL2Wrapper/libsdl2wrapper/inc",
+                "${workspaceFolder}/deps/SDL2Wrapper/libsdl2wrapper/src",
+                "${workspaceFolder}/deps/SDL2Wrapper/deps/sdl2-repo/include",
+                "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/inc",
+                "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/src",
+                "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/deps/glm"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
         }
     ],
     "version": 4

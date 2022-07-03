@@ -58,7 +58,7 @@ private:
     virtual void onMouseEvent(const SDL2W::MouseData& md) override;
     virtual void onInit() {};
     virtual void customFrame() {};
-    virtual void customLogicThreadFrame( DurationType frameMs ){};
+    virtual void customLogicThreadFrame( DurationType ){};
 
     std::atomic<bool> m_runLogicThread = true;
     std::thread m_logicThread;

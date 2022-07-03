@@ -1,23 +1,17 @@
-#include "CUL/Filesystem/FileFactory.hpp"
-#include "CUL/GenericUtils/ConsoleUtilities.hpp"
-#include "CUL/GenericUtils/IConfigFile.hpp"
-#include "CUL/Graphics/Rect2D.hpp"
-#include "CUL/Log/ILogger.hpp"
-#include "CUL/Math/Axis.hpp"
-#include "CUL/Math/Primitives/Triangle.hpp"
-#include "CUL/STL_IMPORTS/STD_cmath.hpp"
-#include "CUL/STL_IMPORTS/STD_thread.hpp"
-#include "SDL2Wrapper/IWindow.hpp"
-#include "gameengine/IDebugOverlay.hpp"
 #include "gameengine/IGameEngine.hpp"
+#include "gameengine/Camera.hpp"
+#include "gameengine/IDebugOverlay.hpp"
 #include "gameengine/Sprite.hpp"
 
-using Vector3Di = LOGLW::Vector3Di;
-using WindowSize = LOGLW::WindowSize;
+#include "SDL2Wrapper/Input/IKey.hpp"
+#include "SDL2Wrapper/IWindowEventListener.hpp"
+
+#include "CUL/GenericUtils/DumbPtr.hpp"
+#include "CUL/GenericUtils/ConsoleUtilities.hpp"
+
 using GLWrap = CUL::GUTILS::DumbPtr<LOGLW::IGameEngine>;
 using ColorS = CUL::Graphics::ColorS;
 using ColorE = CUL::Graphics::ColorE;
-using WinEventType = SDL2W::WindowEvent::Type;
 using ShaderFile = CUL::FS::IFile;
 template <typename TYPE>
 using DumbPtr = CUL::GUTILS::DumbPtr<TYPE>;
@@ -42,8 +36,8 @@ CUL::FS::Path fragmentShaderFile;
 LOGLW::Program* program = nullptr;
 float blueTriangleZ = -1.0f;
 float redTriangleZ = 1.0f;
-LOGLW::Camera g_projectionData;
-Pos3Df g_eyePos;
+LOGLW::Camera g_camera;
+glm::vec3 g_eyePos;
 LOGLW::IObject* g_triangle0 = nullptr;
 CUL::TimeConcrete configModificationTime;
 SDL2W::IWindow* g_mainWindow = nullptr;
@@ -70,7 +64,8 @@ CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 void afterInit();
 void renderScene();
 void onKeyBoardEvent( const SDL2W::IKey& key );
-void onWindowEvent( const WinEventType type );
+SDL2W::WindowCallback g_windowCallback;
+void onWindowEvent( const SDL2W::WindowEvent::Type type );
 void closeApp();
 void reloadConfig();
 
@@ -97,7 +92,7 @@ int main( int argc, char** argv )
     }
 
     CUL::Graphics::Pos2Di winPos = { 200, 200 };
-    WindowSize winSize = { width, height };
+    SDL2W::WinSize winSize = { width, height };
     g_oglw = LOGLW::IGameEngine::createGameEngine( false, winPos, winSize, "../media/Config.txt", "gameenginePlaygroundApp", "opengl" );
     g_oglw->addMouseEventCallback( onMouseEvent );
     g_configFile = g_oglw->getConfig();
@@ -120,14 +115,12 @@ int main( int argc, char** argv )
 
 void afterInit()
 {
-    g_oglw->setProjectionType( LOGLW::ProjectionType::PERSPECTIVE );
-
     g_mainWindow = g_oglw->getMainWindow();
     g_mainWindow->setBackgroundColor( SDL2W::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
     const auto& winSize = g_mainWindow->getSize();
 
-    g_projectionData.setSize( { winSize.getWidth(), winSize.getHeight() } );
-    g_projectionData.setEyePos( { 0.0f, 0.0f, 131.f } );
+    g_camera.setSize( { winSize.getWidth(), winSize.getHeight() } );
+    g_camera.setEyePos( { 0.0f, 0.0f, 131.f } );
 
     reloadConfig();
     configModificationTime = g_configFile->getModificationTime();
@@ -214,15 +207,14 @@ void reloadConfig()
 
         const auto x = 0.0f;
 
-        g_projectionData.setCenter(
-            Pos3Df( x, g_configFile->getValue( "CENTER_Y" ).toFloat(), g_configFile->getValue( "CENTER_Z" ).toFloat() ) );
-        g_eyePos = g_projectionData.getEye();
+        g_camera.setCenter(
+            glm::vec3( x, g_configFile->getValue( "CENTER_Y" ).toFloat(), g_configFile->getValue( "CENTER_Z" ).toFloat() ) );
+        g_eyePos = g_camera.getEye();
         g_eyePos.z = g_configFile->getValue( "EYE_Z" ).toFloat();
-        g_projectionData.setEyePos( g_eyePos );
+        g_camera.setEyePos( g_eyePos );
 
-        g_projectionData.setUp( Pos3Df( 0.0f, 1.0f, 0.0f ) );
-        g_projectionData.setZfar( g_configFile->getValue( "Z_FAR" ).toFloat() );
-        g_oglw->setProjection( g_projectionData );
+        g_camera.setUp( glm::vec3( 0.0f, 1.0f, 0.0f ) );
+        g_camera.getCenter().z =  g_configFile->getValue( "Z_FAR" ).toFloat();
     }
 }
 
@@ -254,7 +246,7 @@ void onMouseEvent( const SDL2W::MouseData& mouseData )
         if( mouseX < rightX && mouseX > leftX && mouseY < top && mouseY > bottom )
 
         {
-            auto eye = g_oglw->getProjectionData().getEye();
+            auto eye = g_oglw->getCamera().getEye();
             static auto delta = 0.5f;
             eye.x = +centerX * delta;
             eye.y = -centerY * delta;
@@ -290,28 +282,27 @@ void onKeyBoardEvent( const SDL2W::IKey& key )
     }
     else if( keyName == "U" )
     {
-        auto newVal = g_projectionData.getZfar() + delta;
-        g_projectionData.setZfar( newVal );
-        g_oglw->setProjection( g_projectionData );
+        auto newVal = g_camera.getZfar() + delta;
+        g_camera.getCenter().z = newVal;
         g_logger->log( "setting zFar to: " + String( newVal ) );
     }
     else if( keyName == "J" )
     {
-        auto newVal = g_projectionData.getZfar() - delta;
-        g_projectionData.setZfar( newVal );
-        g_oglw->setProjection( g_projectionData );
+        auto newVal = g_camera.getZfar() - delta;
+
+         g_camera.getCenter().z = newVal;
         g_logger->log( "setting zFar to: " + String( newVal ) );
     }
     else if( keyName == "I" )
     {
         g_eyePos.z += 2.0f;
-        g_oglw->setEyePos( g_eyePos );
+        g_oglw->getCamera().setEyePos( g_eyePos );
         g_logger->log( "setting g_eyePos.z to: " + String( g_eyePos.z ) );
     }
     else if( keyName == "K" )
     {
         g_eyePos.z -= 2.0f;
-        g_oglw->setEyePos( g_eyePos );
+        g_oglw->getCamera().setEyePos( g_eyePos );
         g_logger->log( "setting g_eyePos.z to: " + String( g_eyePos.z ) );
     }
     else if( keyName == "T" )
@@ -330,20 +321,20 @@ void onKeyBoardEvent( const SDL2W::IKey& key )
         if( toggle == true )
         {
             g_logger->log( "Changing projection to ortographic." );
-            g_oglw->setProjectionType( LOGLW::ProjectionType::ORTO );
+           // g_oglw->setProjectionType( LOGLW::ProjectionType::ORTO );
         }
         else
         {
             g_logger->log( "Changing projection to PERSPECTIVE." );
-            g_oglw->setProjectionType( LOGLW::ProjectionType::PERSPECTIVE );
+           // g_oglw->setProjectionType( LOGLW::ProjectionType::PERSPECTIVE );
         }
         toggle = !toggle;
     }
 }
 
-void onWindowEvent( const WinEventType type )
+void onWindowEvent( const SDL2W::WindowEvent::Type type )
 {
-    if( WinEventType::CLOSE == type )
+    if( SDL2W::WindowEvent::Type::CLOSE == type )
     {
         closeApp();
     }

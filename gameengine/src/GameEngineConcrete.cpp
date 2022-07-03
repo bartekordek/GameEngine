@@ -245,7 +245,6 @@ ITriangle* GameEngineConcrete::createTriangle( const TriangleData& data, const C
     ITriangle* triangle = new TriangleImpl(this);
     triangle->setValues( data );
     triangle->setColor( color );
-    addObjectToRender( triangle );
     return triangle;
 }
 

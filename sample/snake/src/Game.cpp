@@ -5,7 +5,8 @@
 #include "CUL/ITimer.hpp"
 //#include "CUL/STL_IMPORTS/STD_random.hpp"
 
-Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const WindowSize& winSize ):
+Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SDL2W::WinSize& winSize )
+    :
     m_windowPos( windowPos ),
     m_windowSize( winSize ),
     m_rowsCount( rows ),

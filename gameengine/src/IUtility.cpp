@@ -14,8 +14,10 @@ static CUL::LOG::ILogger* g_logger = nullptr;
 #define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
 #define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
 
+#if _MSC_VER
 #pragma warning( push )
 #pragma warning( disable : 4800 )
+#endif // #if _MSC_VER
 const String TextureInfo::toString() const
 {
     String result;
@@ -30,7 +32,9 @@ const String TextureInfo::toString() const
 
     return result;
 }
-#pragma warning( pop ) 
+#if _MSC_VER
+#pragma warning( pop )
+#endif // #if _MSC_VER
 
 void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length,
                              const char*  // message

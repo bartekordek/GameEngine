@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "[LINUX][CMAKE][CREATE]",
+            "label": "[LINUX][CMAKE][CREATE DIR]",
             "type": "shell",
-            "command": "cd Build-Linux && cmake .. -DCMAKE_BUILD_TYPE=Debug",
+            "command": "mkdir -p Build-Linux",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -16,7 +16,7 @@
                 "reveal": "always",
                 "focus": false,
                 "panel": "dedicated",
-                "showReuseMessage": false,
+                "showReuseMessage": true,
                 "clear": true
             },
             "problemMatcher": [
@@ -24,9 +24,9 @@
             ]
         },
         {
-            "label": "[LINUX][BUILD][DEBUG]",
+            "label": "[LINUX][CMAKE][CREATE][DEBUG]",
             "type": "shell",
-            "command": "clear && cmake --build Build-Linux --config DEBUG -j64",
+            "command": "cmake .. -DCMAKE_BUILD_TYPE=Debug",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -34,20 +34,20 @@
             "presentation": {
                 "echo": true,
                 "reveal": "always",
-                "focus": false,
+                "focus": true,
                 "panel": "dedicated",
                 "showReuseMessage": false,
                 "clear": true
             },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "dependsOn": "[LINUX][CMAKE][CREATE]"
+            "options": {
+                "cwd": "${workspaceFolder}/Build-Linux"
+            },
+            "dependsOn":"[LINUX][CMAKE][CREATE DIR]"
         },
         {
-            "label": "[LINUX][BUILD][DEBUG][04_Hello-Triangle_refactor]",
+            "label": "[LINUX][BUILD][DEBUG]",
             "type": "shell",
-            "command": "clear && cmake --build Build-Linux --target 04_Hello-Triangle_refactor --config DEBUG -j1",
+            "command": "clear && cmake --build Build-Linux --config DEBUG -j64",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -103,72 +103,8 @@
             },
             "options": {
                 "cwd": "Build-Windows"
-            }
-        },
-        {
-            "label": "[WINDOWS][CMAKE][CREATE][RELEASE]",
-            "type": "shell",
-            "command": "cmake .. -DCMAKE_BUILD_TYPE=Release",
-            "group": {
-                "kind": "build",
-                "isDefault": true
             },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "options": {
-                "cwd": "Build-Windows"
-            }
-        },
-        {
-            "label": "[WINDOWS][BUILD][ALL]",
-            "type": "shell",
-            "command": "cmake --build Build-Windows --config DEBUG -j16",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ],
-            "dependsOn": "[WINDOWS][CMAKE][CREATE]",
-        },
-        {
-            "label": "[WINDOWS][BUILD] All Clean",
-            "type": "shell",
-            "command": "cmake --build Build-Windows --config DEBUG -j16 --clean-first",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": false,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ],
-            "dependsOn": "[WINDOWS][CMAKE][CREATE]",
-            "options": {
-                "cwd": "Build-Windows"
-            }
+            "dependsOn":"[WINDOWS][CMAKE][CREATE DIR]"
         },
         {
             "label": "[WINDOWS][DEBUG][BUILLD][playgroundApp]",
@@ -193,8 +129,32 @@
             },
             "problemMatcher": [
                 "$msCompile"
+            ]
+        },
+        {
+            "label": "[LINUX][DEBUG][BUILLD][playgroundApp]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build-Linux",
+                "--config",
+                "DEBUG",
+                "-j16",
+                "--target",
+                "playgroundApp"
             ],
-            "dependsOn": "[WINDOWS][CMAKE][CREATE][DEBUG]"
-        }
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
     ]
 }

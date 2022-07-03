@@ -2,44 +2,14 @@
 
 #include "Snake.hpp"
 
-#include "gameengine/IGameEngine.hpp"
-#include "gameengine/IDebugOverlay.hpp"
-#include "gameengine/IUtility.hpp"
-
-#include "SDL2Wrapper/IWindow.hpp"
 #include "SDL2Wrapper/Input/IKeyboardObserver.hpp"
-
-#include "CUL/Filesystem/FileFactory.hpp"
-#include "CUL/GenericUtils/IConfigFile.hpp"
-#include "CUL/Graphics/Rect2D.hpp"
-#include "CUL/Log/ILogger.hpp"
-#include "CUL/Math/Axis.hpp"
-#include "CUL/Math/Primitives/Triangle.hpp"
-#include "CUL/STL_IMPORTS/STD_thread.hpp"
-#include "CUL/STL_IMPORTS/STD_cmath.hpp"
-#include "CUL/STL_IMPORTS/STD_condition_variable.hpp"
-#include "CUL/STL_IMPORTS/STD_atomic.hpp"
-
-using Vector3Di = LOGLW::Vector3Di;
-using WindowSize = LOGLW::WindowSize;
-
-using ColorS = CUL::Graphics::ColorS;
-using ColorE = CUL::Graphics::ColorE;
-using WinEventType = SDL2W::WindowEvent::Type;
-using ShaderFile = CUL::FS::IFile;
-template <typename TYPE>
-using DumbPtr = CUL::GUTILS::DumbPtr<TYPE>;
-using GLWrap = DumbPtr<LOGLW::IGameEngine>;
-using FF = CUL::FS::FileFactory;
-using Rect = CUL::Graphics::Rect3Di;
-using Pos3Df = CUL::Graphics::Pos3Df;
-using Triangle = CUL::MATH::Primitives::Triangle;
-using String = CUL::String;
+#include "SDL2Wrapper/Input/IMouseObserver.hpp"
+#include "SDL2Wrapper/WindowData.hpp"
 
 class Game final: public SDL2W::IMouseObserver, public SDL2W::IKeyboardObserver
 {
 public:
-    Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const WindowSize& winSize );
+    Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SDL2W::WinSize& winSize );
     void run();
 
     void stopGame();
@@ -84,7 +54,7 @@ private:
 
     DumbPtr<CUL::GUTILS::IConfigFile> m_configFile;
     CUL::Graphics::Pos2Di m_windowPos;
-    WindowSize m_windowSize;
+    SDL2W::WinSize m_windowSize;
 
     LOGLW::IObject* m_triangle0 = nullptr;
     CUL::TimeConcrete configModificationTime;
