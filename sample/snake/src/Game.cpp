@@ -1,16 +1,14 @@
 #include "Game.hpp"
 
-#include "SDL2Wrapper/WindowData.hpp"
+#include "gameengine/IGameEngine.hpp"
+#include "gameengine/IDebugOverlay.hpp"
+
+#include "SDL2Wrapper/ISDL2Wrapper.hpp"
 
 #include "CUL/ITimer.hpp"
-//#include "CUL/STL_IMPORTS/STD_random.hpp"
 
 Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SDL2W::WinSize& winSize )
-    :
-    m_windowPos( windowPos ),
-    m_windowSize( winSize ),
-    m_rowsCount( rows ),
-    m_colsCount( cols )
+    : m_windowPos( windowPos ), m_windowSize( winSize ), m_rowsCount( rows ), m_colsCount( cols )
 {
     m_background.resize( rows );
     for( auto& row : m_background )
@@ -24,12 +22,12 @@ Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SD
     windowData.currentRes = m_windowSize;
     windowData.rendererName = "opengl";
 
-    m_sdlw = SDL2W::ISDL2Wrapper::createSDL2Wrapper();
+    m_sdlw.reset( SDL2W::ISDL2Wrapper::createSDL2Wrapper() );
     m_sdlw->init( windowData, "../media/Config.txt" );
 
-    m_oglw = LOGLW::IGameEngine::createGameEngine( m_sdlw );
+    m_oglw.reset( LOGLW::IGameEngine::createGameEngine( m_sdlw.get(), true ) );
 
-    m_configFile = m_oglw->getConfig();
+    m_configFile.reset( m_oglw->getConfig() );
 
     m_sdlw->registerMouseEventListener( this );
     m_sdlw->registerKeyboardEventListener( this );
@@ -38,19 +36,20 @@ Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SD
     m_utility = m_oglw->getUtility();
     m_objectFactory = m_oglw->getObjectFactory();
 
-    m_oglw->onInitialize( [this] ()
-    {
-        this->afterInit();
-    } );
+    m_oglw->onInitialize(
+        [this]()
+        {
+            this->afterInit();
+        } );
 
-    m_oglw->beforeFrame( [this] ()
-    {
-        this->renderScene();
-    } );
+    m_oglw->beforeFrame(
+        [this]()
+        {
+            this->renderScene();
+        } );
 
-    m_oglw->registerWindowEventCallback( [this] ( const WinEventType type )
-    {
-        if( WinEventType::CLOSE == type )
+    m_oglw->registerWindowEventCallback( [this]( const SDL2W::WindowEvent::Type type ) {
+        if( SDL2W::WindowEvent::Type::CLOSE == type )
         {
             closeApp();
         }
@@ -63,16 +62,17 @@ Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SD
 
 void Game::afterInit()
 {
-    m_oglw->setProjectionType( LOGLW::ProjectionType::PERSPECTIVE );
+   // m_oglw->setProjectionType( LOGLW::ProjectionType::PERSPECTIVE );
 
     m_mainWindow = m_oglw->getMainWindow();
     m_mainWindow->setBackgroundColor( SDL2W::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
-    const auto& winSize = m_mainWindow->getSize();
+    //const auto& winSize = m_mainWindow->getSize();
 
-    m_projectionData.setSize( { winSize.getWidth(), winSize.getHeight() } );
-    m_projectionData.setEyePos( { 0.0f, 0.0f, 300.f } );
+    //m_projectionData.setSize( { winSize.getWidth(), winSize.getHeight() } );
+    m_oglw->getCamera().getEye() = { 0.0f, 0.0f, 300.f };
+    //m_projectionData.setEyePos( { 0.0f, 0.0f, 300.f } );
 
-    m_oglw->setProjection( m_projectionData );
+    //m_oglw->setProjection( m_projectionData );
 
     reloadConfig();
     configModificationTime = m_configFile->getModificationTime();
@@ -126,7 +126,8 @@ void Game::afterInit()
     m_boardInitializedB = true;
     m_boardInitialized.notify_one();
 
-    m_eyePos = m_oglw->getProjectionData().getEye();
+    //m_eyePos = m_oglw->getProjectionData().getEye();
+    m_eyePos = m_oglw->getCamera().getEye();
 }
 
 void Game::run()
@@ -158,14 +159,17 @@ void Game::gameLoop()
     {
         m_updateGFXThread.join();
     }
-
 }
 
 void Game::updateGFXLoop()
 {
     std::mutex mtx;
     std::unique_lock<std::mutex> lk( mtx );
-    m_boardInitialized.wait( lk, [this]{ return m_boardInitializedB == true; } );
+    m_boardInitialized.wait( lk,
+                             [this]
+                             {
+                                 return m_boardInitializedB == true;
+                             } );
 
     while( m_runGameLoop )
     {
@@ -173,7 +177,7 @@ void Game::updateGFXLoop()
         {
             for( int col = 0; col < m_colsCount; ++col )
             {
-                auto cell = m_background[ row ][ col ];
+                auto cell = m_background[row][col];
                 if( m_snake->isFieldSnake( { row, col } ) )
                 {
                     cell->setColor( LOGLW::ColorE::GREEN );
@@ -223,7 +227,7 @@ void Game::moveSnake()
     }
 }
 
-void Game::changeSnakeMoveDirection(Snake::HeadDirection direction)
+void Game::changeSnakeMoveDirection( Snake::HeadDirection direction )
 {
     if( !m_snake )
     {
@@ -235,14 +239,13 @@ void Game::changeSnakeMoveDirection(Snake::HeadDirection direction)
 
 void Game::randomizeCandy()
 {
-    srand( (unsigned) time( NULL ) );
+    srand( (unsigned)time( NULL ) );
 
     do
     {
         m_candyPos.row = rand() % m_rowsCount;
         m_candyPos.col = rand() % m_colsCount;
-    }
-    while( m_snake->isFieldSnake( m_candyPos ) );
+    } while( m_snake->isFieldSnake( m_candyPos ) );
 }
 
 bool Game::isCandy( const Snake::Pos& pos ) const
@@ -284,19 +287,16 @@ void Game::onMouseEvent( const SDL2W::MouseData& mouseData )
         const auto rectW = winW / 2;
         const auto rectH = winH / 2;
 
-        const auto leftX = (winW - rectW) / 2;
+        const auto leftX = ( winW - rectW ) / 2;
         const auto rightX = winW - leftX;
 
-        const auto bottom = (winH - rectH) / 2;
+        const auto bottom = ( winH - rectH ) / 2;
         const auto top = winH - bottom;
 
-        if( mouseX < rightX &&
-            mouseX > leftX &&
-            mouseY < top &&
-            mouseY > bottom )
+        if( mouseX < rightX && mouseX > leftX && mouseY < top && mouseY > bottom )
 
         {
-            auto eye = m_oglw->getProjectionData().getEye();
+            auto eye = m_oglw->getCamera().getEye();
             static auto delta = 0.5f;
             eye.x = +centerX * delta;
             eye.y = -centerY * delta;
@@ -311,7 +311,7 @@ void Game::onMouseEvent( const SDL2W::MouseData& mouseData )
         {
             m_eyePos.z -= mouseData.getWheelY() * 1.f;
             m_oglw->setEyePos( m_eyePos );
-            m_logger->log( "setting m_eyePos.z to: " + String( m_eyePos.z ) );
+            m_logger->log( "setting m_eyePos.z to: " + CUL::String( m_eyePos.z ) );
         }
     }
 }
@@ -357,12 +357,12 @@ void Game::onKeyBoardEvent( const SDL2W::IKey& key )
         if( toggle == true )
         {
             m_logger->log( "Changing projection to ortographic." );
-            m_oglw->setProjectionType( LOGLW::ProjectionType::ORTO );
+            //m_oglw->setProjectionType( LOGLW::ProjectionType::ORTO );
         }
         else
         {
             m_logger->log( "Changing projection to PERSPECTIVE." );
-            m_oglw->setProjectionType( LOGLW::ProjectionType::PERSPECTIVE );
+            //m_oglw->setProjectionType( LOGLW::ProjectionType::PERSPECTIVE );
         }
         toggle = !toggle;
     }
@@ -372,7 +372,7 @@ void Game::onKeyBoardEvent( const SDL2W::IKey& key )
         fullScreen = !fullScreen;
         m_sdlw->getMainWindow()->setFullscreen( fullScreen );
     }
-    else if( keyName== "S" )
+    else if( keyName == "S" )
     {
         m_viewport = m_oglw->getViewport();
         if( m_currentResolution == m_possibleSizes.size() - 1 )
@@ -384,9 +384,9 @@ void Game::onKeyBoardEvent( const SDL2W::IKey& key )
             ++m_currentResolution;
         }
 
-        m_viewport.set( { 0, 0 }, m_possibleSizes[ m_currentResolution ] );
+        m_viewport.set( { 0, 0 }, m_possibleSizes[m_currentResolution] );
 
-        m_sdlw->getMainWindow()->setSize( m_possibleSizes[ m_currentResolution ] );
+        m_sdlw->getMainWindow()->setSize( m_possibleSizes[m_currentResolution] );
         m_oglw->setViewport( m_viewport );
     }
 }
@@ -399,7 +399,6 @@ void Game::reloadConfig()
     }
 }
 
-
 void Game::closeApp()
 {
     stopGame();
@@ -409,9 +408,9 @@ void Game::closeApp()
 
 Snake::Pos Game::generateStartingPos()
 {
-    //std::default_random_engine generator;
-    //std::uniform_int_distribution<int> distribution( 1, 6 );
-    //int dice_roll = distribution( generator );
+    // std::default_random_engine generator;
+    // std::uniform_int_distribution<int> distribution( 1, 6 );
+    // int dice_roll = distribution( generator );
     return Snake::Pos();
 }
 

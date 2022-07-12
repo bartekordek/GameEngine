@@ -2,9 +2,38 @@
 
 #include "Snake.hpp"
 
+#include "gameengine/Camera.hpp"
+#include "gameengine/Viewport.hpp"
+
 #include "SDL2Wrapper/Input/IKeyboardObserver.hpp"
 #include "SDL2Wrapper/Input/IMouseObserver.hpp"
 #include "SDL2Wrapper/WindowData.hpp"
+
+#include "CUL/Graphics/Pos2D.hpp"
+#include "CUL/TimeConcrete.hpp"
+#include "CUL/Graphics/Color.hpp"
+
+#include "CUL/IMPORT_GLM.hpp"
+
+// CUL::GUTILS::IConfigFile
+
+NAMESPACE_BEGIN( CUL::GUTILS )
+class IConfigFile;
+NAMESPACE_END( CUL::GUTILS )
+
+NAMESPACE_BEGIN( LOGLW )
+class Program;
+class IGameEngine;
+class IQuad;
+class IObject;
+class IUtility;
+class IObjectFactory;
+NAMESPACE_END( LOGLW )
+
+NAMESPACE_BEGIN( SDL2W )
+class ISDL2Wrapper;
+class IWindow;
+NAMESPACE_END( SDL2W )
 
 class Game final: public SDL2W::IMouseObserver, public SDL2W::IKeyboardObserver
 {
@@ -38,8 +67,8 @@ private:
     std::thread m_updateGFXThread;
     std::atomic<bool> m_runGameLoop = true;
 
-    DumbPtr<SDL2W::ISDL2Wrapper> m_sdlw;
-    DumbPtr<LOGLW::IGameEngine> m_oglw;
+    std::unique_ptr<SDL2W::ISDL2Wrapper> m_sdlw;
+    std::unique_ptr<LOGLW::IGameEngine> m_oglw;
 
     std::mutex m_boardMtx;
     std::atomic<bool> m_boardInitializedB = false;
@@ -52,7 +81,7 @@ private:
     CUL::LOG::ILogger* m_logger = nullptr;
     LOGLW::IObjectFactory* m_objectFactory = nullptr;
 
-    DumbPtr<CUL::GUTILS::IConfigFile> m_configFile;
+    std::unique_ptr<CUL::GUTILS::IConfigFile> m_configFile;
     CUL::Graphics::Pos2Di m_windowPos;
     SDL2W::WinSize m_windowSize;
 
@@ -65,20 +94,18 @@ private:
     CUL::MATH::Angle m_ang90 = { 90, CUL::MATH::Angle::Type::DEGREE };
     CUL::MATH::Angle m_ang180 = { 180, CUL::MATH::Angle::Type::DEGREE };
     CUL::MATH::Angle m_ang270 = { 270, CUL::MATH::Angle::Type::DEGREE };
-    Pos3Df m_eyePos;
+    glm::vec3 m_eyePos;
 
-    ColorS red = ColorE::RED;
-    ColorS yellow = ColorE::YELLOW;
-    ColorS blue = ColorE::BLUE;
-    ColorS white = ColorE::WHITE;
+    CUL::Graphics::ColorS red = CUL::Graphics::ColorE::RED;
+    CUL::Graphics::ColorS yellow = CUL::Graphics::ColorE::YELLOW;
+    CUL::Graphics::ColorS blue = CUL::Graphics::ColorE::BLUE;
+    CUL::Graphics::ColorS white = CUL::Graphics::ColorE::WHITE;
     CUL::MATH::Angle m_angle;
     LOGLW::IObjectFactory* of = nullptr;
-    CUL::FS::Path vertexShaderFile;
-    CUL::FS::Path fragmentShaderFile;
     LOGLW::Program* program = nullptr;
     float blueTriangleZ = -1.0f;
     float redTriangleZ = 1.0f;
-    LOGLW::Camera m_projectionData;
+    LOGLW::Camera* m_projectionData = nullptr;
 
     unsigned m_secondsToStartGame = 2;
     std::atomic<unsigned> m_moveDelayMs = 600;

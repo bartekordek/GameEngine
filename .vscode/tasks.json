@@ -42,7 +42,7 @@
             "options": {
                 "cwd": "${workspaceFolder}/Build-Linux"
             },
-            "dependsOn":"[LINUX][CMAKE][CREATE DIR]"
+            "dependsOn": "[LINUX][CMAKE][CREATE DIR]"
         },
         {
             "label": "[LINUX][BUILD][DEBUG]",
@@ -104,7 +104,7 @@
             "options": {
                 "cwd": "Build-Windows"
             },
-            "dependsOn":"[WINDOWS][CMAKE][CREATE DIR]"
+            "dependsOn": "[WINDOWS][CMAKE][CREATE DIR]"
         },
         {
             "label": "[WINDOWS][DEBUG][BUILLD][playgroundApp]",
@@ -118,6 +118,31 @@
                 "-j16",
                 "--target",
                 "playgroundApp"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {
+            "label": "[WINDOWS][DEBUG][BUILLD][snake]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build-Windows",
+                "--config",
+                "DEBUG",
+                "-j16",
+                "--target",
+                "snake"
             ],
             "presentation": {
                 "echo": true,
@@ -155,6 +180,6 @@
             "problemMatcher": [
                 "$gcc"
             ]
-        },
+        }
     ]
 }

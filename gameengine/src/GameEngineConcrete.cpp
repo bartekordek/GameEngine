@@ -272,7 +272,6 @@ ILine* GameEngineConcrete::createLine( const LineData& data, const ColorS& color
     ILine* line = new LineImpl(this);
     line->setValues( data );
     line->setColor( color );
-    addObjectToRender( line );
 
     return line;
 }
