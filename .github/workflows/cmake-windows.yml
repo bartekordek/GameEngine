@@ -19,20 +19,11 @@ jobs:
         shell: cmd
         run: cmake -E make_directory ${{github.workspace}}//Build-Windows
 
-      - name: Prepare fetch test
-        uses: LuisEnMarroquin/setup-ssh-action@v2.0.0
-        with:
-          SSHKEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      - run: ssh -T git@github.com
-        shell: cmd
-
       - name: Prepare fetch
-
         uses: LuisEnMarroquin/setup-ssh-action@v2.0.0
         with:
           SSHKEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      - run: ssh -T git@github.com || true
-        shell: cmd
+      - run: ssh -T git@github.com & exit 0
 
       - name: Fetch dependencies - begin
         shell: cmd
