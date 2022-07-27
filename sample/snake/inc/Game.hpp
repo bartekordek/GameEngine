@@ -14,8 +14,7 @@
 #include "CUL/Graphics/Color.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
-
-// CUL::GUTILS::IConfigFile
+#include "CUL/STL_IMPORTS/STD_thread.hpp"
 
 NAMESPACE_BEGIN( CUL::GUTILS )
 class IConfigFile;
