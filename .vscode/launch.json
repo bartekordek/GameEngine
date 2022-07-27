@@ -24,6 +24,25 @@
             }
         },
         {
+            "name": "[WINDOWS][SNAKE]",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Build-Windows/Debug/snake.exe",
+            "cwd": "${workspaceRoot}/sample/snake",
+            "symbolSearchPath": "${workspaceFolder}/Build-Windows/Debug/",
+            "args": [
+                "-w",
+                "1680",
+                "-h",
+                "900"
+            ],
+            "externalConsole": false,
+            "logging": {
+                "moduleLoad": false,
+                "trace": true,
+            }
+        },
+        {
             "name": "Linux Debug",
             "type": "cppdbg",
             "request": "launch",
