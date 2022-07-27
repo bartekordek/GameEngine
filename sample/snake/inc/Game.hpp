@@ -16,6 +16,7 @@
 #include "CUL/IMPORT_GLM.hpp"
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
+#include "CUL/STL_IMPORTS/STD_condition_variable.hpp"
 
 NAMESPACE_BEGIN( CUL::GUTILS )
 class IConfigFile;
