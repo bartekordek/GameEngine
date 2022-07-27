@@ -16,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Create Build Environment
+        shell: cmd
         run: cmake -E make_directory ${{github.workspace}}//Build-Windows
 
       - name: Prepare fetch test
@@ -23,12 +24,15 @@ jobs:
         with:
           SSHKEY: ${{ secrets.SSH_PRIVATE_KEY }}
       - run: ssh -T git@github.com
+        shell: cmd
 
       - name: Prepare fetch
+
         uses: LuisEnMarroquin/setup-ssh-action@v2.0.0
         with:
           SSHKEY: ${{ secrets.SSH_PRIVATE_KEY }}
       - run: ssh -T git@github.com || true
+        shell: cmd
 
       - name: Fetch dependencies - begin
         shell: cmd
