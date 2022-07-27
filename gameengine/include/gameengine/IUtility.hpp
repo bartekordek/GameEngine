@@ -14,6 +14,7 @@
 #include "CUL/Math/Rotation.hpp"
 #include "CUL/Graphics/SimpleSize2D.hpp"
 #include "CUL/Log/ILogger.hpp"
+#include "CUL/Graphics/IImage.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
 
@@ -162,7 +163,7 @@ struct GAME_ENGINE_API TextureInfo
 
     unsigned int textureId = 0;
     int level = 0;
-    CUL::Graphics::PixelFormat pixelFormat;
+    CUL::Graphics::PixelFormat pixelFormat = CUL::Graphics::PixelFormat::NONE;
     int border = 0;
     DataType dataType = DataType::UNSIGNED_BYTE;
     void* data = nullptr;
