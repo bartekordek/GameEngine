@@ -18,6 +18,12 @@ jobs:
       - name: Create Build Environment
         run: cmake -E make_directory ${{github.workspace}}//Build-Windows
 
+      - name: Prepare fetch test
+        uses: LuisEnMarroquin/setup-ssh-action@v2.0.0
+        with:
+          SSHKEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      - run: ssh -T git@github.com
+
       - name: Prepare fetch
         uses: LuisEnMarroquin/setup-ssh-action@v2.0.0
         with:
