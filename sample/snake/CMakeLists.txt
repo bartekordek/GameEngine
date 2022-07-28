@@ -15,7 +15,7 @@ else()
     add_definitions(-Wfatal-errors)
 endif()
 
-file( GLOB_RECURSE SOURCES *.hpp *.cpp )
+file( GLOB_RECURSE SOURCES *.hpp *.cpp *.txt )
 source_group( TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} )
 
 add_executable(${EXEC} ${SOURCES})
@@ -51,5 +51,5 @@ target_include_directories(${EXEC} PRIVATE inc)
 target_include_directories(${EXEC} PRIVATE src)
 
 if( MSVC )
-    set_property(TARGET ${EXEC} PROPERTY "VS_DEBUGGER_WORKING_DIRECTORY" "${OGLW_TESTS_RUN_DIR}")
+    set_property(TARGET ${EXEC} PROPERTY "VS_DEBUGGER_WORKING_DIRECTORY" "${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
