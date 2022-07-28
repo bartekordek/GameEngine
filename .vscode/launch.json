@@ -5,11 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "[WINDOWS][PLAYGROUND APP]",
+            "name": "[RUN][WINDOWS][playgroundApp]",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/Build-Windows/Debug/playgroundApp.exe",
-            "cwd": "${workspaceRoot}/runDir",
+            "cwd": "${workspaceFolder}/sample/playgroundApp",
             "symbolSearchPath": "${workspaceFolder}/Build-Windows/Debug/",
             "args": [
                 "-w",
@@ -24,11 +24,11 @@
             }
         },
         {
-            "name": "[WINDOWS][SNAKE]",
+            "name": "[RUN][WINDOWS][snake]",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/Build-Windows/Debug/snake.exe",
-            "cwd": "${workspaceRoot}/sample/snake",
+            "cwd": "${workspaceFolder}/sample/snake",
             "symbolSearchPath": "${workspaceFolder}/Build-Windows/Debug/",
             "args": [
                 "-w",
