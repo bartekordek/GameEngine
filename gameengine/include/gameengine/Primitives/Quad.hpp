@@ -5,6 +5,8 @@
 
 #include "CUL/Graphics/Color.hpp"
 
+#include "CUL/STL_IMPORTS/STD_atomic.hpp"
+
 NAMESPACE_BEGIN( LOGLW )
 
 class Camera;
@@ -23,12 +25,15 @@ protected:
 private:
     void render() override;
     void init();
+    void createBuffers();
+    void createShaders();
     void setTransformation();
     void applyColor();
     void release();
+    void deleteBuffers();
 
     TransformComponent* m_transformComponent = nullptr;
-
+    std::atomic<bool> m_recreateBuffers = false;
     class Program* m_shaderProgram = nullptr;
     class VertexArray* m_vao = nullptr;
 

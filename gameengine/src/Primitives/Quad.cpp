@@ -29,6 +29,10 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &e
             init();
         } );
     }
+
+    m_transformComponent->changeSizeDelegate.addDelegate( [this]() {
+        m_recreateBuffers = true;
+    } );
 }
 
 void Quad::setColor( const CUL::Graphics::ColorS& color )
@@ -57,86 +61,96 @@ void Quad::init()
     }
     else
     {
-        LOGLW::VertexBufferData vboData;
-        vboData.indices = {
-            // note that we start from 0!
-            0, 1, 3,  // first Triangle
-            1, 2, 3   // second Triangle
-        };
-
-        const Pos& size = m_transformComponent->getSize();
-
-        static float denominator = 2.f;
-
-        float x0 = -size.x() / denominator;
-        float x1 = size.x() / denominator;
-
-        float y0 = -size.y() / denominator;
-        float y1 = size.y() / denominator;
-
-        // float z0 = -size.z() / denominator;
-
-        vboData.vertices = {
-            x1, y1, 0.f,  // top right
-            x1, y0, 0.f,  // bottom right
-            x0, y0, 0.f,  // bottom left
-            x0, y1, 0.f   // top left
-        };
-
-        vboData.containsColorData = false;
-        vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
-
-        m_vao = m_engine.createVAO();
-        m_vao->setDisableRenderOnMyOwn( true );
-
-        m_vao->addVertexBuffer( vboData );
-
-        m_shaderProgram = getEngine().createProgram();
-
-        const std::string vertexShaderSource =
-#include "embedded_shaders/basic_pos.vert"
-            ;
-
-        const std::string fragmentShaderSource =
-#include "embedded_shaders/basic_color.frag"
-            ;
-
-        auto fragmentShaderFile = getEngine().getCul()->getFF()->createRegularFileRawPtr( "embedded_shaders/basic_color.frag" );
-        fragmentShaderFile->loadFromString( fragmentShaderSource );
-        auto fragmentShader = new Shader( getEngine(), fragmentShaderFile );
-
-        auto vertexShaderCode = getEngine().getCul()->getFF()->createRegularFileRawPtr( "embedded_shaders/basic_pos.vert" );
-        vertexShaderCode->loadFromString( vertexShaderSource );
-        auto vertexShader = new Shader( getEngine(), vertexShaderCode );
-
-        m_shaderProgram->attachShader( vertexShader );
-        m_shaderProgram->attachShader( fragmentShader );
-        m_shaderProgram->link();
-        m_shaderProgram->validate();
-
-        m_shaderProgram->enable();
+        createBuffers();
+        createShaders();
 
         setTransformation();
     }
+}
+
+void Quad::createBuffers()
+{
+    LOGLW::VertexBufferData vboData;
+    vboData.indices = {
+        // note that we start from 0!
+        0, 1, 3,  // first Triangle
+        1, 2, 3   // second Triangle
+    };
+
+    const Pos& size = m_transformComponent->getSize();
+
+    static float denominator = 2.f;
+
+    float x0 = -size.x() / denominator;
+    float x1 = size.x() / denominator;
+
+    float y0 = -size.y() / denominator;
+    float y1 = size.y() / denominator;
+
+    // float z0 = -size.z() / denominator;
+
+    vboData.vertices = {
+        x1, y1, 0.f,  // top right
+        x1, y0, 0.f,  // bottom right
+        x0, y0, 0.f,  // bottom left
+        x0, y1, 0.f   // top left
+    };
+
+    vboData.containsColorData = false;
+    vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
+
+    m_vao = m_engine.createVAO();
+    m_vao->setDisableRenderOnMyOwn( true );
+
+    m_vao->addVertexBuffer( vboData );
+}
+
+void Quad::createShaders()
+{
+    m_shaderProgram = getEngine().createProgram();
+
+    const std::string vertexShaderSource =
+#include "embedded_shaders/basic_pos.vert"
+        ;
+
+    const std::string fragmentShaderSource =
+#include "embedded_shaders/basic_color.frag"
+        ;
+
+    auto fragmentShaderFile = getEngine().getCul()->getFF()->createRegularFileRawPtr( "embedded_shaders/basic_color.frag" );
+    fragmentShaderFile->loadFromString( fragmentShaderSource );
+    auto fragmentShader = new Shader( getEngine(), fragmentShaderFile );
+
+    auto vertexShaderCode = getEngine().getCul()->getFF()->createRegularFileRawPtr( "embedded_shaders/basic_pos.vert" );
+    vertexShaderCode->loadFromString( vertexShaderSource );
+    auto vertexShader = new Shader( getEngine(), vertexShaderCode );
+
+    m_shaderProgram->attachShader( vertexShader );
+    m_shaderProgram->attachShader( fragmentShader );
+    m_shaderProgram->link();
+    m_shaderProgram->validate();
+
+    m_shaderProgram->enable();
 }
 
 void Quad::render()
 {
     if( getUtility()->isLegacy() )
     {
+        auto size = getTransform()->getSize();
+
         QuadCUL quad;
-        static float size = 1.f;
-        quad[0][0] = -size;
-        quad[0][1] = -size;
+        quad[0][0] = -size.x() / 2.f;
+        quad[0][1] = -size.y() / 2.f;
 
-        quad[1][0] = -size;
-        quad[1][1] =  size;
+        quad[1][0] = -size.x() / 2.f;
+        quad[1][1] =  size.y() / 2.f;
 
-        quad[2][0] =  size;
-        quad[2][1] =  size;
+        quad[2][0] = size.x() / 2.f;
+        quad[2][1] =  size.y() / 2.f;
 
-        quad[3][0] =  size;
-        quad[3][1] = -size;
+        quad[3][0] = size.x() / 2.f;
+        quad[3][1] = -size.y() / 2.f;
 
         getUtility()->matrixStackPush();
 
@@ -145,7 +159,6 @@ void Quad::render()
 
         getUtility()->translate( position );
 
-        //static const auto type = CUL::MATH::Angle::Type::DEGREE;
         getUtility()->rotate( rotation );
         getUtility()->draw( quad, m_color );
 
@@ -153,6 +166,13 @@ void Quad::render()
     }
     else
     {
+        if( m_recreateBuffers )
+        {
+            deleteBuffers();
+            createBuffers();
+            m_recreateBuffers = false;
+        }
+
         m_shaderProgram->enable();
 
         setTransformation();
@@ -195,10 +215,14 @@ Quad::~Quad()
     }
 }
 
-
 void Quad::release()
 {
     m_engine.removeObjectToRender(this);
+    deleteBuffers();
+}
+
+void Quad::deleteBuffers()
+{
     delete m_vao;
     m_vao = nullptr;
 }
