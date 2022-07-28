@@ -141,8 +141,10 @@ void IGameEngine::removeObjectToRender( IRenderable* renderable )
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
-        CUL::Assert::simple( it != m_objectsToRender.end(), "Trying to remove already removed object." );
-        m_objectsToRender.erase( renderable );
+        if( it != m_objectsToRender.end() )
+        {
+            m_objectsToRender.erase( renderable );
+        }
     }
     else
     {
