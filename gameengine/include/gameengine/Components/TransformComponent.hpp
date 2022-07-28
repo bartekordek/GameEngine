@@ -5,6 +5,7 @@
 #include "CUL/Math/Point.hpp"
 #include "CUL/Math/Rotation.hpp"
 #include "CUL/String.hpp"
+#include "CUL/GenericUtils/SimpleDelegate.hpp"
 
 #include "CUL/STL_IMPORTS/STD_functional.hpp"
 #include "CUL/STL_IMPORTS/STD_map.hpp"
@@ -50,6 +51,8 @@ public:
 
     void addOnChangeCallback( const String& callbackName, const std::function<void( const Pos& position )> callback );
     void removeCallback( const String& callbackName );
+
+    CUL::GUTILS::SimpleDelegate changeSizeDelegate;
 
     ~TransformComponent();
 

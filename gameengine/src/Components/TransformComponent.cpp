@@ -210,9 +210,10 @@ void TransformComponent::addOnChangeCallback(const String& callbackName, const s
     }
 }
 
-void TransformComponent::setSize(const Pos& size)
+void TransformComponent::setSize( const Pos& size )
 {
     m_size = size;
+    changeSizeDelegate.execute();
 }
 
 const TransformComponent::Pos& TransformComponent::TransformComponent::getSize() const
