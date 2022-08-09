@@ -415,7 +415,6 @@ void GameEngineConcrete::initialize()
     m_logger->log( "GameEngineConcrete::initialize()..." );
 
     m_glContext = m_oglUtility->initContextVersion( m_activeWindow );
-    // m_glContext = m_oglUtility->initContextVersion( m_activeWindow, 3, 1 );
     m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
     m_logger->log( m_glContext.glVersion );
 
@@ -425,7 +424,7 @@ void GameEngineConcrete::initialize()
     m_oglUtility->setTexuring( true );
 
     const auto& winSize = m_activeWindow->getSize();
-    setupProjectionData( winSize );
+    setupProjectionData( winSize.getWidth(), winSize.getHeight() );
 
     m_viewport.pos.setXY( 0, 0 );
     m_viewport.size.setSize( winSize.getWidth(), winSize.getHeight() );
@@ -485,10 +484,10 @@ void GameEngineConcrete::showExtensions()
     m_logger->log( "Extension count: " + std::to_string( extensionList.size() ) );
 }
 
-void GameEngineConcrete::setupProjectionData( const SDL2W::WinSize& winSize )
+void GameEngineConcrete::setupProjectionData( uint16_t width, uint16_t height )
 {
     Camera projectionData;
-    projectionData.setSize( winSize );
+    projectionData.setSize( { width, height } );
     projectionData.setEyePos( glm::vec3( 0.0f, 0.0f, 220.0f ) );
     projectionData.setCenter( glm::vec3( 0.f, 0.f, 0.0f ) );
     projectionData.setUp( glm::vec3( 0.0f, 1.0f, 0.0f ) );
@@ -832,8 +831,8 @@ void GameEngineConcrete::release()
     m_logger->log( "GameEngineConcrete::release()..." );
 
     m_sdlW->unRegisterSDLEventObserver( this );
-
-    m_oglUtility->destroyContext( m_glContext );
+    getMainWindow()->destroyContext( m_glContext.glContext );
+    m_glContext.glContext = nullptr;
 
     m_logger->log( "GameEngineConcrete::release()... Done." );
 }

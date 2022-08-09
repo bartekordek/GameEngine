@@ -38,15 +38,15 @@ jobs:
         working-directory: ${{github.workspace}}/Build-Windows
         run: cmake .. -DCMAKE_BUILD_TYPE=Debug
 
-      - name: Build playgroundApp
+      - name: Build playgroundApp_dynamic
         # Build your program with the given configuration
         working-directory: ${{github.workspace}}/Build-Windows
-        run: cmake --build . --config Debug --target playgroundApp
+        run: cmake --build . --config Debug --target playgroundApp_dynamic
 
-      - name: Build snake
+      - name: Build snake_dynamic
         # Build your program with the given configuration
         working-directory: ${{github.workspace}}/Build-Windows
-        run: cmake --build . --config Debug --target snake
+        run: cmake --build . --config Debug --target snake_dynamic
 
       - name: Check binary
         shell: cmd

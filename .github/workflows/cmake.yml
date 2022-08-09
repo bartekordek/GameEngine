@@ -66,14 +66,14 @@ jobs:
       # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
       run: time cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
 
-    - name: Build playgroundApp
+    - name: Build playgroundApp_dynamic
       working-directory: ${{github.workspace}}//Build-Linux
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config ${BUILD_TYPE} -j16 --target playgroundApp
+      run: cmake --build . --config ${BUILD_TYPE} -j16 --target playgroundApp_dynamic
 
-    - name: Build snake
+    - name: Build snake_dynamic
       working-directory: ${{github.workspace}}//Build-Linux
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config ${BUILD_TYPE} -j16 --target snake
+      run: cmake --build . --config ${BUILD_TYPE} -j16 --target snake_dynamic

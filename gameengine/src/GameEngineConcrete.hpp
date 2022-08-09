@@ -8,7 +8,6 @@
 #include "gameengine/Camera.hpp"
 #include "gameengine/Viewport.hpp"
 
-#include "SDL2Wrapper/IMPORT_SDL_video.hpp"
 #include "SDL2Wrapper/ISDLEventObserver.hpp"
 
 #include "CUL/GenericUtils/LckPrim.hpp"
@@ -83,7 +82,7 @@ private:
     void initialize() override;
     void loadFromConfig();
     void showExtensions();
-    void setupProjectionData( const SDL2W::WinSize& winSize );
+    void setupProjectionData( uint16_t width, uint16_t height );
     CUL::CULInterface* getCul() override;
 
     void refreshBuffers();

@@ -284,12 +284,6 @@ GLuint toGluint( unsigned value )
     return static_cast<GLuint>( value );
 }
 
-void UtilConcrete::destroyContext( ContextInfo& context )
-{
-    SDL_GL_DeleteContext( context.glContext );  // This is basically void* !
-    context.glContext = nullptr;
-}
-
 void UtilConcrete::setAttribValue( int attributeLocation, float value )
 {
     glUniform1f( static_cast<GLfloat>( attributeLocation ), value );

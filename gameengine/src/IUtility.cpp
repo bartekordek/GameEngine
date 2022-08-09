@@ -1,11 +1,12 @@
 #include "gameengine/IUtility.hpp"
 #include "gameengine/Camera.hpp"
 
+#include "SDL2Wrapper/IWindow.hpp"
+
 #include "CUL/CULInterface.hpp"
 
 #include "IMPORT_glew.hpp"
 #include "ImportFreeglut.hpp"
-#include "SDL2Wrapper/IMPORT_SDL_opengl.hpp"
 
 using namespace LOGLW;
 
@@ -138,23 +139,21 @@ ContextInfo IUtility::initContextVersion( SDL2W::IWindow* window )
 {
     ContextInfo result;
 
-    result.glContext = SDL_GL_CreateContext( *window );
+    result.glContext = window->createContext();
     /*
     Context version can be only set after context creation.
     I.e. SDL: SDL_GL_DeleteContext call.
     */
     // SDL_GL_DOUBLEBUFFER
-    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, SDL_TRUE );
+    window->toggleDoubleBuffer( true );
+    window->setDepthSize( 24 );
+    window->setStencilSize( 8 );
 
-    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
-    SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
-
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MAJOR_VERSION, m_supportedVersion.major );
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, m_supportedVersion.minor );
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
+    window->setGLContextVersion( m_supportedVersion.major, m_supportedVersion.minor );
+    window->setProfileMask( SDL2W::GLProfileMask::CORE );
 
     // Set debug otuput.
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG );
+    window->setContextFlag( SDL2W::GLContextFlag::DEBUG_FLAG );
     // Possible values:
     // typedef enum
     //{
@@ -163,7 +162,6 @@ ContextInfo IUtility::initContextVersion( SDL2W::IWindow* window )
     //    SDL_GL_CONTEXT_PROFILE_ES = 0x0004 /**<
     //    GLX_CONTEXT_ES2_PROFILE_BIT_EXT */
     //} SDL_GLprofile;
-    SDL_GL_SetAttribute( SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG );
     const auto glStringVersion = glGetString( GL_VERSION );
     result.glVersion = glStringVersion;
 

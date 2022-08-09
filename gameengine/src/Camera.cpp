@@ -102,11 +102,11 @@ void Camera::setSize( const WindowSize& winSize )
 {
     m_size = winSize;
 
-    m_left = m_target.x - 0.5f * (float)m_size.getWidth();
-    m_right = m_target.x + 0.5f * (float)m_size.getWidth();
+    m_left = m_target.x - 0.5f * (float)m_size.w;
+    m_right = m_target.x + 0.5f * (float)m_size.w;
 
-    m_bottom = m_target.y - 0.5f * (float)m_size.getHeight();
-    m_top = m_target.y + 0.5f * (float)m_size.getHeight();
+    m_bottom = m_target.y - 0.5f * (float)m_size.h;
+    m_top = m_target.y + 0.5f * (float)m_size.h;
 }
 
 void Camera::setEyePos( const glm::vec3& pos )

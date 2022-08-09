@@ -4,6 +4,7 @@
 #include "gameengine/IDebugOverlay.hpp"
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
+#include "SDL2Wrapper/IWindow.hpp"
 
 #include "CUL/ITimer.hpp"
 
@@ -23,7 +24,7 @@ Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SD
     windowData.rendererName = "opengl";
 
     m_sdlw.reset( SDL2W::ISDL2Wrapper::createSDL2Wrapper() );
-    m_sdlw->init( windowData, "../media/Config.txt" );
+    m_sdlw->init( windowData, "Config.txt" );
 
     m_oglw.reset( LOGLW::IGameEngine::createGameEngine( m_sdlw.get(), true ) );
 
@@ -384,9 +385,12 @@ void Game::onKeyBoardEvent( const SDL2W::IKey& key )
             ++m_currentResolution;
         }
 
-        m_viewport.set( { 0, 0 }, m_possibleSizes[m_currentResolution] );
+        LOGLW::Size2Di pos;
+        pos.setSize( m_possibleSizes[m_currentResolution].w, m_possibleSizes[m_currentResolution].h );
+        m_viewport.set( { 0, 0 }, pos );
 
-        m_sdlw->getMainWindow()->setSize( m_possibleSizes[m_currentResolution] );
+        LOGLW::WindowSize windowSize =  m_possibleSizes[m_currentResolution];
+        m_sdlw->getMainWindow()->setSize( windowSize.w, windowSize.h );
         m_oglw->setViewport( m_viewport );
     }
 }

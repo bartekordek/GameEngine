@@ -2,8 +2,6 @@
 
 #include "gameengine/Import.hpp"
 
-#include "SDL2Wrapper/IWindow.hpp"
-
 #include "CUL/GenericUtils/ValueChangeHook.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
@@ -11,7 +9,11 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
-using WindowSize = SDL2W::WinSize;
+struct WindowSize
+{
+    int w = 0;
+    int h = 0;
+};
 
 class ProjectionData;
 
@@ -21,6 +23,10 @@ enum class ProjectionType : char
     ORTO = 0,
     PERSPECTIVE
 };
+
+#if _MSC_VER
+GAME_ENGINE_TEMPLATE struct GAME_ENGINE_API glm::vec3;
+#endif // #if _MSC_VER
 
 class GAME_ENGINE_API Camera final
 {

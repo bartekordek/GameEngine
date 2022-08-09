@@ -1,10 +1,13 @@
 #cmake -DCMAKE_BUILD_TYPE=Debug
 cmake_minimum_required(VERSION 3.0.0)
 
-project(gameengine LANGUAGES CXX)
+set(PROJECT_NAME_DYNAMIC gameengine_dynamic)
+set(PROJECT_NAME_STATIC gameengine_static)
+
+project(${PROJECT_NAME_STATIC} LANGUAGES CXX)
+project(${PROJECT_NAME_DYNAMIC} LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
-set(EXEC ${PROJECT_NAME})
 
 include_directories( SYSTEM ${GLM_INCLUDE_DIR} )
 include_directories( SYSTEM ${GLEW_INCLUDE_DIR} )
@@ -27,22 +30,39 @@ endif()
 find_package( GLEW REQUIRED )
 
 file( GLOB_RECURSE SOURCES include/*.hpp src/*.hpp src/*.cpp )
-source_group( TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} )
-add_library( ${EXEC} SHARED ${SOURCES} )
 
-set( DEPENDENCIES
-LOGLW-AdditionalDeps
-sdl2wrapper
-glew
-glfw
-freeglut_static
-tinyobjloader
+source_group( TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} )
+
+add_library( ${PROJECT_NAME_STATIC} STATIC ${SOURCES} )
+add_library( ${PROJECT_NAME_DYNAMIC} SHARED ${SOURCES} )
+
+set( DEPENDENCIES_STATIC
+PRIVATE LOGLW-AdditionalDeps
+PUBLIC sdl2wrapper_static
+PRIVATE glew
+PRIVATE glfw
+PRIVATE freeglut_static
+PRIVATE tinyobjloader
 )
 
+set( DEPENDENCIES_DYNAMIC
+PRIVATE LOGLW-AdditionalDeps
+PUBLIC sdl2wrapper_dynamic
+PRIVATE glew
+PRIVATE glfw
+PRIVATE freeglut_static
+PRIVATE tinyobjloader
+)
+
+message( "DEBUG: PROJECT_NAME_STATIC: ${PROJECT_NAME_STATIC}" )
+message( "DEBUG: PROJECT_NAME_DYNAMIC: ${PROJECT_NAME_DYNAMIC}" )
+
 if( MSVC )
-    target_link_libraries( ${EXEC} ${DEPENDENCIES} )
+    target_link_libraries( ${PROJECT_NAME_STATIC} ${DEPENDENCIES_STATIC} )
+    target_link_libraries( ${PROJECT_NAME_DYNAMIC} ${DEPENDENCIES_DYNAMIC} )
 else()
-    target_link_libraries( ${EXEC} ${DEPENDENCIES} stdc++fs  )
+    target_link_libraries( ${PROJECT_NAME_STATIC} ${DEPENDENCIES_STATIC} stdc++fs  )
+    target_link_libraries( ${PROJECT_NAME_DYNAMIC} ${DEPENDENCIES_DYNAMIC} stdc++fs  )
 endif()
 
 if( MSVC )
@@ -53,10 +73,13 @@ if( MSVC )
     else()
         set( GLEW_BIN glew32.dll )
     endif()
-    add_custom_command( TARGET ${EXEC}
+    add_custom_command( TARGET ${PROJECT_NAME_DYNAMIC}
         POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${CMAKE_BUILD_TYPE}/${GLEW_BIN} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE} )
 endif()
 
-target_include_directories(${EXEC} PUBLIC include)
-target_include_directories(${EXEC} PRIVATE src)
+target_include_directories(${PROJECT_NAME_DYNAMIC} PUBLIC include)
+target_include_directories(${PROJECT_NAME_DYNAMIC} PRIVATE src)
+
+target_include_directories(${PROJECT_NAME_STATIC} PUBLIC include)
+target_include_directories(${PROJECT_NAME_STATIC} PRIVATE src)
