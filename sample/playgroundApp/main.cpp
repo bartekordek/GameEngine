@@ -5,6 +5,8 @@
 
 #include "SDL2Wrapper/Input/IKey.hpp"
 #include "SDL2Wrapper/IWindowEventListener.hpp"
+#include "SDL2Wrapper/IWindow.hpp"
+#include "SDL2Wrapper/WindowData.hpp"
 
 #include "CUL/GenericUtils/DumbPtr.hpp"
 #include "CUL/GenericUtils/ConsoleUtilities.hpp"

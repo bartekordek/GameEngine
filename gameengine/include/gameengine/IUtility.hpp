@@ -234,7 +234,6 @@ public:
     virtual void removeShader( unsigned shaderId ) = 0;
 
     ContextInfo initContextVersion( SDL2W::IWindow* window );
-    virtual void destroyContext( ContextInfo& context ) = 0;
 
     virtual void setAttribValue( int attributeLocation, float value ) = 0;
     virtual void setAttribValue( int attributeLocation, int value ) = 0;

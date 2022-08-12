@@ -2,7 +2,6 @@
 
 #include "IMPORT_glew.hpp"
 #include "ImportFreeglut.hpp"
-#include "SDL2Wrapper/IMPORT_SDL_opengl.hpp"
 #include "gameengine/IUtility.hpp"
 #include "gameengine/IndexBuffer.hpp"
 
@@ -42,7 +41,6 @@ private:
     void dettachShader( unsigned programId, unsigned shaderId ) override;
     void removeShader( unsigned shaderId ) override;
 
-    void destroyContext( ContextInfo& context ) override;
     void setAttribValue( int attributeLocation, float value ) override;
     void setAttribValue( int attributeLocation, int value ) override;
     void setAttribValue( int attributeLocation, unsigned value ) override;

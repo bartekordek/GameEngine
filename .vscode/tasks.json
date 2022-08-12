@@ -133,7 +133,7 @@
             ]
         },
         {
-            "label": "[WINDOWS][DEBUG][BUILLD][gameengine]",
+            "label": "[WINDOWS][DEBUG][BUILLD][gameengine_static]",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -143,7 +143,32 @@
                 "DEBUG",
                 "-j16",
                 "--target",
-                "playgroundApp"
+                "gameengine_static"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {
+            "label": "[WINDOWS][DEBUG][BUILLD][gameengine_dynamic]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build-Windows",
+                "--config",
+                "DEBUG",
+                "-j16",
+                "--target",
+                "gameengine_dynamic"
             ],
             "presentation": {
                 "echo": true,
@@ -183,7 +208,7 @@
             ]
         },
         {
-            "label": "[WINDOWS][DEBUG][BUILLD][snake]",
+            "label": "[WINDOWS][DEBUG][BUILLD][snake_dynamic]",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -193,7 +218,32 @@
                 "DEBUG",
                 "-j16",
                 "--target",
-                "snake"
+                "snake_dynamic"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {
+            "label": "[WINDOWS][DEBUG][BUILLD][snake_static]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build-Windows",
+                "--config",
+                "DEBUG",
+                "-j16",
+                "--target",
+                "snake_static"
             ],
             "presentation": {
                 "echo": true,
