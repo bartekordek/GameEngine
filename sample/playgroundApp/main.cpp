@@ -95,7 +95,7 @@ int main( int argc, char** argv )
 
     CUL::Graphics::Pos2Di winPos = { 200, 200 };
     SDL2W::WinSize winSize = { width, height };
-    g_oglw = LOGLW::IGameEngine::createGameEngine( false, winPos, winSize, "../media/Config.txt", "gameenginePlaygroundApp", "opengl" );
+    g_oglw = LOGLW::IGameEngine::createGameEngine( false, winPos, winSize, "Config.txt", "gameenginePlaygroundApp", "opengl" );
     g_oglw->addMouseEventCallback( onMouseEvent );
     g_configFile = g_oglw->getConfig();
 
@@ -156,7 +156,7 @@ void afterInit()
     g_redTriangle = g_oglw->getObjectFactory()->createTriangle( values, LOGLW::ColorE::RED );
     g_yellowTriangle = g_oglw->getObjectFactory()->createTriangle( values, LOGLW::ColorE::YELLOW );
 
-    g_sprite = g_oglw->getObjectFactory()->createSprite( "../media/texture.png" );
+    g_sprite = g_oglw->getObjectFactory()->createSprite( "../../media/texture.png" );
 }
 
 void renderScene()
