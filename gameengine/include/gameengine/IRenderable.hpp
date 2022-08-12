@@ -8,11 +8,12 @@ class GAME_ENGINE_API IRenderable: public IEngineUser
 {
 public:
     IRenderable( IGameEngine* engine );
-    virtual ~IRenderable() = default;
 
     void setDisableRenderOnMyOwn( bool disable );
 
     virtual void render() = 0;
+
+    virtual ~IRenderable();
 
 protected:
 private:

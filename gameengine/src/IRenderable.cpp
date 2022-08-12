@@ -19,3 +19,8 @@ void IRenderable::setDisableRenderOnMyOwn( bool disable )
         getEngine()->addObjectToRender( this );
     }
 }
+
+IRenderable::~IRenderable()
+{
+    getEngine()->removeObjectToRender( this );
+}
