@@ -9,6 +9,8 @@
 #include "SDL2Wrapper/WindowData.hpp"
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 
+#include "CUL/Filesystem/FileFactory.hpp"
+
 using namespace LOGLW;
 
 IGameEngine* IGameEngine::s_instance = nullptr;
@@ -143,7 +145,7 @@ void IGameEngine::removeObjectToRender( IRenderable* renderable )
         auto it = m_objectsToRender.find( renderable );
         if( it != m_objectsToRender.end() )
         {
-            m_objectsToRender.erase( renderable );
+            m_objectsToRender.erase( it );
         }
     }
     else
@@ -170,10 +172,65 @@ unsigned IGameEngine::getGPUCurrentAvailableMemoryKb()
     return getUtility()->getGPUCurrentAvailableMemoryKb();
 }
 
+Shader* IGameEngine::createShader( const String& path, const String& source )
+{
+    Shader* result = findShader( path );
+
+    if( result )
+    {
+        return result;
+    }
+
+    auto shaderFile = getCul()->getFF()->createRegularFileRawPtr( path );
+    if( !source.empty() )
+    {
+        shaderFile->loadFromString( source );
+    }
+
+    result = new Shader( *this, shaderFile );
+    m_shaders[path] = result;
+    return result;
+}
+
+void IGameEngine::removeShader( Shader* shader )
+{
+    removeShader( shader->getPath() );
+}
+
+void IGameEngine::removeShader( const String& path )
+{
+    auto shaderIt = m_shaders.find( path );
+    if( shaderIt != m_shaders.end() )
+    {
+        Shader* shader = shaderIt->second;
+        delete shader;
+        m_shaders.erase( shaderIt );
+    }
+}
+
+Shader* IGameEngine::findShader( const String& path ) const
+{
+    auto shaderIt = m_shaders.find( path );
+
+    if( shaderIt != m_shaders.end() )
+    {
+        return shaderIt->second;
+    }
+
+    return nullptr;
+}
+
 IGameEngine::~IGameEngine()
 {
-    m_shadersPrograms.clear();
+    releaseResources();
 
     delete m_oglUtility;
     m_oglUtility = nullptr;
+}
+
+
+void IGameEngine::releaseResources()
+{
+    m_shaders.clear();
+    m_shadersPrograms.clear();
 }

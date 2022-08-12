@@ -40,6 +40,7 @@ class Sprite;
 class Quad;
 class Viewport;
 class IUtility;
+class Shader;
 
 using String = CUL::String;
 
@@ -137,6 +138,12 @@ public:
     class Program* createProgram();
     void removeProgram(Program* program);
 
+    Shader* createShader( const String& path, const String& source = "" );
+    void removeShader( Shader* shader );
+    void removeShader( const String& path );
+
+    void releaseResources();
+
     virtual ~IGameEngine();
 
 protected:
@@ -150,6 +157,8 @@ protected:
     bool m_gridEnabled = false;
 
 private:
+    Shader* findShader( const String& path ) const;
+
     std::unique_ptr<Camera> m_camera;
     bool m_forceLegacy = false;
 
@@ -161,6 +170,7 @@ private:
     static IGameEngine* s_instance;
 
     std::map<Program*, std::unique_ptr<Program>> m_shadersPrograms;
+    std::map<String, Shader*> m_shaders;
 };
 
 NAMESPACE_END( LOGLW )
