@@ -4,6 +4,7 @@
 #include "SDL2Wrapper/IWindow.hpp"
 
 #include "CUL/CULInterface.hpp"
+#include "CUL/Threading/ThreadUtils.hpp"
 
 #include "IMPORT_glew.hpp"
 #include "ImportFreeglut.hpp"
@@ -43,15 +44,33 @@ void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum
                              const void*  // userParam
 );
 
-void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei  // length
-                             ,
-                             const char*  // message
-                             ,
-                             const void*  // userParam
+void APIENTRY glDebugOutput(
+    GLenum source,
+    GLenum type,
+    unsigned int id,
+    GLenum severity,
+    GLsizei /*length*/,
+    const char* /*message*/,
+    const void* /*userParam*/
 )
 {
-    if( id == 131169 || id == 131185 || id == 131218 || id == 131204 )
+    if( id == 131185 )
+    {
         return;
+    }
+
+    switch( severity )
+    {
+        case GL_DEBUG_SEVERITY_LOW:
+            g_logger->log( "Source: API", CUL::LOG::Severity::INFO );
+            break;
+        case GL_DEBUG_SEVERITY_MEDIUM:
+            g_logger->log( "Source: API", CUL::LOG::Severity::WARN );
+            break;
+        case GL_DEBUG_SEVERITY_HIGH:
+            g_logger->log( "Source: API", CUL::LOG::Severity::WARN );
+            break;
+    }
 
     switch( source )
     {
@@ -127,6 +146,11 @@ void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum
 IUtility::IUtility( CUL::CULInterface* culInterface, bool forceLegacy )
     : m_forceLegacy( forceLegacy ), m_culInterface( culInterface ), m_logger( m_culInterface->getLogger() )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        //CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glGetIntegerv( GL_MAJOR_VERSION, &m_supportedVersion.major );
     glGetIntegerv( GL_MINOR_VERSION, &m_supportedVersion.minor );
 
@@ -137,6 +161,15 @@ IUtility::IUtility( CUL::CULInterface* culInterface, bool forceLegacy )
 
 ContextInfo IUtility::initContextVersion( SDL2W::IWindow* window )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        getCUl()->getThreadUtils().setCurrentThreadName( "RenderThread" );
+        if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
+        {
+            CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+        }
+    }
+
     ContextInfo result;
 
     result.glContext = window->createContext();
@@ -181,8 +214,49 @@ ContextInfo IUtility::initContextVersion( SDL2W::IWindow* window )
     return result;
 }
 
+void IUtility::getLastOperationStatus()
+{
+    GLenum errorCode;
+    while( ( errorCode = glGetError() ) != GL_NO_ERROR )
+    {
+        std::string error;
+        switch( errorCode )
+        {
+            case GL_INVALID_ENUM:
+                error = "INVALID_ENUM";
+                break;
+            case GL_INVALID_VALUE:
+                error = "INVALID_VALUE";
+                break;
+            case GL_INVALID_OPERATION:
+                error = "INVALID_OPERATION";
+                break;
+            case GL_STACK_OVERFLOW:
+                error = "STACK_OVERFLOW";
+                break;
+            case GL_STACK_UNDERFLOW:
+                error = "STACK_UNDERFLOW";
+                break;
+            case GL_OUT_OF_MEMORY:
+                error = "OUT_OF_MEMORY";
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                error = "INVALID_FRAMEBUFFER_OPERATION";
+                break;
+        }
+
+        log(error);
+    }
+}
+
 void IUtility::setOrthogonalPerspective( const Camera& camera )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+
     const auto left = camera.getLeft();
     const auto right = camera.getRight();
 
@@ -238,44 +312,147 @@ void IUtility::setOrthogonalPerspective( const Camera& camera )
 }
 
 
+void IUtility::useProgram( int programId )
+{
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    if( m_currentProgram != programId )
+    {
+        glUseProgram( static_cast<GLuint>( programId ) );
+        m_currentProgram = programId;
+    }
+}
+
+int IUtility::getCurrentProgram() const
+{
+    GLint id;
+    glGetIntegerv( GL_CURRENT_PROGRAM, &id );
+
+    return (int)id;
+}
+
 void IUtility::setUniformValue( int uniformLocation, const glm::vec2& val )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    //log( "setUniformValue" );
     glUniform2fv( uniformLocation, 1, &val[0] );
 }
 
 void IUtility::setUniformValue( int uniformLocation, const glm::vec3& val )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    //log( "setUniformValue" );
     glUniform3fv( uniformLocation, 1, &val[0] );
 }
 
 void IUtility::setUniformValue( int uniformLocation, const glm::vec4& val )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    //log( "setUniformValue" );
     glUniform4fv( uniformLocation, 1, &val[0] );
 }
 
 void IUtility::setUniformValue( int uniformLocation, const glm::mat2& val )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    //log( "setUniformValue" );
     glUniformMatrix2fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
 }
 
 void IUtility::setUniformValue( int uniformLocation, const glm::mat3& val )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    //log( "setUniformValue" );
     glUniformMatrix3fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
 }
 
 void IUtility::setUniformValue( int uniformLocation, const glm::mat4& val )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    //log( "setUniformValue" );
     glUniformMatrix4fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
 }
 
 void IUtility::setActiveTexture( unsigned id )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    log( "setActiveTexture" );
     glActiveTexture(static_cast<GLenum>(id));
 }
 
+unsigned int IUtility::getUniformLocation( unsigned programId, const String& attribName )
+{
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    log( "glGetUniformLocation( " + String( programId ) + ", " + attribName + " );" );
+
+    auto attribLocation = glGetUniformLocation( programId, attribName.cStr() );
+
+    if( attribLocation == -1 )
+    {
+        log( "DID NOT FOUND!" );
+    }
+
+    const GLenum err = glGetError();
+    const GLubyte* errorAsString = gluErrorString( err );
+
+    if( err != GL_NO_ERROR )
+    {
+        std::string errorAsSTDString = (char*)errorAsString;
+        switch( err )
+        {
+            case GL_INVALID_OPERATION:
+                log( "Error! GL_INVALID_OPERATION: " + errorAsSTDString );
+                break;
+            default:
+                break;
+        }
+    }
+
+    return static_cast<unsigned int>( attribLocation );
+}
 
 void IUtility::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     /*
     glDrawArrays - render primitives from array data.
     mode - Specifies what kind of primitives to render. Symbolic constants
@@ -286,13 +463,18 @@ void IUtility::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, un
     first - Specifies the starting index in the enabled arrays.
     count - Specifies the number of indices to be rendered.
     */
-    //log( "glDrawArrays" );
+    log( "drawArrays" );
     bindBuffer( BufferTypes::VERTEX_ARRAY, vaoId );
     glDrawArrays( static_cast<GLenum>( primitiveType ), static_cast<GLint>( first ), static_cast<GLsizei>( count ) );
 }
 
 void IUtility::vertexAttribPointer( const VertexAttributePtrMeta& meta )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     bindBuffer(BufferTypes::VERTEX_ARRAY, meta.vao);
     bindBuffer(BufferTypes::ARRAY_BUFFER, meta.vbo);
 
@@ -331,7 +513,12 @@ void IUtility::vertexAttribPointer( const VertexAttributePtrMeta& meta )
 
 void IUtility::setTextureData( uint8_t textureId, const TextureInfo& ti )
 {
-    log( "glTexImage2D(" + ti.toString() + ")" );
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    log( "glTexImage2D( " + ti.toString() + " )" );
     bindTexture( textureId );
     glTexImage2D( GL_TEXTURE_2D, ti.level, (GLint)ti.pixelFormat, ti.size.width, ti.size.height, ti.border, (GLenum)ti.pixelFormat,
                   (GLenum)GL_UNSIGNED_BYTE, ti.data );
@@ -340,6 +527,11 @@ void IUtility::setTextureData( uint8_t textureId, const TextureInfo& ti )
 
 void IUtility::rotate( const CUL::MATH::Rotation& rotation )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glRotatef( rotation.yaw.getDeg(), 0.f, -1.f, 0.f );
     glRotatef( rotation.pitch.getDeg(), 1.f, 0.f, 0.f );
     glRotatef( rotation.roll.getDeg(), 0.f, 0.f, 1.f );
@@ -347,6 +539,11 @@ void IUtility::rotate( const CUL::MATH::Rotation& rotation )
 
 void IUtility::rotate( const float angleDeg, const float x, const float y, const float z )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glRotatef( angleDeg, x, y, z );
 }
 
@@ -372,6 +569,25 @@ unsigned IUtility::getGPUCurrentAvailableMemoryKb()
     GLint cur_avail_mem_kb = 0;
     glGetIntegerv( GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &cur_avail_mem_kb );
     return cur_avail_mem_kb;
+}
+
+void IUtility::toggleDebugOutput( bool enable )
+{
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+
+    if( enable )
+    {
+        glEnable( GL_DEBUG_OUTPUT );
+        glDebugMessageCallback( glDebugOutput, 0 );
+    }
+    else
+    {
+        glDisable( GL_DEBUG_OUTPUT );
+    }
 }
 
 void IUtility::log( const String& text, const CUL::LOG::Severity severity ) const

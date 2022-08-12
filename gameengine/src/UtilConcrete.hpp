@@ -32,7 +32,6 @@ private:
 
     unsigned int createProgram() override;
     void removeProgram( unsigned programId ) override;
-    void useProgram( unsigned programId ) override;
     void linkProgram( unsigned programId ) override;
     void validateProgram( unsigned programId ) override;
 
@@ -86,7 +85,6 @@ private:
     void enableVertexAttribiute( unsigned programId, const String& attribName ) override;
     void disableVertexAttribiute( unsigned programId, const String& attribName ) override;
     unsigned int getAttribLocation( unsigned programId, const String& attribName ) override;
-    unsigned int getUniformLocation( unsigned programId, const String& attribName ) override;
     void unbindBuffer( const BufferTypes bufferType ) override;
     // void bindBuffer( VertexArray* vao )  override;
     void bindBuffer( const BufferTypes bufferType, unsigned bufferId ) override;

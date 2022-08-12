@@ -6,6 +6,7 @@
 
 #include "CUL/CULInterface.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
+#include "CUL/Threading/ThreadUtils.hpp"
 
 #include "CUL/STL_IMPORTS/STD_iostream.hpp"
 #include "CUL/STL_IMPORTS/STD_sstream.hpp"
@@ -87,6 +88,10 @@ void UtilConcrete::setProjection( const Camera& )
 }
 void UtilConcrete::setViewport( const Viewport& viewport )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
     glViewport( viewport.pos.getX(), viewport.pos.getY(), viewport.size.getWidth(), viewport.size.getHeight() );
 }
 #if _MSC_VER
@@ -95,6 +100,11 @@ void UtilConcrete::setViewport( const Viewport& viewport )
 
 void UtilConcrete::setPerspective( const Angle& angle, double widthToHeightRatio, double m_zNear, double m_zFar )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     gluPerspective( angle.getValueD( CUL::MATH::Angle::Type::DEGREE ), widthToHeightRatio, m_zNear, m_zFar );
 }
 #if _MSC_VER
@@ -103,6 +113,10 @@ void UtilConcrete::setPerspective( const Angle& angle, double widthToHeightRatio
 #endif
 void UtilConcrete::setPerspectiveProjection( const Camera& projectionData )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
     auto fov = projectionData.getFov();
     auto ar = projectionData.getAspectRatio();
     auto zNear = projectionData.getZnear();
@@ -114,6 +128,10 @@ void UtilConcrete::setPerspectiveProjection( const Camera& projectionData )
 #endif
 void UtilConcrete::lookAt( const Camera& vp )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
     const auto& eye = vp.getEye();
     const auto& center = vp.getCenter();
     const auto& up = vp.getUp();
@@ -127,6 +145,10 @@ void UtilConcrete::lookAt( const std::array<Pos3Dd, 3>& vec )
 
 void UtilConcrete::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
     gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z );
 }
 
@@ -147,26 +169,44 @@ unsigned int UtilConcrete::createProgram()
 
 void UtilConcrete::removeProgram( unsigned programId )
 {
-    log( "glDeleteProgram( " + String( programId ) + ");" );
-    glDeleteProgram( toGluint( programId ) );
-    // TODO: find a correct way to check whether program was deleted.
-    // assertOnProgramError( programId, GL_DELETE_STATUS );
-}
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
 
-void UtilConcrete::useProgram( unsigned programId )
-{
-    // log( "glUseProgram( " + String( programId ) + " )" );
-    glUseProgram( static_cast<GLuint>( programId ) );
+
+    static std::vector<int> released;
+    log( "glDeleteProgram( " + String( programId ) + " );" );
+    glDeleteProgram( toGluint( programId ) );
+    released.push_back( programId );
+    size_t size = released.size();
+    for( size_t i = 0; i < size; ++i )
+    {
+        log( "deleted: " + String( released[i] ) );
+    }
+    // TODO: find a correct way to check whether program was deleted.
+    //assertOnProgramError( programId, GL_DELETE_STATUS );
+    glCheckError_("UtilConcrete.cpp", 180);
 }
 
 void UtilConcrete::linkProgram( unsigned programId )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glLinkProgram( static_cast<GLuint>( programId ) );
     assertOnProgramError( programId, GL_LINK_STATUS );
 }
 
 void UtilConcrete::validateProgram( unsigned programId )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     log( "[UtilConcrete] glValidateProgram( " + String( programId ) + ");" );
     glValidateProgram( programId );
     assertOnProgramError( programId, GL_VALIDATE_STATUS );
@@ -174,6 +214,11 @@ void UtilConcrete::validateProgram( unsigned programId )
 
 unsigned int UtilConcrete::createShader( const IFile& shaderCode )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     const auto shaderType = UtilConcrete::getShaderType( shaderCode.getPath().getExtension() );
     log( "[UtilConcrete] glCreateShader( " + String( static_cast<GLenum>( shaderType ) ) + ");" );
     const auto id = static_cast<unsigned int>( glCreateShader( static_cast<GLenum>( shaderType ) ) );
@@ -256,9 +301,14 @@ ShaderTypes UtilConcrete::getShaderType( const CUL::String& fileExtension )
 
 void UtilConcrete::attachShader( unsigned programId, unsigned shaderId )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glAttachShader( toGluint( programId ), toGluint( shaderId ) );
 
-    if( true )
+    if( false )
     {
     }
     else
@@ -271,12 +321,30 @@ void UtilConcrete::attachShader( unsigned programId, unsigned shaderId )
 
 void UtilConcrete::dettachShader( unsigned programId, unsigned shaderId )
 {
+    log( "glDetachShader( " + String( programId ) + ", " + String( shaderId ) + " );" );
+
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glDetachShader( toGluint( programId ), toGluint( shaderId ) );
+    getLastOperationStatus();
 }
 
 void UtilConcrete::removeShader( unsigned shaderId )
 {
-    glDeleteShader( toGluint( shaderId ) );
+    log( "glDeleteShader( " + String( shaderId ) + " );" );
+
+    GLuint gshaderId = shaderId;
+
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    glDeleteShader( gshaderId );
+    getLastOperationStatus();
 }
 
 GLuint toGluint( unsigned value )
@@ -286,38 +354,83 @@ GLuint toGluint( unsigned value )
 
 void UtilConcrete::setAttribValue( int attributeLocation, float value )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    log( "glUniform1f( " + String( attributeLocation ) + ", " + String( value  ) + " );" );
     glUniform1f( static_cast<GLfloat>( attributeLocation ), value );
 }
 
-void UtilConcrete::setAttribValue( int attributeLocation, int value )
+void UtilConcrete::setAttribValue( int, int )
 {
-    glUniform1i( static_cast<GLint>( attributeLocation ), value );
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
 }
 
-void UtilConcrete::setAttribValue( int attributeLocation, unsigned value )
+void UtilConcrete::setAttribValue( int, unsigned )
 {
-    glUniform1i( static_cast<GLint>( attributeLocation ), static_cast<int>( value ) );
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
 }
 
-void UtilConcrete::setAttribValue( int attributeLocation, bool value )
+void UtilConcrete::setAttribValue( int, bool )
 {
-    glUniform1i( static_cast<GLint>( attributeLocation ), static_cast<int>( value ) );
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
 }
 
 void UtilConcrete::setAttribValue( int, const CUL::String& )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
 }
 
 void UtilConcrete::setUniformValue( int uniformLocation, float value )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    log( "glUniform1f( " + String( uniformLocation ) + ", " + String( value ) + " );" );
     glUniform1f( static_cast<GLfloat>( uniformLocation ), value );
 }
 void UtilConcrete::setUniformValue( int uniformLocation, int value )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    log( "glUniform1i( " + String( uniformLocation ) + ", " + String( value ) + " );" );
     glUniform1i( static_cast<GLint>( uniformLocation ), value );
 }
 void UtilConcrete::setUniformValue( int uniformLocation, unsigned value )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    log( "glUniform1i( " + String( uniformLocation ) + ", " + String( value ) + " );" );
     glUniform1i( static_cast<GLuint>( uniformLocation ), value );
 }
 
@@ -340,6 +453,11 @@ void UtilConcrete::translate( const Point& point )
 
 void UtilConcrete::translate( const float x, const float y, const float z )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     // TODO: save modelview
     // GLfloat mat[16];
     // glGetFloatv(GL_MODELVIEW_MATRIX, mat);
@@ -350,16 +468,31 @@ void UtilConcrete::translate( const float x, const float y, const float z )
 
 void UtilConcrete::scale( const CUL::MATH::Vector3Df& scale )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glScalef( scale.getX(), scale.getY(), scale.getZ() );
 }
 
 void UtilConcrete::scale( const float scale )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glScalef( scale, scale, scale );
 }
 
 void UtilConcrete::draw( const QuadCUL& quad, const QuadCUL& texQuad )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glColor4f( 1.f, 1.f, 1.f, 1.f );
     glBegin( GL_QUADS );
     glTexCoord3f( texQuad[0][0], texQuad[0][1], texQuad[0][2] );
@@ -375,6 +508,11 @@ void UtilConcrete::draw( const QuadCUL& quad, const QuadCUL& texQuad )
 
 void UtilConcrete::draw( const QuadCUL& quad, const ColorS& color )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glBegin( GL_QUADS );
     auto red = color.getRF();
     auto green = color.getGF();
@@ -390,6 +528,11 @@ void UtilConcrete::draw( const QuadCUL& quad, const ColorS& color )
 
 void UtilConcrete::draw( const QuadData& quad, const ColorS& color )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glBegin( GL_QUADS );
     auto red = color.getRF();
     auto green = color.getGF();
@@ -405,6 +548,11 @@ void UtilConcrete::draw( const QuadData& quad, const ColorS& color )
 
 void UtilConcrete::draw( const QuadData& quad, const QuadColors& color )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glBegin( GL_QUADS );
     glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
     glVertex3f( quad[0][0], quad[0][1], quad[0][2] );
@@ -419,6 +567,11 @@ void UtilConcrete::draw( const QuadData& quad, const QuadColors& color )
 
 void UtilConcrete::draw( const QuadCUL& quad, const std::array<ColorS, 4>& color )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glBegin( GL_QUADS );
     glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
     glVertex3f( quad[0][0], quad[0][1], quad[0][2] );
@@ -433,6 +586,11 @@ void UtilConcrete::draw( const QuadCUL& quad, const std::array<ColorS, 4>& color
 
 void UtilConcrete::draw( const Triangle& triangle, const ColorS& color )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glBegin( GL_TRIANGLES );
     glColor4f( color.getRF(), color.getGF(), color.getBF(), color.getAF() );
     glVertex3f( triangle[0][0], triangle[0][1], triangle[0][2] );
@@ -443,6 +601,11 @@ void UtilConcrete::draw( const Triangle& triangle, const ColorS& color )
 
 void UtilConcrete::draw( const Triangle& quad, const std::array<ColorS, 4>& color )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glBegin( GL_TRIANGLES );
     glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
     glVertex3f( quad[0][0], quad[0][1], quad[0][2] );
@@ -455,6 +618,11 @@ void UtilConcrete::draw( const Triangle& quad, const std::array<ColorS, 4>& colo
 
 void UtilConcrete::draw( const TriangleData& values, const std::array<ColorS, 3>& color )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glBegin( GL_TRIANGLES );
     glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
     glVertex3f( values[0][0], values[0][1], values[0][2] );
@@ -467,6 +635,11 @@ void UtilConcrete::draw( const TriangleData& values, const std::array<ColorS, 3>
 
 void UtilConcrete::draw( const LineData& values, const LineColors& color )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glBegin( GL_LINES );
     glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
     glVertex3f( values[0][0], values[0][1], values[0][2] );
@@ -477,6 +650,11 @@ void UtilConcrete::draw( const LineData& values, const LineColors& color )
 
 void UtilConcrete::draw( const LineData& values, const ColorS& color )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glBegin( GL_LINE );
     glColor4f( color.getRF(), color.getGF(), color.getBF(), color.getAF() );
     glVertex3f( values[0][0], values[0][1], values[0][2] );
@@ -494,12 +672,22 @@ void UtilConcrete::draw( const Point& position, const ColorS& color )
 
 void UtilConcrete::clearColorAndDepthBuffer()
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     // glDepthFunc( GL_LEQUAL );
 }
 
 void UtilConcrete::createQuad( float scale )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glBegin( GL_QUADS );
     glColor3f( 1.f, 1.f, 1.f );
     glVertex2f( -0.5f * scale, -0.5f * scale );
@@ -511,6 +699,11 @@ void UtilConcrete::createQuad( float scale )
 
 void UtilConcrete::clearColorTo( const ColorS color )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glClearColor( static_cast<GLclampf>( color.getRF() ), static_cast<GLclampf>( color.getGF() ), static_cast<GLclampf>( color.getBF() ),
                   static_cast<GLclampf>( color.getAF() ) );
 }
@@ -522,6 +715,11 @@ void UtilConcrete::clearBuffer( const ClearMasks mask )
 
 void UtilConcrete::setClientState( ClientStateTypes cs, bool enabled )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     if( enabled )
     {
         glEnableClientState( (GLenum)cs );
@@ -534,6 +732,11 @@ void UtilConcrete::setClientState( ClientStateTypes cs, bool enabled )
 
 void UtilConcrete::texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glTexCoordPointer( coordinatesPerElement, (GLenum)dataType, stride, pointer );
 
     /*
@@ -555,6 +758,11 @@ void UtilConcrete::texCoordPointer( int coordinatesPerElement, DataType dataType
 
 void UtilConcrete::vertexPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     /*
     size - Specifies the number of coordinates per array element.
     Must be 1, 2, 3, or 4. The initial value is 4.
@@ -575,6 +783,11 @@ void UtilConcrete::vertexPointer( int coordinatesPerElement, DataType dataType, 
 
 void UtilConcrete::setVertexArrayClientState( const bool enable )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     // If enabled, the vertex array is enabled for writing and used during
     // rendering when glArrayElement,
     // glDrawArrays, glDrawElements, glDrawRangeElements glMultiDrawArrays,
@@ -592,6 +805,11 @@ void UtilConcrete::setVertexArrayClientState( const bool enable )
 
 void UtilConcrete::setColorClientState( bool enable )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     // If enabled, the vertex array is enabled for writing and used during
     // rendering when glArrayElement,
     // glDrawArrays, glDrawElements, glDrawRangeElements glMultiDrawArrays,
@@ -608,6 +826,11 @@ void UtilConcrete::setColorClientState( bool enable )
 
 unsigned int UtilConcrete::generateVertexArray( const int size )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     GLuint vao = 0;
     log( "glGenVertexArrays( size, &vao )" );
     glGenVertexArrays( size, &vao );
@@ -635,12 +858,22 @@ void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<float>& data,
 
 void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<TextureData2D>& data, const BufferTypes type )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     bindBuffer( type, bufferId );
     glBufferData( static_cast<GLenum>( type ), data.size() * sizeof( TextureData2D ), data.data(), GL_DYNAMIC_DRAW );
 }
 
 void UtilConcrete::bufferDataImpl( const void* data, const GLenum target, const GLsizeiptr dataSize )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     /*
     Creates and initializes a buffer object's data store
     */
@@ -760,6 +993,11 @@ void UtilConcrete::bufferDataImpl( const void* data, const GLenum target, const 
 
 void UtilConcrete::bufferSubdata( uint8_t bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     log( "bufferSubdata" );
     bindBuffer( type, bufferId );
     size_t dataSize = data.size() * sizeof( data.front() );
@@ -768,6 +1006,11 @@ void UtilConcrete::bufferSubdata( uint8_t bufferId, const BufferTypes type, std:
 
 unsigned int UtilConcrete::generateAndBindBuffer( const BufferTypes bufferType, const int size )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     const auto bufferId = generateBuffer( bufferType, size );
     bindBuffer( bufferType, bufferId );
     return bufferId;
@@ -775,6 +1018,12 @@ unsigned int UtilConcrete::generateAndBindBuffer( const BufferTypes bufferType, 
 
 unsigned int UtilConcrete::generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+
     const auto ebo = generateBuffer( BufferTypes::ELEMENT_ARRAY_BUFFER, size );
     bindBuffer( BufferTypes::ELEMENT_ARRAY_BUFFER, ebo );
     log( "glBufferData" );
@@ -810,6 +1059,11 @@ GL_ARRAY_BUFFER target. The initial value is 0.
 
 void UtilConcrete::bufferData( uint8_t bufferId, const float vertices[], BufferTypes bufferType )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     log( "glBufferData" );
     bindBuffer( bufferType, bufferId );
     glBufferData( GL_ARRAY_BUFFER, sizeof( *vertices ), vertices, GL_STATIC_DRAW );
@@ -817,12 +1071,22 @@ void UtilConcrete::bufferData( uint8_t bufferId, const float vertices[], BufferT
 
 void UtilConcrete::enableVertexAttribiute( unsigned programId, const String& attribName )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     const auto attributeLocation = UtilConcrete::getAttribLocation( programId, attribName );
     glEnableVertexAttribArray( attributeLocation );
 }
 
 void UtilConcrete::setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     // glVertexPointer — define an array of vertex data
     // glVertexPointer specifies the location and data format of an array of
     // vertex coordinates to use when rendering. size specifies the number of
@@ -854,12 +1118,22 @@ void UtilConcrete::setVertexPointer( int coordinatesPerVertex, DataType dataType
 
 void UtilConcrete::disableVertexAttribiute( unsigned programId, const String& attribName )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     const auto attributeLocation = UtilConcrete::getAttribLocation( programId, attribName );
     glDisableVertexAttribArray( attributeLocation );
 }
 
 void UtilConcrete::deleteBuffer( BufferTypes bufferType, unsigned& id )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     if( id )
     {
         if( bufferType == BufferTypes::ARRAY_BUFFER )
@@ -881,28 +1155,33 @@ void UtilConcrete::deleteBuffer( BufferTypes bufferType, unsigned& id )
 
 unsigned int UtilConcrete::getAttribLocation( unsigned programId, const String& attribName )
 {
-    auto attribLocation = glGetAttribLocation( programId, attribName.cStr() );
-    return static_cast<unsigned int>( attribLocation );
-}
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
 
-unsigned int UtilConcrete::getUniformLocation( unsigned programId, const String& attribName )
-{
-    auto attribLocation = glGetUniformLocation( programId, attribName.cStr() );
+    log( "getAttribLocation" );
+    auto attribLocation = glGetAttribLocation( programId, attribName.cStr() );
     return static_cast<unsigned int>( attribLocation );
 }
 
 void UtilConcrete::unbindBuffer( const BufferTypes bufferType )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     bindBuffer( bufferType, 0 );
 }
 
-// void UtilConcrete::bindBuffer( VertexArray* vao )
-//{
-//    bindBuffer( BufferTypes::VERTEX_ARRAY, vao->getId() );
-//}
-
 void UtilConcrete::bindBuffer( const BufferTypes bufferType, unsigned bufferId )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     auto it = m_currentBufferId.find( bufferType );
     if( it == m_currentBufferId.end() || it->second != bufferId )
     {
@@ -959,6 +1238,11 @@ void UtilConcrete::bindBuffer( const BufferTypes bufferType, unsigned bufferId )
 // TODO: Remove type?
 unsigned int UtilConcrete::generateBuffer( const BufferTypes bufferType, const int size )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     GLuint bufferId = 0;
     if( BufferTypes::VERTEX_ARRAY == bufferType )
     {
@@ -976,6 +1260,11 @@ unsigned int UtilConcrete::generateBuffer( const BufferTypes bufferType, const i
 
 void UtilConcrete::drawElements( const PrimitiveType type, const std::vector<unsigned int>& data )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     // glDrawElements — render primitives from array data
     // mode
     // Specifies what kind of primitives to render.Symbolic constants GL_POINTS,
@@ -1013,16 +1302,31 @@ void UtilConcrete::drawElements( const PrimitiveType type, const std::vector<uns
 
 void UtilConcrete::drawElements( const PrimitiveType type, const std::vector<float>& data )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( data.size() ), GL_FLOAT, data.data() );
 }
 
 void UtilConcrete::drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     glDrawElements( static_cast<GLenum>( primitiveType ), static_cast<GLsizei>( count ), static_cast<GLenum>( dataType ), nullptr );
 }
 
 void UtilConcrete::enableVertexAttribArray( unsigned attributeId )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     /*
     Enable or disable a generic vertex attribute array.
     glEnableVertexAttribArray and glEnableVertexArrayAttrib enable the generic
@@ -1065,6 +1369,10 @@ std::vector<std::string> UtilConcrete::listExtensions()
 
 void UtilConcrete::setDepthTest( const bool enabled )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
     if( enabled )
     {
         glEnable( GL_DEPTH_TEST );
@@ -1082,6 +1390,10 @@ void UtilConcrete::setDepthTest( const bool enabled )
 
 void UtilConcrete::setBackfaceCUll( const bool enabled )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
     if( enabled )
     {
         glEnable( GL_CULL_FACE );
@@ -1096,6 +1408,10 @@ void UtilConcrete::setBackfaceCUll( const bool enabled )
 
 void UtilConcrete::setTexuring( const bool enabled )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
     if( enabled )
     {
         glEnable( GL_TEXTURE_2D );
@@ -1108,6 +1424,11 @@ void UtilConcrete::setTexuring( const bool enabled )
 
 unsigned UtilConcrete::generateTexture()
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     log( "generateTexture" );
     // glGenTextures generate texture names.
     // n - Specifies the number of texture names to be generated.
@@ -1121,6 +1442,11 @@ unsigned UtilConcrete::generateTexture()
 
 void UtilConcrete::bindTexture( const unsigned int textureId )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     if( m_lastTextureId != textureId )
     {
         // log( "bindTexture..." );
@@ -1136,6 +1462,11 @@ void UtilConcrete::bindTexture( const unsigned int textureId )
 
 void UtilConcrete::setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     log( "glTexParameteri" );
     bindTexture( textureId );
     glTexParameteri( GL_TEXTURE_2D, (GLenum)type, (GLint)val );
@@ -1143,6 +1474,11 @@ void UtilConcrete::setTextureParameter( uint8_t textureId, const TextureParamete
 
 void UtilConcrete::freeTexture( unsigned int& textureId )
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     if( textureId != 0 )
     {
         log( "glDeleteTextures();" );
@@ -1153,6 +1489,11 @@ void UtilConcrete::freeTexture( unsigned int& textureId )
 
 void UtilConcrete::matrixStackPush()
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     log( "glPopMatrix();" );
     glPushMatrix();
     ++m_currentMatrix;
@@ -1160,6 +1501,11 @@ void UtilConcrete::matrixStackPush()
 
 void UtilConcrete::matrixStackPop()
 {
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
     log( "glPopMatrix();" );
     glPopMatrix();
     --m_currentMatrix;

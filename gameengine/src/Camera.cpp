@@ -45,7 +45,8 @@ float Camera::getZnear() const
 
 float Camera::getZfar() const
 {
-    return std::abs( m_target.z );
+    //return std::abs( m_target.z );
+    return m_target.z;
 }
 
 float Camera::getFov() const

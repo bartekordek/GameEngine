@@ -41,15 +41,15 @@ public:
 
     Program( IGameEngine& engine );
 
-    void setAttrib( const String& name, const char* value );
-    void setAttrib( const String& name, float value );
-    void setAttrib( const String& name, unsigned value );
-    void setAttrib( const String& name, int value );
-    void setAttrib( const String& name, bool value );
-    void setAttrib( const String& name, const glm::mat2& mat );
-    void setAttrib( const String& name, const glm::mat3& mat );
-    void setAttrib( const String& name, const glm::mat4& mat );
-    void setAttrib( const String& name, const glm::vec4& value );
+    void setUniform( const String& name, const char* value );
+    void setUniform( const String& name, float value );
+    void setUniform( const String& name, unsigned value );
+    void setUniform( const String& name, int value );
+    void setUniform( const String& name, bool value );
+    void setUniform( const String& name, const glm::mat2& mat );
+    void setUniform( const String& name, const glm::mat3& mat );
+    void setUniform( const String& name, const glm::mat4& mat );
+    void setUniform( const String& name, const glm::vec4& value );
 
     Shader* loadShader( const char* path );
 
@@ -91,17 +91,22 @@ private:
     void goThroughTasks();
     void processTask( const ValueToSet& task );
 
+    unsigned getUniformLocation( const String& name );
+
     IGameEngine& m_engine;
 
     unsigned int m_dataBufferId = 0u;
     unsigned int m_id = 0u;
 
     ShaderList m_attachedShaders;
-    std::mutex m_operationMutex;
+
+    std::map<String, unsigned> m_uniformMap;
 
     std::deque<ValueToSet> m_tasks;
 
     CUL::LOG::ILogger* m_logger = nullptr;
+
+    bool m_initialized = false;
 
 private:
     Program() = delete;

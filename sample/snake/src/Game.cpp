@@ -2,6 +2,8 @@
 
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IDebugOverlay.hpp"
+#include "gameengine/Primitives/Quad.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
@@ -63,17 +65,11 @@ Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SD
 
 void Game::afterInit()
 {
-   // m_oglw->setProjectionType( LOGLW::ProjectionType::PERSPECTIVE );
-
     m_mainWindow = m_oglw->getMainWindow();
     m_mainWindow->setBackgroundColor( SDL2W::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
-    //const auto& winSize = m_mainWindow->getSize();
 
-    //m_projectionData.setSize( { winSize.getWidth(), winSize.getHeight() } );
     m_oglw->getCamera().getEye() = { 0.0f, 0.0f, 300.f };
-    //m_projectionData.setEyePos( { 0.0f, 0.0f, 300.f } );
-
-    //m_oglw->setProjection( m_projectionData );
+    m_oglw->getCamera().setZnear( 1.f );
 
     reloadConfig();
     configModificationTime = m_configFile->getModificationTime();
@@ -117,9 +113,14 @@ void Game::afterInit()
     {
         for( size_t col = 0; col < colsCount; ++col )
         {
-            m_background[row][col] = m_objectFactory->createQuad( quadData, true, LOGLW::ColorE::WHITE );
-            m_background[row][col]->setWorldPosition( xOffset + col * ( size + offset ), yOffset + row * ( size + offset ), 0.f );
-
+            LOGLW::Quad* quad = m_oglw->createQuad( nullptr );
+            quad->getTransform()->setPivot( { 0.5f, 0.5f, 0.f } );
+            quad->getTransform()->setSize( { size, size, size } );
+            quad->getTransform()->setWorldPosition(
+                xOffset + col * ( size + offset ),
+                yOffset + row * ( size + offset ),
+                0.f );
+            m_background[row][col] = quad;
             ++index;
         }
     }
@@ -346,6 +347,19 @@ void Game::onKeyBoardEvent( const SDL2W::IKey& key )
         {
             changeSnakeMoveDirection( Snake::HeadDirection::EAST );
         }
+    }
+
+    if( keyName == "U" )
+    {
+        glm::vec3 eyePos = m_oglw->getCamera().getEye();
+        eyePos.z += 1.f;
+        m_oglw->getCamera().setEyePos( eyePos );
+    }
+    else if( keyName == "J" )
+    {
+        glm::vec3 eyePos = m_oglw->getCamera().getEye();
+        eyePos.z -= 1.f;
+        m_oglw->getCamera().setEyePos( eyePos );
     }
 
     if( keyName == "Q" )

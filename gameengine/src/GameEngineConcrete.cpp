@@ -84,6 +84,7 @@ void GameEngineConcrete::startRenderingLoop()
 void GameEngineConcrete::stopRenderingLoop()
 {
     m_logger->log( "GameEngineConcrete::stopRenderingLoop()..." );
+
     m_runRenderLoop = false;
 
     if( m_taskLoopThread.joinable() )
@@ -388,9 +389,28 @@ void GameEngineConcrete::renderLoop()
 
         m_currentFrameLengthUs = (int)m_frameTimer->getElapsed().getUs();
 
-        calculateNextFrameLengths();
-        calculateFrameWait();
+        if( m_everyX == m_everyXMax )
+        {
+            calculateNextFrameLengths();
+            calculateFrameWait();
+            m_everyX = 0;
+        }
+        else
+        {
+            ++m_everyX;
+        }
     }
+
+    size_t objectToRenderLeft = m_objectsToRender.size();
+    while( objectToRenderLeft != 0 )
+    {
+        auto it = m_objectsToRender.begin();
+        IRenderable* renderable = *it;
+        delete renderable;
+        objectToRenderLeft = m_objectsToRender.size();
+    }
+
+    releaseResources();
 }
 
 void GameEngineConcrete::initDebugInfo()
@@ -469,6 +489,8 @@ void GameEngineConcrete::initialize()
     // m_oglUtility->setBackfaceCUll(  );
     // m_oglUtility->setDepthTest( true );
 
+    getUtility()->toggleDebugOutput( true );
+
     m_hasBeenInitialized = true;
     m_logger->log( "GameEngineConcrete::initialize() Done." );
 }
@@ -546,6 +568,7 @@ void GameEngineConcrete::calculateNextFrameLengths()
 {
     m_usDelta = ( m_targetFrameLengthUs - m_currentFrameLengthUs ) / 200;
     m_frameSleepUs += m_usDelta;
+    m_frameSleepUs = std::max( m_frameSleepUs.getVal(), 0 );
 
     if( m_usDelta < 0 )
     {
@@ -785,6 +808,7 @@ void GameEngineConcrete::renderObjects()
     std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
     for( auto& renderableObject : m_objectsToRender )
     {
+        m_oglUtility->useProgram( 0u );
         renderableObject->render();
     }
 }

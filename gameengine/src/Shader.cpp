@@ -5,6 +5,8 @@
 #include "CUL/CULInterface.hpp"
 #include "CUL/Threading/ThreadUtils.hpp"
 
+#include "CUL/STL_IMPORTS/STD_atomic.hpp"
+
 using namespace LOGLW;
 
 Shader::Shader( IGameEngine& engine, CUL::FS::IFile* file ) : m_engine( engine ), m_shaderCode( file )
@@ -52,6 +54,25 @@ const CUL::FS::Path& Shader::getPath() const
     return m_shaderCode->getPath();
 }
 
+void Shader::addUsedFrom( Program* inProgram )
+{
+    m_usedFromList.push_back( inProgram );
+}
+
+void Shader::removeUsedFrom( Program* inProgram )
+{
+    auto it = std::find( m_usedFromList.begin(), m_usedFromList.end(), inProgram );
+    if( it != m_usedFromList.end() )
+    {
+        m_usedFromList.erase( it );
+    }
+}
+
+size_t Shader::getUsedFromCount() const
+{
+    return m_usedFromList.size();
+}
+
 Shader::~Shader()
 {
     release();
@@ -61,7 +82,27 @@ void Shader::release()
 {
     if( m_id )
     {
-        getUtility()->removeShader( m_id );
+        auto removeShaderTask = [this]() {
+            getUtility()->removeShader( m_id );
+        };
+
+        if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+        {
+            removeShaderTask();
+        }
+        else
+        {
+            std::atomic_bool shaderRemoved = false;
+            m_engine.addRenderThreadTask( [removeShaderTask, &shaderRemoved]() {
+                removeShaderTask();
+                shaderRemoved = true;
+            } );
+
+            while( !shaderRemoved )
+            {
+            }
+        }
+
         m_id = 0;
     }
 }

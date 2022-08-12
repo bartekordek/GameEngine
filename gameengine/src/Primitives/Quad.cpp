@@ -43,15 +43,6 @@ void Quad::setColor( const CUL::Graphics::ColorS& color )
     colorVec.y = m_color.getGF();
     colorVec.z = m_color.getBF();
     colorVec.w = m_color.getAF();
-
-    if( getUtility()->isLegacy() )
-    {
-
-    }
-    else
-    {
-        m_shaderProgram->setAttrib( "color", colorVec );
-    }
 }
 
 void Quad::init()
@@ -79,15 +70,11 @@ void Quad::createBuffers()
 
     const Pos& size = m_transformComponent->getSize();
 
-    static float denominator = 2.f;
+    float x0 = 0.f;
+    float x1 = size.x();
 
-    float x0 = -size.x() / denominator;
-    float x1 = size.x() / denominator;
-
-    float y0 = -size.y() / denominator;
-    float y1 = size.y() / denominator;
-
-    // float z0 = -size.z() / denominator;
+    float y0 = 0.f;
+    float y1 = size.y();
 
     vboData.vertices = {
         x1, y1, 0.f,  // top right
@@ -117,13 +104,8 @@ void Quad::createShaders()
 #include "embedded_shaders/basic_color.frag"
         ;
 
-    auto fragmentShaderFile = getEngine().getCul()->getFF()->createRegularFileRawPtr( "embedded_shaders/basic_color.frag" );
-    fragmentShaderFile->loadFromString( fragmentShaderSource );
-    auto fragmentShader = new Shader( getEngine(), fragmentShaderFile );
-
-    auto vertexShaderCode = getEngine().getCul()->getFF()->createRegularFileRawPtr( "embedded_shaders/basic_pos.vert" );
-    vertexShaderCode->loadFromString( vertexShaderSource );
-    auto vertexShader = new Shader( getEngine(), vertexShaderCode );
+    auto fragmentShader = getEngine().createShader( "embedded_shaders/basic_color.frag", fragmentShaderSource );
+    auto vertexShader = getEngine().createShader( "embedded_shaders/basic_pos.vert", vertexShaderSource );
 
     m_shaderProgram->attachShader( vertexShader );
     m_shaderProgram->attachShader( fragmentShader );
@@ -140,17 +122,12 @@ void Quad::render()
         auto size = getTransform()->getSize();
 
         QuadCUL quad;
-        quad[0][0] = -size.x() / 2.f;
-        quad[0][1] = -size.y() / 2.f;
+        quad[1][1] =  size.y();
 
-        quad[1][0] = -size.x() / 2.f;
-        quad[1][1] =  size.y() / 2.f;
+        quad[2][0] = size.x();
+        quad[2][1] =  size.y();
 
-        quad[2][0] = size.x() / 2.f;
-        quad[2][1] =  size.y() / 2.f;
-
-        quad[3][0] = size.x() / 2.f;
-        quad[3][1] = -size.y() / 2.f;
+        quad[3][0] = size.x();
 
         getUtility()->matrixStackPush();
 
@@ -191,14 +168,14 @@ void Quad::setTransformation()
 
     glm::mat4 model = getTransform()->getModel();
 
-    m_shaderProgram->setAttrib( "projection", projectionMatrix );
-    m_shaderProgram->setAttrib( "view", viewMatrix );
-    m_shaderProgram->setAttrib( "model", model );
+    m_shaderProgram->setUniform( "projection", projectionMatrix );
+    m_shaderProgram->setUniform( "view", viewMatrix );
+    m_shaderProgram->setUniform( "model", model );
 }
 
 void Quad::applyColor()
 {
-    m_shaderProgram->setAttrib( "color", m_color.getVec4() );
+    m_shaderProgram->setUniform( "color", m_color.getVec4() );
 }
 
 Quad::~Quad()
@@ -217,8 +194,9 @@ Quad::~Quad()
 
 void Quad::release()
 {
-    m_engine.removeObjectToRender(this);
     deleteBuffers();
+    m_engine.removeProgram( m_shaderProgram );
+    m_shaderProgram = nullptr;
 }
 
 void Quad::deleteBuffers()

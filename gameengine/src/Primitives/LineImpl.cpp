@@ -15,7 +15,8 @@ void LineImpl::setValues( const LineData& values )
 void LineImpl::render()
 {
     getUtility()->matrixStackPush();
-    getUtility()->translate( getWorldPosition() );
+    auto position = getWorldPosition();
+    getUtility()->translate( position );
     static const auto type = CUL::MATH::Angle::Type::DEGREE;
     getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::YAW ).getValueF( type ),   0.f, 0.f, 1.f );
     getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::PITCH ).getValueF( type ), 0.f, 1.f, 0.f );
@@ -39,5 +40,4 @@ void LineImpl::setColor(const ColorS& color)
 
 LineImpl::~LineImpl()
 {
-
 }

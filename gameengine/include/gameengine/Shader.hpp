@@ -5,9 +5,12 @@
 #include "CUL/Filesystem/Path.hpp"
 #include "CUL/Filesystem/IFile.hpp"
 
+#include "CUL/STL_IMPORTS/STD_vector.hpp"
+
 NAMESPACE_BEGIN( LOGLW )
 
 class IGameEngine;
+class Program;
 
 class GAME_ENGINE_API Shader final:
     private IUtilityUser
@@ -20,12 +23,18 @@ public:
     void reload();
     const CUL::FS::Path& getPath() const;
 
+    void addUsedFrom( Program* inProgram );
+    void removeUsedFrom( Program* inProgram );
+    size_t getUsedFromCount() const;
+
     ~Shader();
 
 protected:
 private:
     void create();
     void release();
+
+    std::vector<Program*> m_usedFromList;
 
     IGameEngine& m_engine;
     CUL::GUTILS::DumbPtr<CUL::FS::IFile> m_shaderCode;

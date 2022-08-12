@@ -16,6 +16,7 @@
 #include "CUL/JSON/IJSONFile.hpp"
 #include "CUL/ITimer.hpp"
 #include "CUL/GenericUtils/Version.hpp"
+#include "CUL/Math/VariableWithAverageValue.hpp"
 
 #include "CUL/STL_IMPORTS/STD_set.hpp"
 #include "CUL/STL_IMPORTS/STD_array.hpp"
@@ -228,6 +229,8 @@ private:
     int m_usRes = 0;
     int m_usDelta = 8;
 
+    DumbPtr<CUL::ITimer> m_customTimer;
+
     Safe<int> m_waitTimeUs = 0.0f;
 
     bool m_hasBeenInitialized = false;
@@ -238,6 +241,9 @@ private:
     std::array<IObject*, 3> m_axis = { nullptr, nullptr, nullptr };
 
     std::map<String, CUL::GUTILS::Version> m_renderersVersions;
+
+    int m_everyX = 0;
+    int m_everyXMax = 4;
 
 private:  // Deleted
     GameEngineConcrete() = delete;

@@ -25,7 +25,7 @@ NAMESPACE_END( CUL::GUTILS )
 NAMESPACE_BEGIN( LOGLW )
 class Program;
 class IGameEngine;
-class IQuad;
+class Quad;
 class IObject;
 class IUtility;
 class IObjectFactory;
@@ -73,7 +73,7 @@ private:
 
     std::mutex m_boardMtx;
     std::atomic<bool> m_boardInitializedB = false;
-    std::vector<std::vector<LOGLW::IQuad*>> m_background;
+    std::vector<std::vector<LOGLW::Quad*>> m_background;
     std::condition_variable m_boardInitialized;
 
     SDL2W::MouseData m_mouseData;
@@ -110,7 +110,7 @@ private:
 
     unsigned m_secondsToStartGame = 2;
     std::atomic<unsigned> m_moveDelayMs = 600;
-    std::atomic<unsigned> m_deltaTime = 16;
+    std::atomic<unsigned> m_deltaTime = 8;
 
     int m_rowsCount = 0;
     int m_colsCount = 0;

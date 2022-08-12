@@ -74,8 +74,6 @@ void Sprite::init()
     if( !getUtility()->isLegacy() )
     {
         m_shaderProgram = getEngine().createProgram();
-        m_shaderProgram->initialize();
-        m_shaderProgram->enable();
 
         const std::string vertexShaderSource =
 #include "embedded_shaders/camera.vert"
@@ -85,13 +83,8 @@ void Sprite::init()
 #include "embedded_shaders/camera.frag"
             ;
 
-        auto fragmentShaderFile = m_cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.frag" );
-        fragmentShaderFile->loadFromString( fragmentShaderSource );
-        auto fragmentShader = new Shader( getEngine(), fragmentShaderFile );
-
-        auto vertexShaderCode = m_cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.vert" );
-        vertexShaderCode->loadFromString( vertexShaderSource );
-        auto vertexShader = new Shader( getEngine(), vertexShaderCode );
+        auto fragmentShader = getEngine().createShader( "embedded_shaders/camera.frag", fragmentShaderSource );
+        auto vertexShader = getEngine().createShader( "embedded_shaders/camera.vert", vertexShaderSource );
 
         m_shaderProgram->attachShader( vertexShader );
         m_shaderProgram->attachShader( fragmentShader );
@@ -179,7 +172,7 @@ void Sprite::init()
         getUtility()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
 
         m_shaderProgram->enable();
-        m_shaderProgram->setAttrib( "texture1", 0 );
+        m_shaderProgram->setUniform( "texture1", 0 );
         m_shaderProgram->disable();
     }
     m_initialized = true;
@@ -202,9 +195,9 @@ void Sprite::renderModern()
     auto projectionMatrix = m_camera->getProjectionMatrix();
     auto viewMatrix = m_camera->getViewMatrix();
 
-    m_shaderProgram->setAttrib( "projection", projectionMatrix );
-    m_shaderProgram->setAttrib( "view", viewMatrix );
-    m_shaderProgram->setAttrib( "model", model );
+    m_shaderProgram->setUniform( "projection", projectionMatrix );
+    m_shaderProgram->setUniform( "view", viewMatrix );
+    m_shaderProgram->setUniform( "model", model );
 
     getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo );
 

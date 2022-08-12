@@ -128,9 +128,9 @@ void QuadImpl::render()
     auto projectionMatrix = m_camera->getProjectionMatrix();
     auto viewMatrix = m_camera->getViewMatrix();
 
-    m_shaderProgram->setAttrib( "projection", projectionMatrix );
-    m_shaderProgram->setAttrib( "view", viewMatrix );
-    m_shaderProgram->setAttrib( "model", model );
+    m_shaderProgram->setUniform( "projection", projectionMatrix );
+    m_shaderProgram->setUniform( "view", viewMatrix );
+    m_shaderProgram->setUniform( "model", model );
 
     getUtility()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 6 );
     //m_shaderProgram->disable();

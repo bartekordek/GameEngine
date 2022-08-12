@@ -140,7 +140,7 @@ const glm::mat4 TransformComponent::getModel()
 
 glm::vec3 TransformComponent::getPivotReal()
 {
-    return m_pivot.toGlmVec() * m_size.toGlmVec() / 2.f;
+    return m_pivot.toGlmVec() * m_size.toGlmVec();
 }
 
 glm::vec3 TransformComponent::getPivotNormalized()

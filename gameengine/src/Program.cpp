@@ -6,6 +6,8 @@
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 #include "CUL/Filesystem/FileFactory.hpp"
 
+#include "CUL/STL_IMPORTS/STD_atomic.hpp"
+
 using namespace LOGLW;
 
 Program::Program( IGameEngine& engine ) : m_engine( engine )
@@ -32,15 +34,16 @@ bool Program::initialized() const
 void Program::initialize()
 {
     m_id = getUtility()->createProgram();
+    m_initialized = true;
 }
 
 
-void Program::setAttrib( const String&, const char* )
+void Program::setUniform( const String&, const char* )
 {
     // TODO
 }
 
-void Program::setAttrib( const String& name, float value )
+void Program::setUniform( const String& name, float value )
 {
     ValueToSet task;
     task.name = name;
@@ -48,47 +51,56 @@ void Program::setAttrib( const String& name, float value )
     pushTask( task );
 }
 
-void Program::setAttrib( const String& name, unsigned value )
+void Program::setUniform( const String& name, unsigned value )
 {
-    auto location = getUtility()->getUniformLocation( m_id, name );
-    getUtility()->setAttribValue( location, value );
-}
+    getUtility()->useProgram( m_id );
 
-void Program::setAttrib( const String& name, int value )
-{
-    auto location = getUtility()->getUniformLocation( m_id, name );
-    getUtility()->setAttribValue( location, value );
-}
-
-void Program::setAttrib( const String& name, bool value )
-{
-    auto location = getUtility()->getUniformLocation( m_id, name );
-    getUtility()->setAttribValue( location, value );
-}
-
-void Program::setAttrib( const String& name, const glm::mat2& value )
-{
-    auto location = getUtility()->getUniformLocation( m_id, name );
+    auto location = getUniformLocation( name );
     getUtility()->setUniformValue( location, value );
 }
 
-void Program::setAttrib( const String& name, const glm::mat3& value )
+void Program::setUniform( const String& name, int value )
 {
-    auto location = getUtility()->getUniformLocation( m_id, name );
+    getUtility()->useProgram( m_id );
+
+    auto location = getUniformLocation( name );
     getUtility()->setUniformValue( location, value );
 }
 
-void Program::setAttrib( const String& name, const glm::mat4& val )
+void Program::setUniform( const String& name, bool value )
 {
-    auto location = getUtility()->getUniformLocation( m_id, name );
-    //const std::string valueAsString = glm::to_string( val );
-    //getUtility()->getCUl()->getLogger()->log( "setAttrib: " + name + ", val: " + valueAsString );
+    getUtility()->useProgram( m_id );
+
+    auto location = getUniformLocation( name );
+    getUtility()->setUniformValue( location, value );
+}
+
+void Program::setUniform( const String& name, const glm::mat2& value )
+{
+    getUtility()->useProgram( m_id );
+
+    auto location = getUniformLocation( name );
+    getUtility()->setUniformValue( location, value );
+}
+
+void Program::setUniform( const String& name, const glm::mat3& value )
+{
+    auto location = getUniformLocation( name );
+    getUtility()->setUniformValue( location, value );
+}
+
+void Program::setUniform( const String& name, const glm::mat4& val )
+{
+    getUtility()->useProgram( m_id );
+
+    auto location = getUniformLocation( name );
     getUtility()->setUniformValue( location, val );
 }
 
-void Program::setAttrib( const String& name, const glm::vec4& value )
+void Program::setUniform( const String& name, const glm::vec4& value )
 {
-    auto location = getUtility()->getUniformLocation( m_id, name );
+    getUtility()->useProgram( m_id );
+    auto location = getUniformLocation( name );
     getUtility()->setUniformValue( location, value );
 }
 
@@ -103,6 +115,17 @@ Shader* Program::loadShader( const char* path )
     return result;
 }
 
+unsigned Program::getUniformLocation( const String& name )
+{
+    auto it = m_uniformMap.find( name );
+    if( it == m_uniformMap.end() )
+    {
+        auto location = getUtility()->getUniformLocation( m_id, name );
+        m_uniformMap[name] = location;
+        return location;
+    }
+    return it->second;
+}
 
 String Program::getAttributeStr( const String& )
 {
@@ -165,8 +188,8 @@ void Program::reloadShaderImpl()
 
 void Program::attachShader( Shader* shader )
 {
-    std::lock_guard<std::mutex> lock( m_operationMutex );
     auto shaderId = shader->getId();
+    shader->addUsedFrom( this );
 
     auto attachTask = [this, shaderId]() {
         getUtility()->attachShader( m_id, shaderId );
@@ -189,7 +212,6 @@ void Program::attachShader( Shader* shader )
 
 void Program::dettachShader( Shader* shader )
 {
-    std::lock_guard<std::mutex> lock( m_operationMutex );
     auto it = m_attachedShaders.find( shader->getPath() );
     m_attachedShaders.erase( it );
 }
@@ -197,7 +219,6 @@ void Program::dettachShader( Shader* shader )
 void Program::link()
 {
     auto linkTask = [this]() {
-        std::lock_guard<std::mutex> lock( m_operationMutex );
         getUtility()->linkProgram( m_id );
     };
 
@@ -215,7 +236,6 @@ void Program::link()
 
 void Program::enable()
 {
-    std::lock_guard<std::mutex> lock( m_operationMutex );
     getUtility()->useProgram( m_id );
 }
 
@@ -227,7 +247,6 @@ void Program::disable()
 void Program::validate()
 {
     auto validateTask = [this]() {
-        std::lock_guard<std::mutex> lock( m_operationMutex );
         getUtility()->validateProgram( m_id );
     };
 
@@ -251,7 +270,6 @@ void Program::render()
 
 void Program::goThroughTasks()
 {
-    std::lock_guard<std::mutex> tasksGuard( m_operationMutex );
     while( !m_tasks.empty() )
     {
         processTask( m_tasks.front() );
@@ -261,7 +279,6 @@ void Program::goThroughTasks()
 
 void Program::pushTask( ValueToSet& task )
 {
-    std::lock_guard<std::mutex> tasksGuard( m_operationMutex );
     m_tasks.push_back( task );
 }
 
@@ -319,23 +336,71 @@ Program::~Program()
 
 void Program::release()
 {
-    const auto shadersSize = m_attachedShaders.size();
-    String logVal;
-    logVal = String( "Shaders to free: " ) + String( (int)shadersSize );
-    m_logger->log( logVal );
+    auto releaseTask = [this]() {
+        const auto shadersSize = m_attachedShaders.size();
+        String logVal;
+        logVal = String( "Shaders to free: " ) + String( (int)shadersSize );
+        m_logger->log( logVal );
 
-    for( auto shaderPair : m_attachedShaders )
+        for( auto shaderPair : m_attachedShaders )
+        {
+            Shader* shader = shaderPair.second;
+            shader->removeUsedFrom( this );
+            getUtility()->dettachShader( m_id, shader->getId() );
+            if( shader->getUsedFromCount() == 0 )
+            {
+                m_engine.removeShader( shader );
+            }
+        }
+
+        m_attachedShaders.clear();
+
+        releaseProgram();
+    };
+
+    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
-        delete shaderPair.second;
+        releaseTask();
     }
+    else
+    {
+        std::atomic_bool released = false;
+        m_engine.addRenderThreadTask( [releaseTask, &released]() {
+            releaseTask();
+            released = true;
+        } );
 
-    m_attachedShaders.clear();
-
-    releaseProgram();
+        while( !released )
+        {
+        }
+    }
 }
 
 void Program::releaseProgram()
 {
-    getUtility()->removeProgram( m_id );
-    m_id = 0;
+    String logValue = "Releasing program: "  + String( m_id ) + "...";
+    m_logger->log( logValue );
+    auto removeShaderTask = [this]() {
+        getUtility()->removeProgram( m_id );
+        m_id = 0;
+    };
+
+    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        removeShaderTask();
+    }
+    else
+    {
+        std::atomic_bool shaderRemoved = false;
+        m_engine.addRenderThreadTask( [removeShaderTask, &shaderRemoved]() {
+            removeShaderTask();
+            shaderRemoved = true;
+        } );
+
+        while( !shaderRemoved )
+        {
+        }
+    }
+
+    m_logger->log( logValue + " done." );
 }

@@ -224,9 +224,11 @@ public:
 
     virtual unsigned int createProgram() = 0;
     virtual void removeProgram( unsigned programId ) = 0;
-    virtual void useProgram( unsigned programId ) = 0;
+    void useProgram( int programId );
     virtual void linkProgram( unsigned programId ) = 0;
     virtual void validateProgram( unsigned programId ) = 0;
+
+    int getCurrentProgram() const;
 
     virtual unsigned int createShader( const IFile& shaderCode ) = 0;
     virtual void attachShader( unsigned programId, unsigned shaderId ) = 0;
@@ -244,6 +246,7 @@ public:
     virtual void setUniformValue( int uniformLocation, float value ) = 0;
     virtual void setUniformValue( int uniformLocation, int value ) = 0;
     virtual void setUniformValue( int uniformLocation, unsigned value ) = 0;
+
 
     void setUniformValue( int uniformLocation, const glm::vec2& val );
     void setUniformValue( int uniformLocation, const glm::vec3& val );
@@ -287,7 +290,7 @@ public:
     virtual void enableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
     virtual void disableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
     virtual unsigned int getAttribLocation( unsigned programId, const String& attribName ) = 0;
-    virtual unsigned int getUniformLocation( unsigned programId, const String& attribName ) = 0;
+    unsigned int getUniformLocation( unsigned programId, const String& attribName );
     virtual void unbindBuffer( const BufferTypes bufferType ) = 0;
     virtual void bindBuffer( const BufferTypes bufferType, unsigned bufferId ) = 0;
     // virtual void bindBuffer( VertexArray* vao )  = 0;
@@ -349,6 +352,10 @@ public:
     unsigned getGPUTotalAvailableMemoryKb();
     unsigned getGPUCurrentAvailableMemoryKb();
 
+    void toggleDebugOutput( bool enable );
+
+    void getLastOperationStatus();
+
     virtual ~IUtility();
 
 protected:
@@ -366,6 +373,8 @@ private:
 
     mutable String m_lastLog;
     CUL::LOG::Severity m_lastLogSeverity;
+
+    int m_currentProgram = 0;
 };
 
 NAMESPACE_END( LOGLW )
