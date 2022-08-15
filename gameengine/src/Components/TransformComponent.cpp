@@ -23,18 +23,7 @@ void TransformComponent::setWorldPosition( Pos::Type x, Pos::Type y, Pos::Type z
 
 const TransformComponent::Pos TransformComponent::getWorldPosition() const
 {
-    //IObject* parent = m_owner.getParent();
-    //if(parent)
-    //{
-    //    TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
-    //    if( parentTransform )
-    //    {
-    //        TransformComponent::Pos parentPos = parentTransform->getWorldPosition();
-    //        return m_pos + parentPos;
-    //    }
-    //}
-
-    return m_pos;
+    return m_pos - m_pivotReal;
 }
 
 void TransformComponent::setWorldAngle( CUL::MATH::EulerAngles type, const CUL::MATH::Angle& angle )
@@ -140,7 +129,8 @@ const glm::mat4 TransformComponent::getModel()
 
 glm::vec3 TransformComponent::getPivotReal()
 {
-    return m_pivot.toGlmVec() * m_size.toGlmVec();
+    // return m_pivot.toGlmVec() * m_size.toGlmVec();
+    return m_pivotReal;
 }
 
 glm::vec3 TransformComponent::getPivotNormalized()
@@ -181,7 +171,7 @@ glm::mat4 TransformComponent::getTranslation()
     glm::mat4 result(1.f);
 
     const Pos& position = getWorldPosition();
-    glm::vec3 posVec = position.toGlmVec() - getPivotReal();
+    glm::vec3 posVec = position.toGlmVec();
     result = glm::translate( result, posVec );
 
     return result;
@@ -195,6 +185,7 @@ const TransformComponent::Pos& TransformComponent::getPivot() const
 void TransformComponent::setPivot( const TransformComponent::Pos& pivot )
 {
     m_pivot = pivot;
+    m_pivotReal = m_size.toGlmVec() * m_pivot.toGlmVec();
 }
 
 void TransformComponent::addOnChangeCallback(const String& callbackName, const std::function<void( const Pos& position )> callback)
@@ -213,6 +204,7 @@ void TransformComponent::addOnChangeCallback(const String& callbackName, const s
 void TransformComponent::setSize( const Pos& size )
 {
     m_size = size;
+    m_pivotReal = m_size.toGlmVec() * m_pivot.toGlmVec();
     changeSizeDelegate.execute();
 }
 

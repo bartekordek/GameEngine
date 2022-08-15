@@ -63,6 +63,7 @@ private:
     Pos m_size;
     Pos m_pos;
     Pos m_pivot = Pos( 0.5f, 0.5f, 0.0f );
+    Pos m_pivotReal = { 0.f, 0.f, 0.f };
 
     CUL::MATH::Rotation m_rotation;
 
