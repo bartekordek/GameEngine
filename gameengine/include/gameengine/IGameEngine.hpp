@@ -136,7 +136,7 @@ public:
 
     virtual void addRenderThreadTask( const std::function<void( void )>& task ) = 0;
 
-    ImGuiContext* const getGuiContext() const;
+    ImGuiContext* getGuiContext() const;
     void setGuiContext( ImGuiContext* const inContext );
 
     CUL::GUTILS::SimpleDelegate guiFrameDelegate;

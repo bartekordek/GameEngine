@@ -49,16 +49,10 @@ ENDIF()
 
 set( DEPENDENCIES_STATIC
 PRIVATE gameengine_static
-PRIVATE LOGLW-AdditionalDeps
-PRIVATE cul_static
-PRIVATE AdditionalDeps
 )
 
 set( DEPENDENCIES_DYNAMIC
 PRIVATE gameengine_dynamic
-PRIVATE LOGLW-AdditionalDeps
-PRIVATE cul
-PRIVATE AdditionalDeps
 )
 
 if( MSVC )

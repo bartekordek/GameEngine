@@ -178,7 +178,7 @@ unsigned IGameEngine::getGPUCurrentAvailableMemoryKb()
     return getUtility()->getGPUCurrentAvailableMemoryKb();
 }
 
-ImGuiContext* const IGameEngine::getGuiContext() const
+ImGuiContext* IGameEngine::getGuiContext() const
 {
     return m_ImGuiContext;
 }

@@ -4,27 +4,6 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "[LINUX][CMAKE][CREATE][DEBUG]",
-            "type": "shell",
-            "command": "cmake .. -DCMAKE_BUILD_TYPE=Debug",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "options": {
-                "cwd": "${workspaceFolder}/Build-Linux"
-            },
-            "dependsOn": "[LINUX][CMAKE][CREATE DIR]"
-        },
-        {
             "label": "[WINDOWS][CMAKE][CREATE][DEBUG]",
             "type": "shell",
             "command": "CreateProjects.bat Debug",
@@ -44,7 +23,7 @@
         {
             "label": "[LINUX][CMAKE][CREATE][DEBUG]",
             "type": "shell",
-            "command": "CreateProjects.bat Debug",
+            "command": "./CreateProjects.sh Debug",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -56,6 +35,9 @@
                 "panel": "dedicated",
                 "showReuseMessage": false,
                 "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
             }
         },
         {
@@ -306,7 +288,8 @@
             },
             "problemMatcher": [
                 "$msCompile"
-            ]
+            ],
+            "dependsOn": "[WINDOWS][CMAKE][CREATE][DEBUG]"
         },
         {
             "label": "[WINDOWS][DEBUG][BUILLD][snake_static]",
@@ -334,6 +317,32 @@
             ]
         },
         {
+            "label": "[LINUX][DEBUG][BUILLD][snake_dynamic]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build-Linux",
+                "--config",
+                "DEBUG",
+                "-j1",
+                "--target",
+                "snake_dynamic"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "dependsOn": "[LINUX][CMAKE][CREATE][DEBUG]"
+        },
+        {
             "label": "[LINUX][DEBUG][BUILLD][snake_static]",
             "type": "shell",
             "command": "cmake",
@@ -356,7 +365,8 @@
             },
             "problemMatcher": [
                 "$msCompile"
-            ]
+            ],
+            "dependsOn": "[LINUX][CMAKE][CREATE][DEBUG]"
         }
     ]
 }
