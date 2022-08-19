@@ -8,7 +8,7 @@
 #include "Primitives/QuadImpl.hpp"
 #include "Primitives/QuadImplLegacy.hpp"
 #include "Primitives/TriangleImpl.hpp"
-#include "ImportImgui.hpp"
+#include "LOGLWAdditionalDeps/ImportImgui.hpp"
 #include "ObjLoader.hpp"
 #include "gameengine/Sprite.hpp"
 #include "TextureConcrete.hpp"
@@ -418,7 +418,8 @@ void GameEngineConcrete::initDebugInfo()
     if( !m_debugDrawInitialized )
     {
         IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
+        auto imguiContext = ImGui::CreateContext();
+        setGuiContext( imguiContext );
         ImGui::StyleColorsDark();
 
         ImGui_ImplSDL2_InitForOpenGL( *m_activeWindow, getContext().glContext );
@@ -582,7 +583,6 @@ void GameEngineConcrete::calculateNextFrameLengths()
 #endif
 void GameEngineConcrete::renderInfo()
 {
-
     const auto& winSize = m_activeWindow->getSize();
 
     ImGui_ImplOpenGL2_NewFrame();
@@ -727,6 +727,18 @@ void GameEngineConcrete::renderInfo()
     ImGui::Text( "m_usDelta: %d", m_usDelta );
 
     ImGui::End();
+
+    {
+        std::lock_guard<std::mutex> locker( m_guiTasksMtx );
+        while( false == m_guiTasks.empty() )
+        {
+            auto task = m_guiTasks.front();
+            task();
+            m_guiTasks.pop();
+        }
+    }
+
+    guiFrameDelegate.execute();
 
     ImGui::Render();
 

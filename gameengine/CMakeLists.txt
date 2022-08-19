@@ -37,7 +37,7 @@ add_library( ${PROJECT_NAME_STATIC} STATIC ${SOURCES} )
 add_library( ${PROJECT_NAME_DYNAMIC} SHARED ${SOURCES} )
 
 set( DEPENDENCIES_STATIC
-PRIVATE LOGLW-AdditionalDeps
+PUBLIC LOGLW-AdditionalDeps
 PUBLIC sdl2wrapper_static
 PRIVATE glew
 PRIVATE glfw
@@ -46,7 +46,7 @@ PRIVATE tinyobjloader
 )
 
 set( DEPENDENCIES_DYNAMIC
-PRIVATE LOGLW-AdditionalDeps
+PUBLIC LOGLW-AdditionalDeps
 PUBLIC sdl2wrapper_dynamic
 PRIVATE glew
 PRIVATE glfw

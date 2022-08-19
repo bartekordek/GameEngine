@@ -74,6 +74,12 @@ Quad* IGameEngine::createQuad( IObject* parent )
     return result;
 }
 
+void IGameEngine::addGuiTask( std::function<void(void)> task )
+{
+    std::lock_guard<std::mutex> lockSection( m_guiTasksMtx );
+    m_guiTasks.push( task );
+}
+
 VertexArray* IGameEngine::createVAO()
 {
     auto result = new VertexArray( *this );
@@ -170,6 +176,16 @@ unsigned IGameEngine::getGPUTotalAvailableMemoryKb()
 unsigned IGameEngine::getGPUCurrentAvailableMemoryKb()
 {
     return getUtility()->getGPUCurrentAvailableMemoryKb();
+}
+
+ImGuiContext* const IGameEngine::getGuiContext() const
+{
+    return m_ImGuiContext;
+}
+
+void IGameEngine::setGuiContext( ImGuiContext* const inContext )
+{
+    m_ImGuiContext = inContext;
 }
 
 Shader* IGameEngine::createShader( const String& path, const String& source )

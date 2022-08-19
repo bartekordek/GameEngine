@@ -13,6 +13,7 @@
 #include "CUL/Log/ILogContainer.hpp"
 #include "CUL/Math/Vector3D.hpp"
 #include "CUL/String.hpp"
+#include "CUL/GenericUtils/SimpleDelegate.hpp"
 
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
 #include "CUL/STL_IMPORTS/STD_queue.hpp"
@@ -28,6 +29,8 @@ class IWindow;
 class ISDL2Wrapper;
 struct WinSize;
 NAMESPACE_END( SDL2W )
+
+struct ImGuiContext;
 
 NAMESPACE_BEGIN( LOGLW )
 
@@ -133,6 +136,11 @@ public:
 
     virtual void addRenderThreadTask( const std::function<void( void )>& task ) = 0;
 
+    ImGuiContext* const getGuiContext() const;
+    void setGuiContext( ImGuiContext* const inContext );
+
+    CUL::GUTILS::SimpleDelegate guiFrameDelegate;
+
 
     // Shaders
     class Program* createProgram();
@@ -143,6 +151,8 @@ public:
     void removeShader( const String& path );
 
     void releaseResources();
+
+    void addGuiTask( std::function<void(void)> task );
 
     virtual ~IGameEngine();
 
@@ -155,6 +165,9 @@ protected:
     std::mutex m_objectsToRenderMtx;
     std::set<IRenderable*> m_objectsToRender;
     bool m_gridEnabled = false;
+
+    std::mutex m_guiTasksMtx;
+    std::queue<std::function<void( void )>> m_guiTasks;
 
 private:
     Shader* findShader( const String& path ) const;
@@ -171,6 +184,8 @@ private:
 
     std::map<Program*, std::unique_ptr<Program>> m_shadersPrograms;
     std::map<String, Shader*> m_shaders;
+
+    ImGuiContext* m_ImGuiContext = nullptr;
 };
 
 NAMESPACE_END( LOGLW )

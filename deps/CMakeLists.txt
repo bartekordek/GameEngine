@@ -56,3 +56,6 @@ if (MSVC)
 else()
     target_link_libraries( ${EXEC} ${DEPENDENCIES} stdc++fs )
 endif()
+
+
+target_include_directories(${EXEC} PUBLIC inc)
