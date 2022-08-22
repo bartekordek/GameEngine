@@ -55,6 +55,7 @@ set( GLEW_INCLUDE_DIRS ${GLEW_HOME}/include )
 set( GLFW_INCLUDE_DIR ${GLFW_HOME}/include )
 
 list(APPEND CMAKE_MODULE_PATH ${GLEW_HOME} )
+set( GLFW_LIBRARY_TYPE STATIC CACHE STRING "BUILD STATIC" FORCE )
 add_subdirectory( ${GLEW_HOME}/build/cmake )
 add_subdirectory( ${GLFW_HOME} )
 
