@@ -8,6 +8,7 @@
 #include "SDL2Wrapper/Input/IKeyboardObserver.hpp"
 #include "SDL2Wrapper/Input/IMouseObserver.hpp"
 #include "SDL2Wrapper/WindowData.hpp"
+#include "SDL2Wrapper/Input/MouseData.hpp"
 
 #include "CUL/Graphics/Pos2D.hpp"
 #include "CUL/TimeConcrete.hpp"

@@ -19,6 +19,7 @@
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
+#include "SDL2Wrapper/Input/MouseData.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/GenericUtils/ConsoleUtilities.hpp"

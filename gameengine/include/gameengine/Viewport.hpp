@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gameengine/Import.hpp"
+
 #include "CUL/Graphics/Pos2D.hpp"
 #include "CUL/Graphics/Size2D.hpp"
 #include "CUL/ISerializable.hpp"

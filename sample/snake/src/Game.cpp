@@ -7,6 +7,7 @@
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
+#include "SDL2Wrapper/Input/IKey.hpp"
 
 #include "CUL/ITimer.hpp"
 

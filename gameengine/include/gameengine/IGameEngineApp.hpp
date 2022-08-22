@@ -5,6 +5,8 @@
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/Input/IKeyboardObserver.hpp"
 #include "SDL2Wrapper/Input/IMouseObserver.hpp"
+#include "SDL2Wrapper/IWindowEventObservable.hpp"
+#include "SDL2Wrapper/IWindowEventListener.hpp"
 
 #include "CUL/ITimer.hpp"
 
