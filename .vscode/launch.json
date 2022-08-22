@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "[RUN][WINDOWS][playgroundApp]",
+            "name": "[RUN][WINDOWS][playgroundApp_static]",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/Build-Windows/Debug/playgroundApp.exe",
+            "program": "${workspaceFolder}/Build-Windows/Debug/playgroundApp_static.exe",
             "cwd": "${workspaceFolder}/sample/playgroundApp",
             "symbolSearchPath": "${workspaceFolder}/Build-Windows/Debug/",
             "args": [
