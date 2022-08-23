@@ -91,6 +91,31 @@
             ]
         },
         {
+            "label": "[WINDOWS][DEBUG][BUILLD][sdl2wrapper_static]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build-Windows",
+                "--config",
+                "DEBUG",
+                "-j16",
+                "--target",
+                "sdl2wrapper_static"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {
             "label": "[WINDOWS][DEBUG][BUILLD][libsdl2wrapperTestApp_dynamic]",
             "type": "shell",
             "command": "cmake",
@@ -313,8 +338,7 @@
             },
             "problemMatcher": [
                 "$msCompile"
-            ],
-            "dependsOn": "[WINDOWS][CMAKE][CREATE][DEBUG]"
+            ]
         },
         {
             "label": "[WINDOWS][DEBUG][BUILLD][snake_static]",
@@ -364,8 +388,7 @@
             },
             "problemMatcher": [
                 "$msCompile"
-            ],
-            "dependsOn": "[LINUX][CMAKE][CREATE][DEBUG]"
+            ]
         },
         {
             "label": "[LINUX][DEBUG][BUILLD][snake_static]",
@@ -390,8 +413,30 @@
             },
             "problemMatcher": [
                 "$msCompile"
+            ]
+        },
+        {
+            "label": "[WINDOWS][DEBUG][BUILLD][ALL]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build-Windows",
+                "--config",
+                "DEBUG",
+                "-j16"
             ],
-            "dependsOn": "[LINUX][CMAKE][CREATE][DEBUG]"
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
         }
     ]
 }
