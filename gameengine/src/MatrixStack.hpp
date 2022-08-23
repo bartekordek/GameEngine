@@ -1,34 +1,16 @@
 #pragma once
 
 #include "gameengine/Import.hpp"
-#include "CUL/GenericUtils/SimpleAssert.hpp"
-#include "ImportFreeglut.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
 
-class MatrixStack
+class MatrixStack final
 {
 public:
-    MatrixStack()
-    {
-    }
-
-    ~MatrixStack()
-    {
-
-    }
-
-    void push()
-    {
-        glPushMatrix();
-        ++m_currentMatrix;
-    }
-
-    void pop()
-    {
-        glPopMatrix();
-        --m_currentMatrix;
-    }
+    MatrixStack();
+    void push();
+    void pop();
+    ~MatrixStack();
 
 protected:
 private:
