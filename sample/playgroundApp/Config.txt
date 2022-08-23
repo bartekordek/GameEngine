@@ -8,3 +8,5 @@ Z_FAR -8.0
 EYE_Z 220.0
 CENTER_Z -8
 CENTER_Y 0.0
+
+RENDERER opengl

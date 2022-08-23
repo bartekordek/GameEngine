@@ -2,6 +2,7 @@
 #include "gameengine/Camera.hpp"
 #include "gameengine/IDebugOverlay.hpp"
 #include "gameengine/Sprite.hpp"
+#include "gameengine/EngineParams.hpp"
 
 #include "SDL2Wrapper/Input/IKey.hpp"
 #include "SDL2Wrapper/IWindowEventListener.hpp"
@@ -96,7 +97,15 @@ int main( int argc, char** argv )
 
     CUL::Graphics::Pos2Di winPos = { 200, 200 };
     SDL2W::WinSize winSize = { width, height };
-    g_oglw = LOGLW::IGameEngine::createGameEngine( false, winPos, winSize, "Config.txt", "gameenginePlaygroundApp", "opengl" );
+
+    LOGLW::EngineParams engineParams;
+    engineParams.configPath = "Config.txt";
+    engineParams.legacy = false;
+    engineParams.windowPosition = winPos;
+    engineParams.winSize = winSize;
+    engineParams.winName = "gameenginePlaygroundApp";
+
+    g_oglw = LOGLW::IGameEngine::createGameEngine( engineParams );
     g_oglw->addMouseEventCallback( onMouseEvent );
     g_configFile = g_oglw->getConfig();
 

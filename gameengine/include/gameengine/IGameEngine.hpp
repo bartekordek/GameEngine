@@ -7,7 +7,7 @@
 #include "SDL2Wrapper/Input/IMouseObservable.hpp"
 
 #include "CUL/Graphics/Color.hpp"
-#include "CUL/Graphics/Pos2D.hpp"
+
 #include "CUL/GenericUtils/ITask.hpp"
 #include "CUL/Graphics/IImageLoader.hpp"
 #include "CUL/Log/ILogContainer.hpp"
@@ -44,6 +44,7 @@ class Quad;
 class Viewport;
 class IUtility;
 class Shader;
+struct EngineParams;
 
 using String = CUL::String;
 
@@ -109,8 +110,7 @@ public:
     virtual class VertexBuffer* createVBO( std::vector<float>& data ) = 0;
 
     static IGameEngine* createGameEngine( SDL2W::ISDL2Wrapper* sdl2w, bool legacy = false );
-    static IGameEngine* createGameEngine( bool legacy, const CUL::Graphics::Pos2Di& pos, const SDL2W::WinSize& winSize,
-                                          const String& configPath, const String& winName = "", const String& renderername = "opengl" );
+    static IGameEngine* createGameEngine( const EngineParams& engineParam );
 
     static IGameEngine* getInstance();
 

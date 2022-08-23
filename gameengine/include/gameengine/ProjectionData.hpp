@@ -3,6 +3,7 @@
 #include "gameengine/Import.hpp"
 
 #include "SDL2Wrapper/IWindow.hpp"
+#include "SDL2Wrapper/WinSize.hpp"
 
 #include "CUL/GenericUtils/IOnChange.hpp"
 #include "CUL/GenericUtils/ValueChangeHook.hpp"

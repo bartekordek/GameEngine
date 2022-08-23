@@ -5,6 +5,7 @@
 #include "gameengine/Cube.hpp"
 #include "gameengine/Program.hpp"
 #include "gameengine/VertexArray.hpp"
+#include "gameengine/EngineParams.hpp"
 
 #include "SDL2Wrapper/WindowData.hpp"
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
@@ -25,19 +26,18 @@ IGameEngine* IGameEngine::createGameEngine( SDL2W::ISDL2Wrapper* sdl2w, bool leg
     return s_instance;
 }
 
-IGameEngine* IGameEngine::createGameEngine( bool legacy, const CUL::Graphics::Pos2Di& pos, const SDL2W::WinSize& winSize,
-                                            const String& configPath, const String& winName, const String& renderername )
+IGameEngine* IGameEngine::createGameEngine( const EngineParams& engineParam  )
 {
     SDL2W::WindowData windowData;
-    windowData.name = winName;
-    windowData.pos = pos;
-    windowData.currentRes = winSize;
-    windowData.rendererName = renderername;
+    windowData.name = engineParam.winName;
+    windowData.pos = engineParam.windowPosition;
+    windowData.currentRes = engineParam.winSize;
+    windowData.rendererName = engineParam.rendererName;
 
     auto sdlWrap = SDL2W::ISDL2Wrapper::createSDL2Wrapper();
-    sdlWrap->init( windowData, configPath );
+    sdlWrap->init( windowData, engineParam.configPath );
 
-    s_instance = new GameEngineConcrete( sdlWrap, legacy );
+    s_instance = new GameEngineConcrete( sdlWrap, engineParam.legacy );
     return s_instance;
 }
 
