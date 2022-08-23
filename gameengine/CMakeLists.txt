@@ -40,7 +40,7 @@ set( DEPENDENCIES_STATIC
 PUBLIC LOGLW-AdditionalDeps
 PUBLIC sdl2wrapper_static
 PRIVATE glew_s
-PRIVATE glfw
+PUBLIC glfw
 PRIVATE freeglut_static
 PRIVATE tinyobjloader
 )
@@ -49,7 +49,7 @@ set( DEPENDENCIES_DYNAMIC
 PUBLIC LOGLW-AdditionalDeps
 PUBLIC sdl2wrapper_dynamic
 PRIVATE glew
-PRIVATE glfw
+PUBLIC glfw
 PRIVATE freeglut_static
 PRIVATE tinyobjloader
 )
