@@ -24,10 +24,10 @@
             }
         },
         {
-            "name": "[RUN][WINDOWS][snake]",
+            "name": "[RUN][WINDOWS][snake_static]",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/Build-Windows/Debug/snake.exe",
+            "program": "${workspaceFolder}/Build-Windows/Debug/snake_static.exe",
             "cwd": "${workspaceFolder}/sample/snake",
             "symbolSearchPath": "${workspaceFolder}/Build-Windows/Debug/",
             "args": [
@@ -40,7 +40,8 @@
             "logging": {
                 "moduleLoad": false,
                 "trace": true,
-            }
+            },
+            "preLaunchTask": "[WINDOWS][DEBUG][BUILLD][snake_static]"
         },
         {
             "name": "Linux Debug",
