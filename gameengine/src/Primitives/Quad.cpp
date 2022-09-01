@@ -14,6 +14,7 @@ using namespace LOGLW;
 
 Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &engine ), m_camera( camera ), m_engine( engine )
 {
+    m_transformComponent = getTransform();
     setParent( parent );
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
@@ -119,20 +120,21 @@ void Quad::render()
 {
     if( getUtility()->isLegacy() )
     {
-        auto size = getTransform()->getSize();
+        auto size = m_transformComponent->getSize();
 
         QuadCUL quad;
-        quad[1][1] =  size.y();
+        quad[1][0] = size.x();
 
         quad[2][0] = size.x();
-        quad[2][1] =  size.y();
+        quad[2][1] = size.y();
 
-        quad[3][0] = size.x();
+        quad[3][1] = size.y();
 
         getUtility()->matrixStackPush();
 
-        const auto position = getTransform()->getWorldPosition();
-        const auto rotation = getTransform()->getWorldRotation();
+        const auto position = m_transformComponent->getWorldPosition();
+        const auto rotation = m_transformComponent->getWorldRotation();
+        const auto pivotReal = m_transformComponent->getPivotReal();
 
         getUtility()->translate( position );
 
@@ -166,7 +168,7 @@ void Quad::setTransformation()
     auto projectionMatrix = camera.getProjectionMatrix();
     auto viewMatrix = camera.getViewMatrix();
 
-    glm::mat4 model = getTransform()->getModel();
+    glm::mat4 model = m_transformComponent->getModel();
 
     m_shaderProgram->setUniform( "projection", projectionMatrix );
     m_shaderProgram->setUniform( "view", viewMatrix );

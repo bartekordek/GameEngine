@@ -458,12 +458,7 @@ void UtilConcrete::translate( const float x, const float y, const float z )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    // TODO: save modelview
-    // GLfloat mat[16];
-    // glGetFloatv(GL_MODELVIEW_MATRIX, mat);
     glTranslatef( x, y, z );
-    // glMatrixMode( GL_MODELVIEW_MATRIX );
-    // glLoadMatrixf( mat );
 }
 
 void UtilConcrete::scale( const CUL::MATH::Vector3Df& scale )

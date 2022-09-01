@@ -93,43 +93,49 @@ void Game::afterInit()
     m_mouseData = m_oglw->getMouseData();
 
     const float size = 32.f;
-    LOGLW::QuadData quadData;
-    quadData[0] = { -size / 2.f, -size / 2.f, 0.0f };
-    quadData[1] = { size / 2.f, -size / 2.f, 0.0f };
-    quadData[2] = { size / 2.f, size / 2.f, 0.0f };
-    quadData[3] = { -size / 2.f, size / 2.f, 0.0f };
 
     const float offset = size * 0.4f;
     size_t index = 0;
     const auto rowsCount = m_background.size();
-    const auto colsCount = m_background[0].size();
-
-    const float backgroundW = rowsCount * size + ( rowsCount - 1 ) * offset;
-    const float backgroundH = colsCount * size + ( colsCount - 1 ) * offset;
-
-    const float xOffset = size / 2 - backgroundW / 2;
-    const float yOffset = size / 2 - backgroundH / 2;
-
-    for( size_t row = 0; row < rowsCount; ++row )
+    if( rowsCount > 0 )
     {
-        for( size_t col = 0; col < colsCount; ++col )
+        const auto colsCount = m_background[0].size();
+
+        const float backgroundW = rowsCount * size + ( rowsCount - 1 ) * offset;
+        const float backgroundH = colsCount * size + ( colsCount - 1 ) * offset;
+
+        const float xOffset = size / 2 - backgroundW / 2;
+        const float yOffset = size / 2 - backgroundH / 2;
+
+        for( size_t row = 0; row < rowsCount; ++row )
         {
-            LOGLW::Quad* quad = m_oglw->createQuad( nullptr );
-            quad->getTransform()->setPivot( { 0.5f, 0.5f, 0.f } );
-            quad->getTransform()->setSize( { size, size, size } );
-            quad->getTransform()->setWorldPosition(
-                xOffset + col * ( size + offset ),
-                yOffset + row * ( size + offset ),
-                0.f );
-            m_background[row][col] = quad;
-            ++index;
+            for( size_t col = 0; col < colsCount; ++col )
+            {
+                LOGLW::Quad* quad = m_oglw->createQuad( nullptr );
+                quad->getTransform()->setPivot( { 0.5f, 0.5f, 0.f } );
+                quad->getTransform()->setSize( { size, size, size } );
+                quad->getTransform()->setWorldPosition( xOffset + col * ( size + offset ), yOffset + row * ( size + offset ), 0.f );
+                m_background[row][col] = quad;
+                ++index;
+            }
         }
     }
+
+    m_testQuadUp = m_oglw->createQuad( nullptr );
+    m_testQuadUp->getTransform()->setPivot( { 0.5f, 0.f, 0.f } );
+    m_testQuadUp->getTransform()->setSize( { size, size, size } );
+    m_testQuadUp->getTransform()->setWorldPosition( 0.f, 0.0f, 200.f );
+    m_testQuadUp->setColor( CUL::Graphics::ColorE::GREEN );
+
+    m_testQuadDown = m_oglw->createQuad( nullptr );
+    m_testQuadDown->getTransform()->setPivot( { 0.5f, 1.f, 0.f } );
+    m_testQuadDown->getTransform()->setSize( { size, size, size } );
+    m_testQuadDown->getTransform()->setWorldPosition( 0.0f, 0.f, 200.f );
+    m_testQuadDown->setColor( CUL::Graphics::ColorE::RED );
 
     m_boardInitializedB = true;
     m_boardInitialized.notify_one();
 
-    //m_eyePos = m_oglw->getProjectionData().getEye();
     m_eyePos = m_oglw->getCamera().getEye();
 }
 
@@ -242,13 +248,16 @@ void Game::changeSnakeMoveDirection( Snake::HeadDirection direction )
 
 void Game::randomizeCandy()
 {
-    srand( (unsigned)time( NULL ) );
-
-    do
+    if( m_rowsCount != 0 && m_colsCount != 0 )
     {
-        m_candyPos.row = rand() % m_rowsCount;
-        m_candyPos.col = rand() % m_colsCount;
-    } while( m_snake->isFieldSnake( m_candyPos ) );
+        srand( (unsigned)time( NULL ) );
+
+        do
+        {
+            m_candyPos.row = rand() % m_rowsCount;
+            m_candyPos.col = rand() % m_colsCount;
+        } while( m_snake->isFieldSnake( m_candyPos ) );
+    }
 }
 
 bool Game::isCandy( const Snake::Pos& pos ) const

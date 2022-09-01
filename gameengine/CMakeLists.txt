@@ -48,7 +48,7 @@ PRIVATE tinyobjloader
 set( DEPENDENCIES_DYNAMIC
 PUBLIC LOGLW-AdditionalDeps
 PUBLIC sdl2wrapper_dynamic
-PRIVATE glew
+PUBLIC glew
 PUBLIC glfw
 PRIVATE freeglut_static
 PRIVATE tinyobjloader

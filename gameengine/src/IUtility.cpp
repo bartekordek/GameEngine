@@ -578,7 +578,6 @@ void IUtility::toggleDebugOutput( bool enable )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-
     if( enable )
     {
         glEnable( GL_DEBUG_OUTPUT );

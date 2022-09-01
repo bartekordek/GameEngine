@@ -22,7 +22,8 @@ int main( int argc, char** argv )
         height = std::stoi( valH );
     }
 
-    Game snakeGame( 10, 10, { 64 , 64 }, { width, height } );
+    int size = 10;
+    Game snakeGame( size, size, { 64, 64 }, { width, height } );
     snakeGame.run();
 
     return 0;

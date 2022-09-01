@@ -124,4 +124,7 @@ private:
     std::vector<LOGLW::WindowSize> m_possibleSizes;
     size_t m_currentResolution = 0;
     LOGLW::Viewport m_viewport;
+
+    LOGLW::Quad* m_testQuadUp = nullptr;
+    LOGLW::Quad* m_testQuadDown = nullptr;
 };
