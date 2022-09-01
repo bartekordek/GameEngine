@@ -134,7 +134,6 @@ void Quad::render()
 
         const auto position = m_transformComponent->getWorldPosition();
         const auto rotation = m_transformComponent->getWorldRotation();
-        const auto pivotReal = m_transformComponent->getPivotReal();
 
         getUtility()->translate( position );
 
