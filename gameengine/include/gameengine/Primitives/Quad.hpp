@@ -41,6 +41,13 @@ private:
     IGameEngine& m_engine;
 
     CUL::Graphics::ColorS m_color;
+
+// Deleted
+private:
+    Quad( Quad& ) = delete;
+    Quad( Quad&& ) = delete;
+    Quad& operator=( const Quad& ) = delete;
+    Quad& operator=( const Quad&& ) = delete;
 };
 
 NAMESPACE_END( LOGLW )

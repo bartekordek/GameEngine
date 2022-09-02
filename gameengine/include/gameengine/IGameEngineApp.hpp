@@ -65,6 +65,13 @@ private:
     std::atomic<bool> m_runLogicThread = true;
     std::thread m_logicThread;
     std::unique_ptr<CUL::ITimer> m_logicTimer;
+
+// Deleted
+private:
+    IGameEngineApp( IGameEngineApp& ) = delete;
+    IGameEngineApp( IGameEngineApp&& ) = delete;
+    IGameEngineApp& operator=( const IGameEngineApp& ) = delete;
+    IGameEngineApp& operator=( const IGameEngineApp&& ) = delete;
 };
 
 NAMESPACE_END( LOGLW )
