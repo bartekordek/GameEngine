@@ -22,8 +22,6 @@ private:
 
     void setProjection( const Camera& rect ) override;
     void setViewport( const Viewport& viewport ) override;
-    void setPerspective( const Angle& angle, double widthToHeightRatio, double m_zNear, double m_zFar ) override;
-    void setPerspectiveProjection( const Camera& vp ) override;
     void lookAt( const Camera& vp ) override;
     void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;
     void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) override;

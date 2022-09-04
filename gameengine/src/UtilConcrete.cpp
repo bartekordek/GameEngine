@@ -94,35 +94,7 @@ void UtilConcrete::setViewport( const Viewport& viewport )
     }
     glViewport( viewport.pos.getX(), viewport.pos.getY(), viewport.size.getWidth(), viewport.size.getHeight() );
 }
-#if _MSC_VER
-#pragma warning( pop )
-#endif
 
-void UtilConcrete::setPerspective( const Angle& angle, double widthToHeightRatio, double m_zNear, double m_zFar )
-{
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
-    {
-        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
-    }
-
-    gluPerspective( angle.getValueD( CUL::MATH::Angle::Type::DEGREE ), widthToHeightRatio, m_zNear, m_zFar );
-}
-#if _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4189 )
-#endif
-void UtilConcrete::setPerspectiveProjection( const Camera& projectionData )
-{
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
-    {
-        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
-    }
-    auto fov = projectionData.getFov();
-    auto ar = projectionData.getAspectRatio();
-    auto zNear = projectionData.getZnear();
-    auto zFar = projectionData.getZfar();
-    gluPerspective( fov, ar, zNear, zFar );
-}
 #ifdef _MSC_VER
 #pragma warning( pop )
 #endif

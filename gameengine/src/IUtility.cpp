@@ -311,6 +311,18 @@ void IUtility::setOrthogonalPerspective( const Camera& camera )
     );
 }
 
+void IUtility::setPerspectiveProjection( const Camera& projectionData )
+{
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+    auto fov = projectionData.getFov();
+    auto ar = projectionData.getAspectRatio();
+    auto zNear = projectionData.getZnear();
+    auto zFar = projectionData.getZfar();
+    gluPerspective( fov, ar, zNear, zFar );
+}
 
 void IUtility::useProgram( int programId )
 {

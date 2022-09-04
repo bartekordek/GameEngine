@@ -213,9 +213,8 @@ public:
     virtual void resetMatrixToIdentity( const MatrixTypes matrix ) = 0;
     virtual void setProjection( const Camera& rect ) = 0;
     virtual void setViewport( const Viewport& viewport ) = 0;
-    virtual void setPerspective( const Angle& angle, double widthToHeightRatio, double m_zNear, double m_zFar ) = 0;
     void setOrthogonalPerspective( const Camera& vp );
-    virtual void setPerspectiveProjection( const Camera& vp ) = 0;
+    void setPerspectiveProjection( const Camera& vp );
     virtual void lookAt( const Camera& vp ) = 0;
     virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) = 0;
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) = 0;
