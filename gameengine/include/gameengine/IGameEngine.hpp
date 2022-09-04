@@ -21,6 +21,9 @@
 NAMESPACE_BEGIN( CUL )
 NAMESPACE_BEGIN( GUTILS )
 class IConfigFile;
+#ifdef _MSC_VER
+class GAME_ENGINE_API CUL::GUTILS::SimpleDelegate;
+#endif
 NAMESPACE_END( GUTILS )
 NAMESPACE_END( CUL )
 
@@ -58,105 +61,111 @@ using EmptyFunctionCallback = std::function<void()>;
 using IPreRenderTask = CUL::GUTILS::ITask;
 using Pos3Df = CUL::Graphics::Pos3Dd;
 
-class GAME_ENGINE_API IGameEngine: public SDL2W::IMouseObservable, public SDL2W::IKeyboardObservable, public SDL2W::IWindowEventObservable
+class IGameEngine: public SDL2W::IMouseObservable, public SDL2W::IKeyboardObservable, public SDL2W::IWindowEventObservable
 {
 public:
     IGameEngine();
 
-    virtual void initialize();
-    virtual void renderFrame() = 0;
-    virtual void runEventLoop() = 0;
-    virtual void stopEventLoop() = 0;
+    GAME_ENGINE_API virtual void initialize();
+    GAME_ENGINE_API virtual void renderFrame() = 0;
+    GAME_ENGINE_API virtual void runEventLoop() = 0;
+    GAME_ENGINE_API virtual void stopEventLoop() = 0;
 
-    virtual SDL2W::IWindow* getMainWindow() = 0;
+    GAME_ENGINE_API virtual SDL2W::IWindow* getMainWindow() = 0;
 
-    virtual void setBackgroundColor( const ColorS& color ) = 0;
-    virtual void startRenderingLoop() = 0;
-    virtual void stopRenderingLoop() = 0;
-    virtual void onInitialize( const EmptyFunctionCallback& callback ) = 0;
+    GAME_ENGINE_API virtual void setBackgroundColor( const ColorS& color ) = 0;
+    GAME_ENGINE_API virtual void startRenderingLoop() = 0;
+    GAME_ENGINE_API virtual void stopRenderingLoop() = 0;
+    GAME_ENGINE_API virtual void onInitialize( const EmptyFunctionCallback& callback ) = 0;
 
-    virtual IObjectFactory* getObjectFactory() = 0;
-    virtual IImageLoader* getImageLoader() = 0;
-    virtual IUtility* getUtility() = 0;
-    virtual const Viewport& getViewport() const = 0;
+    GAME_ENGINE_API virtual IObjectFactory* getObjectFactory() = 0;
+    GAME_ENGINE_API virtual IImageLoader* getImageLoader() = 0;
+    GAME_ENGINE_API virtual IUtility* getUtility() = 0;
+    GAME_ENGINE_API virtual const Viewport& getViewport() const = 0;
 
-    virtual CUL::CULInterface* getCul() = 0;
-    virtual CUL::LOG::ILogger* getLoger() = 0;
+    GAME_ENGINE_API virtual CUL::CULInterface* getCul() = 0;
+    GAME_ENGINE_API virtual CUL::LOG::ILogger* getLoger() = 0;
 
-    Camera& getCamera();
+    GAME_ENGINE_API Camera& getCamera();
 
-    virtual void beforeFrame( const EmptyFunctionCallback& callback ) = 0;
+    GAME_ENGINE_API virtual void beforeFrame( const EmptyFunctionCallback& callback ) = 0;
+    GAME_ENGINE_API virtual void setProjection( const Camera& rect ) = 0;
+    GAME_ENGINE_API virtual void setEyePos( const glm::vec3& pos ) = 0;
+    GAME_ENGINE_API virtual void setViewport( const Viewport& viewport, const bool instant = false ) = 0;
 
-    virtual void setProjection( const Camera& rect ) = 0;
-    virtual void setEyePos( const glm::vec3& pos ) = 0;
-    virtual void setViewport( const Viewport& viewport, const bool instant = false ) = 0;
+    GAME_ENGINE_API virtual void drawQuad( const bool draw = true ) = 0;
 
-    virtual void drawQuad( const bool draw = true ) = 0;
+    GAME_ENGINE_API virtual void clearModelViewEveryFrame( const bool enable ) = 0;
 
-    virtual void clearModelViewEveryFrame( const bool enable ) = 0;
+    GAME_ENGINE_API virtual const ContextInfo& getContext() const = 0;
 
-    virtual const ContextInfo& getContext() const = 0;
+    GAME_ENGINE_API virtual void drawDebugInfo( const bool enable ) = 0;
+    GAME_ENGINE_API virtual void drawOrigin( bool enable ) = 0;
 
-    virtual void drawDebugInfo( const bool enable ) = 0;
-    virtual void drawOrigin( bool enable ) = 0;
+    GAME_ENGINE_API virtual IDebugOverlay* getDebugOverlay() = 0;
 
-    virtual IDebugOverlay* getDebugOverlay() = 0;
+    GAME_ENGINE_API virtual CUL::GUTILS::IConfigFile* getConfig() = 0;
 
-    virtual CUL::GUTILS::IConfigFile* getConfig() = 0;
-
-    virtual ITextureFactory* getTextureFactory() = 0;
+    GAME_ENGINE_API virtual ITextureFactory* getTextureFactory() = 0;
 
     // VBO HANDLE:
-    virtual class VertexBuffer* createVBO( std::vector<float>& data ) = 0;
+    GAME_ENGINE_API virtual class VertexBuffer* createVBO( std::vector<float>& data ) = 0;
 
-    static IGameEngine* createGameEngine( SDL2W::ISDL2Wrapper* sdl2w, bool legacy = false );
-    static IGameEngine* createGameEngine( const EngineParams& engineParam );
+    GAME_ENGINE_API static IGameEngine* createGameEngine( SDL2W::ISDL2Wrapper* sdl2w, bool legacy = false );
+    GAME_ENGINE_API static IGameEngine* createGameEngine( const EngineParams& engineParam );
 
-    static IGameEngine* getInstance();
+    GAME_ENGINE_API static IGameEngine* getInstance();
 
-    virtual void setFpsLimit( float maxFps ) = 0;
-    virtual float getFpsLimit() const = 0;
+    GAME_ENGINE_API virtual void setFpsLimit( float maxFps ) = 0;
+    GAME_ENGINE_API virtual float getFpsLimit() const = 0;
 
     // Object Factory
-    Sprite* createSprite();
-    Quad* createQuad( IObject* parent );
-    class VertexArray* createVAO();
-    Cube* createCube();
+    GAME_ENGINE_API Sprite* createSprite();
+    GAME_ENGINE_API Quad* createQuad( IObject* parent );
+    GAME_ENGINE_API class VertexArray* createVAO();
+    GAME_ENGINE_API Cube* createCube();
 
-    void pushPreRenderTask( IPreRenderTask* preRenderTask );
-    void pushPreRenderTask( std::function<void( void )> task );
+    GAME_ENGINE_API void pushPreRenderTask( IPreRenderTask* preRenderTask );
+    GAME_ENGINE_API void pushPreRenderTask( std::function<void( void )> task );
 
-    void addObjectToRender( IRenderable* renderable );
-    void removeObjectToRender( IRenderable* renderable );
+    GAME_ENGINE_API void addObjectToRender( IRenderable* renderable );
+    GAME_ENGINE_API void removeObjectToRender( IRenderable* renderable );
 
-    void toggleGrid(bool enableGrid);
+    GAME_ENGINE_API void toggleGrid(bool enableGrid);
 
-    unsigned getGPUTotalAvailableMemoryKb();
-    unsigned getGPUCurrentAvailableMemoryKb();
+    GAME_ENGINE_API unsigned getGPUTotalAvailableMemoryKb();
+    GAME_ENGINE_API unsigned getGPUCurrentAvailableMemoryKb();
 
-    virtual void addRenderThreadTask( const std::function<void( void )>& task ) = 0;
+    GAME_ENGINE_API virtual void addRenderThreadTask( const std::function<void( void )>& task ) = 0;
 
-    ImGuiContext* getGuiContext() const;
-    void setGuiContext( ImGuiContext* const inContext );
+    GAME_ENGINE_API ImGuiContext* getGuiContext() const;
+    GAME_ENGINE_API void setGuiContext( ImGuiContext* const inContext );
 
     CUL::GUTILS::SimpleDelegate guiFrameDelegate;
 
 
     // Shaders
-    class Program* createProgram();
-    void removeProgram(Program* program);
+    GAME_ENGINE_API class Program* createProgram();
+    GAME_ENGINE_API void removeProgram(Program* program);
 
-    Shader* createShader( const String& path, const String& source = "" );
-    void removeShader( Shader* shader );
-    void removeShader( const String& path );
+    GAME_ENGINE_API Shader* createShader( const String& path, const String& source = "" );
+    GAME_ENGINE_API void removeShader( Shader* shader );
+    GAME_ENGINE_API void removeShader( const String& path );
 
-    void releaseResources();
+    GAME_ENGINE_API void releaseResources();
 
-    void addGuiTask( std::function<void(void)> task );
+    GAME_ENGINE_API void addGuiTask( std::function<void(void)> task );
 
-    virtual ~IGameEngine();
+    GAME_ENGINE_API virtual ~IGameEngine();
 
 protected:
+    struct GUIParams
+    {
+        float z = 0.0f;
+    };
+
+    GUIParams m_guiParams;
+
     IUtility* m_oglUtility = nullptr;
     std::mutex m_preRenderTasksMtx;
     std::queue<IPreRenderTask*> m_preRenderTasks;

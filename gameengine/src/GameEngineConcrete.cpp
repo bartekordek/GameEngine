@@ -215,7 +215,7 @@ IObject* GameEngineConcrete::createTriangle( CUL::JSON::INode* jNode )
     CUL::Assert::simple( CUL::JSON::ElementType::ARRAY == jNode->getType(), "Different types." );
     CUL::Assert::simple( 3 == jNode->getArray().size(), "Defined triangle vertices count mismatch." );
 
-    auto triangle = new TriangleImpl(this);
+    auto triangle = new TriangleImpl( this );
 
     auto jsonToPoint = []( CUL::JSON::INode* node ) -> Point
     {
@@ -245,7 +245,7 @@ IObject* GameEngineConcrete::createTriangle( CUL::JSON::INode* jNode )
 
 ITriangle* GameEngineConcrete::createTriangle( const TriangleData& data, const ColorS& color )
 {
-    ITriangle* triangle = new TriangleImpl(this);
+    ITriangle* triangle = new TriangleImpl( this );
     triangle->setValues( data );
     triangle->setColor( color );
     return triangle;
@@ -257,12 +257,12 @@ IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS&
     if( m_oglUtility->isLegacy() )
     {
         m_logger->log( "GameEngineConcrete::createQuad - legacy." );
-        quad = new QuadImplLegacy(this);
+        quad = new QuadImplLegacy( this );
     }
     else
     {
         m_logger->log( "GameEngineConcrete::createQuad - modern." );
-        quad = new QuadImpl(this);
+        quad = new QuadImpl( this );
     }
     quad->setValues( data );
     quad->setColor( color );
@@ -272,7 +272,7 @@ IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS&
 
 ILine* GameEngineConcrete::createLine( const LineData& data, const ColorS& color )
 {
-    ILine* line = new LineImpl(this);
+    ILine* line = new LineImpl( this );
     line->setValues( data );
     line->setColor( color );
 
@@ -281,7 +281,7 @@ ILine* GameEngineConcrete::createLine( const LineData& data, const ColorS& color
 
 IPoint* GameEngineConcrete::createPoint( const Point& position, const ColorS& color )
 {
-    auto result = new PointImpl(this);
+    auto result = new PointImpl( this );
     result->setColor( color );
     result->setWorldPosition( position );
     addObjectToRender( result );
@@ -537,7 +537,11 @@ void GameEngineConcrete::renderFrame()
 
     m_oglUtility->setDepthTest( getCamera().getDepthTestIsEnabled() );
 
-    changeProjectionType();
+    if( getCamera().getProjectionChanged() )
+    {
+        changeProjectionType();
+        getCamera().toggleProjectionChanged( false );
+    }
 
     if( m_onBeforeFrame )
     {
@@ -599,24 +603,32 @@ void GameEngineConcrete::renderInfo()
     ImGui::SetWindowPos( { 0, 0 } );
     ImGui::SetWindowSize( { (float)winSize.getWidth() * 0.2f, (float)winSize.getHeight() * 1.f } );
 
-    ImGui::Text( "Legacy: %s", getUtility()->isLegacy() ? "true": "false" );
+    ImGui::Text( "Legacy: %s", getUtility()->isLegacy() ? "true" : "false" );
 
-
-    auto gputTotal = getGPUTotalAvailableMemoryKb();
+    float gputTotal = getGPUTotalAvailableMemoryKb();
     gputTotal /= 1024;
-    ImGui::Text( "GPU TOTAL: %i MB", gputTotal );
 
-    auto gpuCurrent = getGPUCurrentAvailableMemoryKb();
+    float gpuCurrent = getGPUCurrentAvailableMemoryKb();
     gpuCurrent /= 1024;
-    ImGui::Text( "GPU CURRENT: %i MB", gpuCurrent );
+
+    ImGui::Text( "GPU USAGE:" );
+    static CUL::String val = CUL::String( gpuCurrent ) + CUL::String( "MB / " ) + CUL::String( gputTotal ) + CUL::String( "MB" );
+    ImGui::ProgressBar( gpuCurrent / gputTotal, ImVec2( 0.f, 0.f ), val.cStr() );
 
     auto res = false;
-    //ImGui::Checkbox( "Projection is Perspective", &m_isPerspective.getRef() );
+    {
+        static bool isPerspective = getCamera().getProjectionType() == LOGLW::ProjectionType::PERSPECTIVE;
+        res = ImGui::Checkbox( "Projection is Perspective", &isPerspective );
+        if( res )
+        {
+            getCamera().setProjectionType( isPerspective ? LOGLW::ProjectionType::PERSPECTIVE : LOGLW::ProjectionType::ORTO );
+            getCamera().toggleProjectionChanged( true );
+        }
+    }
 
-    //ImGui::Checkbox( "Depth test", &m_projectionData.m_depthTest.getRef() );
-    //m_projectionData.m_depthTest.runIfChanged();
+    // ImGui::Checkbox( "Depth test", &m_projectionData.m_depthTest.getRef() );
+    // m_projectionData.m_depthTest.runIfChanged();
 
-    //ImGui::Text( "Projection: %s", ( m_projectionData.m_projectionType == ProjectionType::PERSPECTIVE ) ? "Perspective" : "Orthogonal" );
     ImGui::Text( "Aspect Ratio: %f", getCamera().getAspectRatio() );
     ImGui::Text( "FOV-Y: %f", getCamera().getFov() );
 
@@ -636,25 +648,39 @@ void GameEngineConcrete::renderInfo()
     text = "Mouse = ( " + String( mData.getX() ) + ", " + String( mData.getY() ) + " )";
     ImGui::Text( "%s", text.cStr() );
 
-    ImGui::Text( "Z Far: %f", getCamera().getZfar() );
-
-    res = ImGui::SliderFloat( "Z Near", &getCamera().m_zNear, -512.f, 255.f );
-    if( res )
     {
-        m_projectionChanged = true;
+        static float zNear = getCamera().getZnear();
+        res = ImGui::SliderFloat( "Z-near", &zNear, -4.f, 8.f );
+        if( res )
+        {
+            getCamera().setZNear( zNear );
+        }
     }
 
-    res = ImGui::SliderFloat( "Eye-Z", &getCamera().m_pos.z, -512.f, 1024.0f );
-    if( res )
     {
-        // m_projectionData.setZnear( m_projectionData.m_eye.z );
-        m_projectionChanged = true;
+        static float zFar = getCamera().getZfar();
+        res = ImGui::SliderFloat( "Z-far", &zFar, 0.f, 64.f );
+        if( res )
+        {
+            getCamera().setZfar( zFar );
+        }
     }
 
-    res = ImGui::SliderFloat( "Center-Z", &getCamera().getCenter().z, -64.0f, 255.0f );
+    {
+        static glm::vec3 eye = getCamera().getEye();
+        res = ImGui::SliderFloat( "Eye-Z", &eye.z, -512.f, 1024.0f );
+        if( res )
+        {
+            getCamera().setEyePos( eye );
+        }
+    }
+
+    static glm::vec3 centerCamera = getCamera().getCenter();
+    res = ImGui::SliderFloat( "Center-Z", &centerCamera.z, -64.0f, 255.0f );
     if( res )
     {
-        m_projectionChanged = true;
+        getCamera().setCenter( centerCamera );
+        getCamera().toggleProjectionChanged( true );
     }
 
     text = "Left: " + String( getCamera().getLeft() );
@@ -778,11 +804,11 @@ void GameEngineConcrete::changeProjectionType()
 {
     m_oglUtility->resetMatrixToIdentity( MatrixTypes::PROJECTION );
 
-    if( ProjectionType::ORTO == getCamera().m_projectionType )
+    if( ProjectionType::ORTO == getCamera().getProjectionType() )
     {
         m_oglUtility->setOrthogonalPerspective( getCamera() );
     }
-    else if( ProjectionType::PERSPECTIVE == getCamera().m_projectionType )
+    else if( ProjectionType::PERSPECTIVE == getCamera().getProjectionType() )
     {
         m_oglUtility->setPerspectiveProjection( getCamera() );
     }
@@ -795,7 +821,6 @@ void GameEngineConcrete::changeProjectionType()
 void GameEngineConcrete::setEyePos( const glm::vec3& pos )
 {
     getCamera().setEyePos( pos );
-    m_projectionChanged = true;
 }
 
 void GameEngineConcrete::executeTasks()
@@ -838,8 +863,6 @@ void GameEngineConcrete::refreshBuffers()
 void GameEngineConcrete::setProjection( const Camera& rect )
 {
     m_oglUtility->setProjection( rect );
-
-    m_projectionChanged = true;
 }
 
 void GameEngineConcrete::setViewport( const Viewport& viewport, const bool instant )

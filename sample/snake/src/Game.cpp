@@ -69,8 +69,10 @@ void Game::afterInit()
     m_mainWindow = m_oglw->getMainWindow();
     m_mainWindow->setBackgroundColor( SDL2W::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
 
-    m_oglw->getCamera().getEye() = { 0.0f, 0.0f, 300.f };
-    m_oglw->getCamera().setZnear( 1.f );
+    glm::vec3 eye = { 0.0f, 0.0f, 300.f };
+    m_oglw->getCamera().setEyePos( eye );
+
+    m_oglw->getCamera().setZNear( 1.f );
 
     reloadConfig();
     configModificationTime = m_configFile->getModificationTime();

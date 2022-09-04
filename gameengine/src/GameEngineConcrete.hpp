@@ -5,7 +5,6 @@
 #include "gameengine/ITextureFactory.hpp"
 #include "gameengine/IObjectFactory.hpp"
 #include "gameengine/Sprite.hpp"
-#include "gameengine/Camera.hpp"
 #include "gameengine/Viewport.hpp"
 
 #include "SDL2Wrapper/ISDLEventObserver.hpp"
@@ -33,6 +32,8 @@ class IKeyboardObserver;
 NAMESPACE_END( SDL2W )
 
 NAMESPACE_BEGIN( LOGLW )
+
+class Camera;
 
 using SafeBool = CUL::GUTILS::LckPrim<bool>;
 template <typename Type>
@@ -208,8 +209,6 @@ private:
     Viewport m_viewport;
     SafeBool m_viewportChanged = false;
 
-    SafeBool m_projectionChanged = false;
-
     ColorS m_backgroundColor = ColorS( ColorE::BLACK );
 
     std::mutex m_taskMutex;
@@ -244,6 +243,7 @@ private:
 
     int m_everyX = 0;
     int m_everyXMax = 4;
+
 
 private:  // Deleted
     GameEngineConcrete() = delete;

@@ -226,7 +226,9 @@ void reloadConfig()
         g_camera.setEyePos( g_eyePos );
 
         g_camera.setUp( glm::vec3( 0.0f, 1.0f, 0.0f ) );
-        g_camera.getCenter().z =  g_configFile->getValue( "Z_FAR" ).toFloat();
+        glm::vec3 center = g_camera.getCenter();
+        center.z = g_configFile->getValue( "Z_FAR" ).toFloat();
+        g_camera.setCenter( center );
     }
 }
 
@@ -295,14 +297,21 @@ void onKeyBoardEvent( const SDL2W::IKey& key )
     else if( keyName == "U" )
     {
         auto newVal = g_camera.getZfar() + delta;
-        g_camera.getCenter().z = newVal;
+
+        glm::vec3 center = g_camera.getCenter();
+        center.z = newVal;
+        g_camera.setCenter( center );
+
         g_logger->log( "setting zFar to: " + String( newVal ) );
     }
     else if( keyName == "J" )
     {
         auto newVal = g_camera.getZfar() - delta;
 
-         g_camera.getCenter().z = newVal;
+        glm::vec3 center = g_camera.getCenter();
+        center.z = newVal;
+        g_camera.setCenter( center );
+
         g_logger->log( "setting zFar to: " + String( newVal ) );
     }
     else if( keyName == "I" )
