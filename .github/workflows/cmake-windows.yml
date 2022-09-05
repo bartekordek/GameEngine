@@ -48,7 +48,12 @@ jobs:
         working-directory: ${{github.workspace}}/Build-Windows
         run: cmake --build . --config Debug --target snake_dynamic
 
-      - name: Check binary
-        shell: cmd
-        working-directory: ${{github.workspace}}/Build-Windows/Debug
-        run: tree /F /A
+      - name: Build playgroundApp_static
+        # Build your program with the given configuration
+        working-directory: ${{github.workspace}}/Build-Windows
+        run: cmake --build . --config Debug --target playgroundApp_static
+
+      - name: Build snake_static
+        # Build your program with the given configuration
+        working-directory: ${{github.workspace}}/Build-Windows
+        run: cmake --build . --config Debug --target snake_static

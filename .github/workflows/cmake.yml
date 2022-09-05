@@ -77,3 +77,15 @@ jobs:
       shell: bash
       # Execute the build.  You can specify a specific target with "--target <NAME>"
       run: cmake --build . --config ${BUILD_TYPE} -j16 --target snake_dynamic
+
+    - name: Build playgroundApp_static
+      working-directory: ${{github.workspace}}//Build-Linux
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: cmake --build . --config ${BUILD_TYPE} -j16 --target playgroundApp_static
+
+    - name: Build snake_static
+      working-directory: ${{github.workspace}}//Build-Linux
+      shell: bash
+      # Execute the build.  You can specify a specific target with "--target <NAME>"
+      run: cmake --build . --config ${BUILD_TYPE} -j16 --target snake_static
