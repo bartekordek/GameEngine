@@ -1,21 +1,25 @@
-#include "Primitives/LineImpl.hpp"
+#include "gameengine/Primitives/Line.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 
 using namespace LOGLW;
 
-LineImpl::LineImpl( IGameEngine* engine ) : ILine( engine )
+Line::Line( IGameEngine* engine ) : IObject( engine )
 {
     m_data[0] = m_data[1] = { 0.0f, 0.0f, 0.0f };
-
     m_transform = static_cast < TransformComponent*>( getComponent( "TransformComponent" ) );
 }
 
-void LineImpl::setValues( const LineData& values )
+void Line::setValues( const LineData& values )
 {
     m_data = values;
 }
 
-void LineImpl::render()
+void Line::setColor(const LineColors& colors)
+{
+    m_colors = colors;
+}
+
+void Line::render()
 {
     getUtility()->matrixStackPush();
     auto position = m_transform->getWorldPosition();
@@ -28,19 +32,10 @@ void LineImpl::render()
     getUtility()->matrixStackPop();
 }
 
-void LineImpl::setColor(const LineColors& colors)
-{
-    m_colors = colors;
-}
-
-void LineImpl::setColor(const ColorS& color)
+void Line::setColor(const ColorS& color)
 {
     for( auto& m_color: m_colors )
     {
         m_color = color;
     }
-}
-
-LineImpl::~LineImpl()
-{
 }

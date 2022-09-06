@@ -3,7 +3,6 @@
 #include "gameengine/Camera.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 
-#include "Primitives/LineImpl.hpp"
 #include "Primitives/PointImpl.hpp"
 #include "Primitives/QuadImpl.hpp"
 #include "Primitives/QuadImplLegacy.hpp"
@@ -270,9 +269,9 @@ IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS&
     return quad;
 }
 
-ILine* GameEngineConcrete::createLine( const LineData& data, const ColorS& color )
+Line* GameEngineConcrete::createLine( const LineData& data, const ColorS& color )
 {
-    ILine* line = new LineImpl( this );
+    Line* line = new Line( this );
     line->setValues( data );
     line->setColor( color );
 

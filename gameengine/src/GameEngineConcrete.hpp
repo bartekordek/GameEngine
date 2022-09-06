@@ -97,7 +97,7 @@ private:
     IObject* createTriangle( CUL::JSON::INode* jNode );
     ITriangle* createTriangle( const TriangleData& data, const ColorS& color = ColorE::WHITE ) override;
     IQuad* createQuad( const QuadData& data, bool legacy = false, const ColorS& color = ColorE::WHITE ) override;
-    ILine* createLine( const LineData& data, const ColorS& color = ColorE::WHITE ) override;
+    Line* createLine( const LineData& data, const ColorS& color = ColorE::WHITE ) override;
 
     IPoint* createPoint( const Point& position, const ColorS& color = ColorE::WHITE ) override;
 

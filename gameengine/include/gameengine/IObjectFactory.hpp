@@ -2,7 +2,7 @@
 
 #include "gameengine/Primitives/ITriangle.hpp"
 #include "gameengine/Primitives/IQuad.hpp"
-#include "gameengine/Primitives/ILine.hpp"
+#include "gameengine/Primitives/Line.hpp"
 #include "gameengine/Primitives/IPoint.hpp"
 
 #include "CUL/Filesystem/IFile.hpp"
@@ -26,7 +26,7 @@ public:
 
     virtual IQuad* createQuad( const QuadData& data, bool legacy = false, const ColorS& color = ColorE::WHITE ) = 0;
 
-    virtual ILine* createLine( const LineData& data,  const ColorS& color = ColorE::WHITE) = 0;
+    virtual Line* createLine( const LineData& data,  const ColorS& color = ColorE::WHITE) = 0;
 
     virtual IPoint* createPoint(const Point& position, const ColorS& color = ColorE::WHITE) = 0;
 
