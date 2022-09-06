@@ -3,6 +3,7 @@
 #include "gameengine/IDebugOverlay.hpp"
 #include "gameengine/Sprite.hpp"
 #include "gameengine/EngineParams.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
 
 #include "SDL2Wrapper/Input/IKey.hpp"
 #include "SDL2Wrapper/IWindowEventListener.hpp"
@@ -171,23 +172,23 @@ void afterInit()
 
 void renderScene()
 {
-    g_blueTriangle->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle );
-    g_whiteTriangle->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle + ang180 );
+    g_blueTriangle->getTransform()->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle );
+    g_whiteTriangle->getTransform()->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle + ang180 );
 
-    g_redTriangle->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle );
-    g_yellowTriangle->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle + ang180 );
+    g_redTriangle->getTransform()->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle );
+    g_yellowTriangle->getTransform()->setWorldAngle( CUL::MATH::EulerAngles::YAW, g_angle + ang180 );
 
-    auto oldPosWhiteBlue = g_blueTriangle->getWorldPosition();
+    auto oldPosWhiteBlue = g_blueTriangle->getTransform()->getWorldPosition();
     oldPosWhiteBlue.z() = blueTriangleZ;
-    g_blueTriangle->setWorldPosition( oldPosWhiteBlue );
-    g_whiteTriangle->setWorldPosition( oldPosWhiteBlue );
+    g_blueTriangle->getTransform()->setWorldPosition( oldPosWhiteBlue );
+    g_whiteTriangle->getTransform()->setWorldPosition( oldPosWhiteBlue );
 
-    auto oldPosRedYellow = g_redTriangle->getWorldPosition();
+    auto oldPosRedYellow = g_redTriangle->getTransform()->getWorldPosition();
     oldPosRedYellow.z() = redTriangleZ;
-    g_redTriangle->setWorldPosition( oldPosRedYellow );
-    g_yellowTriangle->setWorldPosition( oldPosRedYellow );
+    g_redTriangle->getTransform()->setWorldPosition( oldPosRedYellow );
+    g_yellowTriangle->getTransform()->setWorldPosition( oldPosRedYellow );
 
-    g_sprite->setWorldPosition( 0.f, 80.f * std::sin( g_angle.getRad() ), 40.f * std::cos( g_angle.getRad() ) );
+    g_sprite->getTransform()->setWorldPosition( 0.f, 80.f * std::sin( g_angle.getRad() ), 40.f * std::cos( g_angle.getRad() ) );
 
     g_angle += 0.01f;
 

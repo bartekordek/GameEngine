@@ -1,4 +1,5 @@
 #include "Primitives/QuadImplLegacy.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/IUtilityUser.hpp"
 
 using namespace LOGLW;
@@ -6,6 +7,7 @@ using namespace LOGLW;
 QuadImplLegacy::QuadImplLegacy( IGameEngine* engine ) : IQuad(engine)
 {
     m_data[ 0 ] = m_data[ 1 ] = m_data[ 2 ] = m_data[ 3 ] = { 0.0f, 0.0f, 0.0f };
+    m_transform = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 }
 
 void QuadImplLegacy::setValues( const QuadData& values )
@@ -16,11 +18,11 @@ void QuadImplLegacy::setValues( const QuadData& values )
 void QuadImplLegacy::render()
 {
     getUtility()->matrixStackPush();
-    getUtility()->translate( getWorldPosition() );
+    getUtility()->translate( m_transform->getWorldPosition() );
     static const auto type = CUL::MATH::Angle::Type::DEGREE;
-    getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::YAW ).getValueF( type ),   0.f, 0.f, 1.f );
-    getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::PITCH ).getValueF( type ), 0.f, 1.f, 0.f );
-    getUtility()->rotate( getWorldAngle( CUL::MATH::EulerAngles::ROLL ).getValueF( type ),  1.f, 0.f, 0.f );
+    getUtility()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::YAW ).getValueF( type ), 0.f, 0.f, 1.f );
+    getUtility()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::PITCH ).getValueF( type ), 0.f, 1.f, 0.f );
+    getUtility()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::ROLL ).getValueF( type ), 1.f, 0.f, 0.f );
     getUtility()->draw( m_data, m_colors );
     getUtility()->matrixStackPop();
 }

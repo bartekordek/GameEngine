@@ -61,17 +61,18 @@ void Cube::createPlaceHolders()
     m_transformComponent->setSize( cubeSize );
     m_transformComponent->setPivot( { 0.0f, 0.f, 0.f } );
 
-    TransformComponent::Pos pivot;
+    TransformComponent::Pos pivot = { 0.5f, 0.5f, 0.f };
     // 0
     {
         Quad* quad = m_engine->createQuad( this );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setWorldPosition( ITransformable::Pos( 0.f, 0.f, 1.f ) );
+        transformCmp->setWorldPosition( CUL::MATH::Point( 0.f, 0.f, 1.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         quad->getnameCmp()->setName( "Wall00" );
+        quad->setColor( CUL::Graphics::ColorE::GREEN );
         m_walls[0] = quad;
     }
 
@@ -81,7 +82,7 @@ void Cube::createPlaceHolders()
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setWorldPosition( ITransformable::Pos( 0.f, 0.f, -1.f ) );
+        transformCmp->setWorldPosition( CUL::MATH::Point( 0.f, 0.f, -1.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         quad->getnameCmp()->setName( "Wall01" );
@@ -95,7 +96,7 @@ void Cube::createPlaceHolders()
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setWorldPosition( ITransformable::Pos( -1.f, 0.f, 0.f ) );
+        transformCmp->setWorldPosition( CUL::MATH::Point( -1.f, 0.f, 0.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;
@@ -112,7 +113,7 @@ void Cube::createPlaceHolders()
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setWorldPosition( ITransformable::Pos( 1.f, 0.f, 0.f ) );
+        transformCmp->setWorldPosition( CUL::MATH::Point( 1.f, 0.f, 0.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;
@@ -129,7 +130,7 @@ void Cube::createPlaceHolders()
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setWorldPosition( ITransformable::Pos( 0.f, -1.f, 0.f ) );
+        transformCmp->setWorldPosition( CUL::MATH::Point( 0.f, -1.f, 0.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;
@@ -146,7 +147,7 @@ void Cube::createPlaceHolders()
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setWorldPosition( ITransformable::Pos( 0.f, 1.f, 0.f ) );
+        transformCmp->setWorldPosition( CUL::MATH::Point( 0.f, 1.f, 0.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;

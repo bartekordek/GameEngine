@@ -31,7 +31,7 @@ private:
     {
         getUtility()->matrixStackPush();
         getUtility()->translate( m_pos );
-        getUtility()->draw( getWorldPosition(), m_color );
+        getUtility()->draw( getTransform()->getWorldPosition(), m_color );
         getUtility()->matrixStackPop();
     }
 

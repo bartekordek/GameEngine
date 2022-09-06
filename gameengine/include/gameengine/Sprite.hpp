@@ -19,21 +19,22 @@ NAMESPACE_BEGIN( LOGLW )
 class Camera;
 class TransformComponent;
 
-class GAME_ENGINE_API Sprite final: public IObject, public IUtilityUser
+class Sprite final: public IObject, public IUtilityUser
 {
 public:
     Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine );
 
-    void LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
-    void LoadImage( unsigned char* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader*, unsigned textureId );
+    GAME_ENGINE_API void LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
+    GAME_ENGINE_API void LoadImage( unsigned char* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader*,
+                                    unsigned textureId );
 
-    unsigned m_textureId = 0u;
+    //GAME_ENGINE_API unsigned m_textureId = 0u;
 
-    void render() override;
-    const CUL::Graphics::ImageInfo& getImageInfo() const;
-    unsigned char* getData() const;
+    GAME_ENGINE_API void render() override;
+    GAME_ENGINE_API const CUL::Graphics::ImageInfo& getImageInfo() const;
+    GAME_ENGINE_API unsigned char* getData() const;
 
-    ~Sprite();
+    GAME_ENGINE_API ~Sprite();
 
 protected:
 private:
@@ -50,6 +51,8 @@ private:
     void renderModern();
     void renderLegacy();
     void release();
+
+    unsigned m_textureId = 0u;
 
     TransformComponent* m_transformComponent = nullptr;
 

@@ -10,17 +10,16 @@ NAMESPACE_BEGIN( LOGLW )
 
 using Size = CUL::Graphics::SimpleSize3D<float>;
 
-class GAME_ENGINE_API IQuad:
-    public IObject
+class IQuad: public IObject
 {
 public:
-    IQuad(IGameEngine* engine);
+    GAME_ENGINE_API IQuad( IGameEngine* engine );
 
-    virtual void setValues( const QuadData& values ) = 0;
-    virtual void setColor( const QuadColors& colors ) = 0;
-    virtual void setColor( const ColorS& color ) = 0;
+    GAME_ENGINE_API virtual void setValues( const QuadData& values ) = 0;
+    GAME_ENGINE_API virtual void setColor( const QuadColors& colors ) = 0;
+    GAME_ENGINE_API virtual void setColor( const ColorS& color ) = 0;
 
-    virtual ~IQuad() = default;
+    GAME_ENGINE_API virtual ~IQuad() = default;
 
 protected:
 private:

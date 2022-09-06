@@ -19,7 +19,7 @@ using namespace LOGLW;
 Sprite::Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine ) : IObject( engine ), m_camera( camera ), m_cul( cul )
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    m_transformComponent->setSize( Pos( 2.f, 2.f, 2.f ) );
+    m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );
 }
 
 void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader )
@@ -122,7 +122,7 @@ void Sprite::init()
 
         m_vbo = getUtility()->generateBuffer( BufferTypes::ARRAY_BUFFER );
 
-        const Pos& size = m_transformComponent->getSize();
+        const CUL::MATH::Point& size = m_transformComponent->getSize();
         float x0 = -size.x() / 2.f;
         float x1 = size.x() / 2.f;
 
@@ -224,7 +224,7 @@ void Sprite::renderLegacy()
     values[0] = { 0.f, 1.f, 0.f };
     QuadCUL colors = values;
 
-    const Pos& size = m_transformComponent->getSize();
+    const CUL::MATH::Point& size = m_transformComponent->getSize();
     float x0 = -size.x() / 2.f;
     float x1 = size.x() / 2.f;
 

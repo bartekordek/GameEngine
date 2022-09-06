@@ -1,7 +1,7 @@
 #include "GameEngineConcrete.hpp"
 
-#include "gameengine/Model.hpp"
 #include "gameengine/Camera.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
 
 #include "Primitives/LineImpl.hpp"
 #include "Primitives/PointImpl.hpp"
@@ -283,7 +283,7 @@ IPoint* GameEngineConcrete::createPoint( const Point& position, const ColorS& co
 {
     auto result = new PointImpl( this );
     result->setColor( color );
-    result->setWorldPosition( position );
+    result->getTransform()->setWorldPosition( position );
     addObjectToRender( result );
 
     return result;
