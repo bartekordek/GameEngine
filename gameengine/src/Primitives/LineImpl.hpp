@@ -5,6 +5,8 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
+class TransformComponent;
+
 class LineImpl final:
     public ILine,
     public IUtilityUser
@@ -23,6 +25,7 @@ private:
     void setValues( const LineData& values ) override;
     void render() override;
 
+    TransformComponent* m_transform = nullptr;
     LineColors m_colors;
 
 };

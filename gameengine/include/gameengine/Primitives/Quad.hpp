@@ -13,14 +13,15 @@ class Camera;
 class IGameEngine;
 class TransformComponent;
 
-class GAME_ENGINE_API Quad final: public IUtilityUser, public IObject
+class Quad final: public IUtilityUser, public IObject
 {
 public:
-    Quad( Camera& camera, IGameEngine& engine, IObject* parent );
+    GAME_ENGINE_API Quad( Camera& camera, IGameEngine& engine, IObject* parent );
 
-    void setColor( const CUL::Graphics::ColorS& color );
+    GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
 
-    ~Quad();
+    GAME_ENGINE_API ~Quad();
+
 protected:
 private:
     void render() override;

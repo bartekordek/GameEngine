@@ -18,7 +18,7 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &e
     setParent( parent );
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    m_transformComponent->setSize( Pos( 2.f, 2.f, 2.f ) );
+    m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );
 
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -69,7 +69,7 @@ void Quad::createBuffers()
         1, 2, 3   // second Triangle
     };
 
-    const Pos& size = m_transformComponent->getSize();
+    const CUL::MATH::Point& size = m_transformComponent->getSize();
 
     float x0 = 0.f;
     float x1 = size.x();

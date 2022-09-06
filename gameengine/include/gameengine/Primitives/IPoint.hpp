@@ -5,17 +5,17 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
-class GAME_ENGINE_API IPoint:
+class IPoint:
     public IObject
 {
 public:
-    IPoint( IGameEngine* engine ) : IObject( engine )
+    GAME_ENGINE_API IPoint( IGameEngine* engine ) : IObject( engine )
     {
     }
 
-    virtual void setColor( const ColorS& color ) = 0;
+    GAME_ENGINE_API virtual void setColor( const ColorS& color ) = 0;
 
-    virtual ~IPoint() = default;
+    GAME_ENGINE_API virtual ~IPoint() = default;
 
 protected:
 private:

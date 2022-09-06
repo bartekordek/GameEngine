@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gameengine/IRenderable.hpp"
-#include "gameengine/ITransformable.hpp"
 
 #include "CUL/Filesystem/IFile.hpp"
 
@@ -16,26 +15,26 @@ class IComponent;
 class TransformComponent;
 class Name;
 
-class GAME_ENGINE_API IObject: public IRenderable, public ITransformable
+class IObject: public IRenderable
 {
 public:
-    IObject( IGameEngine* engine );
+    GAME_ENGINE_API IObject( IGameEngine* engine );
 
-    virtual const std::vector<float> getVertices() const;
+    GAME_ENGINE_API virtual const std::vector<float> getVertices() const;
 
-    IObject* getParent();
-    void setParent( IObject* parent );
+    GAME_ENGINE_API IObject* getParent();
+    GAME_ENGINE_API void setParent( IObject* parent );
 
-    const std::set<IObject*>& getChildren() const;
-    void addChild( IObject* child );
+    GAME_ENGINE_API const std::set<IObject*>& getChildren() const;
+    GAME_ENGINE_API void addChild( IObject* child );
 
-    IComponent* getComponent( const String& name );
-    void addComponent( const String& name, IComponent* component );
+    GAME_ENGINE_API IComponent* getComponent( const CUL::String& name );
+    GAME_ENGINE_API void addComponent( const CUL::String& name, IComponent* component );
 
-    TransformComponent* getTransform();
-    Name* getnameCmp();
+    GAME_ENGINE_API TransformComponent* getTransform();
+    GAME_ENGINE_API Name* getnameCmp();
 
-    virtual ~IObject();
+    GAME_ENGINE_API virtual ~IObject();
 
 protected:
     IGameEngine& getEngine();
@@ -47,7 +46,7 @@ private:
 
     IObject* m_parent = nullptr;
 
-    std::map<String, IComponent*> m_components;
+    std::map<CUL::String, IComponent*> m_components;
 
     TransformComponent* m_transform = nullptr;
     Name* m_nameCmp = nullptr;

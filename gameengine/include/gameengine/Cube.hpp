@@ -24,15 +24,16 @@ class Camera;
 class IGameEngine;
 class TransformComponent;
 
-class GAME_ENGINE_API Cube final: public IObject, public IUtilityUser
+class Cube final: public IObject, public IUtilityUser
 {
 public:
-    Cube( Camera* camera, IGameEngine* engine );
+    GAME_ENGINE_API Cube( Camera* camera, IGameEngine* engine );
 
-    void setImage(unsigned wallIndex, const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader);
-    void setColor( const CUL::Graphics::ColorS& color );
+    GAME_ENGINE_API void setImage( unsigned wallIndex, const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
+    GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
 
-    ~Cube();
+    GAME_ENGINE_API ~Cube();
+
 protected:
 private:
     void createPlaceHolders();
@@ -51,7 +52,7 @@ private:
 
     std::mutex m_renderMutex;
 
-    std::array<ITransformable::Pos, 6> m_wallsPositions;
+    std::array<CUL::MATH::Point, 6> m_wallsPositions;
     std::array<class Quad*, 6> m_walls = {};
     std::array<CUL::MATH::Rotation, 6> m_rotations;
 

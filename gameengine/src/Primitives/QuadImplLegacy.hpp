@@ -5,6 +5,8 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
+class TransformComponent;
+
 class QuadImplLegacy final:
     public IQuad,
     public IUtilityUser
@@ -23,6 +25,7 @@ private:
     void setValues( const QuadData& values ) override;
     void render() override;
 
+    TransformComponent* m_transform = nullptr;
     QuadColors m_colors;
 
 };

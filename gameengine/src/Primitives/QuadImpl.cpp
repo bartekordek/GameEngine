@@ -15,7 +15,7 @@ QuadImpl::QuadImpl( IGameEngine* engine ) : IQuad( engine ), m_engine(*engine)
     m_data[ 0 ] = m_data[ 1 ] = m_data[ 2 ] = m_data[ 3 ] = { 0.0f, 0.0f, 0.0f };
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    m_transformComponent->setSize( Pos( 2.f, 2.f, 2.f ) );
+    m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );
 
     m_camera = &engine->getCamera();
 }
@@ -60,7 +60,7 @@ void QuadImpl::init()
 
     m_vbo = getUtility()->generateBuffer( BufferTypes::ARRAY_BUFFER );
 
-    const Pos& size = m_transformComponent->getSize();
+    const CUL::MATH::Point& size = m_transformComponent->getSize();
     float x0 = -size.x() / 2.f;
     float x1 = size.x() / 2.f;
 
