@@ -116,7 +116,7 @@ void ProjectionData::setUp( const Pos3Df& pos )
     onChange();
 }
 
-void ProjectionData::setZnear( const float val )
+void ProjectionData::setZNear( const float val )
 {
     m_zNear = val;
     //m_eye.z = val;

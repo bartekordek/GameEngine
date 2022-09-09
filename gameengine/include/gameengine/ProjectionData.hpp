@@ -34,7 +34,7 @@ public:
     void setCenter( const Pos3Df& pos );
     void setEyePos( const Pos3Df& pos );
     void setUp( const Pos3Df& pos );
-    void setZnear( const float val );
+    void setZNear( const float val );
     void setZfar( const float val );
     void setFov( const float val );
 

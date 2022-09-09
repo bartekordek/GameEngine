@@ -789,13 +789,13 @@ void GameEngineConcrete::prepareProjection()
     //{
     //    auto eyeCopy = m_projectionData.getEye();
     //    eyeCopy.z = std::max( eyeCopy.z, m_projectionData.getZnear() );
-    //    m_projectionData.setZnear( eyeCopy.z );
+    //    m_projectionData.setZNear( eyeCopy.z );
     //    m_projectionData.setEyePos( eyeCopy );
     //}
     // else if( ProjectionType::PERSPECTIVE == m_projectionData.m_projectionType
     // )
     //{
-    //    m_projectionData.setZnear( std::min( m_projectionData.getEye().z,
+    //    m_projectionData.setZNear( std::min( m_projectionData.getEye().z,
     //    m_projectionData.getZnear() ) );
     //}
 }

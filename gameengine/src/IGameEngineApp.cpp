@@ -71,7 +71,7 @@ void IGameEngineApp::init( const SDL2W::WindowData& windowData,
     //LOGLW::ProjectionData g_projectionData;
     //const auto& winSize = m_sdlw->getMainWindow()->getSize();
     //g_projectionData.setSize( { winSize.getWidth(), winSize.getHeight() } );
-    //g_projectionData.setZnear( 127.0f );
+    //g_projectionData.setZNear( 127.0f );
     //g_projectionData.setZfar( -64.0f );
     //g_projectionData.setCenter( { 0.f, 0.f } );
     //g_projectionData.setEyePos( { 0.f, 0.f, 128.f } );
