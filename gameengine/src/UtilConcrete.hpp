@@ -104,8 +104,8 @@ private:
     virtual void scale( const CUL::MATH::Vector3Df& scale ) override;
     virtual void scale( const float scale ) override;
 
-    void draw( const Triangle& triangle, const ColorS& color ) override;
-    void draw( const Triangle& quad, const std::array<ColorS, 4>& color ) override;
+    void draw( const TriangleCUL& triangle, const ColorS& color ) override;
+    void draw( const TriangleCUL& quad, const std::array<ColorS, 4>& color ) override;
     void draw( const TriangleData& values, const std::array<ColorS, 3>& color ) override;
 
     void draw( const QuadCUL& quad, const QuadCUL& texQuad ) override;

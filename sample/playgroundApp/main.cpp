@@ -4,6 +4,7 @@
 #include "gameengine/Sprite.hpp"
 #include "gameengine/EngineParams.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/Primitives/Triangle.hpp"
 
 #include "SDL2Wrapper/Input/IKey.hpp"
 #include "SDL2Wrapper/IWindowEventListener.hpp"
@@ -49,11 +50,11 @@ SDL2W::IWindow* g_mainWindow = nullptr;
 SDL2W::MouseData g_mouseData;
 std::mutex g_renderMtx;
 
-LOGLW::ITriangle* g_blueTriangle = nullptr;
-LOGLW::ITriangle* g_whiteTriangle = nullptr;
+LOGLW::Triangle* g_blueTriangle = nullptr;
+LOGLW::Triangle* g_whiteTriangle = nullptr;
 
-LOGLW::ITriangle* g_redTriangle = nullptr;
-LOGLW::ITriangle* g_yellowTriangle = nullptr;
+LOGLW::Triangle* g_redTriangle = nullptr;
+LOGLW::Triangle* g_yellowTriangle = nullptr;
 
 LOGLW::Sprite* g_sprite = nullptr;
 

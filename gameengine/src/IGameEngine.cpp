@@ -2,6 +2,7 @@
 #include "GameEngineConcrete.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/Primitives/Quad.hpp"
+#include "gameengine/Primitives/Triangle.hpp"
 #include "gameengine/Cube.hpp"
 #include "gameengine/Program.hpp"
 #include "gameengine/VertexArray.hpp"
@@ -70,6 +71,13 @@ Sprite* IGameEngine::createSprite()
 Quad* IGameEngine::createQuad( IObject* parent )
 {
     Quad* result = new Quad( getCamera(), *this, parent );
+
+    return result;
+}
+
+Triangle* IGameEngine::createTriangle( IObject* parent )
+{
+    Triangle* result = new Triangle( getCamera(), *this, parent );
 
     return result;
 }

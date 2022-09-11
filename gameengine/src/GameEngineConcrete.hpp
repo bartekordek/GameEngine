@@ -95,7 +95,7 @@ private:
     IObject* createFromFile( CUL::JSON::IJSONFile* file );
     IObject* createFromFile( IFile* file ) override;
     IObject* createTriangle( CUL::JSON::INode* jNode );
-    ITriangle* createTriangle( const TriangleData& data, const ColorS& color = ColorE::WHITE ) override;
+    Triangle* createTriangle( const TriangleData& data, const ColorS& color = ColorE::WHITE ) override;
     IQuad* createQuad( const QuadData& data, bool legacy = false, const ColorS& color = ColorE::WHITE ) override;
     ILine* createLine( const LineData& data, const ColorS& color = ColorE::WHITE ) override;
 

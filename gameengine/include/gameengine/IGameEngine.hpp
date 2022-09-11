@@ -44,6 +44,7 @@ class Camera;
 class Cube;
 class Sprite;
 class Quad;
+class Triangle;
 class Viewport;
 class IUtility;
 class Shader;
@@ -122,6 +123,7 @@ public:
     // Object Factory
     GAME_ENGINE_API Sprite* createSprite();
     GAME_ENGINE_API Quad* createQuad( IObject* parent );
+    GAME_ENGINE_API Triangle* createTriangle( IObject* parent );
     GAME_ENGINE_API class VertexArray* createVAO();
     GAME_ENGINE_API Cube* createCube();
 

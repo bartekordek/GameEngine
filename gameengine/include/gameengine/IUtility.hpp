@@ -52,7 +52,7 @@ using ColorE = CUL::Graphics::ColorE;
 using Pos3Dd = CUL::Graphics::Pos3Dd;
 using IFile = CUL::FS::IFile;
 using QuadCUL = CUL::MATH::Primitives::Quad;
-using Triangle = CUL::MATH::Primitives::Triangle;
+using TriangleCUL = CUL::MATH::Primitives::Triangle;
 using Triangle3D = CUL::MATH::Primitives::Triangle3D;
 using IFile = CUL::FS::IFile;
 
@@ -313,8 +313,8 @@ public:
     virtual void draw( const QuadData& quad, const ColorS& color ) = 0;
     virtual void draw( const QuadData& quad, const std::array<ColorS, 4>& color ) = 0;
 
-    virtual void draw( const Triangle& triangle, const ColorS& color ) = 0;
-    virtual void draw( const Triangle& quad, const std::array<ColorS, 4>& color ) = 0;
+    virtual void draw( const TriangleCUL& triangle, const ColorS& color ) = 0;
+    virtual void draw( const TriangleCUL& quad, const std::array<ColorS, 4>& color ) = 0;
     virtual void draw( const TriangleData& values, const std::array<ColorS, 3>& color ) = 0;
 
     virtual void draw( const LineData& values, const ColorS& color ) = 0;

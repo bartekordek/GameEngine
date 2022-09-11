@@ -2,12 +2,12 @@
 
 #include "gameengine/Camera.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/Primitives/Triangle.hpp"
 
 #include "Primitives/LineImpl.hpp"
 #include "Primitives/PointImpl.hpp"
 #include "Primitives/QuadImpl.hpp"
 #include "Primitives/QuadImplLegacy.hpp"
-#include "Primitives/TriangleImpl.hpp"
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 #include "ObjLoader.hpp"
 #include "gameengine/Sprite.hpp"
@@ -210,42 +210,44 @@ IObject* GameEngineConcrete::createFromFile( IFile* file )
     return nullptr;
 }
 
-IObject* GameEngineConcrete::createTriangle( CUL::JSON::INode* jNode )
+IObject* GameEngineConcrete::createTriangle( CUL::JSON::INode* /*jNode*/ )
 {
-    CUL::Assert::simple( CUL::JSON::ElementType::ARRAY == jNode->getType(), "Different types." );
-    CUL::Assert::simple( 3 == jNode->getArray().size(), "Defined triangle vertices count mismatch." );
+    IObject* result = nullptr;
 
-    auto triangle = new TriangleImpl( this );
+    //CUL::Assert::simple( CUL::JSON::ElementType::ARRAY == jNode->getType(), "Different types." );
+    //CUL::Assert::simple( 3 == jNode->getArray().size(), "Defined triangle vertices count mismatch." );
 
-    auto jsonToPoint = []( CUL::JSON::INode* node ) -> Point
-    {
-        CUL::Assert::simple( node->getType() == CUL::JSON::ElementType::ARRAY, "Vertice data type mismatch." );
+    //auto triangle = new Triangle( this );
 
-        auto px = node->findChild( "x" );
-        auto py = node->findChild( "y" );
-        auto pz = node->findChild( "z" );
+    //auto jsonToPoint = []( CUL::JSON::INode* node ) -> Point
+    //{
+    //    CUL::Assert::simple( node->getType() == CUL::JSON::ElementType::ARRAY, "Vertice data type mismatch." );
 
-        Point point;
-        point[0] = px->getDouble();
-        point[1] = py->getDouble();
-        point[2] = pz->getDouble();
-        return point;
-    };
+    //    auto px = node->findChild( "x" );
+    //    auto py = node->findChild( "y" );
+    //    auto pz = node->findChild( "z" );
 
-    const auto vertex1 = jNode->getArray()[0];
-    const auto vertex2 = jNode->getArray()[1];
-    const auto vertex3 = jNode->getArray()[2];
+    //    Point point;
+    //    point[0] = px->getDouble();
+    //    point[1] = py->getDouble();
+    //    point[2] = pz->getDouble();
+    //    return point;
+    //};
 
-    triangle->m_values[0] = jsonToPoint( vertex1 );
-    triangle->m_values[1] = jsonToPoint( vertex2 );
-    triangle->m_values[2] = jsonToPoint( vertex3 );
+    //const auto vertex1 = jNode->getArray()[0];
+    //const auto vertex2 = jNode->getArray()[1];
+    //const auto vertex3 = jNode->getArray()[2];
 
-    return triangle;
+    //triangle->m_values[0] = jsonToPoint( vertex1 );
+    //triangle->m_values[1] = jsonToPoint( vertex2 );
+    //triangle->m_values[2] = jsonToPoint( vertex3 );
+
+    return result;
 }
 
-ITriangle* GameEngineConcrete::createTriangle( const TriangleData& data, const ColorS& color )
+Triangle* GameEngineConcrete::createTriangle( const TriangleData& data, const ColorS& color )
 {
-    ITriangle* triangle = new TriangleImpl( this );
+    Triangle* triangle = new Triangle( getCamera(), *this, nullptr );
     triangle->setValues( data );
     triangle->setColor( color );
     return triangle;
@@ -612,7 +614,7 @@ void GameEngineConcrete::renderInfo()
     gpuCurrent /= 1024;
 
     ImGui::Text( "GPU USAGE:" );
-    static CUL::String val = CUL::String( gpuCurrent ) + CUL::String( "MB / " ) + CUL::String( gputTotal ) + CUL::String( "MB" );
+    const CUL::String val = CUL::String( (int)gpuCurrent ) + CUL::String( "MB / " ) + CUL::String( (int)gputTotal ) + CUL::String( "MB" );
     ImGui::ProgressBar( gpuCurrent / gputTotal, ImVec2( 0.f, 0.f ), val.cStr() );
 
     auto res = false;

@@ -551,7 +551,7 @@ void UtilConcrete::draw( const QuadCUL& quad, const std::array<ColorS, 4>& color
     glEnd();
 }
 
-void UtilConcrete::draw( const Triangle& triangle, const ColorS& color )
+void UtilConcrete::draw( const TriangleCUL& triangle, const ColorS& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -566,7 +566,7 @@ void UtilConcrete::draw( const Triangle& triangle, const ColorS& color )
     glEnd();
 }
 
-void UtilConcrete::draw( const Triangle& quad, const std::array<ColorS, 4>& color )
+void UtilConcrete::draw( const TriangleCUL& quad, const std::array<ColorS, 4>& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {

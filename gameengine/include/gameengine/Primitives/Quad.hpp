@@ -3,8 +3,6 @@
 #include "gameengine/IObject.hpp"
 #include "gameengine/IUtilityUser.hpp"
 
-#include "CUL/Graphics/Color.hpp"
-
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
