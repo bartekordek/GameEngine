@@ -8,8 +8,8 @@ set(EXEC LOGLW-AdditionalDeps)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../deps/SDL2Wrapper/deps/)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../deps/sdl2-repo ${CMAKE_CURRENT_BINARY_DIR}/../deps/sdl2-repo)
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../deps/SDL2Wrapper/deps/sdl2-repo/include)
+#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../deps/SDL2 ${CMAKE_CURRENT_BINARY_DIR}/../deps/SDL2)
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/../deps/SDL2Wrapper/deps/SDL2/include)
 
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${FREEGLUT_HOME}" )
 message( "[gameengine] 00 CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}" )
@@ -22,7 +22,7 @@ set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OGLW_OUTPUT_DIR} )
 
 add_library(${EXEC} STATIC
 imgui/backends/imgui_impl_opengl2.cpp
-#imgui/examples/imgui_impl_opengl3.cpp
+imgui/backends/imgui_impl_opengl3.cpp
 imgui/backends/imgui_impl_sdl.cpp
 #imgui/examples/imgui_impl_win32.cpp
 imgui/imgui.cpp

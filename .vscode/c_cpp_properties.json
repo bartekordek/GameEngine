@@ -13,7 +13,7 @@
                 "${workspaceFolder}/gameengine/src",
                 "${workspaceFolder}/deps/SDL2Wrapper/libsdl2wrapper/inc",
                 "${workspaceFolder}/deps/SDL2Wrapper/libsdl2wrapper/src",
-                "${workspaceFolder}/deps/SDL2Wrapper/deps/sdl2-repo/include",
+                "${workspaceFolder}/deps/SDL2Wrapper/deps/SDL2/include",
                 "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/inc",
                 "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/src",
                 "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/deps/glm"
@@ -41,7 +41,7 @@
                 "${workspaceFolder}/gameengine/src",
                 "${workspaceFolder}/deps/SDL2Wrapper/libsdl2wrapper/inc",
                 "${workspaceFolder}/deps/SDL2Wrapper/libsdl2wrapper/src",
-                "${workspaceFolder}/deps/SDL2Wrapper/deps/sdl2-repo/include",
+                "${workspaceFolder}/deps/SDL2Wrapper/deps/SDL2/include",
                 "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/inc",
                 "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/src",
                 "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/deps/glm"
