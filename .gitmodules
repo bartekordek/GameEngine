@@ -14,7 +14,7 @@
 	url = git@github.com:bartekordek/helpers.git
 [submodule "deps/imgui"]
 	path = deps/imgui
-	url = git@github.com:ocornut/imgui.git
+	url = git@github.com:bartekordek/imgui.git
 	ignore = dirty
 [submodule "deps/tinyobjloader"]
 	path = deps/tinyobjloader

@@ -18,8 +18,6 @@ public:
 
 protected:
 private:
-    bool isLegacy() override;
-
     void setProjection( const Camera& rect ) override;
     void setViewport( const Viewport& viewport ) override;
     void lookAt( const Camera& vp ) override;

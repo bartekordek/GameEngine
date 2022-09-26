@@ -68,16 +68,6 @@ UtilConcrete::UtilConcrete( CUL::CULInterface* culInterface, bool forceLegacy ) 
 {
 }
 
-bool UtilConcrete::isLegacy()
-{
-    if( m_forceLegacy )
-    {
-        return true;
-    }
-
-    return getVersion().major < 2;
-}
-
 // TODO: Remove:
 #if _MSC_VER
 #pragma warning( push )
@@ -107,7 +97,10 @@ void UtilConcrete::lookAt( const Camera& vp )
     const auto& eye = vp.getEye();
     const auto& center = vp.getCenter();
     const auto& up = vp.getUp();
-    gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z );
+    if( isLegacy() )
+    {
+        gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z );
+    }
 }
 
 void UtilConcrete::lookAt( const std::array<Pos3Dd, 3>& vec )
@@ -1222,6 +1215,10 @@ unsigned int UtilConcrete::generateBuffer( const BufferTypes bufferType, const i
         glGenBuffers( size, &bufferId );
     }
 
+    const GLenum err = glGetError();
+    const GLubyte* errorAsString = gluErrorString( err );
+    customAssert( GL_NO_ERROR == err, "Error creating program, error numer: " + CUL::String( errorAsString ) );
+
     return bufferId;
 }
 
@@ -1379,13 +1376,18 @@ void UtilConcrete::setTexuring( const bool enabled )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
-    if( enabled )
+
+    if( !getIsEmbeddedSystems() )
     {
-        glEnable( GL_TEXTURE_2D );
-    }
-    else
-    {
-        glDisable( GL_TEXTURE_2D );
+        if( enabled )
+        {
+            glEnable( GL_TEXTURE_2D );
+        }
+        else
+        {
+            glDisable( GL_TEXTURE_2D );
+        }
+        checkLastCommandForErrors();
     }
 }
 

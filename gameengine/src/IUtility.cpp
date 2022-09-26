@@ -50,7 +50,7 @@ void APIENTRY glDebugOutput(
     unsigned int id,
     GLenum severity,
     GLsizei /*length*/,
-    const char* /*message*/,
+    const char* message,
     const void* /*userParam*/
 )
 {
@@ -59,87 +59,85 @@ void APIENTRY glDebugOutput(
         return;
     }
 
+    String messageString = "Severity: ";
+
     switch( severity )
     {
-        case GL_DEBUG_SEVERITY_LOW:
-            g_logger->log( "Source: API", CUL::LOG::Severity::INFO );
+        case GL_DEBUG_SEVERITY_HIGH:
+            messageString += "HIGH";
             break;
         case GL_DEBUG_SEVERITY_MEDIUM:
-            g_logger->log( "Source: API", CUL::LOG::Severity::WARN );
+            messageString += "MEDIUM";
             break;
-        case GL_DEBUG_SEVERITY_HIGH:
-            g_logger->log( "Source: API", CUL::LOG::Severity::WARN );
+        case GL_DEBUG_SEVERITY_LOW:
+            messageString += "LOW";
+            break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION:
+            messageString += "NOTIFICATION";
             break;
     }
 
+    messageString += ", Source: ";
     switch( source )
     {
         case GL_DEBUG_SOURCE_API:
-            g_logger->log( "Source: API", CUL::LOG::Severity::WARN);
+            messageString += "API";
             break;
         case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-            g_logger->log( "Source: Window System", CUL::LOG::Severity::WARN );
+            messageString += "WINDOW SYSTEM";
             break;
         case GL_DEBUG_SOURCE_SHADER_COMPILER:
-            g_logger->log( "Source: Shader Compiler", CUL::LOG::Severity::WARN );
+            messageString += "SHADER COMPILER";
             break;
         case GL_DEBUG_SOURCE_THIRD_PARTY:
-            g_logger->log( "Source: Third Party", CUL::LOG::Severity::WARN );
+            messageString += "THIRD PARTY";
             break;
         case GL_DEBUG_SOURCE_APPLICATION:
-            g_logger->log( "Source: Application", CUL::LOG::Severity::WARN );
+            messageString += "APPLICATION";
             break;
         case GL_DEBUG_SOURCE_OTHER:
-            g_logger->log( "Source: Other", CUL::LOG::Severity::WARN );
+            messageString += "OTHER";
             break;
     }
 
+    messageString += ", Type: ";
     switch( type )
     {
         case GL_DEBUG_TYPE_ERROR:
-            g_logger->log( "Type: Error", CUL::LOG::Severity::WARN );
+            messageString += "ERROR";
             break;
         case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-            g_logger->log( "Type: Deprecated Behaviour", CUL::LOG::Severity::WARN );
+            messageString += "DEPRECATED BEHAVIOR";
             break;
         case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-            g_logger->log( "Type: Undefined Behaviour", CUL::LOG::Severity::WARN );
+            messageString += "UNDEFINED BEHAVIOR";
             break;
         case GL_DEBUG_TYPE_PORTABILITY:
-            g_logger->log( "Type: Portability", CUL::LOG::Severity::WARN );
+            messageString += "PORTABILITY";
             break;
         case GL_DEBUG_TYPE_PERFORMANCE:
-            g_logger->log( "Type: Performance", CUL::LOG::Severity::WARN );
+            messageString += "PERFORMANCE";
             break;
         case GL_DEBUG_TYPE_MARKER:
-            g_logger->log( "Type: Marker", CUL::LOG::Severity::WARN );
+            messageString += "MARKER";
             break;
         case GL_DEBUG_TYPE_PUSH_GROUP:
-            g_logger->log( "Type: Push Group", CUL::LOG::Severity::WARN );
+            messageString += "PUSH GROUP";
             break;
         case GL_DEBUG_TYPE_POP_GROUP:
-            g_logger->log( "Type: Pop Group", CUL::LOG::Severity::WARN );
+            messageString += "POP GROUP";
             break;
         case GL_DEBUG_TYPE_OTHER:
-            g_logger->log( "Type: Other", CUL::LOG::Severity::WARN );
+            messageString += "OTHER";
             break;
+        default:
+            messageString += "UNKOWN";
     }
+    messageString += ", Message: ";
+    messageString += message;
+    g_logger->log( messageString, CUL::LOG::Severity::WARN );
 
-    switch( severity )
-    {
-        case GL_DEBUG_SEVERITY_HIGH:
-            g_logger->log( "Severity: high", CUL::LOG::Severity::WARN );
-            break;
-        case GL_DEBUG_SEVERITY_MEDIUM:
-            g_logger->log( "Severity: medium", CUL::LOG::Severity::WARN );
-            break;
-        case GL_DEBUG_SEVERITY_LOW:
-            g_logger->log( "Severity: low", CUL::LOG::Severity::WARN );
-            break;
-        case GL_DEBUG_SEVERITY_NOTIFICATION:
-            g_logger->log( "Severity: notification", CUL::LOG::Severity::WARN );
-            break;
-    }
+    return;
 }
 
 
@@ -152,10 +150,21 @@ IUtility::IUtility( CUL::CULInterface* culInterface, bool forceLegacy )
     }
 
     glGetIntegerv( GL_MAJOR_VERSION, &m_supportedVersion.major );
-    glGetIntegerv( GL_MINOR_VERSION, &m_supportedVersion.minor );
+    checkLastCommandForErrors();
 
-    const std::string version = (char*)glGetString( GL_VERSION );
-    log( "OpenGL Version: " + version );
+
+    glGetIntegerv( GL_MINOR_VERSION, &m_supportedVersion.minor );
+    checkLastCommandForErrors();
+
+    m_versionString = (char*)glGetString( GL_VERSION );
+    checkLastCommandForErrors();
+    log( "OpenGL Version: " + m_versionString );
+
+    if( m_versionString.toLowerR().contains( "es" ) )
+    {
+        m_isEmbeddedSystems = true;
+    }
+
     g_logger = culInterface->getLogger();
 }
 
@@ -173,6 +182,7 @@ ContextInfo IUtility::initContextVersion( SDL2W::IWindow* window )
     ContextInfo result;
 
     result.glContext = window->createContext();
+    checkLastCommandForErrors();
     /*
     Context version can be only set after context creation.
     I.e. SDL: SDL_GL_DeleteContext call.
@@ -197,6 +207,7 @@ ContextInfo IUtility::initContextVersion( SDL2W::IWindow* window )
     //} SDL_GLprofile;
     const auto glStringVersion = glGetString( GL_VERSION );
     result.glVersion = glStringVersion;
+    checkLastCommandForErrors();
 
     if( true )
     {
@@ -207,7 +218,7 @@ ContextInfo IUtility::initContextVersion( SDL2W::IWindow* window )
         if( glDebugMessageCallbackARB )
         {
             glDebugMessageCallbackARB( glDebugOutput, nullptr );
-
+            checkLastCommandForErrors();
             log( "Debug message enabled.", CUL::LOG::Severity::WARN );
         }
     }
@@ -321,7 +332,17 @@ void IUtility::setPerspectiveProjection( const Camera& projectionData )
     auto ar = projectionData.getAspectRatio();
     auto zNear = projectionData.getZnear();
     auto zFar = projectionData.getZfar();
-    gluPerspective( fov, ar, zNear, zFar );
+    if( isLegacy() )
+    {
+         resetMatrixToIdentity( MatrixTypes::PROJECTION );
+         gluPerspective( fov, ar, zNear, zFar );
+    }
+}
+
+
+bool IUtility::getIsEmbeddedSystems() const
+{
+    return m_isEmbeddedSystems;
 }
 
 void IUtility::useProgram( int programId )
@@ -593,13 +614,38 @@ void IUtility::toggleDebugOutput( bool enable )
     if( enable )
     {
         glEnable( GL_DEBUG_OUTPUT );
+        checkLastCommandForErrors();
+
         glDebugMessageCallback( glDebugOutput, 0 );
+        checkLastCommandForErrors();
+
+        glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
+        checkLastCommandForErrors();
     }
     else
     {
         glDisable( GL_DEBUG_OUTPUT );
     }
 }
+
+void IUtility::checkLastCommandForErrors()
+{
+    const GLenum err = glGetError();
+    const GLubyte* errorAsString = gluErrorString( err );
+    customAssert( GL_NO_ERROR == err, "Error creating program, error numer: " + CUL::String( errorAsString ) );
+}
+
+
+bool IUtility::isLegacy()
+{
+    if( m_forceLegacy )
+    {
+        return true;
+    }
+
+    return getVersion().major < 2;
+}
+
 
 void IUtility::log( const String& text, const CUL::LOG::Severity severity ) const
 {

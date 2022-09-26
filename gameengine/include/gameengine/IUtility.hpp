@@ -208,7 +208,7 @@ class GAME_ENGINE_API IUtility
 public:
     IUtility( CUL::CULInterface* culInterface, bool forceLegacy );
 
-    virtual bool isLegacy() = 0;
+    bool isLegacy();
 
     virtual void resetMatrixToIdentity( const MatrixTypes matrix ) = 0;
     virtual void setProjection( const Camera& rect ) = 0;
@@ -354,6 +354,8 @@ public:
     void toggleDebugOutput( bool enable );
 
     void getLastOperationStatus();
+    void checkLastCommandForErrors();
+    bool getIsEmbeddedSystems() const;
 
     virtual ~IUtility();
 
@@ -374,6 +376,8 @@ private:
     CUL::LOG::Severity m_lastLogSeverity;
 
     int m_currentProgram = 0;
+    String m_versionString;
+    bool m_isEmbeddedSystems = false;
 };
 
 NAMESPACE_END( LOGLW )

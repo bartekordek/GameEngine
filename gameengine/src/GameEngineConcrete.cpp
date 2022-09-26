@@ -137,18 +137,9 @@ const Viewport& GameEngineConcrete::getViewport() const
     return m_viewport;
 }
 
-// ProjectionData& GameEngineConcrete::getProjectionData()
-//{
-//     return m_projectionData;
-// }
-
 VertexBuffer* GameEngineConcrete::createVBO( std::vector<float>& )
 {
     VertexBuffer* result = nullptr;
-    // addTask( [this, &data, &vboCallback]() {
-    //     VertexBuffer* vbo = new VertexBuffer( data );
-    //     vboCallback( vbo );
-    // } );
     return result;
 }
 
@@ -177,7 +168,6 @@ IObject* GameEngineConcrete::createFromFile( const String& path )
             // auto dsadas = 0;
         }
 
-        // auto model = new Model();
     }
     return nullptr;
 }
@@ -213,34 +203,6 @@ IObject* GameEngineConcrete::createFromFile( IFile* file )
 IObject* GameEngineConcrete::createTriangle( CUL::JSON::INode* /*jNode*/ )
 {
     IObject* result = nullptr;
-
-    //CUL::Assert::simple( CUL::JSON::ElementType::ARRAY == jNode->getType(), "Different types." );
-    //CUL::Assert::simple( 3 == jNode->getArray().size(), "Defined triangle vertices count mismatch." );
-
-    //auto triangle = new Triangle( this );
-
-    //auto jsonToPoint = []( CUL::JSON::INode* node ) -> Point
-    //{
-    //    CUL::Assert::simple( node->getType() == CUL::JSON::ElementType::ARRAY, "Vertice data type mismatch." );
-
-    //    auto px = node->findChild( "x" );
-    //    auto py = node->findChild( "y" );
-    //    auto pz = node->findChild( "z" );
-
-    //    Point point;
-    //    point[0] = px->getDouble();
-    //    point[1] = py->getDouble();
-    //    point[2] = pz->getDouble();
-    //    return point;
-    //};
-
-    //const auto vertex1 = jNode->getArray()[0];
-    //const auto vertex2 = jNode->getArray()[1];
-    //const auto vertex3 = jNode->getArray()[2];
-
-    //triangle->m_values[0] = jsonToPoint( vertex1 );
-    //triangle->m_values[1] = jsonToPoint( vertex2 );
-    //triangle->m_values[2] = jsonToPoint( vertex3 );
 
     return result;
 }
@@ -348,7 +310,14 @@ void GameEngineConcrete::mainThread()
 
     if( m_debugDrawInitialized )
     {
-        ImGui_ImplOpenGL2_Shutdown();
+        if( m_oglUtility->getIsEmbeddedSystems() )
+        {
+            ImGui_ImplOpenGL3_Shutdown();
+        }
+        else
+        {
+            ImGui_ImplOpenGL2_Shutdown();
+        }
         ImGui_ImplSDL2_Shutdown();
         ImGui::DestroyContext();
     }
@@ -427,7 +396,15 @@ void GameEngineConcrete::initDebugInfo()
         ImGui::StyleColorsDark();
 
         ImGui_ImplSDL2_InitForOpenGL( *m_activeWindow, getContext().glContext );
-        ImGui_ImplOpenGL2_Init();
+
+        if( getUtility()->getIsEmbeddedSystems() )
+        {
+            ImGui_ImplOpenGL3_Init();
+        }
+        else
+        {
+            ImGui_ImplOpenGL2_Init();
+        }
 
         m_debugDrawInitialized = true;
     }
@@ -593,7 +570,14 @@ void GameEngineConcrete::renderInfo()
 {
     const auto& winSize = m_activeWindow->getSize();
 
-    ImGui_ImplOpenGL2_NewFrame();
+    if( m_oglUtility->getIsEmbeddedSystems() )
+    {
+        ImGui_ImplOpenGL3_NewFrame();
+    }
+    else
+    {
+        ImGui_ImplOpenGL2_NewFrame();
+    }
 
     ImGui_ImplSDL2_NewFrame( *m_activeWindow );
 
@@ -606,6 +590,7 @@ void GameEngineConcrete::renderInfo()
     ImGui::SetWindowSize( { (float)winSize.getWidth() * 0.2f, (float)winSize.getHeight() * 1.f } );
 
     ImGui::Text( "Legacy: %s", getUtility()->isLegacy() ? "true" : "false" );
+    ImGui::Text( "Renderer: %s", m_activeWindow->getRenderName().cStr() );
 
     float gputTotal = getGPUTotalAvailableMemoryKb();
     gputTotal /= 1024;
@@ -772,7 +757,14 @@ void GameEngineConcrete::renderInfo()
 
     ImGui::Render();
 
-    ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData() );
+    if( m_oglUtility->getIsEmbeddedSystems() )
+    {
+        ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+    }
+    else
+    {
+        ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData() );
+    }
 }
 #if _MSC_VER
 #pragma warning( pop )

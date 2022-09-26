@@ -29,7 +29,6 @@ IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width,
     SDL2W::WindowData windowData;
     windowData.name = "Test";
     windowData.currentRes.setSize( width, height );
-    windowData.rendererName = "opengl";
     windowData.name = winName;
 
     init( windowData, fullscreen, configPath, legacy );

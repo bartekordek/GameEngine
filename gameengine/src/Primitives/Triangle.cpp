@@ -15,7 +15,12 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent ) : IOb
     setParent( parent );
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );
+    const float size = 2.f;
+    m_transformComponent->setSize( CUL::MATH::Point( size, size, size ) );
+
+    m_triangleMath.vals[0] = { 0.f, size / 2.f, 0.f };
+    m_triangleMath.vals[1] = { size / 2.f, -size / 2.f, 0.f };
+    m_triangleMath.vals[2] = { -size / 2.f, -size / 2.f, 0.f };
 
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -48,28 +53,9 @@ void Triangle::init()
 void Triangle::createBuffers()
 {
     LOGLW::VertexBufferData vboData;
-    vboData.indices = {
-        // note that we start from 0!
-        0, 1, 3,  // first Triangle
-        1, 2, 3   // second Triangle
-    };
-
     const CUL::MATH::Point& size = m_transformComponent->getSize();
 
-    float x0 = size.x() / 2.f;
-    float y0 = size.y();
-
-    float x1 = size.x();
-    float y1 = 0.f;
-
-    float x2 = 0.f;
-    float y2 = 0.f;
-
-    vboData.vertices = {
-        x0, y0, 0.f,  // top right
-        x1, y1, 0.f,  // bottom right
-        x2, y2, 0.f,  // bottom left
-    };
+    vboData.vertices = m_triangleMath.toVectorOfFloat();
 
     vboData.containsColorData = false;
     vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
@@ -107,16 +93,6 @@ void Triangle::render()
 {
     if( getUtility()->isLegacy() )
     {
-        auto size = m_transformComponent->getSize();
-
-        QuadCUL quad;
-        quad[1][0] = size.x();
-
-        quad[2][0] = size.x();
-        quad[2][1] = size.y();
-
-        quad[3][1] = size.y();
-
         getUtility()->matrixStackPush();
 
         const auto position = m_transformComponent->getWorldPosition();
@@ -125,7 +101,7 @@ void Triangle::render()
         getUtility()->translate( position );
 
         getUtility()->rotate( rotation );
-        getUtility()->draw( quad, m_color );
+        getUtility()->draw( m_triangleMath, m_color );
 
         getUtility()->matrixStackPop();
     }

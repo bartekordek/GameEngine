@@ -33,6 +33,7 @@ private:
     void applyColor();
     void release();
 
+    TriangleCUL m_triangleMath;
     TransformComponent* m_transformComponent = nullptr;
     std::atomic<bool> m_recreateBuffers = false;
     class Program* m_shaderProgram = nullptr;

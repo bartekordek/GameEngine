@@ -29,7 +29,7 @@ endif()
 
 find_package( GLEW REQUIRED )
 
-file( GLOB_RECURSE SOURCES include/*.hpp src/*.hpp src/*.cpp )
+file( GLOB_RECURSE SOURCES */*.hpp */*.cpp */*.frag */*.vert )
 
 source_group( TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} )
 
