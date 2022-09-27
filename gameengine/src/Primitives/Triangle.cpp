@@ -53,10 +53,7 @@ void Triangle::init()
 void Triangle::createBuffers()
 {
     LOGLW::VertexBufferData vboData;
-    const CUL::MATH::Point& size = m_transformComponent->getSize();
-
     vboData.vertices = m_triangleMath.toVectorOfFloat();
-
     vboData.containsColorData = false;
     vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
 
