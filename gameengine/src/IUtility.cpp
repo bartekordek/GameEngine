@@ -570,6 +570,20 @@ void IUtility::rotate( const CUL::MATH::Rotation& rotation )
     glRotatef( rotation.roll.getDeg(), 0.f, 0.f, 1.f );
 }
 
+void IUtility::draw( const CUL::MATH::Primitives::Line& values, const ColorS& color )
+{
+    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    glBegin( GL_LINES );
+        glColor4f( color.getRF(), color.getGF(), color.getBF(), color.getAF() );
+        glVertex3f( values[0][0], values[0][1], values[0][2] );
+        glVertex3f( values[1][0], values[1][1], values[1][2] );
+    glEnd();
+}
+
 void IUtility::rotate( const float angleDeg, const float x, const float y, const float z )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )

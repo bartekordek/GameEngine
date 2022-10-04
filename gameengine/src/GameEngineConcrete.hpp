@@ -69,7 +69,6 @@ struct DebugValueRow
 };
 
 class GameEngineConcrete final: public IGameEngine,
-                                private IObjectFactory,
                                 private IDebugOverlay,
                                 private SDL2W::ISDLEventObserver,
                                 private ITextureFactory
@@ -97,7 +96,6 @@ private:
     IObject* createTriangle( CUL::JSON::INode* jNode );
     Triangle* createTriangle( const TriangleData& data, const ColorS& color = ColorE::WHITE ) override;
     IQuad* createQuad( const QuadData& data, bool legacy = false, const ColorS& color = ColorE::WHITE ) override;
-    ILine* createLine( const LineData& data, const ColorS& color = ColorE::WHITE ) override;
 
     IPoint* createPoint( const Point& position, const ColorS& color = ColorE::WHITE ) override;
 
@@ -112,7 +110,6 @@ private:
     void onInitialize( const EmptyFunctionCallback& callback ) override;
     void beforeFrame( const EmptyFunctionCallback& callback ) override;
 
-    IObjectFactory* getObjectFactory() override;
     IImageLoader* getImageLoader() override;
     CUL::LOG::ILogger* getLoger() override;
     IUtility* getUtility() override;
@@ -148,7 +145,6 @@ private:
     CUL::GUTILS::IConfigFile* getConfig() override;
 
     void drawDebugInfo( const bool enable ) override;
-    void drawOrigin( bool enable ) override;
 
     IDebugOverlay* getDebugOverlay() override;
     void handleEvent( const SDL_Event& event ) override;
@@ -235,9 +231,6 @@ private:
     bool m_hasBeenInitialized = false;
     bool m_userInitialized = false;
     SafeBool m_drawQuad = false;
-    SafeBool m_drawOrigin = false;
-
-    std::array<IObject*, 3> m_axis = { nullptr, nullptr, nullptr };
 
     std::map<String, CUL::GUTILS::Version> m_renderersVersions;
 

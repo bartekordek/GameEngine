@@ -178,7 +178,7 @@ void VertexArray::registerTask( TaskType taskType )
 
 void VertexArray::createVBOs()
 {
-    std::lock_guard<std::mutex> guard( m_vbosMtx );
+    bind();
     while( !m_vboDataToPrepare.empty() )
     {
         auto vboData = m_vboDataToPrepare.back();

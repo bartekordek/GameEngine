@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gameengine/Primitives/IQuad.hpp"
-#include "gameengine/Primitives/ILine.hpp"
 #include "gameengine/Primitives/IPoint.hpp"
 
 #include "CUL/Filesystem/IFile.hpp"
@@ -10,6 +9,7 @@ NAMESPACE_BEGIN( LOGLW )
 
 class Sprite;
 class Triangle;
+class Line;
 using String = CUL::String;
 
 class GAME_ENGINE_API IObjectFactory
@@ -24,8 +24,6 @@ public:
     virtual Triangle* createTriangle( const TriangleData& data, const ColorS& color = ColorE::WHITE ) = 0;
 
     virtual IQuad* createQuad( const QuadData& data, bool legacy = false, const ColorS& color = ColorE::WHITE ) = 0;
-
-    virtual ILine* createLine( const LineData& data,  const ColorS& color = ColorE::WHITE) = 0;
 
     virtual IPoint* createPoint(const Point& position, const ColorS& color = ColorE::WHITE) = 0;
 

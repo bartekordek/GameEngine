@@ -71,10 +71,10 @@ void Quad::createBuffers()
 
     const CUL::MATH::Point& size = m_transformComponent->getSize();
 
-    float x0 = 0.f;
+    float x0 = 0.0f;
     float x1 = size.x();
 
-    float y0 = 0.f;
+    float y0 = 0.0f;
     float y1 = size.y();
 
     vboData.vertices = {

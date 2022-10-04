@@ -17,6 +17,7 @@
 
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
 #include "CUL/STL_IMPORTS/STD_queue.hpp"
+#include "CUL/STL_IMPORTS/STD_atomic.hpp"
 
 NAMESPACE_BEGIN( CUL )
 NAMESPACE_BEGIN( GUTILS )
@@ -62,7 +63,10 @@ using EmptyFunctionCallback = std::function<void()>;
 using IPreRenderTask = CUL::GUTILS::ITask;
 using Pos3Df = CUL::Graphics::Pos3Dd;
 
-class IGameEngine: public SDL2W::IMouseObservable, public SDL2W::IKeyboardObservable, public SDL2W::IWindowEventObservable
+class IGameEngine: public SDL2W::IMouseObservable,
+                   public SDL2W::IKeyboardObservable,
+                   public SDL2W::IWindowEventObservable,
+                   private IObjectFactory
 {
 public:
     IGameEngine();
@@ -79,7 +83,7 @@ public:
     GAME_ENGINE_API virtual void stopRenderingLoop() = 0;
     GAME_ENGINE_API virtual void onInitialize( const EmptyFunctionCallback& callback ) = 0;
 
-    GAME_ENGINE_API virtual IObjectFactory* getObjectFactory() = 0;
+    GAME_ENGINE_API IObjectFactory* getObjectFactory();
     GAME_ENGINE_API virtual IImageLoader* getImageLoader() = 0;
     GAME_ENGINE_API virtual IUtility* getUtility() = 0;
     GAME_ENGINE_API virtual const Viewport& getViewport() const = 0;
@@ -101,7 +105,7 @@ public:
     GAME_ENGINE_API virtual const ContextInfo& getContext() const = 0;
 
     GAME_ENGINE_API virtual void drawDebugInfo( const bool enable ) = 0;
-    GAME_ENGINE_API virtual void drawOrigin( bool enable ) = 0;
+    GAME_ENGINE_API void drawOrigin( bool enable );
 
     GAME_ENGINE_API virtual IDebugOverlay* getDebugOverlay() = 0;
 
@@ -122,8 +126,9 @@ public:
 
     // Object Factory
     GAME_ENGINE_API Sprite* createSprite();
-    GAME_ENGINE_API Quad* createQuad( IObject* parent );
+    GAME_ENGINE_API Line* createLine( IObject* parent );
     GAME_ENGINE_API Triangle* createTriangle( IObject* parent );
+    GAME_ENGINE_API Quad* createQuad( IObject* parent );
     GAME_ENGINE_API class VertexArray* createVAO();
     GAME_ENGINE_API Cube* createCube();
 
@@ -161,6 +166,8 @@ public:
     GAME_ENGINE_API virtual ~IGameEngine();
 
 protected:
+    std::atomic_bool m_drawOrigin = false;
+    std::array<IObject*, 3> m_axis = { nullptr, nullptr, nullptr };
     struct GUIParams
     {
         float z = 0.0f;

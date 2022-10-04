@@ -1,4 +1,4 @@
-#include "gameengine/Primitives/Triangle.hpp"
+#include "gameengine/Primitives/Line.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/IGameEngine.hpp"
@@ -9,7 +9,7 @@
 
 using namespace LOGLW;
 
-Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &engine ), m_camera( camera ), m_engine( engine )
+Line::Line( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &engine ), m_camera( camera ), m_engine( engine )
 {
     m_transformComponent = getTransform();
     setParent( parent );
@@ -17,10 +17,13 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent ) : IOb
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     const float size = 2.f;
     m_transformComponent->setSize( CUL::MATH::Point( size, size, size ) );
+    m_transformComponent->setPivot( { 0.f, 0.f, 0.f } );
 
-    m_triangleMath.vals[0] = { 0.0f, 0.0f, 0.0f };
-    m_triangleMath.vals[1] = { size / 2.f, size, 0.f };
-    m_triangleMath.vals[2] = { size, 0.f, 0.f };
+    m_line.data[1] = { size, 0.f, 0.f };
+
+    m_transformComponent->changeSizeDelegate.addDelegate( [this]() {
+        m_recreateBuffers = true;
+    } );
 
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -36,7 +39,7 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent ) : IOb
     }
 }
 
-void Triangle::init()
+void Line::init()
 {
     if( getUtility()->isLegacy() )
     {
@@ -50,12 +53,12 @@ void Triangle::init()
     }
 }
 
-void Triangle::createBuffers()
+void Line::createBuffers()
 {
     LOGLW::VertexBufferData vboData;
-    vboData.vertices = m_triangleMath.toVectorOfFloat();
+    vboData.vertices = m_line.toVectorOfFloat();
     vboData.containsColorData = false;
-    vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
+    vboData.primitiveType = LOGLW::PrimitiveType::LINE_STRIP;
 
     m_vao = m_engine.createVAO();
     m_vao->setDisableRenderOnMyOwn( true );
@@ -63,7 +66,7 @@ void Triangle::createBuffers()
     m_vao->addVertexBuffer( vboData );
 }
 
-void Triangle::createShaders()
+void Line::createShaders()
 {
     m_shaderProgram = getEngine().createProgram();
 
@@ -86,7 +89,7 @@ void Triangle::createShaders()
     m_shaderProgram->enable();
 }
 
-void Triangle::render()
+void Line::render()
 {
     if( getUtility()->isLegacy() )
     {
@@ -98,7 +101,7 @@ void Triangle::render()
         getUtility()->translate( position );
 
         getUtility()->rotate( rotation );
-        getUtility()->draw( m_triangleMath, m_color );
+        getUtility()->draw( m_line, m_color );
 
         getUtility()->matrixStackPop();
     }
@@ -121,7 +124,7 @@ void Triangle::render()
     }
 }
 
-void Triangle::setTransformation()
+void Line::setTransformation()
 {
     Camera& camera = m_engine.getCamera();
     auto projectionMatrix = camera.getProjectionMatrix();
@@ -134,27 +137,28 @@ void Triangle::setTransformation()
     m_shaderProgram->setUniform( "model", model );
 }
 
-void Triangle::applyColor()
+void Line::applyColor()
 {
     m_shaderProgram->setUniform( "color", m_color.getVec4() );
 }
 
-void Triangle::setValues( const TriangleData& values )
+void Line::setValues( const CUL::MATH::Primitives::Line& values )
 {
-    m_data = values;
+    m_line = values;
 }
 
-void Triangle::setColor( const TriangleColors& colors )
-{
-    m_triangleColors = colors;
-}
-
-void Triangle::setColor( const ColorS& color )
+void Line::setColor( const ColorS& color )
 {
     m_color = color;
 }
 
-Triangle::~Triangle()
+void Line::setLength( float length )
+{
+    m_transformComponent->setSize( { length, length, length } );
+    m_line.data[1] = { length, 0.f, 0.f };
+}
+
+Line::~Line()
 {
     if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -170,14 +174,14 @@ Triangle::~Triangle()
     }
 }
 
-void Triangle::release()
+void Line::release()
 {
     deleteBuffers();
     m_engine.removeProgram( m_shaderProgram );
     m_shaderProgram = nullptr;
 }
 
-void Triangle::deleteBuffers()
+void Line::deleteBuffers()
 {
     delete m_vao;
     m_vao = nullptr;

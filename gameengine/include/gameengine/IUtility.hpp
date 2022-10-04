@@ -319,6 +319,7 @@ public:
 
     virtual void draw( const LineData& values, const ColorS& color ) = 0;
     virtual void draw( const LineData& values, const LineColors& color ) = 0;
+    void draw( const CUL::MATH::Primitives::Line& values, const ColorS& color );
 
     virtual void draw( const Point& position, const ColorS& color ) = 0;
 

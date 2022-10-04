@@ -23,7 +23,8 @@ void TransformComponent::setWorldPosition( Pos::Type x, Pos::Type y, Pos::Type z
 
 const TransformComponent::Pos TransformComponent::getWorldPosition() const
 {
-    return m_pos - m_pivotReal;
+    //return m_pos - m_pivotReal;
+    return m_pos;
 }
 
 void TransformComponent::setWorldAngle( CUL::MATH::EulerAngles type, const CUL::MATH::Angle& angle )
@@ -170,7 +171,7 @@ glm::mat4 TransformComponent::getTranslation()
 {
     glm::mat4 result(1.f);
 
-    const Pos& position = getWorldPosition();
+    const Pos& position = m_pos - m_pivotReal;
     glm::vec3 posVec = position.toGlmVec();
     result = glm::translate( result, posVec );
 
@@ -191,7 +192,7 @@ void TransformComponent::setPivot( const TransformComponent::Pos& pivot )
 void TransformComponent::addOnChangeCallback(const String& callbackName, const std::function<void( const Pos& position )> callback)
 {
     auto it = m_onChangeCallbacks.find(callbackName);
-    if( it != m_onChangeCallbacks.end() )
+    if( it == m_onChangeCallbacks.end() )
     {
         m_onChangeCallbacks[callbackName] = callback;
     }

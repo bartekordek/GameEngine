@@ -112,11 +112,6 @@ void GameEngineConcrete::beforeFrame( const EmptyFunctionCallback& callback )
     m_onBeforeFrame = callback;
 }
 
-IObjectFactory* GameEngineConcrete::getObjectFactory()
-{
-    return this;
-}
-
 IImageLoader* GameEngineConcrete::getImageLoader()
 {
     return m_imageLoader;
@@ -232,15 +227,6 @@ IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS&
     quad->setColor( color );
 
     return quad;
-}
-
-ILine* GameEngineConcrete::createLine( const LineData& data, const ColorS& color )
-{
-    ILine* line = new LineImpl( this );
-    line->setValues( data );
-    line->setColor( color );
-
-    return line;
 }
 
 IPoint* GameEngineConcrete::createPoint( const Point& position, const ColorS& color )
@@ -933,43 +919,6 @@ void GameEngineConcrete::drawDebugInfo( const bool enable )
     }
 
     m_sdlW->getMainWindow()->toggleFpsCounter( enable );
-}
-
-void GameEngineConcrete::drawOrigin( bool enable )
-{
-    if( enable )
-    {
-        if( m_axis[0] == nullptr )
-        {
-            const float length = 1024.f;
-            LineData lineData;
-            lineData[0] = { -length / 2.f, 0.f, 0.f };
-            lineData[1] = { length / 2.f, 0.f, 0.f };
-
-            // X
-            m_axis[0] = createLine( lineData, ColorE::RED );
-
-            // Y
-            lineData[0] = { 0.f, -length / 2.f, 0.f };
-            lineData[1] = { 0.f, length / 2.f, 0.f };
-            m_axis[1] = createLine( lineData, ColorE::GREEN );
-
-            // Z
-            lineData[0] = { 0.f, 0.f, -length / 2.f };
-            lineData[1] = { 0.f, 0.f, length / 2.f };
-            m_axis[2] = createLine( lineData, ColorE::BLUE );
-        }
-    }
-    else
-    {
-        if( m_axis[0] == nullptr )
-        {
-            for( const auto& axis : m_axis )
-            {
-                removeObject( axis );
-            }
-        }
-    }
 }
 
 IDebugOverlay* GameEngineConcrete::getDebugOverlay()

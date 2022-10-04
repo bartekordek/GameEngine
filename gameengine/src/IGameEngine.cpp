@@ -1,8 +1,12 @@
 #include "gameengine/IGameEngine.hpp"
 #include "GameEngineConcrete.hpp"
 #include "gameengine/Camera.hpp"
-#include "gameengine/Primitives/Quad.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
+
+#include "gameengine/Primitives/Line.hpp"
 #include "gameengine/Primitives/Triangle.hpp"
+#include "gameengine/Primitives/Quad.hpp"
+
 #include "gameengine/Cube.hpp"
 #include "gameengine/Program.hpp"
 #include "gameengine/VertexArray.hpp"
@@ -68,16 +72,24 @@ Sprite* IGameEngine::createSprite()
     return sprite;
 }
 
-Quad* IGameEngine::createQuad( IObject* parent )
-{
-    Quad* result = new Quad( getCamera(), *this, parent );
 
-    return result;
+Line* IGameEngine::createLine( IObject* parent )
+{
+    Line* line = new Line( getCamera(), *this, parent );
+    return line;
 }
 
 Triangle* IGameEngine::createTriangle( IObject* parent )
 {
     Triangle* result = new Triangle( getCamera(), *this, parent );
+
+    return result;
+}
+
+
+Quad* IGameEngine::createQuad( IObject* parent )
+{
+    Quad* result = new Quad( getCamera(), *this, parent );
 
     return result;
 }
@@ -97,6 +109,51 @@ VertexArray* IGameEngine::createVAO()
 Cube* IGameEngine::createCube()
 {
     return new Cube( &getCamera(), this );
+}
+
+void IGameEngine::drawOrigin( bool enable )
+{
+    if( enable )
+    {
+        if( m_axis[0] == nullptr )
+        {
+            static float originLinesLength = 4096.f;
+            // X
+            Line* lineX = createLine( nullptr );
+            lineX->setColor( ColorE::RED );
+            lineX->setLength( originLinesLength );
+            m_axis[0] = lineX;
+
+            CUL::MATH::Rotation rotation;
+
+            // Y
+            Line* lineY = createLine( nullptr );
+            lineY->setColor( ColorE::GREEN );
+            rotation.roll.setValue( 90, CUL::MATH::Angle::Type::DEGREE );
+            lineY->getTransform()->setWorldRotation( rotation );
+            lineY->setLength( originLinesLength );
+            m_axis[1] = lineY;
+
+            rotation.roll.setValue( 0, CUL::MATH::Angle::Type::DEGREE );   
+            rotation.yaw.setValue( 90, CUL::MATH::Angle::Type::DEGREE );
+            // Z
+            Line* lineZ = createLine( nullptr );
+            lineZ->setColor( ColorE::BLUE );
+            lineZ->getTransform()->setWorldRotation( rotation );
+            lineZ->setLength( originLinesLength );
+            m_axis[0] = lineZ;
+        }
+    }
+    else
+    {
+        if( m_axis[0] == nullptr )
+        {
+            for( const auto& axis : m_axis )
+            {
+                removeObject( axis );
+            }
+        }
+    }
 }
 
 Program* IGameEngine::createProgram()
@@ -242,6 +299,11 @@ Shader* IGameEngine::findShader( const String& path ) const
     }
 
     return nullptr;
+}
+
+IObjectFactory* IGameEngine::getObjectFactory()
+{
+    return this;
 }
 
 IGameEngine::~IGameEngine()
