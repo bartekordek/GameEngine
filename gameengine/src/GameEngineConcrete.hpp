@@ -27,7 +27,7 @@
 union SDL_Event;
 
 NAMESPACE_BEGIN( SDL2W )
-class IKey;
+class Key;
 class IKeyboardObserver;
 NAMESPACE_END( SDL2W )
 
@@ -167,8 +167,7 @@ private:
     void unregisterMouseEventListener( SDL2W::IMouseObserver* observer ) override;
     SDL2W::MouseData& getMouseData() override;
 
-    // SDL2W::IKeyboardObservable
-    void registerKeyboardEventCallback( const std::function<void( const SDL2W::IKey& key )>& callback ) override;
+    void registerKeyboardEventCallback( const std::function<void( const SDL2W::KeyboardState& key )>& callback ) override;
 
     void registerKeyboardEventListener( SDL2W::IKeyboardObserver* observer ) override;
     void unregisterKeyboardEventListener( SDL2W::IKeyboardObserver* observer ) override;

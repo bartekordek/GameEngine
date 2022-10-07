@@ -185,7 +185,7 @@ void Sprite::renderModern()
         init();
     }
 
-    getUtility()->setActiveTexture( m_textureId );
+    getUtility()->setActiveTextureUnit( ETextureUnitIndex::UNIT_0 );
     getUtility()->bindTexture( m_textureId );
 
     m_shaderProgram->enable();

@@ -7,7 +7,6 @@
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
-#include "SDL2Wrapper/Input/IKey.hpp"
 
 #include "CUL/ITimer.hpp"
 
@@ -123,17 +122,17 @@ void Game::afterInit()
         }
     }
 
-    m_testQuadUp = m_oglw->createQuad( nullptr );
-    m_testQuadUp->getTransform()->setPivot( { 0.5f, 0.f, 0.f } );
-    m_testQuadUp->getTransform()->setSize( { size, size, size } );
-    m_testQuadUp->getTransform()->setWorldPosition( 0.f, 0.0f, 200.f );
-    m_testQuadUp->setColor( CUL::Graphics::ColorE::GREEN );
+    //m_testQuadUp = m_oglw->createQuad( nullptr );
+    //m_testQuadUp->getTransform()->setPivot( { 0.5f, 0.f, 0.f } );
+    //m_testQuadUp->getTransform()->setSize( { size, size, size } );
+    //m_testQuadUp->getTransform()->setWorldPosition( 0.f, 0.0f, 200.f );
+    //m_testQuadUp->setColor( CUL::Graphics::ColorE::GREEN );
 
-    m_testQuadDown = m_oglw->createQuad( nullptr );
-    m_testQuadDown->getTransform()->setPivot( { 0.5f, 1.f, 0.f } );
-    m_testQuadDown->getTransform()->setSize( { size, size, size } );
-    m_testQuadDown->getTransform()->setWorldPosition( 0.0f, 0.f, 200.f );
-    m_testQuadDown->setColor( CUL::Graphics::ColorE::RED );
+    //m_testQuadDown = m_oglw->createQuad( nullptr );
+    //m_testQuadDown->getTransform()->setPivot( { 0.5f, 1.f, 0.f } );
+    //m_testQuadDown->getTransform()->setSize( { size, size, size } );
+    //m_testQuadDown->getTransform()->setWorldPosition( 0.0f, 0.f, 200.f );
+    //m_testQuadDown->setColor( CUL::Graphics::ColorE::RED );
 
     m_boardInitializedB = true;
     m_boardInitialized.notify_one();
@@ -330,55 +329,46 @@ void Game::onMouseEvent( const SDL2W::MouseData& mouseData )
     }
 }
 
-void Game::onKeyBoardEvent( const SDL2W::IKey& key )
+void Game::onKeyBoardEvent( const SDL2W::KeyboardState& key )
 {
-    if( key.getKeyIsDown() == false )
-    {
-        return;
-    }
-
-    m_logger->log( "Key: " + key.getKeyName() );
-
-    const CUL::String& keyName = key.getKeyName();
-
     if( !m_snakeHasMoved )
     {
-        if( keyName == "Up" )
+        if( key.at( "Up" ) )
         {
             changeSnakeMoveDirection( Snake::HeadDirection::NORTH );
         }
-        else if( keyName == "Down" )
+        if( key.at( "Down" ) )
         {
             changeSnakeMoveDirection( Snake::HeadDirection::SOUTH );
         }
-        else if( keyName == "Left" )
+        if( key.at( "Left" ) )
         {
             changeSnakeMoveDirection( Snake::HeadDirection::WEST );
         }
-        else if( keyName == "Right" )
+        if( key.at( "Right" ) )
         {
             changeSnakeMoveDirection( Snake::HeadDirection::EAST );
         }
     }
 
-    if( keyName == "U" )
+    if( key.at( "U" ) )
     {
         glm::vec3 eyePos = m_oglw->getCamera().getEye();
         eyePos.z += 1.f;
         m_oglw->getCamera().setEyePos( eyePos );
     }
-    else if( keyName == "J" )
+    if( key.at( "J" ) )
     {
         glm::vec3 eyePos = m_oglw->getCamera().getEye();
         eyePos.z -= 1.f;
         m_oglw->getCamera().setEyePos( eyePos );
     }
 
-    if( keyName == "Q" )
+    if( key.at( "Q" ) )
     {
         closeApp();
     }
-    else if( keyName == "P" )
+    else if( key.at( "P" ) )
     {
         static bool toggle = true;
         if( toggle == true )
@@ -393,13 +383,13 @@ void Game::onKeyBoardEvent( const SDL2W::IKey& key )
         }
         toggle = !toggle;
     }
-    else if( keyName == "F" )
+    else if( key.at( "F" ) )
     {
         static bool fullScreen = false;
         fullScreen = !fullScreen;
         m_sdlw->getMainWindow()->setFullscreen( fullScreen );
     }
-    else if( keyName == "S" )
+    else if( key.at( "S" ) )
     {
         m_viewport = m_oglw->getViewport();
         if( m_currentResolution == m_possibleSizes.size() - 1 )

@@ -6,7 +6,6 @@
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Primitives/Triangle.hpp"
 
-#include "SDL2Wrapper/Input/IKey.hpp"
 #include "SDL2Wrapper/IWindowEventListener.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
 #include "SDL2Wrapper/WindowData.hpp"
@@ -69,7 +68,7 @@ CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 
 void afterInit();
 void renderScene();
-void onKeyBoardEvent( const SDL2W::IKey& key );
+void onKeyBoardEvent( const SDL2W::KeyboardState& key );
 SDL2W::WindowCallback g_windowCallback;
 void onWindowEvent( const SDL2W::WindowEvent::Type type );
 void closeApp();
@@ -272,31 +271,30 @@ void onMouseEvent( const SDL2W::MouseData& mouseData )
     }
 }
 
-void onKeyBoardEvent( const SDL2W::IKey& key )
+void onKeyBoardEvent( const SDL2W::KeyboardState& key )
 {
-    if( key.getKeyIsDown() == false )
-    {
-        return;
-    }
-
     const auto deltaZ = 1.0f;
     const auto delta = 2.0f;
-    const CUL::String& keyName = key.getKeyName();
-    if( keyName == "Q" )
+
+    if( key.at( "Q" ) )
     {
         closeApp();
     }
-    else if( keyName == "W" )
+
+
+    if( key.at( "W" ) )
     {
         blueTriangleZ -= deltaZ;
         g_logger->log( "setting blueTriangleZ to: " + String( blueTriangleZ ) );
     }
-    else if( keyName == "S" )
+    
+    if( key.at( "S" ) )
     {
         blueTriangleZ += deltaZ;
         g_logger->log( "setting blueTriangleZ to: " + String( blueTriangleZ ) );
     }
-    else if( keyName == "U" )
+    
+    if( key.at( "U" ) )
     {
         auto newVal = g_camera.getZfar() + delta;
 
@@ -306,7 +304,8 @@ void onKeyBoardEvent( const SDL2W::IKey& key )
 
         g_logger->log( "setting zFar to: " + String( newVal ) );
     }
-    else if( keyName == "J" )
+    
+    if( key.at( "J" ) )
     {
         auto newVal = g_camera.getZfar() - delta;
 
@@ -316,29 +315,34 @@ void onKeyBoardEvent( const SDL2W::IKey& key )
 
         g_logger->log( "setting zFar to: " + String( newVal ) );
     }
-    else if( keyName == "I" )
+    
+    if( key.at( "I" ) )
     {
         g_eyePos.z += 2.0f;
         g_oglw->getCamera().setEyePos( g_eyePos );
         g_logger->log( "setting g_eyePos.z to: " + String( g_eyePos.z ) );
     }
-    else if( keyName == "K" )
+    
+    if( key.at( "K" ) )
     {
         g_eyePos.z -= 2.0f;
         g_oglw->getCamera().setEyePos( g_eyePos );
         g_logger->log( "setting g_eyePos.z to: " + String( g_eyePos.z ) );
     }
-    else if( keyName == "T" )
+    
+    if( key.at( "T" ) )
     {
         redTriangleZ -= deltaZ;
         g_logger->log( "setting redTriangleZ to: " + String( redTriangleZ ) );
     }
-    else if( keyName == "G" )
+    
+    if( key.at( "G" ) )
     {
         redTriangleZ += deltaZ;
         g_logger->log( "setting redTriangleZ to: " + String( redTriangleZ ) );
     }
-    else if( keyName == "P" )
+    
+    if( key.at( "P" ) )
     {
         static bool toggle = true;
         if( toggle == true )

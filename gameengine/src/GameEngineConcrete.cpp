@@ -44,6 +44,11 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );
     CUL::Assert::simple( nullptr != m_logger, "NO LOGGER." );
 
+    //int firstTextureUnit = GL_TEXTURE0;
+    //CUL::Assert::simple( (int)ETextureUnitIndex::UNIT_0 == firstTextureUnit, "Wrong enum map." );
+
+    static_assert( (int)ETextureUnitIndex::UNIT_0 == GL_TEXTURE0, "Incorrect texture unit mapping." );
+
     loadFromConfig();
     m_imageLoader = m_cul->getImageLoader();
 
@@ -1019,7 +1024,7 @@ SDL2W::MouseData& GameEngineConcrete::getMouseData()
 }
 
 // SDL2W::IKeyboardObservable
-void GameEngineConcrete::registerKeyboardEventCallback( const std::function<void( const SDL2W::IKey& key )>& callback )
+void GameEngineConcrete::registerKeyboardEventCallback( const std::function<void( const SDL2W::KeyboardState& keyboardState )>& callback )
 {
     m_sdlW->registerKeyboardEventCallback( callback );
 }

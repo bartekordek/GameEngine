@@ -201,6 +201,18 @@ struct VertexAttributePtrMeta
     void* offset = nullptr;
 };
 
+enum class ETextureUnitIndex: int
+{
+    UNIT_0 = 0x84C0,
+    UNIT_1,
+    UNIT_2,
+    UNIT_3,
+    UNIT_4,
+    UNIT_5,
+    UNIT_6,
+    UNIT_7
+};
+
 class Viewport;
 
 class GAME_ENGINE_API IUtility
@@ -336,7 +348,7 @@ public:
     // Texturing
     virtual void setTexuring( const bool enabled ) = 0;
     virtual unsigned generateTexture() = 0;
-    void setActiveTexture( unsigned id );
+    void setActiveTextureUnit( ETextureUnitIndex textureUnitIndex );
     virtual void bindTexture( const unsigned int textureId ) = 0;
     virtual void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) = 0;
     void setTextureData( uint8_t textureId, const TextureInfo& ti );

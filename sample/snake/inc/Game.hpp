@@ -51,7 +51,7 @@ private:
     void reloadConfig();
     void afterInit();
     void onMouseEvent( const SDL2W::MouseData& mouseData );
-    void onKeyBoardEvent( const SDL2W::IKey& key );
+    void onKeyBoardEvent( const SDL2W::KeyboardState& key );
     void renderScene();
     void gameLoop();
     void updateGFXLoop();

@@ -433,15 +433,18 @@ void IUtility::setUniformValue( int uniformLocation, const glm::mat4& val )
     glUniformMatrix4fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
 }
 
-void IUtility::setActiveTexture( unsigned id )
+void IUtility::setActiveTextureUnit( ETextureUnitIndex textureUnitIndex )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    log( "setActiveTexture" );
-    glActiveTexture(static_cast<GLenum>(id));
+    //log( String( "setActiveTextureUnit( " ) + String( (int)textureUnitIndex ) + String( " );" ) );
+
+    GLenum textureId = static_cast<GLenum>( textureUnitIndex );
+
+    glActiveTexture( textureId );
 }
 
 unsigned int IUtility::getUniformLocation( unsigned programId, const String& attribName )
@@ -496,7 +499,7 @@ void IUtility::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, un
     first - Specifies the starting index in the enabled arrays.
     count - Specifies the number of indices to be rendered.
     */
-    log( "drawArrays" );
+    //log( "drawArrays" );
     bindBuffer( BufferTypes::VERTEX_ARRAY, vaoId );
     glDrawArrays( static_cast<GLenum>( primitiveType ), static_cast<GLint>( first ), static_cast<GLsizei>( count ) );
 }

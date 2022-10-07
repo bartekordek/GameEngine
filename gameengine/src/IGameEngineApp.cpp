@@ -106,7 +106,7 @@ void IGameEngineApp::onWindowEvent( const SDL2W::WindowEvent::Type )
 {
 }
 
-void IGameEngineApp::onKeyBoardEvent( const SDL2W::IKey& )
+void IGameEngineApp::onKeyBoardEvent( const SDL2W::KeyboardState& )
 {
 }
 
