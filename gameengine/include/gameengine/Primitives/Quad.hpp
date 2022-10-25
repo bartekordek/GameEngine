@@ -40,6 +40,7 @@ private:
     IGameEngine& m_engine;
 
     CUL::Graphics::ColorS m_color;
+    CUL::Graphics::ColorS m_light;
 
 // Deleted
 private:

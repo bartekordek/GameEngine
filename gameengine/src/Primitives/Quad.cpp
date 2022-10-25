@@ -14,6 +14,10 @@ using namespace LOGLW;
 
 Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &engine ), m_camera( camera ), m_engine( engine )
 {
+    m_light.setGF( 0.0f );
+    m_light.setGF( 1.0f );
+    m_light.setGF( 0.0f );
+
     m_transformComponent = getTransform();
     setParent( parent );
 
@@ -177,6 +181,7 @@ void Quad::setTransformation()
 void Quad::applyColor()
 {
     m_shaderProgram->setUniform( "color", m_color.getVec4() );
+    m_shaderProgram->setUniform( "light", m_light.getVec4() );
 }
 
 Quad::~Quad()
