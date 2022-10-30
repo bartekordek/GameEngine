@@ -13,9 +13,6 @@
 #include "gameengine/Sprite.hpp"
 #include "TextureConcrete.hpp"
 #include "UtilConcrete.hpp"
-#include "VAOConcrete.hpp"
-#include "VAOOpengl.hpp"
-#include "VBOConcrete.hpp"
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
