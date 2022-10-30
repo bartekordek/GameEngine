@@ -75,14 +75,6 @@ enum class MatrixTypes : int
     INVALID = 0x0500
 };
 
-enum class ShaderTypes : int
-{
-    FRAGMENT_SHADER = 0x8B30,
-    VERTEX_SHADER = 0x8B31,
-    GEOMETRY_SHADER = 0x8DD9,
-    INVALID = 0x0500
-};
-
 enum class ClearMasks : unsigned
 {
     COLOR_BUFFER_BIT = 0x00004000
@@ -230,8 +222,6 @@ public:
     virtual void lookAt( const Camera& vp ) = 0;
     virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) = 0;
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) = 0;
-
-    virtual ShaderTypes getShaderType( const CUL::String& fileExtension ) = 0;
 
     virtual unsigned int createProgram() = 0;
     virtual void removeProgram( unsigned programId ) = 0;

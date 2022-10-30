@@ -9,6 +9,14 @@ NAMESPACE_BEGIN( LOGLW )
 
 #undef log
 
+enum class ShaderTypes : int
+{
+    FRAGMENT_SHADER = 0x8B30,
+    VERTEX_SHADER = 0x8B31,
+    GEOMETRY_SHADER = 0x8DD9,
+    INVALID = 0x0500
+};
+
 class UtilConcrete final: public IUtility
 {
 public:
@@ -24,7 +32,7 @@ private:
     void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;
     void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) override;
 
-    ShaderTypes getShaderType( const CUL::String& fileExtension ) override;
+    ShaderTypes getShaderType( const CUL::String& fileExtension );
 
     unsigned int createProgram() override;
     void removeProgram( unsigned programId ) override;
