@@ -175,7 +175,7 @@ protected:
 
     GUIParams m_guiParams;
 
-    IRenderDevice* m_oglUtility = nullptr;
+    IRenderDevice* m_renderDevice = nullptr;
     std::mutex m_preRenderTasksMtx;
     std::queue<IPreRenderTask*> m_preRenderTasks;
     std::queue<std::function<void( void )>> m_preRenderTasksFunction;

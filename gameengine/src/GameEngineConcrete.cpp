@@ -57,15 +57,24 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
         forceLegacy = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool();
     }
 
-    m_oglUtility = new DeviceOpenGL( sdl2w->getCul(), forceLegacy );
+    const auto rendererName = m_activeWindow->getRenderName();
+
+    if( rendererName == "DX9" )
+    {
+    }
+    else
+    {
+        m_renderDevice = new DeviceOpenGL( sdl2w->getCul(), forceLegacy );
+    }
+    
     registerObjectForUtility();
 
-    m_renderersVersions["OpenGL"] = m_oglUtility->getVersion();
+    m_renderersVersions["OpenGL"] = m_renderDevice->getVersion();
 }
 
 void GameEngineConcrete::registerObjectForUtility()
 {
-    IUtilityUser::useUtility( m_oglUtility );
+    IUtilityUser::useUtility( m_renderDevice );
 }
 
 void GameEngineConcrete::loadFromConfig()
@@ -126,7 +135,7 @@ CUL::LOG::ILogger* GameEngineConcrete::getLoger()
 
 IRenderDevice* GameEngineConcrete::getDevice()
 {
-    return m_oglUtility;
+    return m_renderDevice;
 }
 
 const Viewport& GameEngineConcrete::getViewport() const
@@ -215,7 +224,7 @@ Triangle* GameEngineConcrete::createTriangle( const TriangleData& data, const Co
 IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS& color )
 {
     IQuad* quad = nullptr;
-    if( m_oglUtility->isLegacy() )
+    if( m_renderDevice->isLegacy() )
     {
         m_logger->log( "GameEngineConcrete::createQuad - legacy." );
         quad = new QuadImplLegacy( this );
@@ -256,9 +265,9 @@ Sprite* GameEngineConcrete::createSprite( const String& path, bool )
 Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width, unsigned height, bool )
 {
     auto sprite = new Sprite( &getCamera(), getCul(), this );
-    auto textureId = m_oglUtility->generateTexture();
+    auto textureId = m_renderDevice->generateTexture();
     sprite->LoadImage( (CUL::Graphics::DataType*)data, width, height, m_imageLoader, textureId );
-    m_oglUtility->bindTexture( textureId );
+    m_renderDevice->bindTexture( textureId );
 
     const auto& ii = sprite->getImageInfo();
 
@@ -266,12 +275,12 @@ Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width, unsign
     td.pixelFormat = CUL::Graphics::PixelFormat::RGBA;
     td.size = ii.size;
     td.data = sprite->getData();
-    m_oglUtility->setTextureData( textureId, td );
+    m_renderDevice->setTextureData( textureId, td );
 
-    m_oglUtility->setTextureParameter( textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
-    m_oglUtility->setTextureParameter( textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
+    m_renderDevice->setTextureParameter( textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
+    m_renderDevice->setTextureParameter( textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
 
-    m_oglUtility->bindTexture( 0 );
+    m_renderDevice->bindTexture( 0 );
 
     return sprite;
 }
@@ -298,7 +307,7 @@ void GameEngineConcrete::mainThread()
 
     if( m_debugDrawInitialized )
     {
-        if( m_oglUtility->getIsEmbeddedSystems() )
+        if( m_renderDevice->getIsEmbeddedSystems() )
         {
             ImGui_ImplOpenGL3_Shutdown();
         }
@@ -404,14 +413,14 @@ void GameEngineConcrete::initialize()
 
     m_logger->log( "GameEngineConcrete::initialize()..." );
 
-    m_glContext = m_oglUtility->initContextVersion( m_activeWindow );
+    m_glContext = m_renderDevice->initContextVersion( m_activeWindow );
     m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
     m_logger->log( m_glContext.glVersion );
 
     m_sdlW->registerSDLEventObserver( this );
 
-    m_oglUtility->setProjectionAndModelToIdentity();
-    m_oglUtility->setTexuring( true );
+    m_renderDevice->setProjectionAndModelToIdentity();
+    m_renderDevice->setTexuring( true );
 
     const auto& winSize = m_activeWindow->getSize();
     setupProjectionData( winSize.getWidth(), winSize.getHeight() );
@@ -467,7 +476,7 @@ void GameEngineConcrete::initialize()
 
 void GameEngineConcrete::showExtensions()
 {
-    auto extensionList = m_oglUtility->listExtensions();
+    auto extensionList = m_renderDevice->listExtensions();
     for( const auto& extension : extensionList )
     {
         m_logger->log( "Extension: " + extension );
@@ -499,10 +508,10 @@ void GameEngineConcrete::renderFrame()
 
     if( m_clearEveryFrame )
     {
-        m_oglUtility->clearColorAndDepthBuffer();
+        m_renderDevice->clearColorAndDepthBuffer();
     }
 
-    m_oglUtility->setDepthTest( getCamera().getDepthTestIsEnabled() );
+    m_renderDevice->setDepthTest( getCamera().getDepthTestIsEnabled() );
 
     if( getCamera().getProjectionChanged() )
     {
@@ -517,17 +526,17 @@ void GameEngineConcrete::renderFrame()
 
     if( m_viewportChanged )
     {
-        m_oglUtility->setViewport( m_viewport );
+        m_renderDevice->setViewport( m_viewport );
         m_viewportChanged = false;
     }
 
     executeTasks();
     renderObjects();
 
-    if( !m_oglUtility->isLegacy() )
+    if( !m_renderDevice->isLegacy() )
     {
-        m_oglUtility->bindBuffer( BufferTypes::ARRAY_BUFFER, 0u );
-        m_oglUtility->bindBuffer( BufferTypes::VERTEX_ARRAY, 0u );
+        m_renderDevice->bindBuffer( BufferTypes::ARRAY_BUFFER, 0u );
+        m_renderDevice->bindBuffer( BufferTypes::VERTEX_ARRAY, 0u );
     }
 
     if( m_debugDrawInitialized && m_enableDebugDraw )
@@ -558,7 +567,7 @@ void GameEngineConcrete::renderInfo()
 {
     const auto& winSize = m_activeWindow->getSize();
 
-    if( m_oglUtility->getIsEmbeddedSystems() )
+    if( m_renderDevice->getIsEmbeddedSystems() )
     {
         ImGui_ImplOpenGL3_NewFrame();
     }
@@ -745,7 +754,7 @@ void GameEngineConcrete::renderInfo()
 
     ImGui::Render();
 
-    if( m_oglUtility->getIsEmbeddedSystems() )
+    if( m_renderDevice->getIsEmbeddedSystems() )
     {
         ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
     }
@@ -784,20 +793,20 @@ void GameEngineConcrete::prepareProjection()
 
 void GameEngineConcrete::changeProjectionType()
 {
-    m_oglUtility->resetMatrixToIdentity( MatrixTypes::PROJECTION );
+    m_renderDevice->resetMatrixToIdentity( MatrixTypes::PROJECTION );
 
     if( ProjectionType::ORTO == getCamera().getProjectionType() )
     {
-        m_oglUtility->setOrthogonalPerspective( getCamera() );
+        m_renderDevice->setOrthogonalPerspective( getCamera() );
     }
     else if( ProjectionType::PERSPECTIVE == getCamera().getProjectionType() )
     {
-        m_oglUtility->setPerspectiveProjection( getCamera() );
+        m_renderDevice->setPerspectiveProjection( getCamera() );
     }
-    m_oglUtility->resetMatrixToIdentity( MatrixTypes::MODELVIEW );
-    m_oglUtility->lookAt( getCamera() );
+    m_renderDevice->resetMatrixToIdentity( MatrixTypes::MODELVIEW );
+    m_renderDevice->lookAt( getCamera() );
     setProjection( getCamera() );
-    m_oglUtility->setDepthTest( getCamera().getDepthTestIsEnabled() );
+    m_renderDevice->setDepthTest( getCamera().getDepthTestIsEnabled() );
 }
 
 void GameEngineConcrete::setEyePos( const glm::vec3& pos )
@@ -829,7 +838,7 @@ void GameEngineConcrete::renderObjects()
     std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
     for( auto& renderableObject : m_objectsToRender )
     {
-        m_oglUtility->useProgram( 0u );
+        m_renderDevice->useProgram( 0u );
         renderableObject->render();
     }
 }
@@ -844,7 +853,7 @@ void GameEngineConcrete::refreshBuffers()
 
 void GameEngineConcrete::setProjection( const Camera& rect )
 {
-    m_oglUtility->setProjection( rect );
+    m_renderDevice->setProjection( rect );
 }
 
 void GameEngineConcrete::setViewport( const Viewport& viewport, const bool instant )
@@ -858,14 +867,14 @@ void GameEngineConcrete::setViewport( const Viewport& viewport, const bool insta
         }
         else
         {
-            m_oglUtility->setViewport( m_viewport );
+            m_renderDevice->setViewport( m_viewport );
         }
     }
 }
 
 void GameEngineConcrete::setBackgroundColor( const ColorS& color )
 {
-    m_oglUtility->clearColorTo( color );
+    m_renderDevice->clearColorTo( color );
     m_backgroundColor = color;
 }
 

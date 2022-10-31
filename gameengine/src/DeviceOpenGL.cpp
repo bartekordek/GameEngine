@@ -66,6 +66,7 @@ GLuint toGluint( unsigned value );
 
 DeviceOpenGL::DeviceOpenGL( CUL::CULInterface* culInterface, bool forceLegacy ) : IRenderDevice( culInterface, forceLegacy )
 {
+    log( "DeviceOpenGL::DeviceOpenGL();" );
 }
 
 // TODO: Remove:

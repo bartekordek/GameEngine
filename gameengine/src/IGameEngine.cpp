@@ -310,8 +310,8 @@ IGameEngine::~IGameEngine()
 {
     releaseResources();
 
-    delete m_oglUtility;
-    m_oglUtility = nullptr;
+    delete m_renderDevice;
+    m_renderDevice = nullptr;
 }
 
 
