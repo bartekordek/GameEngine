@@ -212,31 +212,31 @@ class GAME_ENGINE_API IRenderDevice
 public:
     IRenderDevice( CUL::CULInterface* culInterface, bool forceLegacy );
 
-    bool isLegacy();
+    virtual bool isLegacy() = 0;
 
     virtual void resetMatrixToIdentity( const MatrixTypes matrix ) = 0;
     virtual void setProjection( const Camera& rect ) = 0;
     virtual void setViewport( const Viewport& viewport ) = 0;
-    void setOrthogonalPerspective( const Camera& vp );
-    void setPerspectiveProjection( const Camera& vp );
+    virtual void setOrthogonalPerspective( const Camera& vp ) = 0;
+    virtual void setPerspectiveProjection( const Camera& vp ) = 0;
     virtual void lookAt( const Camera& vp ) = 0;
     virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) = 0;
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) = 0;
 
     virtual unsigned int createProgram() = 0;
     virtual void removeProgram( unsigned programId ) = 0;
-    void useProgram( int programId );
+    virtual void useProgram( int programId ) = 0;
     virtual void linkProgram( unsigned programId ) = 0;
     virtual void validateProgram( unsigned programId ) = 0;
 
-    int getCurrentProgram() const;
+    virtual int getCurrentProgram() const = 0;
 
     virtual unsigned int createShader( const IFile& shaderCode ) = 0;
     virtual void attachShader( unsigned programId, unsigned shaderId ) = 0;
     virtual void dettachShader( unsigned programId, unsigned shaderId ) = 0;
     virtual void removeShader( unsigned shaderId ) = 0;
 
-    ContextInfo initContextVersion( SDL2W::IWindow* window );
+    virtual ContextInfo initContextVersion( SDL2W::IWindow* window ) = 0;
 
     virtual void setAttribValue( int attributeLocation, float value ) = 0;
     virtual void setAttribValue( int attributeLocation, int value ) = 0;
@@ -249,13 +249,13 @@ public:
     virtual void setUniformValue( int uniformLocation, unsigned value ) = 0;
 
 
-    void setUniformValue( int uniformLocation, const glm::vec2& val );
-    void setUniformValue( int uniformLocation, const glm::vec3& val );
-    void setUniformValue( int uniformLocation, const glm::vec4& val );
+    virtual void setUniformValue( int uniformLocation, const glm::vec2& val ) = 0;
+    virtual void setUniformValue( int uniformLocation, const glm::vec3& val ) = 0;
+    virtual void setUniformValue( int uniformLocation, const glm::vec4& val ) = 0;
 
-    void setUniformValue( int uniformLocation, const glm::mat2& val );
-    void setUniformValue( int uniformLocation, const glm::mat3& val );
-    void setUniformValue( int uniformLocation, const glm::mat4& val );
+    virtual void setUniformValue( int uniformLocation, const glm::mat2& val ) = 0;
+    virtual void setUniformValue( int uniformLocation, const glm::mat3& val ) = 0;
+    virtual void setUniformValue( int uniformLocation, const glm::mat4& val ) = 0;
 
     virtual void setProjectionAndModelToIdentity() = 0;
     virtual void clearColorAndDepthBuffer() = 0;
@@ -291,7 +291,7 @@ public:
     virtual void enableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
     virtual void disableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
     virtual unsigned int getAttribLocation( unsigned programId, const String& attribName ) = 0;
-    unsigned int getUniformLocation( unsigned programId, const String& attribName );
+    virtual unsigned int getUniformLocation( unsigned programId, const String& attribName ) = 0;
     virtual void unbindBuffer( const BufferTypes bufferType ) = 0;
     virtual void bindBuffer( const BufferTypes bufferType, unsigned bufferId ) = 0;
     // virtual void bindBuffer( VertexArray* vao )  = 0;
@@ -300,8 +300,8 @@ public:
     virtual void drawElements( const PrimitiveType type, const std::vector<unsigned int>& data ) = 0;
     virtual void drawElements( const PrimitiveType type, const std::vector<float>& data ) = 0;
     virtual void drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count ) = 0;
-    void drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count );
-    void vertexAttribPointer( const VertexAttributePtrMeta& meta );
+    virtual void drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count ) = 0;
+    virtual void vertexAttribPointer( const VertexAttributePtrMeta& meta ) = 0;
     virtual void enableVertexAttribArray( unsigned attributeId ) = 0;
     virtual void setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data ) = 0;
 
@@ -321,15 +321,15 @@ public:
 
     virtual void draw( const LineData& values, const ColorS& color ) = 0;
     virtual void draw( const LineData& values, const LineColors& color ) = 0;
-    void draw( const CUL::MATH::Primitives::Line& values, const ColorS& color );
+    virtual void draw( const CUL::MATH::Primitives::Line& values, const ColorS& color ) = 0;
 
     virtual void draw( const Point& position, const ColorS& color ) = 0;
 
     virtual void translate( const Point& point ) = 0;
     virtual void translate( const float x, const float y, const float z ) = 0;
 
-    void rotate( const CUL::MATH::Rotation& rotation );
-    void rotate( const float angleDeg, const float x = 0.0f, const float y = 0.0f, const float z = 0.0f );
+    virtual void rotate( const CUL::MATH::Rotation& rotation ) = 0;
+    virtual void rotate( const float angleDeg, const float x = 0.0f, const float y = 0.0f, const float z = 0.0f ) = 0;
     virtual void scale( const CUL::MATH::Vector3Df& scale ) = 0;
     virtual void scale( const float scale ) = 0;
     virtual void setDepthTest( const bool enabled ) = 0;
@@ -338,10 +338,10 @@ public:
     // Texturing
     virtual void setTexuring( const bool enabled ) = 0;
     virtual unsigned generateTexture() = 0;
-    void setActiveTextureUnit( ETextureUnitIndex textureUnitIndex );
+    virtual void setActiveTextureUnit( ETextureUnitIndex textureUnitIndex ) = 0;
     virtual void bindTexture( const unsigned int textureId ) = 0;
     virtual void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) = 0;
-    void setTextureData( uint8_t textureId, const TextureInfo& ti );
+    virtual void setTextureData( uint8_t textureId, const TextureInfo& ti ) = 0;
     virtual void freeTexture( unsigned int& textureId ) = 0;
 
     virtual void matrixStackPush() = 0;
@@ -349,15 +349,14 @@ public:
 
     CUL::GUTILS::Version getVersion() const;
 
-    CUL::CULInterface* getCUl() const;
+    CUL::CULInterface* getCUL() const;
 
-    unsigned getGPUTotalAvailableMemoryKb();
-    unsigned getGPUCurrentAvailableMemoryKb();
+    virtual unsigned getGPUTotalAvailableMemoryKb() = 0;
+    virtual unsigned getGPUCurrentAvailableMemoryKb() = 0;
 
-    void toggleDebugOutput( bool enable );
+    virtual void toggleDebugOutput( bool enable ) = 0;
 
-    void getLastOperationStatus();
-    void checkLastCommandForErrors();
+    virtual void checkLastCommandForErrors() = 0;
     bool getIsEmbeddedSystems() const;
 
     virtual ~IRenderDevice();
@@ -367,20 +366,19 @@ protected:
     void customAssert( const bool value, const CUL::String& message ) const;
 
     bool m_forceLegacy = false;
+    bool m_isEmbeddedSystems = false;
 
     std::map<BufferTypes, uint8_t> m_currentBufferId;
+    CUL::GUTILS::Version m_supportedVersion;
+    String m_versionString;
 
 private:
     CUL::CULInterface* m_culInterface = nullptr;
     CUL::LOG::ILogger* m_logger = nullptr;
-    CUL::GUTILS::Version m_supportedVersion;
+    
 
     mutable String m_lastLog;
     CUL::LOG::Severity m_lastLogSeverity;
-
-    int m_currentProgram = 0;
-    String m_versionString;
-    bool m_isEmbeddedSystems = false;
 };
 
 NAMESPACE_END( LOGLW )

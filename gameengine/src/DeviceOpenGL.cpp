@@ -15,6 +15,110 @@
 using namespace LOGLW;
 
 static CUL::CULInterface* g_interface = nullptr;
+static CUL::LOG::ILogger* g_loggerOGL = nullptr;
+
+void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length,
+                             const char*  // message
+                             ,
+                             const void*  // userParam
+);
+
+void APIENTRY glDebugOutput(
+    GLenum source,
+    GLenum type,
+    unsigned int id,
+    GLenum severity,
+    GLsizei /*length*/,
+    const char* message,
+    const void* /*userParam*/
+)
+{
+    if( id == 131185 )
+    {
+        return;
+    }
+
+    String messageString = "Severity: ";
+
+    switch( severity )
+    {
+        case GL_DEBUG_SEVERITY_HIGH:
+            messageString += "HIGH";
+            break;
+        case GL_DEBUG_SEVERITY_MEDIUM:
+            messageString += "MEDIUM";
+            break;
+        case GL_DEBUG_SEVERITY_LOW:
+            messageString += "LOW";
+            break;
+        case GL_DEBUG_SEVERITY_NOTIFICATION:
+            messageString += "NOTIFICATION";
+            break;
+    }
+
+    messageString += ", Source: ";
+    switch( source )
+    {
+        case GL_DEBUG_SOURCE_API:
+            messageString += "API";
+            break;
+        case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+            messageString += "WINDOW SYSTEM";
+            break;
+        case GL_DEBUG_SOURCE_SHADER_COMPILER:
+            messageString += "SHADER COMPILER";
+            break;
+        case GL_DEBUG_SOURCE_THIRD_PARTY:
+            messageString += "THIRD PARTY";
+            break;
+        case GL_DEBUG_SOURCE_APPLICATION:
+            messageString += "APPLICATION";
+            break;
+        case GL_DEBUG_SOURCE_OTHER:
+            messageString += "OTHER";
+            break;
+    }
+
+    messageString += ", Type: ";
+    switch( type )
+    {
+        case GL_DEBUG_TYPE_ERROR:
+            messageString += "ERROR";
+            break;
+        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+            messageString += "DEPRECATED BEHAVIOR";
+            break;
+        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+            messageString += "UNDEFINED BEHAVIOR";
+            break;
+        case GL_DEBUG_TYPE_PORTABILITY:
+            messageString += "PORTABILITY";
+            break;
+        case GL_DEBUG_TYPE_PERFORMANCE:
+            messageString += "PERFORMANCE";
+            break;
+        case GL_DEBUG_TYPE_MARKER:
+            messageString += "MARKER";
+            break;
+        case GL_DEBUG_TYPE_PUSH_GROUP:
+            messageString += "PUSH GROUP";
+            break;
+        case GL_DEBUG_TYPE_POP_GROUP:
+            messageString += "POP GROUP";
+            break;
+        case GL_DEBUG_TYPE_OTHER:
+            messageString += "OTHER";
+            break;
+        default:
+            messageString += "UNKOWN";
+    }
+    messageString += ", Message: ";
+    messageString += message;
+    g_loggerOGL->log( messageString, CUL::LOG::Severity::WARN );
+
+    return;
+}
+
 
 GLenum glCheckError_( const char* file, int line )
 {
@@ -67,7 +171,163 @@ GLuint toGluint( unsigned value );
 DeviceOpenGL::DeviceOpenGL( CUL::CULInterface* culInterface, bool forceLegacy ) : IRenderDevice( culInterface, forceLegacy )
 {
     log( "DeviceOpenGL::DeviceOpenGL();" );
+
+    g_loggerOGL = culInterface->getLogger();
+
+    glGetIntegerv( GL_MAJOR_VERSION, &m_supportedVersion.major );
+    checkLastCommandForErrors();
+
+    glGetIntegerv( GL_MINOR_VERSION, &m_supportedVersion.minor );
+    checkLastCommandForErrors();
+
+    m_versionString = (char*)glGetString( GL_VERSION );
+    checkLastCommandForErrors();
+    log( "OpenGL Version: " + m_versionString );
+
+    if( m_versionString.toLowerR().contains( "es" ) )
+    {
+        m_isEmbeddedSystems = true;
+    }
 }
+
+
+ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        getCUL()->getThreadUtils().setCurrentThreadName( "RenderThread" );
+        if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
+        {
+            CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+        }
+    }
+
+    ContextInfo result;
+
+    result.glContext = window->createContext();
+    checkLastCommandForErrors();
+    /*
+    Context version can be only set after context creation.
+    I.e. SDL: SDL_GL_DeleteContext call.
+    */
+    // SDL_GL_DOUBLEBUFFER
+    window->toggleDoubleBuffer( true );
+    window->setDepthSize( 24 );
+    window->setStencilSize( 8 );
+
+    window->setGLContextVersion( m_supportedVersion.major, m_supportedVersion.minor );
+    window->setProfileMask( SDL2W::GLProfileMask::CORE );
+
+    // Set debug otuput.
+    window->setContextFlag( SDL2W::GLContextFlag::DEBUG_FLAG );
+    // Possible values:
+    // typedef enum
+    //{
+    //    SDL_GL_CONTEXT_PROFILE_CORE = 0x0001,
+    //    SDL_GL_CONTEXT_PROFILE_COMPATIBILITY = 0x0002,
+    //    SDL_GL_CONTEXT_PROFILE_ES = 0x0004 /**<
+    //    GLX_CONTEXT_ES2_PROFILE_BIT_EXT */
+    //} SDL_GLprofile;
+    const auto glStringVersion = glGetString( GL_VERSION );
+    result.glVersion = glStringVersion;
+    checkLastCommandForErrors();
+
+    if( true )
+    {
+        auto error = glewInit();
+        CUL::Assert::simple( GLEW_OK == error, "GLEW error: " + CUL::String( reinterpret_cast<const char*>( glewGetErrorString( error ) ) +
+                                                                             result.glVersion ) );
+
+        if( glDebugMessageCallbackARB )
+        {
+            glDebugMessageCallbackARB( glDebugOutput, nullptr );
+            checkLastCommandForErrors();
+            log( "Debug message enabled.", CUL::LOG::Severity::WARN );
+        }
+    }
+    return result;
+}
+
+
+void DeviceOpenGL::setOrthogonalPerspective( const Camera& camera )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+
+    const auto left = camera.getLeft();
+    const auto right = camera.getRight();
+
+    const auto bottom = camera.getBottom();
+    const auto top = camera.getTop();
+
+    const auto zNear = camera.getZnear();
+    const auto zFar = camera.getZfar();
+
+    // glOrtho - multiply the current matrix with an orthographic matrix
+    // left, right
+    //    Specify the coordinates for the leftand right vertical clipping
+    //    planes.
+
+    // bottom, top
+    //    Specify the coordinates for the bottomand top horizontal clipping
+    //    planes.
+
+    // nearVal, farVal
+    //    Specify the distances to the nearerand farther depth clipping
+    //    planes.These values are negative if the plane is to be behind the
+    //    viewer.
+
+    // glOrtho describes a transformation that produces a parallel
+    // projection.The current matrix( see glMatrixMode ) is multiplied by this
+    // matrixand the result replaces the current matrix, as if glMultMatrix were
+    // called with the following matrix as its argument :
+
+    // 2 right - left 0 0 t x 0 2 top - bottom 0 t y 0 0 - 2 farVal - nearVal t
+    // z 0 0 0 1
+    //    where
+
+    //    t x = -right + left right - left
+    //    t y = -top + bottom top - bottom
+    //    t z = -farVal + nearVal farVal - nearVal
+    //    Typically, the matrix mode is GL_PROJECTION, and left bottom - nearVal
+    //    and right top - nearVal specify the points on the near clipping plane
+    //    that are mapped to the lower left and upper right corners of the
+    //    window, respectively, assuming that the eye is located at( 0, 0, 0 ).
+    //    - farVal specifies the location of the far clipping plane.Both nearVal
+    //    and farVal can be either positive or negative.
+
+    //    Use glPushMatrix and glPopMatrix to save and restore the current
+    //    matrix stack.
+    // https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glOrtho.xml
+    glOrtho( left,    // left
+             right,   // right
+             bottom,  // bottom
+             top,     // top
+             zNear,   // near
+             zFar     // far
+    );
+}
+
+void DeviceOpenGL::setPerspectiveProjection( const Camera& projectionData )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+    auto fov = projectionData.getFov();
+    auto ar = projectionData.getAspectRatio();
+    auto zNear = projectionData.getZnear();
+    auto zFar = projectionData.getZfar();
+    if( isLegacy() )
+    {
+         resetMatrixToIdentity( MatrixTypes::PROJECTION );
+         gluPerspective( fov, ar, zNear, zFar );
+    }
+}
+
 
 // TODO: Remove:
 #if _MSC_VER
@@ -79,7 +339,7 @@ void DeviceOpenGL::setProjection( const Camera& )
 }
 void DeviceOpenGL::setViewport( const Viewport& viewport )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -91,7 +351,7 @@ void DeviceOpenGL::setViewport( const Viewport& viewport )
 #endif
 void DeviceOpenGL::lookAt( const Camera& vp )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -111,7 +371,7 @@ void DeviceOpenGL::lookAt( const std::array<Pos3Dd, 3>& vec )
 
 void DeviceOpenGL::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -135,7 +395,7 @@ unsigned int DeviceOpenGL::createProgram()
 
 void DeviceOpenGL::removeProgram( unsigned programId )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -157,7 +417,7 @@ void DeviceOpenGL::removeProgram( unsigned programId )
 
 void DeviceOpenGL::linkProgram( unsigned programId )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -168,7 +428,7 @@ void DeviceOpenGL::linkProgram( unsigned programId )
 
 void DeviceOpenGL::validateProgram( unsigned programId )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -180,7 +440,7 @@ void DeviceOpenGL::validateProgram( unsigned programId )
 
 unsigned int DeviceOpenGL::createShader( const IFile& shaderCode )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -267,7 +527,7 @@ ShaderTypes DeviceOpenGL::getShaderType( const CUL::String& fileExtension )
 
 void DeviceOpenGL::attachShader( unsigned programId, unsigned shaderId )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -289,7 +549,7 @@ void DeviceOpenGL::dettachShader( unsigned programId, unsigned shaderId )
 {
     log( "glDetachShader( " + String( programId ) + ", " + String( shaderId ) + " );" );
 
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -304,7 +564,7 @@ void DeviceOpenGL::removeShader( unsigned shaderId )
 
     GLuint gshaderId = shaderId;
 
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -313,6 +573,282 @@ void DeviceOpenGL::removeShader( unsigned shaderId )
     getLastOperationStatus();
 }
 
+
+void DeviceOpenGL::useProgram( int programId )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    if( m_currentProgram != programId )
+    {
+        glUseProgram( static_cast<GLuint>( programId ) );
+        m_currentProgram = programId;
+    }
+}
+
+int DeviceOpenGL::getCurrentProgram() const
+{
+    GLint id;
+    glGetIntegerv( GL_CURRENT_PROGRAM, &id );
+
+    return (int)id;
+}
+
+void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::vec2& val )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    // log( "setUniformValue" );
+    glUniform2fv( uniformLocation, 1, &val[0] );
+}
+
+void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::vec3& val )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    // log( "setUniformValue" );
+    glUniform3fv( uniformLocation, 1, &val[0] );
+}
+
+void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::vec4& val )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    // log( "setUniformValue" );
+    glUniform4fv( uniformLocation, 1, &val[0] );
+}
+
+void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::mat2& val )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    // log( "setUniformValue" );
+    glUniformMatrix2fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
+}
+
+void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::mat3& val )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    // log( "setUniformValue" );
+    glUniformMatrix3fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
+}
+
+void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::mat4& val )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    // log( "setUniformValue" );
+    glUniformMatrix4fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
+}
+
+void DeviceOpenGL::setActiveTextureUnit( ETextureUnitIndex textureUnitIndex )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    // log( String( "setActiveTextureUnit( " ) + String( (int)textureUnitIndex ) + String( " );" ) );
+
+    GLenum textureId = static_cast<GLenum>( textureUnitIndex );
+
+    glActiveTexture( textureId );
+}
+
+unsigned int DeviceOpenGL::getUniformLocation( unsigned programId, const String& attribName )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    log( "glGetUniformLocation( " + String( programId ) + ", " + attribName + " );" );
+
+    auto attribLocation = glGetUniformLocation( programId, attribName.cStr() );
+
+    if( attribLocation == -1 )
+    {
+        log( "DID NOT FOUND!" );
+    }
+
+    const GLenum err = glGetError();
+    const GLubyte* errorAsString = gluErrorString( err );
+
+    if( err != GL_NO_ERROR )
+    {
+        std::string errorAsSTDString = (char*)errorAsString;
+        switch( err )
+        {
+            case GL_INVALID_OPERATION:
+                log( "Error! GL_INVALID_OPERATION: " + errorAsSTDString );
+                break;
+            default:
+                break;
+        }
+    }
+
+    return static_cast<unsigned int>( attribLocation );
+}
+
+void DeviceOpenGL::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    /*
+    glDrawArrays - render primitives from array data.
+    mode - Specifies what kind of primitives to render. Symbolic constants
+    GL_POINTS, GL_LINE_STRIP, GL_LINE_LOOP, GL_LINES, GL_LINE_STRIP_ADJACENCY,
+    GL_LINES_ADJACENCY, GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_TRIANGLES,
+    GL_TRIANGLE_STRIP_ADJACENCY, GL_TRIANGLES_ADJACENCY and GL_PATCHES are
+    accepted.
+    first - Specifies the starting index in the enabled arrays.
+    count - Specifies the number of indices to be rendered.
+    */
+    // log( "drawArrays" );
+    bindBuffer( BufferTypes::VERTEX_ARRAY, vaoId );
+    glDrawArrays( static_cast<GLenum>( primitiveType ), static_cast<GLint>( first ), static_cast<GLsizei>( count ) );
+}
+
+void DeviceOpenGL::vertexAttribPointer( const VertexAttributePtrMeta& meta )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    bindBuffer( BufferTypes::VERTEX_ARRAY, meta.vao );
+    bindBuffer( BufferTypes::ARRAY_BUFFER, meta.vbo );
+
+    // Define an array of generic vertex attribute data
+    /*
+    GLuint index - specifies the index of the generic vertex attribute to be modified.
+    GLint size - specifies the number of components per generic vertex
+    attribute. Must be 1, 2, 3, 4. Additionally, the symbolic constant GL_BGRA
+    is accepted by glVertexAttribPointer. The initial value is 4.
+
+    GLenum type -
+    specifies the data type of each component in the array. The symbolic
+    constants GL_BYTE, GL_UNSIGNED_BYTE, GL_SHORT, GL_UNSIGNED_SHORT, GL_INT,
+    and GL_UNSIGNED_INT are accepted by glVertexAttribPointer and
+    glVertexAttribIPointer. Additionally GL_HALF_FLOAT, GL_FLOAT, GL_DOUBLE,
+    GL_FIXED, GL_INT_2_10_10_10_REV, GL_UNSIGNED_INT_2_10_10_10_REV and
+    GL_UNSIGNED_INT_10F_11F_11F_REV are accepted by glVertexAttribPointer.
+    GL_DOUBLE is also accepted by glVertexAttribLPointer and is the only token
+    accepted by the type parameter for that function. The initial value is
+    GL_FLOAT. GLboolean normalized - for glVertexAttribPointer, specifies
+    whether fixed-point data values should be normalized (GL_TRUE) or converted
+    directly as fixed-point values (GL_FALSE) when they are accessed. GLsizei
+    stride - specifies the byte offset between consecutive generic vertex
+    attributes. If stride is 0, the generic vertex attributes are understood to
+    be tightly packed in the array. The initial value is 0. const void * pointer
+    - specifies a offset of the first component of the first generic vertex
+    attribute in the array in the data store of the buffer currently bound to
+    the GL_ARRAY_BUFFER target. The initial value is 0.
+    */
+    log( "glVertexAttribPointer" );
+    glVertexAttribPointer( static_cast<GLuint>( meta.vertexAttributeId ), static_cast<GLint>( meta.componentsPerVertexAttribute ),
+                           static_cast<GLenum>( meta.dataType ), static_cast<GLboolean>( meta.normalized ),
+                           static_cast<GLsizei>( meta.stride ), meta.offset );
+}
+
+void DeviceOpenGL::setTextureData( uint8_t textureId, const TextureInfo& ti )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    log( "glTexImage2D( " + ti.toString() + " )" );
+    bindTexture( textureId );
+    glTexImage2D( GL_TEXTURE_2D, ti.level, (GLint)ti.pixelFormat, ti.size.width, ti.size.height, ti.border, (GLenum)ti.pixelFormat,
+                  (GLenum)GL_UNSIGNED_BYTE, ti.data );
+}
+
+void DeviceOpenGL::rotate( const CUL::MATH::Rotation& rotation )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    glRotatef( rotation.yaw.getDeg(), 0.f, -1.f, 0.f );
+    glRotatef( rotation.pitch.getDeg(), 1.f, 0.f, 0.f );
+    glRotatef( rotation.roll.getDeg(), 0.f, 0.f, 1.f );
+}
+
+void DeviceOpenGL::draw( const CUL::MATH::Primitives::Line& values, const ColorS& color )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    glBegin( GL_LINES );
+    glColor4f( color.getRF(), color.getGF(), color.getBF(), color.getAF() );
+    glVertex3f( values[0][0], values[0][1], values[0][2] );
+    glVertex3f( values[1][0], values[1][1], values[1][2] );
+    glEnd();
+}
+
+void DeviceOpenGL::rotate( const float angleDeg, const float x, const float y, const float z )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    glRotatef( angleDeg, x, y, z );
+}
+
+#define GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX 0x9048
+#define GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX 0x9049
+
+unsigned DeviceOpenGL::getGPUTotalAvailableMemoryKb()
+{
+    GLint total_mem_kb = 0;
+    glGetIntegerv( GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &total_mem_kb );
+    return total_mem_kb;
+}
+
+unsigned DeviceOpenGL::getGPUCurrentAvailableMemoryKb()
+{
+    GLint cur_avail_mem_kb = 0;
+    glGetIntegerv( GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &cur_avail_mem_kb );
+    return cur_avail_mem_kb;
+}
+
+void DeviceOpenGL::checkLastCommandForErrors()
+{
+    const GLenum err = glGetError();
+    const GLubyte* errorAsString = gluErrorString( err );
+    customAssert( GL_NO_ERROR == err, "Error creating program, error numer: " + CUL::String( errorAsString ) );
+}
+
+
 GLuint toGluint( unsigned value )
 {
     return static_cast<GLuint>( value );
@@ -320,7 +856,7 @@ GLuint toGluint( unsigned value )
 
 void DeviceOpenGL::setAttribValue( int attributeLocation, float value )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -331,7 +867,7 @@ void DeviceOpenGL::setAttribValue( int attributeLocation, float value )
 
 void DeviceOpenGL::setAttribValue( int, int )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -341,7 +877,7 @@ void DeviceOpenGL::setAttribValue( int, int )
 
 void DeviceOpenGL::setAttribValue( int, unsigned )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -351,7 +887,7 @@ void DeviceOpenGL::setAttribValue( int, unsigned )
 
 void DeviceOpenGL::setAttribValue( int, bool )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -361,7 +897,7 @@ void DeviceOpenGL::setAttribValue( int, bool )
 
 void DeviceOpenGL::setAttribValue( int, const CUL::String& )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -371,7 +907,7 @@ void DeviceOpenGL::setAttribValue( int, const CUL::String& )
 
 void DeviceOpenGL::setUniformValue( int uniformLocation, float value )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -381,7 +917,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, float value )
 }
 void DeviceOpenGL::setUniformValue( int uniformLocation, int value )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -391,7 +927,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, int value )
 }
 void DeviceOpenGL::setUniformValue( int uniformLocation, unsigned value )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -419,7 +955,7 @@ void DeviceOpenGL::translate( const Point& point )
 
 void DeviceOpenGL::translate( const float x, const float y, const float z )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -429,7 +965,7 @@ void DeviceOpenGL::translate( const float x, const float y, const float z )
 
 void DeviceOpenGL::scale( const CUL::MATH::Vector3Df& scale )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -439,7 +975,7 @@ void DeviceOpenGL::scale( const CUL::MATH::Vector3Df& scale )
 
 void DeviceOpenGL::scale( const float scale )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -449,7 +985,7 @@ void DeviceOpenGL::scale( const float scale )
 
 void DeviceOpenGL::draw( const QuadCUL& quad, const QuadCUL& texQuad )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -469,7 +1005,7 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const QuadCUL& texQuad )
 
 void DeviceOpenGL::draw( const QuadCUL& quad, const ColorS& color )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -489,7 +1025,7 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const ColorS& color )
 
 void DeviceOpenGL::draw( const QuadData& quad, const ColorS& color )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -509,7 +1045,7 @@ void DeviceOpenGL::draw( const QuadData& quad, const ColorS& color )
 
 void DeviceOpenGL::draw( const QuadData& quad, const QuadColors& color )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -528,7 +1064,7 @@ void DeviceOpenGL::draw( const QuadData& quad, const QuadColors& color )
 
 void DeviceOpenGL::draw( const QuadCUL& quad, const std::array<ColorS, 4>& color )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -547,7 +1083,7 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const std::array<ColorS, 4>& color
 
 void DeviceOpenGL::draw( const TriangleCUL& triangle, const ColorS& color )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -562,7 +1098,7 @@ void DeviceOpenGL::draw( const TriangleCUL& triangle, const ColorS& color )
 
 void DeviceOpenGL::draw( const TriangleCUL& quad, const std::array<ColorS, 4>& color )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -579,7 +1115,7 @@ void DeviceOpenGL::draw( const TriangleCUL& quad, const std::array<ColorS, 4>& c
 
 void DeviceOpenGL::draw( const TriangleData& values, const std::array<ColorS, 3>& color )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -596,7 +1132,7 @@ void DeviceOpenGL::draw( const TriangleData& values, const std::array<ColorS, 3>
 
 void DeviceOpenGL::draw( const LineData& values, const LineColors& color )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -618,7 +1154,7 @@ void DeviceOpenGL::draw( const LineData& values, const LineColors& color )
 
 void DeviceOpenGL::draw( const LineData& values, const ColorS& color )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -640,7 +1176,7 @@ void DeviceOpenGL::draw( const Point& position, const ColorS& color )
 
 void DeviceOpenGL::clearColorAndDepthBuffer()
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -651,7 +1187,7 @@ void DeviceOpenGL::clearColorAndDepthBuffer()
 
 void DeviceOpenGL::createQuad( float scale )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -667,7 +1203,7 @@ void DeviceOpenGL::createQuad( float scale )
 
 void DeviceOpenGL::clearColorTo( const ColorS color )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -683,7 +1219,7 @@ void DeviceOpenGL::clearBuffer( const ClearMasks mask )
 
 void DeviceOpenGL::setClientState( ClientStateTypes cs, bool enabled )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -700,7 +1236,7 @@ void DeviceOpenGL::setClientState( ClientStateTypes cs, bool enabled )
 
 void DeviceOpenGL::texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -726,7 +1262,7 @@ void DeviceOpenGL::texCoordPointer( int coordinatesPerElement, DataType dataType
 
 void DeviceOpenGL::vertexPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -751,7 +1287,7 @@ void DeviceOpenGL::vertexPointer( int coordinatesPerElement, DataType dataType, 
 
 void DeviceOpenGL::setVertexArrayClientState( const bool enable )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -773,7 +1309,7 @@ void DeviceOpenGL::setVertexArrayClientState( const bool enable )
 
 void DeviceOpenGL::setColorClientState( bool enable )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -794,7 +1330,7 @@ void DeviceOpenGL::setColorClientState( bool enable )
 
 unsigned int DeviceOpenGL::generateVertexArray( const int size )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -826,7 +1362,7 @@ void DeviceOpenGL::bufferData( uint8_t bufferId, const std::vector<float>& data,
 
 void DeviceOpenGL::bufferData( uint8_t bufferId, const std::vector<TextureData2D>& data, const BufferTypes type )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -837,7 +1373,7 @@ void DeviceOpenGL::bufferData( uint8_t bufferId, const std::vector<TextureData2D
 
 void DeviceOpenGL::bufferDataImpl( const void* data, const GLenum target, const GLsizeiptr dataSize )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -961,7 +1497,7 @@ void DeviceOpenGL::bufferDataImpl( const void* data, const GLenum target, const 
 
 void DeviceOpenGL::bufferSubdata( uint8_t bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -974,7 +1510,7 @@ void DeviceOpenGL::bufferSubdata( uint8_t bufferId, const BufferTypes type, std:
 
 unsigned int DeviceOpenGL::generateAndBindBuffer( const BufferTypes bufferType, const int size )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -986,7 +1522,7 @@ unsigned int DeviceOpenGL::generateAndBindBuffer( const BufferTypes bufferType, 
 
 unsigned int DeviceOpenGL::generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1027,7 +1563,7 @@ GL_ARRAY_BUFFER target. The initial value is 0.
 
 void DeviceOpenGL::bufferData( uint8_t bufferId, const float vertices[], BufferTypes bufferType )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1039,7 +1575,7 @@ void DeviceOpenGL::bufferData( uint8_t bufferId, const float vertices[], BufferT
 
 void DeviceOpenGL::enableVertexAttribiute( unsigned programId, const String& attribName )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1050,7 +1586,7 @@ void DeviceOpenGL::enableVertexAttribiute( unsigned programId, const String& att
 
 void DeviceOpenGL::setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1086,7 +1622,7 @@ void DeviceOpenGL::setVertexPointer( int coordinatesPerVertex, DataType dataType
 
 void DeviceOpenGL::disableVertexAttribiute( unsigned programId, const String& attribName )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1097,7 +1633,7 @@ void DeviceOpenGL::disableVertexAttribiute( unsigned programId, const String& at
 
 void DeviceOpenGL::deleteBuffer( BufferTypes bufferType, unsigned& id )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1123,7 +1659,7 @@ void DeviceOpenGL::deleteBuffer( BufferTypes bufferType, unsigned& id )
 
 unsigned int DeviceOpenGL::getAttribLocation( unsigned programId, const String& attribName )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1135,7 +1671,7 @@ unsigned int DeviceOpenGL::getAttribLocation( unsigned programId, const String& 
 
 void DeviceOpenGL::unbindBuffer( const BufferTypes bufferType )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1145,7 +1681,7 @@ void DeviceOpenGL::unbindBuffer( const BufferTypes bufferType )
 
 void DeviceOpenGL::bindBuffer( const BufferTypes bufferType, unsigned bufferId )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1206,7 +1742,7 @@ void DeviceOpenGL::bindBuffer( const BufferTypes bufferType, unsigned bufferId )
 // TODO: Remove type?
 unsigned int DeviceOpenGL::generateBuffer( const BufferTypes bufferType, const int size )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1232,7 +1768,7 @@ unsigned int DeviceOpenGL::generateBuffer( const BufferTypes bufferType, const i
 
 void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<unsigned int>& data )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1274,7 +1810,7 @@ void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<uns
 
 void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<float>& data )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1284,7 +1820,7 @@ void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<flo
 
 void DeviceOpenGL::drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1294,7 +1830,7 @@ void DeviceOpenGL::drawElementsFromLastBuffer( const PrimitiveType primitiveType
 
 void DeviceOpenGL::enableVertexAttribArray( unsigned attributeId )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1341,7 +1877,7 @@ std::vector<std::string> DeviceOpenGL::listExtensions()
 
 void DeviceOpenGL::setDepthTest( const bool enabled )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1362,7 +1898,7 @@ void DeviceOpenGL::setDepthTest( const bool enabled )
 
 void DeviceOpenGL::setBackfaceCUll( const bool enabled )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1380,7 +1916,7 @@ void DeviceOpenGL::setBackfaceCUll( const bool enabled )
 
 void DeviceOpenGL::setTexuring( const bool enabled )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1401,7 +1937,7 @@ void DeviceOpenGL::setTexuring( const bool enabled )
 
 unsigned DeviceOpenGL::generateTexture()
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1419,7 +1955,7 @@ unsigned DeviceOpenGL::generateTexture()
 
 void DeviceOpenGL::bindTexture( const unsigned int textureId )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1439,7 +1975,7 @@ void DeviceOpenGL::bindTexture( const unsigned int textureId )
 
 void DeviceOpenGL::setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1451,7 +1987,7 @@ void DeviceOpenGL::setTextureParameter( uint8_t textureId, const TextureParamete
 
 void DeviceOpenGL::freeTexture( unsigned int& textureId )
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1466,7 +2002,7 @@ void DeviceOpenGL::freeTexture( unsigned int& textureId )
 
 void DeviceOpenGL::matrixStackPush()
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1478,7 +2014,7 @@ void DeviceOpenGL::matrixStackPush()
 
 void DeviceOpenGL::matrixStackPop()
 {
-    if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1491,4 +2027,77 @@ void DeviceOpenGL::matrixStackPop()
 DeviceOpenGL::~DeviceOpenGL()
 {
     CUL::Assert::simple( 0 == m_currentMatrix, "ERROR PUSH COUNT IS NOT EQUAL TO POP COUNT." );
+}
+
+
+
+bool DeviceOpenGL::isLegacy()
+{
+    if( m_forceLegacy )
+    {
+        return true;
+    }
+
+    return getVersion().major < 2;
+}
+
+
+void DeviceOpenGL::getLastOperationStatus()
+{
+    GLenum errorCode;
+    while( ( errorCode = glGetError() ) != GL_NO_ERROR )
+    {
+        std::string error;
+        switch( errorCode )
+        {
+            case GL_INVALID_ENUM:
+                error = "INVALID_ENUM";
+                break;
+            case GL_INVALID_VALUE:
+                error = "INVALID_VALUE";
+                break;
+            case GL_INVALID_OPERATION:
+                error = "INVALID_OPERATION";
+                break;
+            case GL_STACK_OVERFLOW:
+                error = "STACK_OVERFLOW";
+                break;
+            case GL_STACK_UNDERFLOW:
+                error = "STACK_UNDERFLOW";
+                break;
+            case GL_OUT_OF_MEMORY:
+                error = "OUT_OF_MEMORY";
+                break;
+            case GL_INVALID_FRAMEBUFFER_OPERATION:
+                error = "INVALID_FRAMEBUFFER_OPERATION";
+                break;
+        }
+
+        log(error);
+    }
+}
+
+
+void DeviceOpenGL::toggleDebugOutput( bool enable )
+{
+    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    if( enable )
+    {
+        glEnable( GL_DEBUG_OUTPUT );
+        checkLastCommandForErrors();
+
+        glDebugMessageCallback( glDebugOutput, 0 );
+        checkLastCommandForErrors();
+
+        glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
+        checkLastCommandForErrors();
+    }
+    else
+    {
+        glDisable( GL_DEBUG_OUTPUT );
+    }
 }

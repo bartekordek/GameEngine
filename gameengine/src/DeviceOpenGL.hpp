@@ -26,6 +26,11 @@ public:
 
 protected:
 private:
+    ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
+
+    void setOrthogonalPerspective( const Camera& vp );
+    void setPerspectiveProjection( const Camera& vp );
+
     void setProjection( const Camera& rect ) override;
     void setViewport( const Viewport& viewport ) override;
     void lookAt( const Camera& vp ) override;
@@ -43,6 +48,9 @@ private:
     void attachShader( unsigned programId, unsigned shaderId ) override;
     void dettachShader( unsigned programId, unsigned shaderId ) override;
     void removeShader( unsigned shaderId ) override;
+    void useProgram( int programId ) override;
+    int getCurrentProgram() const override;
+    int m_currentProgram = 0;
 
     void setAttribValue( int attributeLocation, float value ) override;
     void setAttribValue( int attributeLocation, int value ) override;
@@ -131,6 +139,28 @@ private:
     void setDepthTest( const bool enabled ) override;
     void setBackfaceCUll( const bool enabled ) override;
 
+    void setUniformValue( int uniformLocation, const glm::vec2& val ) override;
+    void setUniformValue( int uniformLocation, const glm::vec3& val ) override;
+    void setUniformValue( int uniformLocation, const glm::vec4& val ) override;
+
+    void setUniformValue( int uniformLocation, const glm::mat2& val ) override;
+    void setUniformValue( int uniformLocation, const glm::mat3& val ) override;
+    void setUniformValue( int uniformLocation, const glm::mat4& val ) override;
+
+    void setActiveTextureUnit( ETextureUnitIndex textureUnitIndex ) override;
+
+    unsigned int getUniformLocation( unsigned programId, const String& attribName ) override;
+
+    void drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count ) override;
+
+    void vertexAttribPointer( const VertexAttributePtrMeta& meta ) override;
+
+    void setTextureData( uint8_t textureId, const TextureInfo& ti ) override;
+
+    void rotate( const CUL::MATH::Rotation& rotation ) override;
+    void draw( const CUL::MATH::Primitives::Line& values, const ColorS& color ) override;
+    void rotate( const float angleDeg, const float x, const float y, const float z ) override;
+
     // Texturing
     void setTexuring( const bool enabled ) override;
     unsigned generateTexture() override;
@@ -145,6 +175,16 @@ private:
 
     unsigned int m_currentMatrix = 0;
     uint8_t m_lastTextureId = 0u;
+
+    void toggleDebugOutput( bool enable ) override;
+    void getLastOperationStatus();
+
+    unsigned getGPUTotalAvailableMemoryKb() override;
+    unsigned getGPUCurrentAvailableMemoryKb() override;
+
+    bool isLegacy() override;
+
+    void checkLastCommandForErrors() override;
 
     DeviceOpenGL( const DeviceOpenGL& arg ) = delete;
     DeviceOpenGL( DeviceOpenGL&& arg ) = delete;

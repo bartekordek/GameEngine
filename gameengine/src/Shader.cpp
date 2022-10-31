@@ -37,7 +37,7 @@ void Shader::create()
         m_id = getDevice()->createShader( *m_shaderCode );
     };
 
-    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
+    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
     {
         createTask();
     }
@@ -86,7 +86,7 @@ void Shader::release()
             getDevice()->removeShader( m_id );
         };
 
-        if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+        if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
         {
             removeShaderTask();
         }

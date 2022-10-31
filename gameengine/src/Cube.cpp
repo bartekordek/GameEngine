@@ -13,7 +13,7 @@ Cube::Cube( Camera* camera, IGameEngine* engine ) : IObject( engine ), m_camera(
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 
-    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         createPlaceHolders();
         m_initialized = true;

@@ -180,7 +180,7 @@ void IGameEngine::pushPreRenderTask( IPreRenderTask* preRenderTask )
 
 void IGameEngine::pushPreRenderTask( std::function<void( void )> task )
 {
-    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         m_preRenderTasksFunction.push( task );
     }
@@ -194,7 +194,7 @@ void IGameEngine::pushPreRenderTask( std::function<void( void )> task )
 
 void IGameEngine::addObjectToRender( IRenderable* renderable )
 {
-    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
         CUL::Assert::simple( it == m_objectsToRender.end(), "Trying to add already added object." );
@@ -211,7 +211,7 @@ void IGameEngine::addObjectToRender( IRenderable* renderable )
 
 void IGameEngine::removeObjectToRender( IRenderable* renderable )
 {
-    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
         if( it != m_objectsToRender.end() )

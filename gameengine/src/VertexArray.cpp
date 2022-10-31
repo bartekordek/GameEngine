@@ -11,7 +11,7 @@ using namespace LOGLW;
 
 VertexArray::VertexArray( IGameEngine& engine ) : IRenderable( &engine )
 {
-    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         createVAO();
     }
@@ -39,7 +39,7 @@ void VertexArray::createShader( const CUL::FS::Path& path )
 {
     CUL::Assert::simple( path.exists(), "File does not exist: " + path.getPath() );
 
-    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         if( !m_shaderProgram )
         {
@@ -65,7 +65,7 @@ void VertexArray::createShader( const CUL::FS::Path& path )
 
 void VertexArray::addVertexBuffer( VertexBufferData& data )
 {
-    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
+    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
     {
         m_vboDataToPrepare.emplace_back( std::move( data ) );
         createVBOs();
@@ -148,7 +148,7 @@ void VertexArray::runTasks()
                 {
                     auto shaderPath = m_shadersPaths.front();
 
-                    auto shaderFile = getDevice()->getCUl()->getFF()->createFileFromPath( shaderPath );
+                    auto shaderFile = getDevice()->getCUL()->getFF()->createFileFromPath( shaderPath );
                     shaderFile->load(true);
                     auto shader = new Shader( *getEngine(), shaderFile );
                     m_shaderProgram->attachShader( shader );
@@ -209,7 +209,7 @@ void VertexArray::unbind()
 
 VertexArray::~VertexArray()
 {
-    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         release();
     }

@@ -20,7 +20,7 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &e
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );
 
-    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         init();
     }
@@ -181,7 +181,7 @@ void Quad::applyColor()
 
 Quad::~Quad()
 {
-    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         release();
     }
