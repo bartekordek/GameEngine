@@ -17,12 +17,12 @@ enum class ShaderTypes : int
     INVALID = 0x0500
 };
 
-class UtilConcrete final: public IRenderDevice
+class DeviceOpenGL final: public IRenderDevice
 {
 public:
-    UtilConcrete( CUL::CULInterface* culInterface, bool forceLegacy );
+    DeviceOpenGL( CUL::CULInterface* culInterface, bool forceLegacy );
 
-    ~UtilConcrete();
+    ~DeviceOpenGL();
 
 protected:
 private:
@@ -146,10 +146,10 @@ private:
     unsigned int m_currentMatrix = 0;
     uint8_t m_lastTextureId = 0u;
 
-    UtilConcrete( const UtilConcrete& arg ) = delete;
-    UtilConcrete( UtilConcrete&& arg ) = delete;
-    UtilConcrete& operator=( const UtilConcrete& rhv ) = delete;
-    UtilConcrete& operator=( UtilConcrete&& rhv ) = delete;
+    DeviceOpenGL( const DeviceOpenGL& arg ) = delete;
+    DeviceOpenGL( DeviceOpenGL&& arg ) = delete;
+    DeviceOpenGL& operator=( const DeviceOpenGL& rhv ) = delete;
+    DeviceOpenGL& operator=( DeviceOpenGL&& rhv ) = delete;
 };
 
 NAMESPACE_END( LOGLW )

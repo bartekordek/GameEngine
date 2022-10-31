@@ -666,7 +666,7 @@ bool IRenderDevice::isLegacy()
 
 void IRenderDevice::log( const String& text, const CUL::LOG::Severity severity ) const
 {
-    customAssert( m_logger != nullptr, "Logger utility is unninitialized inside of UtilConcrete." );
+    customAssert( m_logger != nullptr, "Logger utility is unninitialized inside of DeviceOpenGL." );
 
     if( m_lastLog != text )
     {

@@ -1,4 +1,4 @@
-#include "UtilConcrete.hpp"
+#include "DeviceOpenGL.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/Viewport.hpp"
 
@@ -64,7 +64,7 @@ void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum
 CUL::String enumToString( const GLenum val );
 GLuint toGluint( unsigned value );
 
-UtilConcrete::UtilConcrete( CUL::CULInterface* culInterface, bool forceLegacy ) : IRenderDevice( culInterface, forceLegacy )
+DeviceOpenGL::DeviceOpenGL( CUL::CULInterface* culInterface, bool forceLegacy ) : IRenderDevice( culInterface, forceLegacy )
 {
 }
 
@@ -73,10 +73,10 @@ UtilConcrete::UtilConcrete( CUL::CULInterface* culInterface, bool forceLegacy ) 
 #pragma warning( push )
 #pragma warning( disable : 4100 )
 #endif
-void UtilConcrete::setProjection( const Camera& )
+void DeviceOpenGL::setProjection( const Camera& )
 {
 }
-void UtilConcrete::setViewport( const Viewport& viewport )
+void DeviceOpenGL::setViewport( const Viewport& viewport )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -88,7 +88,7 @@ void UtilConcrete::setViewport( const Viewport& viewport )
 #ifdef _MSC_VER
 #pragma warning( pop )
 #endif
-void UtilConcrete::lookAt( const Camera& vp )
+void DeviceOpenGL::lookAt( const Camera& vp )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -103,12 +103,12 @@ void UtilConcrete::lookAt( const Camera& vp )
     }
 }
 
-void UtilConcrete::lookAt( const std::array<Pos3Dd, 3>& vec )
+void DeviceOpenGL::lookAt( const std::array<Pos3Dd, 3>& vec )
 {
     lookAt( vec[0], vec[1], vec[2] );
 }
 
-void UtilConcrete::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up )
+void DeviceOpenGL::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -117,10 +117,10 @@ void UtilConcrete::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd
     gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z );
 }
 
-unsigned int UtilConcrete::createProgram()
+unsigned int DeviceOpenGL::createProgram()
 {
     const auto programId = static_cast<unsigned int>( glCreateProgram() );
-    log( "[UtilConcrete] glCreateProgram: " + String( programId ) );
+    log( "[DeviceOpenGL] glCreateProgram: " + String( programId ) );
 
     if( 0 == programId )
     {
@@ -132,7 +132,7 @@ unsigned int UtilConcrete::createProgram()
     return programId;
 }
 
-void UtilConcrete::removeProgram( unsigned programId )
+void DeviceOpenGL::removeProgram( unsigned programId )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -151,10 +151,10 @@ void UtilConcrete::removeProgram( unsigned programId )
     }
     // TODO: find a correct way to check whether program was deleted.
     //assertOnProgramError( programId, GL_DELETE_STATUS );
-    glCheckError_("UtilConcrete.cpp", 180);
+    glCheckError_("DeviceOpenGL.cpp", 180);
 }
 
-void UtilConcrete::linkProgram( unsigned programId )
+void DeviceOpenGL::linkProgram( unsigned programId )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -165,31 +165,31 @@ void UtilConcrete::linkProgram( unsigned programId )
     assertOnProgramError( programId, GL_LINK_STATUS );
 }
 
-void UtilConcrete::validateProgram( unsigned programId )
+void DeviceOpenGL::validateProgram( unsigned programId )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    log( "[UtilConcrete] glValidateProgram( " + String( programId ) + ");" );
+    log( "[DeviceOpenGL] glValidateProgram( " + String( programId ) + ");" );
     glValidateProgram( programId );
     assertOnProgramError( programId, GL_VALIDATE_STATUS );
 }
 
-unsigned int UtilConcrete::createShader( const IFile& shaderCode )
+unsigned int DeviceOpenGL::createShader( const IFile& shaderCode )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    const auto shaderType = UtilConcrete::getShaderType( shaderCode.getPath().getExtension() );
-    log( "[UtilConcrete] glCreateShader( " + String( static_cast<GLenum>( shaderType ) ) + ");" );
+    const auto shaderType = DeviceOpenGL::getShaderType( shaderCode.getPath().getExtension() );
+    log( "[DeviceOpenGL] glCreateShader( " + String( static_cast<GLenum>( shaderType ) ) + ");" );
     const auto id = static_cast<unsigned int>( glCreateShader( static_cast<GLenum>( shaderType ) ) );
 
     auto codeLength = static_cast<GLint>( shaderCode.getLinesCount() );
-    log( "[UtilConcrete] glCreateShader( " + String( static_cast<GLenum>( shaderType ) ) + ");" );
+    log( "[DeviceOpenGL] glCreateShader( " + String( static_cast<GLenum>( shaderType ) ) + ");" );
     glShaderSource( id, codeLength, shaderCode.getContent(), nullptr );
     glCompileShader( id );
 
@@ -208,7 +208,7 @@ unsigned int UtilConcrete::createShader( const IFile& shaderCode )
     return id;
 }
 
-void UtilConcrete::assertOnProgramError( unsigned programId, unsigned val )
+void DeviceOpenGL::assertOnProgramError( unsigned programId, unsigned val )
 {
     GLint result = 0;
     glGetProgramiv( programId, val, &result );
@@ -238,7 +238,7 @@ CUL::String enumToString( const GLenum val )
     }
 }
 
-ShaderTypes UtilConcrete::getShaderType( const CUL::String& fileExtension )
+ShaderTypes DeviceOpenGL::getShaderType( const CUL::String& fileExtension )
 {
     /*
     .vert - a vertex shader
@@ -264,7 +264,7 @@ ShaderTypes UtilConcrete::getShaderType( const CUL::String& fileExtension )
     return static_cast<ShaderTypes>( GL_INVALID_ENUM );
 }
 
-void UtilConcrete::attachShader( unsigned programId, unsigned shaderId )
+void DeviceOpenGL::attachShader( unsigned programId, unsigned shaderId )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -284,7 +284,7 @@ void UtilConcrete::attachShader( unsigned programId, unsigned shaderId )
     }
 }
 
-void UtilConcrete::dettachShader( unsigned programId, unsigned shaderId )
+void DeviceOpenGL::dettachShader( unsigned programId, unsigned shaderId )
 {
     log( "glDetachShader( " + String( programId ) + ", " + String( shaderId ) + " );" );
 
@@ -297,7 +297,7 @@ void UtilConcrete::dettachShader( unsigned programId, unsigned shaderId )
     getLastOperationStatus();
 }
 
-void UtilConcrete::removeShader( unsigned shaderId )
+void DeviceOpenGL::removeShader( unsigned shaderId )
 {
     log( "glDeleteShader( " + String( shaderId ) + " );" );
 
@@ -317,7 +317,7 @@ GLuint toGluint( unsigned value )
     return static_cast<GLuint>( value );
 }
 
-void UtilConcrete::setAttribValue( int attributeLocation, float value )
+void DeviceOpenGL::setAttribValue( int attributeLocation, float value )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -328,7 +328,7 @@ void UtilConcrete::setAttribValue( int attributeLocation, float value )
     glUniform1f( static_cast<GLfloat>( attributeLocation ), value );
 }
 
-void UtilConcrete::setAttribValue( int, int )
+void DeviceOpenGL::setAttribValue( int, int )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -338,7 +338,7 @@ void UtilConcrete::setAttribValue( int, int )
     CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
 }
 
-void UtilConcrete::setAttribValue( int, unsigned )
+void DeviceOpenGL::setAttribValue( int, unsigned )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -348,7 +348,7 @@ void UtilConcrete::setAttribValue( int, unsigned )
     CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
 }
 
-void UtilConcrete::setAttribValue( int, bool )
+void DeviceOpenGL::setAttribValue( int, bool )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -358,7 +358,7 @@ void UtilConcrete::setAttribValue( int, bool )
     CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
 }
 
-void UtilConcrete::setAttribValue( int, const CUL::String& )
+void DeviceOpenGL::setAttribValue( int, const CUL::String& )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -368,7 +368,7 @@ void UtilConcrete::setAttribValue( int, const CUL::String& )
     CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
 }
 
-void UtilConcrete::setUniformValue( int uniformLocation, float value )
+void DeviceOpenGL::setUniformValue( int uniformLocation, float value )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -378,7 +378,7 @@ void UtilConcrete::setUniformValue( int uniformLocation, float value )
     log( "glUniform1f( " + String( uniformLocation ) + ", " + String( value ) + " );" );
     glUniform1f( static_cast<GLfloat>( uniformLocation ), value );
 }
-void UtilConcrete::setUniformValue( int uniformLocation, int value )
+void DeviceOpenGL::setUniformValue( int uniformLocation, int value )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -388,7 +388,7 @@ void UtilConcrete::setUniformValue( int uniformLocation, int value )
     log( "glUniform1i( " + String( uniformLocation ) + ", " + String( value ) + " );" );
     glUniform1i( static_cast<GLint>( uniformLocation ), value );
 }
-void UtilConcrete::setUniformValue( int uniformLocation, unsigned value )
+void DeviceOpenGL::setUniformValue( int uniformLocation, unsigned value )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -399,24 +399,24 @@ void UtilConcrete::setUniformValue( int uniformLocation, unsigned value )
     glUniform1i( static_cast<GLuint>( uniformLocation ), value );
 }
 
-void UtilConcrete::setProjectionAndModelToIdentity()
+void DeviceOpenGL::setProjectionAndModelToIdentity()
 {
     resetMatrixToIdentity( MatrixTypes::PROJECTION );
     resetMatrixToIdentity( MatrixTypes::MODELVIEW );
 }
 
-void UtilConcrete::resetMatrixToIdentity( const MatrixTypes matrix )
+void DeviceOpenGL::resetMatrixToIdentity( const MatrixTypes matrix )
 {
     glMatrixMode( static_cast<GLenum>( matrix ) );
     glLoadIdentity();
 }
 
-void UtilConcrete::translate( const Point& point )
+void DeviceOpenGL::translate( const Point& point )
 {
     translate( point[0], point[1], point[2] );
 }
 
-void UtilConcrete::translate( const float x, const float y, const float z )
+void DeviceOpenGL::translate( const float x, const float y, const float z )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -426,7 +426,7 @@ void UtilConcrete::translate( const float x, const float y, const float z )
     glTranslatef( x, y, z );
 }
 
-void UtilConcrete::scale( const CUL::MATH::Vector3Df& scale )
+void DeviceOpenGL::scale( const CUL::MATH::Vector3Df& scale )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -436,7 +436,7 @@ void UtilConcrete::scale( const CUL::MATH::Vector3Df& scale )
     glScalef( scale.getX(), scale.getY(), scale.getZ() );
 }
 
-void UtilConcrete::scale( const float scale )
+void DeviceOpenGL::scale( const float scale )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -446,7 +446,7 @@ void UtilConcrete::scale( const float scale )
     glScalef( scale, scale, scale );
 }
 
-void UtilConcrete::draw( const QuadCUL& quad, const QuadCUL& texQuad )
+void DeviceOpenGL::draw( const QuadCUL& quad, const QuadCUL& texQuad )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -466,7 +466,7 @@ void UtilConcrete::draw( const QuadCUL& quad, const QuadCUL& texQuad )
     glEnd();
 }
 
-void UtilConcrete::draw( const QuadCUL& quad, const ColorS& color )
+void DeviceOpenGL::draw( const QuadCUL& quad, const ColorS& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -486,7 +486,7 @@ void UtilConcrete::draw( const QuadCUL& quad, const ColorS& color )
     glEnd();
 }
 
-void UtilConcrete::draw( const QuadData& quad, const ColorS& color )
+void DeviceOpenGL::draw( const QuadData& quad, const ColorS& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -506,7 +506,7 @@ void UtilConcrete::draw( const QuadData& quad, const ColorS& color )
     glEnd();
 }
 
-void UtilConcrete::draw( const QuadData& quad, const QuadColors& color )
+void DeviceOpenGL::draw( const QuadData& quad, const QuadColors& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -525,7 +525,7 @@ void UtilConcrete::draw( const QuadData& quad, const QuadColors& color )
     glEnd();
 }
 
-void UtilConcrete::draw( const QuadCUL& quad, const std::array<ColorS, 4>& color )
+void DeviceOpenGL::draw( const QuadCUL& quad, const std::array<ColorS, 4>& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -544,7 +544,7 @@ void UtilConcrete::draw( const QuadCUL& quad, const std::array<ColorS, 4>& color
     glEnd();
 }
 
-void UtilConcrete::draw( const TriangleCUL& triangle, const ColorS& color )
+void DeviceOpenGL::draw( const TriangleCUL& triangle, const ColorS& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -559,7 +559,7 @@ void UtilConcrete::draw( const TriangleCUL& triangle, const ColorS& color )
     glEnd();
 }
 
-void UtilConcrete::draw( const TriangleCUL& quad, const std::array<ColorS, 4>& color )
+void DeviceOpenGL::draw( const TriangleCUL& quad, const std::array<ColorS, 4>& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -576,7 +576,7 @@ void UtilConcrete::draw( const TriangleCUL& quad, const std::array<ColorS, 4>& c
     glEnd();
 }
 
-void UtilConcrete::draw( const TriangleData& values, const std::array<ColorS, 3>& color )
+void DeviceOpenGL::draw( const TriangleData& values, const std::array<ColorS, 3>& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -593,7 +593,7 @@ void UtilConcrete::draw( const TriangleData& values, const std::array<ColorS, 3>
     glEnd();
 }
 
-void UtilConcrete::draw( const LineData& values, const LineColors& color )
+void DeviceOpenGL::draw( const LineData& values, const LineColors& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -615,7 +615,7 @@ void UtilConcrete::draw( const LineData& values, const LineColors& color )
     }
 }
 
-void UtilConcrete::draw( const LineData& values, const ColorS& color )
+void DeviceOpenGL::draw( const LineData& values, const ColorS& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -629,7 +629,7 @@ void UtilConcrete::draw( const LineData& values, const ColorS& color )
     glEnd();
 }
 
-void UtilConcrete::draw( const Point& position, const ColorS& color )
+void DeviceOpenGL::draw( const Point& position, const ColorS& color )
 {
     glBegin( GL_POINTS );
     glColor4f( color.getRF(), color.getGF(), color.getBF(), color.getAF() );
@@ -637,7 +637,7 @@ void UtilConcrete::draw( const Point& position, const ColorS& color )
     glEnd();
 }
 
-void UtilConcrete::clearColorAndDepthBuffer()
+void DeviceOpenGL::clearColorAndDepthBuffer()
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -648,7 +648,7 @@ void UtilConcrete::clearColorAndDepthBuffer()
     // glDepthFunc( GL_LEQUAL );
 }
 
-void UtilConcrete::createQuad( float scale )
+void DeviceOpenGL::createQuad( float scale )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -664,7 +664,7 @@ void UtilConcrete::createQuad( float scale )
     glEnd();
 }
 
-void UtilConcrete::clearColorTo( const ColorS color )
+void DeviceOpenGL::clearColorTo( const ColorS color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -675,12 +675,12 @@ void UtilConcrete::clearColorTo( const ColorS color )
                   static_cast<GLclampf>( color.getAF() ) );
 }
 
-void UtilConcrete::clearBuffer( const ClearMasks mask )
+void DeviceOpenGL::clearBuffer( const ClearMasks mask )
 {
     glClear( static_cast<GLbitfield>( mask ) );
 }
 
-void UtilConcrete::setClientState( ClientStateTypes cs, bool enabled )
+void DeviceOpenGL::setClientState( ClientStateTypes cs, bool enabled )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -697,7 +697,7 @@ void UtilConcrete::setClientState( ClientStateTypes cs, bool enabled )
     }
 }
 
-void UtilConcrete::texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
+void DeviceOpenGL::texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -723,7 +723,7 @@ void UtilConcrete::texCoordPointer( int coordinatesPerElement, DataType dataType
     */
 }
 
-void UtilConcrete::vertexPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
+void DeviceOpenGL::vertexPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -748,7 +748,7 @@ void UtilConcrete::vertexPointer( int coordinatesPerElement, DataType dataType, 
     glVertexPointer( coordinatesPerElement, (GLenum)dataType, stride, pointer );
 }
 
-void UtilConcrete::setVertexArrayClientState( const bool enable )
+void DeviceOpenGL::setVertexArrayClientState( const bool enable )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -770,7 +770,7 @@ void UtilConcrete::setVertexArrayClientState( const bool enable )
 }
 //
 
-void UtilConcrete::setColorClientState( bool enable )
+void DeviceOpenGL::setColorClientState( bool enable )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -791,7 +791,7 @@ void UtilConcrete::setColorClientState( bool enable )
     }
 }
 
-unsigned int UtilConcrete::generateVertexArray( const int size )
+unsigned int DeviceOpenGL::generateVertexArray( const int size )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -804,26 +804,26 @@ unsigned int UtilConcrete::generateVertexArray( const int size )
     return vao;
 }
 
-void UtilConcrete::bufferData( uint8_t bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( uint8_t bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type )
 {
     bindBuffer( type, bufferId );
     auto dataVal = (void*)( &data.data );
     bufferDataImpl( dataVal, static_cast<GLenum>( type ), static_cast<GLsizeiptr>( 4 * sizeof( QuadCUL::PointType ) ) );
 }
 
-void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<unsigned int>& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( uint8_t bufferId, const std::vector<unsigned int>& data, const BufferTypes type )
 {
     bindBuffer( type, bufferId );
     bufferDataImpl( data.data(), static_cast<GLenum>( type ), static_cast<GLsizeiptr>( data.size() * sizeof( unsigned int ) ) );
 }
 
-void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<float>& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( uint8_t bufferId, const std::vector<float>& data, const BufferTypes type )
 {
     bindBuffer( type, bufferId );
     bufferDataImpl( data.data(), static_cast<GLenum>( type ), static_cast<GLsizeiptr>( data.size() * sizeof( float ) ) );
 }
 
-void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<TextureData2D>& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( uint8_t bufferId, const std::vector<TextureData2D>& data, const BufferTypes type )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -834,7 +834,7 @@ void UtilConcrete::bufferData( uint8_t bufferId, const std::vector<TextureData2D
     glBufferData( static_cast<GLenum>( type ), data.size() * sizeof( TextureData2D ), data.data(), GL_DYNAMIC_DRAW );
 }
 
-void UtilConcrete::bufferDataImpl( const void* data, const GLenum target, const GLsizeiptr dataSize )
+void DeviceOpenGL::bufferDataImpl( const void* data, const GLenum target, const GLsizeiptr dataSize )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -958,7 +958,7 @@ void UtilConcrete::bufferDataImpl( const void* data, const GLenum target, const 
     */
 }
 
-void UtilConcrete::bufferSubdata( uint8_t bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
+void DeviceOpenGL::bufferSubdata( uint8_t bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -971,7 +971,7 @@ void UtilConcrete::bufferSubdata( uint8_t bufferId, const BufferTypes type, std:
     glBufferSubData( GL_ARRAY_BUFFER, 0, dataSize, data.data() );
 }
 
-unsigned int UtilConcrete::generateAndBindBuffer( const BufferTypes bufferType, const int size )
+unsigned int DeviceOpenGL::generateAndBindBuffer( const BufferTypes bufferType, const int size )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -983,7 +983,7 @@ unsigned int UtilConcrete::generateAndBindBuffer( const BufferTypes bufferType, 
     return bufferId;
 }
 
-unsigned int UtilConcrete::generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size )
+unsigned int DeviceOpenGL::generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1024,7 +1024,7 @@ GL_ARRAY_BUFFER target. The initial value is 0.
     return ebo;
 }
 
-void UtilConcrete::bufferData( uint8_t bufferId, const float vertices[], BufferTypes bufferType )
+void DeviceOpenGL::bufferData( uint8_t bufferId, const float vertices[], BufferTypes bufferType )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1036,18 +1036,18 @@ void UtilConcrete::bufferData( uint8_t bufferId, const float vertices[], BufferT
     glBufferData( GL_ARRAY_BUFFER, sizeof( *vertices ), vertices, GL_STATIC_DRAW );
 }
 
-void UtilConcrete::enableVertexAttribiute( unsigned programId, const String& attribName )
+void DeviceOpenGL::enableVertexAttribiute( unsigned programId, const String& attribName )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    const auto attributeLocation = UtilConcrete::getAttribLocation( programId, attribName );
+    const auto attributeLocation = DeviceOpenGL::getAttribLocation( programId, attribName );
     glEnableVertexAttribArray( attributeLocation );
 }
 
-void UtilConcrete::setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data )
+void DeviceOpenGL::setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1083,18 +1083,18 @@ void UtilConcrete::setVertexPointer( int coordinatesPerVertex, DataType dataType
     glVertexPointer( coordinatesPerVertex, (GLenum)dataType, stride, data );
 }
 
-void UtilConcrete::disableVertexAttribiute( unsigned programId, const String& attribName )
+void DeviceOpenGL::disableVertexAttribiute( unsigned programId, const String& attribName )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    const auto attributeLocation = UtilConcrete::getAttribLocation( programId, attribName );
+    const auto attributeLocation = DeviceOpenGL::getAttribLocation( programId, attribName );
     glDisableVertexAttribArray( attributeLocation );
 }
 
-void UtilConcrete::deleteBuffer( BufferTypes bufferType, unsigned& id )
+void DeviceOpenGL::deleteBuffer( BufferTypes bufferType, unsigned& id )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1120,7 +1120,7 @@ void UtilConcrete::deleteBuffer( BufferTypes bufferType, unsigned& id )
     }
 }
 
-unsigned int UtilConcrete::getAttribLocation( unsigned programId, const String& attribName )
+unsigned int DeviceOpenGL::getAttribLocation( unsigned programId, const String& attribName )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1132,7 +1132,7 @@ unsigned int UtilConcrete::getAttribLocation( unsigned programId, const String& 
     return static_cast<unsigned int>( attribLocation );
 }
 
-void UtilConcrete::unbindBuffer( const BufferTypes bufferType )
+void DeviceOpenGL::unbindBuffer( const BufferTypes bufferType )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1142,7 +1142,7 @@ void UtilConcrete::unbindBuffer( const BufferTypes bufferType )
     bindBuffer( bufferType, 0 );
 }
 
-void UtilConcrete::bindBuffer( const BufferTypes bufferType, unsigned bufferId )
+void DeviceOpenGL::bindBuffer( const BufferTypes bufferType, unsigned bufferId )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1203,7 +1203,7 @@ void UtilConcrete::bindBuffer( const BufferTypes bufferType, unsigned bufferId )
 }
 
 // TODO: Remove type?
-unsigned int UtilConcrete::generateBuffer( const BufferTypes bufferType, const int size )
+unsigned int DeviceOpenGL::generateBuffer( const BufferTypes bufferType, const int size )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1229,7 +1229,7 @@ unsigned int UtilConcrete::generateBuffer( const BufferTypes bufferType, const i
     return bufferId;
 }
 
-void UtilConcrete::drawElements( const PrimitiveType type, const std::vector<unsigned int>& data )
+void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<unsigned int>& data )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1271,7 +1271,7 @@ void UtilConcrete::drawElements( const PrimitiveType type, const std::vector<uns
     glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( data.size() ), GL_UNSIGNED_INT, 0 );
 }
 
-void UtilConcrete::drawElements( const PrimitiveType type, const std::vector<float>& data )
+void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<float>& data )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1281,7 +1281,7 @@ void UtilConcrete::drawElements( const PrimitiveType type, const std::vector<flo
     glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( data.size() ), GL_FLOAT, data.data() );
 }
 
-void UtilConcrete::drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count )
+void DeviceOpenGL::drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1291,7 +1291,7 @@ void UtilConcrete::drawElementsFromLastBuffer( const PrimitiveType primitiveType
     glDrawElements( static_cast<GLenum>( primitiveType ), static_cast<GLsizei>( count ), static_cast<GLenum>( dataType ), nullptr );
 }
 
-void UtilConcrete::enableVertexAttribArray( unsigned attributeId )
+void DeviceOpenGL::enableVertexAttribArray( unsigned attributeId )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1328,7 +1328,7 @@ std::vector<std::string> split( const std::string& s, char delim )
     return elems;
 }
 
-std::vector<std::string> UtilConcrete::listExtensions()
+std::vector<std::string> DeviceOpenGL::listExtensions()
 {
     GLint extensionsCount = 0;
     glGetIntegerv( GL_NUM_EXTENSIONS, &extensionsCount );
@@ -1338,7 +1338,7 @@ std::vector<std::string> UtilConcrete::listExtensions()
     return extensionsVec;
 }
 
-void UtilConcrete::setDepthTest( const bool enabled )
+void DeviceOpenGL::setDepthTest( const bool enabled )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1359,7 +1359,7 @@ void UtilConcrete::setDepthTest( const bool enabled )
     }
 }
 
-void UtilConcrete::setBackfaceCUll( const bool enabled )
+void DeviceOpenGL::setBackfaceCUll( const bool enabled )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1377,7 +1377,7 @@ void UtilConcrete::setBackfaceCUll( const bool enabled )
     }
 }
 
-void UtilConcrete::setTexuring( const bool enabled )
+void DeviceOpenGL::setTexuring( const bool enabled )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1398,7 +1398,7 @@ void UtilConcrete::setTexuring( const bool enabled )
     }
 }
 
-unsigned UtilConcrete::generateTexture()
+unsigned DeviceOpenGL::generateTexture()
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1416,7 +1416,7 @@ unsigned UtilConcrete::generateTexture()
     return textureId;
 }
 
-void UtilConcrete::bindTexture( const unsigned int textureId )
+void DeviceOpenGL::bindTexture( const unsigned int textureId )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1436,7 +1436,7 @@ void UtilConcrete::bindTexture( const unsigned int textureId )
     }
 }
 
-void UtilConcrete::setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val )
+void DeviceOpenGL::setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1448,7 +1448,7 @@ void UtilConcrete::setTextureParameter( uint8_t textureId, const TextureParamete
     glTexParameteri( GL_TEXTURE_2D, (GLenum)type, (GLint)val );
 }
 
-void UtilConcrete::freeTexture( unsigned int& textureId )
+void DeviceOpenGL::freeTexture( unsigned int& textureId )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1463,7 +1463,7 @@ void UtilConcrete::freeTexture( unsigned int& textureId )
     }
 }
 
-void UtilConcrete::matrixStackPush()
+void DeviceOpenGL::matrixStackPush()
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1475,7 +1475,7 @@ void UtilConcrete::matrixStackPush()
     ++m_currentMatrix;
 }
 
-void UtilConcrete::matrixStackPop()
+void DeviceOpenGL::matrixStackPop()
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1487,7 +1487,7 @@ void UtilConcrete::matrixStackPop()
     --m_currentMatrix;
 }
 
-UtilConcrete::~UtilConcrete()
+DeviceOpenGL::~DeviceOpenGL()
 {
     CUL::Assert::simple( 0 == m_currentMatrix, "ERROR PUSH COUNT IS NOT EQUAL TO POP COUNT." );
 }

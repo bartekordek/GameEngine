@@ -12,7 +12,7 @@
 #include "ObjLoader.hpp"
 #include "gameengine/Sprite.hpp"
 #include "TextureConcrete.hpp"
-#include "UtilConcrete.hpp"
+#include "DeviceOpenGL.hpp"
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
@@ -57,7 +57,7 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
         forceLegacy = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool();
     }
 
-    m_oglUtility = new UtilConcrete( sdl2w->getCul(), forceLegacy );
+    m_oglUtility = new DeviceOpenGL( sdl2w->getCul(), forceLegacy );
     registerObjectForUtility();
 
     m_renderersVersions["OpenGL"] = m_oglUtility->getVersion();
