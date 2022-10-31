@@ -1,4 +1,4 @@
-#include "gameengine/IUtility.hpp"
+#include "gameengine/IRenderDevice.hpp"
 #include "gameengine/Camera.hpp"
 
 #include "SDL2Wrapper/IWindow.hpp"
@@ -141,7 +141,7 @@ void APIENTRY glDebugOutput(
 }
 
 
-IUtility::IUtility( CUL::CULInterface* culInterface, bool forceLegacy )
+IRenderDevice::IRenderDevice( CUL::CULInterface* culInterface, bool forceLegacy )
     : m_forceLegacy( forceLegacy ), m_culInterface( culInterface ), m_logger( m_culInterface->getLogger() )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
@@ -168,7 +168,7 @@ IUtility::IUtility( CUL::CULInterface* culInterface, bool forceLegacy )
     g_logger = culInterface->getLogger();
 }
 
-ContextInfo IUtility::initContextVersion( SDL2W::IWindow* window )
+ContextInfo IRenderDevice::initContextVersion( SDL2W::IWindow* window )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -225,7 +225,7 @@ ContextInfo IUtility::initContextVersion( SDL2W::IWindow* window )
     return result;
 }
 
-void IUtility::getLastOperationStatus()
+void IRenderDevice::getLastOperationStatus()
 {
     GLenum errorCode;
     while( ( errorCode = glGetError() ) != GL_NO_ERROR )
@@ -260,7 +260,7 @@ void IUtility::getLastOperationStatus()
     }
 }
 
-void IUtility::setOrthogonalPerspective( const Camera& camera )
+void IRenderDevice::setOrthogonalPerspective( const Camera& camera )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -322,7 +322,7 @@ void IUtility::setOrthogonalPerspective( const Camera& camera )
     );
 }
 
-void IUtility::setPerspectiveProjection( const Camera& projectionData )
+void IRenderDevice::setPerspectiveProjection( const Camera& projectionData )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -340,12 +340,12 @@ void IUtility::setPerspectiveProjection( const Camera& projectionData )
 }
 
 
-bool IUtility::getIsEmbeddedSystems() const
+bool IRenderDevice::getIsEmbeddedSystems() const
 {
     return m_isEmbeddedSystems;
 }
 
-void IUtility::useProgram( int programId )
+void IRenderDevice::useProgram( int programId )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -359,7 +359,7 @@ void IUtility::useProgram( int programId )
     }
 }
 
-int IUtility::getCurrentProgram() const
+int IRenderDevice::getCurrentProgram() const
 {
     GLint id;
     glGetIntegerv( GL_CURRENT_PROGRAM, &id );
@@ -367,7 +367,7 @@ int IUtility::getCurrentProgram() const
     return (int)id;
 }
 
-void IUtility::setUniformValue( int uniformLocation, const glm::vec2& val )
+void IRenderDevice::setUniformValue( int uniformLocation, const glm::vec2& val )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -378,7 +378,7 @@ void IUtility::setUniformValue( int uniformLocation, const glm::vec2& val )
     glUniform2fv( uniformLocation, 1, &val[0] );
 }
 
-void IUtility::setUniformValue( int uniformLocation, const glm::vec3& val )
+void IRenderDevice::setUniformValue( int uniformLocation, const glm::vec3& val )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -389,7 +389,7 @@ void IUtility::setUniformValue( int uniformLocation, const glm::vec3& val )
     glUniform3fv( uniformLocation, 1, &val[0] );
 }
 
-void IUtility::setUniformValue( int uniformLocation, const glm::vec4& val )
+void IRenderDevice::setUniformValue( int uniformLocation, const glm::vec4& val )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -400,7 +400,7 @@ void IUtility::setUniformValue( int uniformLocation, const glm::vec4& val )
     glUniform4fv( uniformLocation, 1, &val[0] );
 }
 
-void IUtility::setUniformValue( int uniformLocation, const glm::mat2& val )
+void IRenderDevice::setUniformValue( int uniformLocation, const glm::mat2& val )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -411,7 +411,7 @@ void IUtility::setUniformValue( int uniformLocation, const glm::mat2& val )
     glUniformMatrix2fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
 }
 
-void IUtility::setUniformValue( int uniformLocation, const glm::mat3& val )
+void IRenderDevice::setUniformValue( int uniformLocation, const glm::mat3& val )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -422,7 +422,7 @@ void IUtility::setUniformValue( int uniformLocation, const glm::mat3& val )
     glUniformMatrix3fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
 }
 
-void IUtility::setUniformValue( int uniformLocation, const glm::mat4& val )
+void IRenderDevice::setUniformValue( int uniformLocation, const glm::mat4& val )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -433,7 +433,7 @@ void IUtility::setUniformValue( int uniformLocation, const glm::mat4& val )
     glUniformMatrix4fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
 }
 
-void IUtility::setActiveTextureUnit( ETextureUnitIndex textureUnitIndex )
+void IRenderDevice::setActiveTextureUnit( ETextureUnitIndex textureUnitIndex )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -447,7 +447,7 @@ void IUtility::setActiveTextureUnit( ETextureUnitIndex textureUnitIndex )
     glActiveTexture( textureId );
 }
 
-unsigned int IUtility::getUniformLocation( unsigned programId, const String& attribName )
+unsigned int IRenderDevice::getUniformLocation( unsigned programId, const String& attribName )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -482,7 +482,7 @@ unsigned int IUtility::getUniformLocation( unsigned programId, const String& att
     return static_cast<unsigned int>( attribLocation );
 }
 
-void IUtility::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count )
+void IRenderDevice::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -504,7 +504,7 @@ void IUtility::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, un
     glDrawArrays( static_cast<GLenum>( primitiveType ), static_cast<GLint>( first ), static_cast<GLsizei>( count ) );
 }
 
-void IUtility::vertexAttribPointer( const VertexAttributePtrMeta& meta )
+void IRenderDevice::vertexAttribPointer( const VertexAttributePtrMeta& meta )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -547,7 +547,7 @@ void IUtility::vertexAttribPointer( const VertexAttributePtrMeta& meta )
                            meta.offset );
 }
 
-void IUtility::setTextureData( uint8_t textureId, const TextureInfo& ti )
+void IRenderDevice::setTextureData( uint8_t textureId, const TextureInfo& ti )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -561,7 +561,7 @@ void IUtility::setTextureData( uint8_t textureId, const TextureInfo& ti )
 }
 
 
-void IUtility::rotate( const CUL::MATH::Rotation& rotation )
+void IRenderDevice::rotate( const CUL::MATH::Rotation& rotation )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -573,7 +573,7 @@ void IUtility::rotate( const CUL::MATH::Rotation& rotation )
     glRotatef( rotation.roll.getDeg(), 0.f, 0.f, 1.f );
 }
 
-void IUtility::draw( const CUL::MATH::Primitives::Line& values, const ColorS& color )
+void IRenderDevice::draw( const CUL::MATH::Primitives::Line& values, const ColorS& color )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -587,7 +587,7 @@ void IUtility::draw( const CUL::MATH::Primitives::Line& values, const ColorS& co
     glEnd();
 }
 
-void IUtility::rotate( const float angleDeg, const float x, const float y, const float z )
+void IRenderDevice::rotate( const float angleDeg, const float x, const float y, const float z )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -597,31 +597,31 @@ void IUtility::rotate( const float angleDeg, const float x, const float y, const
     glRotatef( angleDeg, x, y, z );
 }
 
-CUL::GUTILS::Version IUtility::getVersion() const
+CUL::GUTILS::Version IRenderDevice::getVersion() const
 {
     return m_supportedVersion;
 }
 
-CUL::CULInterface* IUtility::getCUl() const
+CUL::CULInterface* IRenderDevice::getCUl() const
 {
     return m_culInterface;
 }
 
-unsigned IUtility::getGPUTotalAvailableMemoryKb()
+unsigned IRenderDevice::getGPUTotalAvailableMemoryKb()
 {
     GLint total_mem_kb = 0;
     glGetIntegerv( GL_GPU_MEM_INFO_TOTAL_AVAILABLE_MEM_NVX, &total_mem_kb );
     return total_mem_kb;
 }
 
-unsigned IUtility::getGPUCurrentAvailableMemoryKb()
+unsigned IRenderDevice::getGPUCurrentAvailableMemoryKb()
 {
     GLint cur_avail_mem_kb = 0;
     glGetIntegerv( GL_GPU_MEM_INFO_CURRENT_AVAILABLE_MEM_NVX, &cur_avail_mem_kb );
     return cur_avail_mem_kb;
 }
 
-void IUtility::toggleDebugOutput( bool enable )
+void IRenderDevice::toggleDebugOutput( bool enable )
 {
     if( !getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -645,7 +645,7 @@ void IUtility::toggleDebugOutput( bool enable )
     }
 }
 
-void IUtility::checkLastCommandForErrors()
+void IRenderDevice::checkLastCommandForErrors()
 {
     const GLenum err = glGetError();
     const GLubyte* errorAsString = gluErrorString( err );
@@ -653,7 +653,7 @@ void IUtility::checkLastCommandForErrors()
 }
 
 
-bool IUtility::isLegacy()
+bool IRenderDevice::isLegacy()
 {
     if( m_forceLegacy )
     {
@@ -664,7 +664,7 @@ bool IUtility::isLegacy()
 }
 
 
-void IUtility::log( const String& text, const CUL::LOG::Severity severity ) const
+void IRenderDevice::log( const String& text, const CUL::LOG::Severity severity ) const
 {
     customAssert( m_logger != nullptr, "Logger utility is unninitialized inside of UtilConcrete." );
 
@@ -675,12 +675,12 @@ void IUtility::log( const String& text, const CUL::LOG::Severity severity ) cons
     }
 }
 
-void IUtility::customAssert( const bool value, const CUL::String& message ) const
+void IRenderDevice::customAssert( const bool value, const CUL::String& message ) const
 {
     CUL::Assert::simple( value, message );
 }
 
 
-IUtility::~IUtility()
+IRenderDevice::~IRenderDevice()
 {
 }

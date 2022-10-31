@@ -2,18 +2,18 @@
 
 using namespace LOGLW;
 
-IUtility* IUtilityUser::s_utility = nullptr;
+IRenderDevice* IUtilityUser::s_utility = nullptr;
 
 IUtilityUser::IUtilityUser()
 {
 }
 
-void IUtilityUser::useUtility( IUtility* utility )
+void IUtilityUser::useUtility( IRenderDevice* utility )
 {
     s_utility = utility;
 }
 
-IUtility* IUtilityUser::getUtility()
+IRenderDevice* IUtilityUser::getDevice()
 {
     return s_utility;
 }

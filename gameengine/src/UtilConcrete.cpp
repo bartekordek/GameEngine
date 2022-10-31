@@ -64,7 +64,7 @@ void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum
 CUL::String enumToString( const GLenum val );
 GLuint toGluint( unsigned value );
 
-UtilConcrete::UtilConcrete( CUL::CULInterface* culInterface, bool forceLegacy ) : IUtility( culInterface, forceLegacy )
+UtilConcrete::UtilConcrete( CUL::CULInterface* culInterface, bool forceLegacy ) : IRenderDevice( culInterface, forceLegacy )
 {
 }
 

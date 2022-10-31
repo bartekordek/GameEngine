@@ -55,7 +55,7 @@ void IGameEngineApp::init( const SDL2W::WindowData& windowData,
 
     m_oglw.reset( LOGLW::IGameEngine::createGameEngine( m_sdlw.get(), legacy ) );
     m_logger = m_oglw->getLoger();
-    m_gutil = m_oglw->getUtility();
+    m_gutil = m_oglw->getDevice();
 
     m_oglw->onInitialize( [this]() {
         m_objFactory = m_oglw->getObjectFactory();

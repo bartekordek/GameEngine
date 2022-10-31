@@ -2,6 +2,7 @@
 
 #include "gameengine/IRenderable.hpp"
 #include "gameengine/IUtilityUser.hpp"
+#include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IndexBuffer.hpp"
 #include "CUL/GenericUtils/DumbPtr.hpp"
 

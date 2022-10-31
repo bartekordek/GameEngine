@@ -1,5 +1,5 @@
 #include "gameengine/Shader.hpp"
-#include "gameengine/IUtility.hpp"
+#include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IGameEngine.hpp"
 
 #include "CUL/CULInterface.hpp"
@@ -34,10 +34,10 @@ void Shader::reload()
 void Shader::create()
 {
     auto createTask = [this]() {
-        m_id = getUtility()->createShader( *m_shaderCode );
+        m_id = getDevice()->createShader( *m_shaderCode );
     };
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
     {
         createTask();
     }
@@ -83,10 +83,10 @@ void Shader::release()
     if( m_id )
     {
         auto removeShaderTask = [this]() {
-            getUtility()->removeShader( m_id );
+            getDevice()->removeShader( m_id );
         };
 
-        if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+        if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
         {
             removeShaderTask();
         }

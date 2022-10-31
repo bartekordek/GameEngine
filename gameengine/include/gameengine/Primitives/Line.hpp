@@ -2,6 +2,7 @@
 
 #include "gameengine/IObject.hpp"
 #include "gameengine/IUtilityUser.hpp"
+#include "gameengine/IRenderDevice.hpp"
 
 #include "CUL/Math/Primitives/Line.hpp"
 

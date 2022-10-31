@@ -13,7 +13,7 @@ Cube::Cube( Camera* camera, IGameEngine* engine ) : IObject( engine ), m_camera(
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         createPlaceHolders();
         m_initialized = true;
@@ -162,15 +162,15 @@ void Cube::createPlaceHolders()
 void Cube::render()
 {
     std::lock_guard<std::mutex> renderLock( m_renderMutex );
-    if( getUtility()->isLegacy() )
+    if( getDevice()->isLegacy() )
     {
-        getUtility()->matrixStackPush();
+        getDevice()->matrixStackPush();
 
         const auto position = getTransform()->getWorldPosition();
         const auto rotation = getTransform()->getWorldRotation();
 
-        getUtility()->translate( position );
-        getUtility()->rotate( rotation );
+        getDevice()->translate( position );
+        getDevice()->rotate( rotation );
     }
 
     const auto children = getChildren();
@@ -179,9 +179,9 @@ void Cube::render()
         child->render();
     }
 
-    if( getUtility()->isLegacy() )
+    if( getDevice()->isLegacy() )
     {
-        getUtility()->matrixStackPop();
+        getDevice()->matrixStackPop();
     }
 }
 

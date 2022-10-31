@@ -2,7 +2,7 @@
 
 #include "IMPORT_glew.hpp"
 #include "ImportFreeglut.hpp"
-#include "gameengine/IUtility.hpp"
+#include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IndexBuffer.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
@@ -17,7 +17,7 @@ enum class ShaderTypes : int
     INVALID = 0x0500
 };
 
-class UtilConcrete final: public IUtility
+class UtilConcrete final: public IRenderDevice
 {
 public:
     UtilConcrete( CUL::CULInterface* culInterface, bool forceLegacy );

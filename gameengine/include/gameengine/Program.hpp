@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gameengine/IUtility.hpp"
+#include "gameengine/IRenderDevice.hpp"
 #include "gameengine/Shader.hpp"
 
 #include "CUL/Filesystem/Path.hpp"

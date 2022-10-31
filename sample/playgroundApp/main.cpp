@@ -28,7 +28,7 @@ using String = CUL::String;
 
 DumbPtr<CUL::GUTILS::IConfigFile> g_configFile;
 GLWrap g_oglw;
-LOGLW::IUtility* g_utility = nullptr;
+LOGLW::IRenderDevice* g_utility = nullptr;
 CUL::LOG::ILogger* g_logger = nullptr;
 ColorS red( ColorE::RED );
 ColorS yellow( 1.0f, 1.0f, 0.0f, 1.0f );
@@ -41,7 +41,7 @@ CUL::FS::Path fragmentShaderFile;
 LOGLW::Program* program = nullptr;
 float blueTriangleZ = -1.0f;
 float redTriangleZ = 1.0f;
-LOGLW::Camera g_camera;
+LOGLW::Camera* g_camera = nullptr;
 glm::vec3 g_eyePos;
 LOGLW::IObject* g_triangle0 = nullptr;
 CUL::TimeConcrete configModificationTime;
@@ -112,7 +112,7 @@ int main( int argc, char** argv )
 
     g_logger = g_oglw->getLoger();
 
-    g_utility = g_oglw->getUtility();
+    g_utility = g_oglw->getDevice();
     g_oglw->onInitialize( afterInit );
     g_oglw->beforeFrame( renderScene );
 
@@ -132,8 +132,13 @@ void afterInit()
     g_mainWindow->setBackgroundColor( SDL2W::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
     const auto& winSize = g_mainWindow->getSize();
 
-    g_camera.setSize( { winSize.getWidth(), winSize.getHeight() } );
-    g_camera.setEyePos( { 0.0f, 0.0f, 131.f } );
+
+    g_camera = &g_oglw->getCamera();
+
+    g_camera->setSize( { winSize.getWidth(), winSize.getHeight() } );
+    g_camera->setEyePos( { 0.0f, 0.0f, 131.f } );
+    g_camera->setCenter( { 0.f, 0.f, -10.f } );
+    g_camera->setZNear( 1.f );
 
     reloadConfig();
     configModificationTime = g_configFile->getModificationTime();
@@ -180,12 +185,16 @@ void renderScene()
 
     auto oldPosWhiteBlue = g_blueTriangle->getTransform()->getWorldPosition();
     oldPosWhiteBlue.z() = blueTriangleZ;
+    oldPosWhiteBlue.x() = -16.f;
     g_blueTriangle->getTransform()->setWorldPosition( oldPosWhiteBlue );
+    oldPosWhiteBlue.x() = 0.f;
     g_whiteTriangle->getTransform()->setWorldPosition( oldPosWhiteBlue );
 
     auto oldPosRedYellow = g_redTriangle->getTransform()->getWorldPosition();
     oldPosRedYellow.z() = redTriangleZ;
+    oldPosRedYellow.x() = -16.f;
     g_redTriangle->getTransform()->setWorldPosition( oldPosRedYellow );
+    oldPosRedYellow.x() = 0.f;
     g_yellowTriangle->getTransform()->setWorldPosition( oldPosRedYellow );
 
     g_sprite->getTransform()->setWorldPosition( 0.f, 80.f * std::sin( g_angle.getRad() ), 40.f * std::cos( g_angle.getRad() ) );
@@ -205,7 +214,7 @@ void renderScene()
         }
     }
 
-    const auto amp = 64.f;
+    const auto amp = 8.f;
     const auto frac = 0.8f;
 
     blueTriangleZ = amp + std::sin( g_angle.getRad() * frac ) * amp;
@@ -220,16 +229,15 @@ void reloadConfig()
 
         const auto x = 0.0f;
 
-        g_camera.setCenter(
-            glm::vec3( x, g_configFile->getValue( "CENTER_Y" ).toFloat(), g_configFile->getValue( "CENTER_Z" ).toFloat() ) );
-        g_eyePos = g_camera.getEye();
-        g_eyePos.z = g_configFile->getValue( "EYE_Z" ).toFloat();
-        g_camera.setEyePos( g_eyePos );
+        auto centerZ =  g_configFile->getValue( "CENTER_Z" ).toFloat();
 
-        g_camera.setUp( glm::vec3( 0.0f, 1.0f, 0.0f ) );
-        glm::vec3 center = g_camera.getCenter();
-        center.z = g_configFile->getValue( "Z_FAR" ).toFloat();
-        g_camera.setCenter( center );
+        g_camera->setCenter(
+            glm::vec3( x, g_configFile->getValue( "CENTER_Y" ).toFloat(), centerZ ) );
+        g_eyePos = g_camera->getEye();
+        g_eyePos.z = g_configFile->getValue( "EYE_Z" ).toFloat();
+        g_camera->setEyePos( g_eyePos );
+
+        g_camera->setUp( glm::vec3( 0.0f, 1.0f, 0.0f ) );
     }
 }
 
@@ -287,61 +295,61 @@ void onKeyBoardEvent( const SDL2W::KeyboardState& key )
         blueTriangleZ -= deltaZ;
         g_logger->log( "setting blueTriangleZ to: " + String( blueTriangleZ ) );
     }
-    
+
     if( key.at( "S" ) )
     {
         blueTriangleZ += deltaZ;
         g_logger->log( "setting blueTriangleZ to: " + String( blueTriangleZ ) );
     }
-    
+
     if( key.at( "U" ) )
     {
-        auto newVal = g_camera.getZfar() + delta;
+        auto newVal = g_camera->getZfar() + delta;
 
-        glm::vec3 center = g_camera.getCenter();
+        glm::vec3 center = g_camera->getCenter();
         center.z = newVal;
-        g_camera.setCenter( center );
+        g_camera->setCenter( center );
 
         g_logger->log( "setting zFar to: " + String( newVal ) );
     }
-    
+
     if( key.at( "J" ) )
     {
-        auto newVal = g_camera.getZfar() - delta;
+        auto newVal = g_camera->getZfar() - delta;
 
-        glm::vec3 center = g_camera.getCenter();
+        glm::vec3 center = g_camera->getCenter();
         center.z = newVal;
-        g_camera.setCenter( center );
+        g_camera->setCenter( center );
 
         g_logger->log( "setting zFar to: " + String( newVal ) );
     }
-    
+
     if( key.at( "I" ) )
     {
         g_eyePos.z += 2.0f;
         g_oglw->getCamera().setEyePos( g_eyePos );
         g_logger->log( "setting g_eyePos.z to: " + String( g_eyePos.z ) );
     }
-    
+
     if( key.at( "K" ) )
     {
         g_eyePos.z -= 2.0f;
         g_oglw->getCamera().setEyePos( g_eyePos );
         g_logger->log( "setting g_eyePos.z to: " + String( g_eyePos.z ) );
     }
-    
+
     if( key.at( "T" ) )
     {
         redTriangleZ -= deltaZ;
         g_logger->log( "setting redTriangleZ to: " + String( redTriangleZ ) );
     }
-    
+
     if( key.at( "G" ) )
     {
         redTriangleZ += deltaZ;
         g_logger->log( "setting redTriangleZ to: " + String( redTriangleZ ) );
     }
-    
+
     if( key.at( "P" ) )
     {
         static bool toggle = true;

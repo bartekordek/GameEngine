@@ -124,7 +124,7 @@ CUL::LOG::ILogger* GameEngineConcrete::getLoger()
     return m_logger;
 }
 
-IUtility* GameEngineConcrete::getUtility()
+IRenderDevice* GameEngineConcrete::getDevice()
 {
     return m_oglUtility;
 }
@@ -385,7 +385,7 @@ void GameEngineConcrete::initDebugInfo()
 
         ImGui_ImplSDL2_InitForOpenGL( *m_activeWindow, getContext().glContext );
 
-        if( getUtility()->getIsEmbeddedSystems() )
+        if( getDevice()->getIsEmbeddedSystems() )
         {
             ImGui_ImplOpenGL3_Init();
         }
@@ -459,7 +459,7 @@ void GameEngineConcrete::initialize()
     // m_oglUtility->setBackfaceCUll(  );
     // m_oglUtility->setDepthTest( true );
 
-    getUtility()->toggleDebugOutput( true );
+    getDevice()->toggleDebugOutput( true );
 
     m_hasBeenInitialized = true;
     m_logger->log( "GameEngineConcrete::initialize() Done." );
@@ -577,7 +577,7 @@ void GameEngineConcrete::renderInfo()
     ImGui::SetWindowPos( { 0, 0 } );
     ImGui::SetWindowSize( { (float)winSize.getWidth() * 0.2f, (float)winSize.getHeight() * 1.f } );
 
-    ImGui::Text( "Legacy: %s", getUtility()->isLegacy() ? "true" : "false" );
+    ImGui::Text( "Legacy: %s", getDevice()->isLegacy() ? "true" : "false" );
     ImGui::Text( "Renderer: %s", m_activeWindow->getRenderName().cStr() );
 
     float gputTotal = getGPUTotalAvailableMemoryKb();
@@ -995,7 +995,7 @@ ITextureFactory* GameEngineConcrete::getTextureFactory()
 ITexture* GameEngineConcrete::createTexture( const CUL::FS::Path& path, const bool )
 {
     // auto image = m_sdlW->getCul()->getImageLoader()->loadImage( path, rgba );
-    auto textureConcrete = new TextureConcrete( getUtility(), m_sdlW->getCul()->getImageLoader(), path );
+    auto textureConcrete = new TextureConcrete( getDevice(), m_sdlW->getCul()->getImageLoader(), path );
     return textureConcrete;
 }
 

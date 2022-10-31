@@ -14,7 +14,7 @@ Program::Program( IGameEngine& engine ) : m_engine( engine )
 {
     m_logger = m_engine.getLoger();
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         initialize();
     }
@@ -33,7 +33,7 @@ bool Program::initialized() const
 
 void Program::initialize()
 {
-    m_id = getUtility()->createProgram();
+    m_id = getDevice()->createProgram();
     m_initialized = true;
 }
 
@@ -53,60 +53,60 @@ void Program::setUniform( const String& name, float value )
 
 void Program::setUniform( const String& name, unsigned value )
 {
-    getUtility()->useProgram( m_id );
+    getDevice()->useProgram( m_id );
 
     auto location = getUniformLocation( name );
-    getUtility()->setUniformValue( location, value );
+    getDevice()->setUniformValue( location, value );
 }
 
 void Program::setUniform( const String& name, int value )
 {
-    getUtility()->useProgram( m_id );
+    getDevice()->useProgram( m_id );
 
     auto location = getUniformLocation( name );
-    getUtility()->setUniformValue( location, value );
+    getDevice()->setUniformValue( location, value );
 }
 
 void Program::setUniform( const String& name, bool value )
 {
-    getUtility()->useProgram( m_id );
+    getDevice()->useProgram( m_id );
 
     auto location = getUniformLocation( name );
-    getUtility()->setUniformValue( location, value );
+    getDevice()->setUniformValue( location, value );
 }
 
 void Program::setUniform( const String& name, const glm::mat2& value )
 {
-    getUtility()->useProgram( m_id );
+    getDevice()->useProgram( m_id );
 
     auto location = getUniformLocation( name );
-    getUtility()->setUniformValue( location, value );
+    getDevice()->setUniformValue( location, value );
 }
 
 void Program::setUniform( const String& name, const glm::mat3& value )
 {
     auto location = getUniformLocation( name );
-    getUtility()->setUniformValue( location, value );
+    getDevice()->setUniformValue( location, value );
 }
 
 void Program::setUniform( const String& name, const glm::mat4& val )
 {
-    getUtility()->useProgram( m_id );
+    getDevice()->useProgram( m_id );
 
     auto location = getUniformLocation( name );
-    getUtility()->setUniformValue( location, val );
+    getDevice()->setUniformValue( location, val );
 }
 
 void Program::setUniform( const String& name, const glm::vec4& value )
 {
-    getUtility()->useProgram( m_id );
+    getDevice()->useProgram( m_id );
     auto location = getUniformLocation( name );
-    getUtility()->setUniformValue( location, value );
+    getDevice()->setUniformValue( location, value );
 }
 
 Shader* Program::loadShader( const char* path )
 {
-    auto fragmentShaderFile = getUtility()->getCUl()->getFF()->createRegularFileRawPtr( path );
+    auto fragmentShaderFile = getDevice()->getCUl()->getFF()->createRegularFileRawPtr( path );
     fragmentShaderFile->load( true );
     Shader* result = new Shader( m_engine, fragmentShaderFile );
     attachShader( result );
@@ -120,7 +120,7 @@ unsigned Program::getUniformLocation( const String& name )
     auto it = m_uniformMap.find( name );
     if( it == m_uniformMap.end() )
     {
-        auto location = getUtility()->getUniformLocation( m_id, name );
+        auto location = getDevice()->getUniformLocation( m_id, name );
         m_uniformMap[name] = location;
         return location;
     }
@@ -149,7 +149,7 @@ int Program::getAttributeI( const String& )
 
 void Program::reloadShader()
 {
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         reloadShaderImpl();
     }
@@ -176,7 +176,7 @@ void Program::reloadShaderImpl()
 
     for( auto shaderPath : shadersPaths )
     {
-        auto shaderFile = getUtility()->getCUl()->getFF()->createFileFromPath( shaderPath );
+        auto shaderFile = getDevice()->getCUl()->getFF()->createFileFromPath( shaderPath );
         shaderFile->load(true);
         auto shader = new Shader( m_engine, shaderFile );
         attachShader( shader );
@@ -192,10 +192,10 @@ void Program::attachShader( Shader* shader )
     shader->addUsedFrom( this );
 
     auto attachTask = [this, shaderId]() {
-        getUtility()->attachShader( m_id, shaderId );
+        getDevice()->attachShader( m_id, shaderId );
     };
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         attachTask();
     }
@@ -219,10 +219,10 @@ void Program::dettachShader( Shader* shader )
 void Program::link()
 {
     auto linkTask = [this]() {
-        getUtility()->linkProgram( m_id );
+        getDevice()->linkProgram( m_id );
     };
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         linkTask();
     }
@@ -236,21 +236,21 @@ void Program::link()
 
 void Program::enable()
 {
-    getUtility()->useProgram( m_id );
+    getDevice()->useProgram( m_id );
 }
 
 void Program::disable()
 {
-    getUtility()->useProgram( 0 );
+    getDevice()->useProgram( 0 );
 }
 
 void Program::validate()
 {
     auto validateTask = [this]() {
-        getUtility()->validateProgram( m_id );
+        getDevice()->validateProgram( m_id );
     };
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         validateTask();
     }
@@ -288,8 +288,8 @@ void Program::processTask( const ValueToSet& task )
         auto floatValue = std::get_if<float>( &task.value );
         if( floatValue )
         {
-            auto location = getUtility()->getUniformLocation( m_id, task.name );
-            getUtility()->setAttribValue( location, *floatValue );
+            auto location = getDevice()->getUniformLocation( m_id, task.name );
+            getDevice()->setAttribValue( location, *floatValue );
             return;
         }
     }
@@ -298,8 +298,8 @@ void Program::processTask( const ValueToSet& task )
         auto unsignedValue = std::get_if<unsigned>( &task.value );
         if( unsignedValue )
         {
-            auto location = getUtility()->getUniformLocation( m_id, task.name );
-            getUtility()->setAttribValue( location, *unsignedValue );
+            auto location = getDevice()->getUniformLocation( m_id, task.name );
+            getDevice()->setAttribValue( location, *unsignedValue );
             return;
         }
     }
@@ -308,8 +308,8 @@ void Program::processTask( const ValueToSet& task )
         auto intValue = std::get_if<unsigned>( &task.value );
         if( intValue )
         {
-            auto location = getUtility()->getUniformLocation( m_id, task.name );
-            getUtility()->setAttribValue( location, *intValue );
+            auto location = getDevice()->getUniformLocation( m_id, task.name );
+            getDevice()->setAttribValue( location, *intValue );
         }
     }
 }
@@ -346,7 +346,7 @@ void Program::release()
         {
             Shader* shader = shaderPair.second;
             shader->removeUsedFrom( this );
-            getUtility()->dettachShader( m_id, shader->getId() );
+            getDevice()->dettachShader( m_id, shader->getId() );
             if( shader->getUsedFromCount() == 0 )
             {
                 m_engine.removeShader( shader );
@@ -358,7 +358,7 @@ void Program::release()
         releaseProgram();
     };
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         releaseTask();
     }
@@ -381,11 +381,11 @@ void Program::releaseProgram()
     String logValue = "Releasing program: "  + String( m_id ) + "...";
     m_logger->log( logValue );
     auto removeShaderTask = [this]() {
-        getUtility()->removeProgram( m_id );
+        getDevice()->removeProgram( m_id );
         m_id = 0;
     };
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         removeShaderTask();
     }

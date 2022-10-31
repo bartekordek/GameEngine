@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gameengine/IObject.hpp"
-#include "gameengine/IUtility.hpp"
+#include "gameengine/IRenderDevice.hpp"
 
 #include "CUL/Graphics/SimpleSize3D.hpp"
 #include "CUL/GenericUtils/DumbPtr.hpp"

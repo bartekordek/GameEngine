@@ -112,7 +112,7 @@ private:
 
     IImageLoader* getImageLoader() override;
     CUL::LOG::ILogger* getLoger() override;
-    IUtility* getUtility() override;
+    IRenderDevice* getDevice() override;
     const Viewport& getViewport() const override;
     // ProjectionData& getProjectionData() override;
 

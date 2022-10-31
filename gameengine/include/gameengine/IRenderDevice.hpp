@@ -207,10 +207,10 @@ enum class ETextureUnitIndex: int
 
 class Viewport;
 
-class GAME_ENGINE_API IUtility
+class GAME_ENGINE_API IRenderDevice
 {
 public:
-    IUtility( CUL::CULInterface* culInterface, bool forceLegacy );
+    IRenderDevice( CUL::CULInterface* culInterface, bool forceLegacy );
 
     bool isLegacy();
 
@@ -360,7 +360,7 @@ public:
     void checkLastCommandForErrors();
     bool getIsEmbeddedSystems() const;
 
-    virtual ~IUtility();
+    virtual ~IRenderDevice();
 
 protected:
     void log( const String& text, const CUL::LOG::Severity severity = CUL::LOG::Severity::INFO ) const;

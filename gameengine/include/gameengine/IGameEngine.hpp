@@ -47,7 +47,7 @@ class Sprite;
 class Quad;
 class Triangle;
 class Viewport;
-class IUtility;
+class IRenderDevice;
 class Shader;
 struct EngineParams;
 
@@ -85,7 +85,7 @@ public:
 
     GAME_ENGINE_API IObjectFactory* getObjectFactory();
     GAME_ENGINE_API virtual IImageLoader* getImageLoader() = 0;
-    GAME_ENGINE_API virtual IUtility* getUtility() = 0;
+    GAME_ENGINE_API virtual IRenderDevice* getDevice() = 0;
     GAME_ENGINE_API virtual const Viewport& getViewport() const = 0;
 
     GAME_ENGINE_API virtual CUL::CULInterface* getCul() = 0;
@@ -175,7 +175,7 @@ protected:
 
     GUIParams m_guiParams;
 
-    IUtility* m_oglUtility = nullptr;
+    IRenderDevice* m_oglUtility = nullptr;
     std::mutex m_preRenderTasksMtx;
     std::queue<IPreRenderTask*> m_preRenderTasks;
     std::queue<std::function<void( void )>> m_preRenderTasksFunction;

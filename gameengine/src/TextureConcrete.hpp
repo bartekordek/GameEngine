@@ -2,7 +2,7 @@
 
 #include "gameengine/ITexture.hpp"
 #include "gameengine/IUtilityUser.hpp"
-#include "gameengine/IUtility.hpp"
+#include "gameengine/IRenderDevice.hpp"
 
 #include "CUL/GenericUtils/DumbPtr.hpp"
 #include "CUL/Math/Primitives/Quad.hpp"
@@ -19,12 +19,14 @@ NAMESPACE_END( CUL )
 
 NAMESPACE_BEGIN( LOGLW )
 
+class IRenderDevice;
+
 class TextureConcrete final:
     public ITexture,
     public IUtilityUser
 {
 public:
-    TextureConcrete( IUtility* utility, CUL::Graphics::IImageLoader* imageLoader, const CUL::FS::Path& path );
+    TextureConcrete( IRenderDevice* utility, CUL::Graphics::IImageLoader* imageLoader, const CUL::FS::Path& path );
 
     const TexSize& getSize() const override;
     TexID getID() const override;
@@ -34,7 +36,7 @@ public:
 protected:
 private:
     void calculateQuads();
-    IUtility* m_utility = nullptr;
+    IRenderDevice* m_utility = nullptr;
     CUL::Graphics::IImageLoader* m_il = nullptr;
 
     TextureInfo m_texInfo;

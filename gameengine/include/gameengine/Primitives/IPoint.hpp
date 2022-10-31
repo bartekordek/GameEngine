@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gameengine/IObject.hpp"
-#include "gameengine/IUtility.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
 

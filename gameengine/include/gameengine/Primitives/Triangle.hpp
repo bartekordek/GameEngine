@@ -2,6 +2,7 @@
 
 #include "gameengine/IObject.hpp"
 #include "gameengine/IUtilityUser.hpp"
+#include "gameengine/IRenderDevice.hpp"
 
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
 

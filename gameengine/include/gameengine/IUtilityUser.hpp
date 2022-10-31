@@ -1,19 +1,22 @@
 #pragma once
 
 #include "gameengine/Import.hpp"
-#include "gameengine/IUtility.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
+
+class IRenderDevice;
+
+
 class GAME_ENGINE_API IUtilityUser
 {
 public:
     IUtilityUser();
 
-    static void useUtility( IUtility* utility );
+    static void useUtility( IRenderDevice* utility );
 
     virtual ~IUtilityUser();
 protected:
-    static IUtility* getUtility();
+    static IRenderDevice* getDevice();
 
 private:
     IUtilityUser( const IUtilityUser& arg ) = delete;
@@ -21,7 +24,7 @@ private:
     IUtilityUser& operator=( const IUtilityUser& arg ) = delete;
     IUtilityUser& operator=( IUtilityUser&& arg ) = delete;
 
-    static IUtility* s_utility;
+    static IRenderDevice* s_utility;
 
 };
 

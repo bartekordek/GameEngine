@@ -134,7 +134,7 @@ void IGameEngine::drawOrigin( bool enable )
             lineY->setLength( originLinesLength );
             m_axis[1] = lineY;
 
-            rotation.roll.setValue( 0, CUL::MATH::Angle::Type::DEGREE );   
+            rotation.roll.setValue( 0, CUL::MATH::Angle::Type::DEGREE );
             rotation.yaw.setValue( 90, CUL::MATH::Angle::Type::DEGREE );
             // Z
             Line* lineZ = createLine( nullptr );
@@ -180,7 +180,7 @@ void IGameEngine::pushPreRenderTask( IPreRenderTask* preRenderTask )
 
 void IGameEngine::pushPreRenderTask( std::function<void( void )> task )
 {
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         m_preRenderTasksFunction.push( task );
     }
@@ -194,7 +194,7 @@ void IGameEngine::pushPreRenderTask( std::function<void( void )> task )
 
 void IGameEngine::addObjectToRender( IRenderable* renderable )
 {
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
         CUL::Assert::simple( it == m_objectsToRender.end(), "Trying to add already added object." );
@@ -211,7 +211,7 @@ void IGameEngine::addObjectToRender( IRenderable* renderable )
 
 void IGameEngine::removeObjectToRender( IRenderable* renderable )
 {
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
         if( it != m_objectsToRender.end() )
@@ -235,12 +235,12 @@ void IGameEngine::toggleGrid( bool enableGrid )
 
 unsigned IGameEngine::getGPUTotalAvailableMemoryKb()
 {
-    return getUtility()->getGPUTotalAvailableMemoryKb();
+    return getDevice()->getGPUTotalAvailableMemoryKb();
 }
 
 unsigned IGameEngine::getGPUCurrentAvailableMemoryKb()
 {
-    return getUtility()->getGPUCurrentAvailableMemoryKb();
+    return getDevice()->getGPUCurrentAvailableMemoryKb();
 }
 
 ImGuiContext* IGameEngine::getGuiContext() const

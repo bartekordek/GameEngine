@@ -28,7 +28,7 @@ class Program;
 class IGameEngine;
 class Quad;
 class IObject;
-class IUtility;
+class IRenderDevice;
 class IObjectFactory;
 NAMESPACE_END( LOGLW )
 
@@ -79,7 +79,7 @@ private:
 
     SDL2W::MouseData m_mouseData;
 
-    LOGLW::IUtility* m_utility = nullptr;
+    LOGLW::IRenderDevice* m_utility = nullptr;
     CUL::LOG::ILogger* m_logger = nullptr;
     LOGLW::IObjectFactory* m_objectFactory = nullptr;
 

@@ -36,7 +36,7 @@ Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SD
     m_sdlw->registerKeyboardEventListener( this );
 
     m_logger = m_oglw->getLoger();
-    m_utility = m_oglw->getUtility();
+    m_utility = m_oglw->getDevice();
     m_objectFactory = m_oglw->getObjectFactory();
 
     m_oglw->onInitialize(

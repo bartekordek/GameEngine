@@ -5,6 +5,7 @@
 
 #include "CUL/Math/Rotation.hpp"
 #include "CUL/Graphics/Color.hpp"
+#include "CUL/Math/Point.hpp"
 
 #include "CUL/STL_IMPORTS/STD_array.hpp"
 #include "CUL/STL_IMPORTS/STD_mutex.hpp"

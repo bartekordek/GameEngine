@@ -1,5 +1,5 @@
 #include "gameengine/Sprite.hpp"
-#include "gameengine/IUtility.hpp"
+#include "gameengine/IRenderDevice.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Program.hpp"
 #include "gameengine/Shader.hpp"
@@ -32,7 +32,7 @@ void Sprite::LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned 
 {
     m_image = imageLoader->loadImage( (unsigned char*)data, width, height );
 
-    m_textureId = getUtility()->generateTexture();
+    m_textureId = getDevice()->generateTexture();
 
     m_textureInfo.data = data;
     m_textureInfo.level = 0;
@@ -44,12 +44,12 @@ void Sprite::LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned 
     m_textureInfo.size.height = height;
     m_textureInfo.initialized = true;
 
-    getUtility()->setTextureData( m_textureId, m_textureInfo );
+    getDevice()->setTextureData( m_textureId, m_textureInfo );
 }
 
 void Sprite::render()
 {
-    if( getUtility()->isLegacy() )
+    if( getDevice()->isLegacy() )
     {
         renderLegacy();
     }
@@ -71,7 +71,7 @@ CUL::Graphics::DataType* Sprite::getData() const
 
 void Sprite::init()
 {
-    if( !getUtility()->isLegacy() )
+    if( !getDevice()->isLegacy() )
     {
         m_shaderProgram = getEngine().createProgram();
 
@@ -94,7 +94,7 @@ void Sprite::init()
 
     if( m_textureId == 0u )
     {
-        m_textureId = getUtility()->generateTexture();
+        m_textureId = getDevice()->generateTexture();
     }
 
     const auto& ii = getImageInfo();
@@ -107,20 +107,20 @@ void Sprite::init()
         m_textureInfo.textureId = m_textureId;
         m_textureInfo.initialized = true;
 
-        getUtility()->setTextureData( m_textureId, m_textureInfo );
+        getDevice()->setTextureData( m_textureId, m_textureInfo );
     }
 
-    getUtility()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
-    getUtility()->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
+    getDevice()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
+    getDevice()->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
 
-    if( !getUtility()->isLegacy() )
+    if( !getDevice()->isLegacy() )
     {
-        m_vao = getUtility()->generateBuffer( LOGLW::BufferTypes::VERTEX_ARRAY );
-        getUtility()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao );
-        getUtility()->enableVertexAttribArray( 0 );
-        getUtility()->enableVertexAttribArray( 1 );
+        m_vao = getDevice()->generateBuffer( LOGLW::BufferTypes::VERTEX_ARRAY );
+        getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao );
+        getDevice()->enableVertexAttribArray( 0 );
+        getDevice()->enableVertexAttribArray( 1 );
 
-        m_vbo = getUtility()->generateBuffer( BufferTypes::ARRAY_BUFFER );
+        m_vbo = getDevice()->generateBuffer( BufferTypes::ARRAY_BUFFER );
 
         const CUL::MATH::Point& size = m_transformComponent->getSize();
         float x0 = -size.x() / 2.f;
@@ -150,7 +150,7 @@ void Sprite::init()
             }
         }
 
-        getUtility()->bufferData( m_vbo, dataVec, BufferTypes::ARRAY_BUFFER );
+        getDevice()->bufferData( m_vbo, dataVec, BufferTypes::ARRAY_BUFFER );
 
         VertexAttributePtrMeta meta;
         meta.vertexAttributeId = 0;
@@ -161,15 +161,15 @@ void Sprite::init()
         meta.normalized = false;
         meta.stride = 5 * sizeof( float );
 
-        getUtility()->vertexAttribPointer( meta );
+        getDevice()->vertexAttribPointer( meta );
 
         meta.vertexAttributeId = 1;
         meta.componentsPerVertexAttribute = 2;
         meta.offset = (void*)( 3 * sizeof( float ) );
-        getUtility()->vertexAttribPointer( meta );
+        getDevice()->vertexAttribPointer( meta );
 
-        getUtility()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
-        getUtility()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
+        getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
+        getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
 
         m_shaderProgram->enable();
         m_shaderProgram->setUniform( "texture1", 0 );
@@ -185,8 +185,8 @@ void Sprite::renderModern()
         init();
     }
 
-    getUtility()->setActiveTextureUnit( ETextureUnitIndex::UNIT_0 );
-    getUtility()->bindTexture( m_textureId );
+    getDevice()->setActiveTextureUnit( ETextureUnitIndex::UNIT_0 );
+    getDevice()->bindTexture( m_textureId );
 
     m_shaderProgram->enable();
 
@@ -199,15 +199,15 @@ void Sprite::renderModern()
     m_shaderProgram->setUniform( "view", viewMatrix );
     m_shaderProgram->setUniform( "model", model );
 
-    getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo );
+    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo );
 
-    getUtility()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 6 );
+    getDevice()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 6 );
 
     m_shaderProgram->disable();
 
-    getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, 0 );
-    getUtility()->bindBuffer( BufferTypes::VERTEX_ARRAY, 0 );
-    getUtility()->bindTexture( 0u );
+    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, 0 );
+    getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, 0 );
+    getDevice()->bindTexture( 0u );
 }
 
 void Sprite::renderLegacy()
@@ -240,19 +240,19 @@ void Sprite::renderLegacy()
     values[3] = { x0, y1, z0 };
     QuadCUL positions = values;
 
-    getUtility()->bindTexture( m_textureId );
+    getDevice()->bindTexture( m_textureId );
 
     const auto position = m_transformComponent->getWorldPosition();
 
-    getUtility()->matrixStackPush();
-    getUtility()->translate( position );
+    getDevice()->matrixStackPush();
+    getDevice()->translate( position );
     //static const auto type = CUL::MATH::Angle::Type::DEGREE;
     const auto rotation = m_transformComponent->getWorldRotation();
-    getUtility()->rotate( rotation );
-    getUtility()->draw( positions, colors );
-    getUtility()->matrixStackPop();
+    getDevice()->rotate( rotation );
+    getDevice()->draw( positions, colors );
+    getDevice()->matrixStackPop();
 
-    getUtility()->bindTexture( 0 );
+    getDevice()->bindTexture( 0 );
 }
 
 Sprite::~Sprite()

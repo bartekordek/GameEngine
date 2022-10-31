@@ -29,10 +29,10 @@ private:
 
     void render() override
     {
-        getUtility()->matrixStackPush();
-        getUtility()->translate( m_pos );
-        getUtility()->draw( getTransform()->getWorldPosition(), m_color );
-        getUtility()->matrixStackPop();
+        getDevice()->matrixStackPush();
+        getDevice()->translate( m_pos );
+        getDevice()->draw( getTransform()->getWorldPosition(), m_color );
+        getDevice()->matrixStackPop();
     }
 
     ColorS m_color;

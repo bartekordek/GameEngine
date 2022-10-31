@@ -1,7 +1,7 @@
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/IGameEngine.hpp"
-#include "gameengine/IUtility.hpp"
+#include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IObject.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
@@ -20,7 +20,7 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &e
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         init();
     }
@@ -48,7 +48,7 @@ void Quad::setColor( const CUL::Graphics::ColorS& color )
 
 void Quad::init()
 {
-    if( getUtility()->isLegacy() )
+    if( getDevice()->isLegacy() )
     {
     }
     else
@@ -118,7 +118,7 @@ void Quad::createShaders()
 
 void Quad::render()
 {
-    if( getUtility()->isLegacy() )
+    if( getDevice()->isLegacy() )
     {
         auto size = m_transformComponent->getSize();
 
@@ -130,17 +130,17 @@ void Quad::render()
 
         quad[3][1] = size.y();
 
-        getUtility()->matrixStackPush();
+        getDevice()->matrixStackPush();
 
         const auto position = m_transformComponent->getWorldPosition();
         const auto rotation = m_transformComponent->getWorldRotation();
 
-        getUtility()->translate( position );
+        getDevice()->translate( position );
 
-        getUtility()->rotate( rotation );
-        getUtility()->draw( quad, m_color );
+        getDevice()->rotate( rotation );
+        getDevice()->draw( quad, m_color );
 
-        getUtility()->matrixStackPop();
+        getDevice()->matrixStackPop();
     }
     else
     {
@@ -181,7 +181,7 @@ void Quad::applyColor()
 
 Quad::~Quad()
 {
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         release();
     }

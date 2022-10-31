@@ -17,14 +17,14 @@ void QuadImplLegacy::setValues( const QuadData& values )
 
 void QuadImplLegacy::render()
 {
-    getUtility()->matrixStackPush();
-    getUtility()->translate( m_transform->getWorldPosition() );
+    getDevice()->matrixStackPush();
+    getDevice()->translate( m_transform->getWorldPosition() );
     static const auto type = CUL::MATH::Angle::Type::DEGREE;
-    getUtility()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::YAW ).getValueF( type ), 0.f, 0.f, 1.f );
-    getUtility()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::PITCH ).getValueF( type ), 0.f, 1.f, 0.f );
-    getUtility()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::ROLL ).getValueF( type ), 1.f, 0.f, 0.f );
-    getUtility()->draw( m_data, m_colors );
-    getUtility()->matrixStackPop();
+    getDevice()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::YAW ).getValueF( type ), 0.f, 0.f, 1.f );
+    getDevice()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::PITCH ).getValueF( type ), 0.f, 1.f, 0.f );
+    getDevice()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::ROLL ).getValueF( type ), 1.f, 0.f, 0.f );
+    getDevice()->draw( m_data, m_colors );
+    getDevice()->matrixStackPop();
 }
 
 void QuadImplLegacy::setColor(const QuadColors& colors)

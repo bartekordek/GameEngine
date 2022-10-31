@@ -1,7 +1,7 @@
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/IndexBuffer.hpp"
 #include "gameengine/IGameEngine.hpp"
-#include "gameengine/IUtility.hpp"
+#include "gameengine/IRenderDevice.hpp"
 #include "gameengine/Program.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
@@ -11,7 +11,7 @@ using namespace LOGLW;
 
 VertexArray::VertexArray( IGameEngine& engine ) : IRenderable( &engine )
 {
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         createVAO();
     }
@@ -39,7 +39,7 @@ void VertexArray::createShader( const CUL::FS::Path& path )
 {
     CUL::Assert::simple( path.exists(), "File does not exist: " + path.getPath() );
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         if( !m_shaderProgram )
         {
@@ -65,7 +65,7 @@ void VertexArray::createShader( const CUL::FS::Path& path )
 
 void VertexArray::addVertexBuffer( VertexBufferData& data )
 {
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
     {
         m_vboDataToPrepare.emplace_back( std::move( data ) );
         createVBOs();
@@ -79,7 +79,7 @@ void VertexArray::addVertexBuffer( VertexBufferData& data )
 }
 
 void VertexArray::render()
-{ 
+{
     runTasks();
 
     bind();
@@ -148,7 +148,7 @@ void VertexArray::runTasks()
                 {
                     auto shaderPath = m_shadersPaths.front();
 
-                    auto shaderFile = getUtility()->getCUl()->getFF()->createFileFromPath( shaderPath );
+                    auto shaderFile = getDevice()->getCUl()->getFF()->createFileFromPath( shaderPath );
                     shaderFile->load(true);
                     auto shader = new Shader( *getEngine(), shaderFile );
                     m_shaderProgram->attachShader( shader );
@@ -193,23 +193,23 @@ void VertexArray::createVBOs()
 
 void VertexArray::createVAO()
 {
-    m_vaoId = IUtilityUser::getUtility()->generateBuffer(
+    m_vaoId = IUtilityUser::getDevice()->generateBuffer(
         BufferTypes::VERTEX_ARRAY );
 }
 
 void VertexArray::bind()
 {
-    getUtility()->bindBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, m_vaoId );
+    getDevice()->bindBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, m_vaoId );
 }
 
 void VertexArray::unbind()
 {
-    getUtility()->bindBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, 0 );
+    getDevice()->bindBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, 0 );
 }
 
 VertexArray::~VertexArray()
 {
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         release();
     }
@@ -224,5 +224,5 @@ VertexArray::~VertexArray()
 void VertexArray::release()
 {
     getEngine()->removeObjectToRender( this );
-    getUtility()->deleteBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, m_vaoId );
+    getDevice()->deleteBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, m_vaoId );
 }

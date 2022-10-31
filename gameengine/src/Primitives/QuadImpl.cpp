@@ -38,7 +38,7 @@ void QuadImpl::init()
     const std::string fragmentShaderSource =
 #include "embedded_shaders/camera.frag"
         ;
-    auto cul = getUtility()->getCUl();
+    auto cul = getDevice()->getCUl();
     auto fragmentShaderFile = cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.frag" );
     fragmentShaderFile->loadFromString( fragmentShaderSource );
     auto fragmentShader = new Shader( m_engine, fragmentShaderFile );
@@ -52,13 +52,13 @@ void QuadImpl::init()
     m_shaderProgram->link();
     m_shaderProgram->validate();
 
-    m_vao = getUtility()->generateBuffer( LOGLW::BufferTypes::VERTEX_ARRAY );
-    getUtility()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao );
+    m_vao = getDevice()->generateBuffer( LOGLW::BufferTypes::VERTEX_ARRAY );
+    getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao );
 
-    getUtility()->enableVertexAttribArray( 0 );
-    getUtility()->enableVertexAttribArray( 1 );
+    getDevice()->enableVertexAttribArray( 0 );
+    getDevice()->enableVertexAttribArray( 1 );
 
-    m_vbo = getUtility()->generateBuffer( BufferTypes::ARRAY_BUFFER );
+    m_vbo = getDevice()->generateBuffer( BufferTypes::ARRAY_BUFFER );
 
     const CUL::MATH::Point& size = m_transformComponent->getSize();
     float x0 = -size.x() / 2.f;
@@ -87,7 +87,7 @@ void QuadImpl::init()
         }
     }
 
-    getUtility()->bufferData( m_vbo, dataVec, BufferTypes::ARRAY_BUFFER );
+    getDevice()->bufferData( m_vbo, dataVec, BufferTypes::ARRAY_BUFFER );
 
     VertexAttributePtrMeta meta;
     meta.vertexAttributeId = 0;
@@ -98,15 +98,15 @@ void QuadImpl::init()
     meta.normalized = false;
     meta.stride = 5 * sizeof( float );
 
-    getUtility()->vertexAttribPointer( meta );
+    getDevice()->vertexAttribPointer( meta );
 
     meta.vertexAttributeId = 1;
     meta.componentsPerVertexAttribute = 2;
     meta.offset = (void*)( 3 * sizeof( float ) );
-    getUtility()->vertexAttribPointer( meta );
+    getDevice()->vertexAttribPointer( meta );
 
-    getUtility()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
-    getUtility()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
+    getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
+    getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
 
     m_initialized = true;
 }
@@ -118,8 +118,8 @@ void QuadImpl::render()
         init();
     }
 
-    getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vao );
-    getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo );
+    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vao );
+    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo );
 
     //m_shaderProgram->enable();
 
@@ -132,11 +132,11 @@ void QuadImpl::render()
     m_shaderProgram->setUniform( "view", viewMatrix );
     m_shaderProgram->setUniform( "model", model );
 
-    getUtility()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 6 );
+    getDevice()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 6 );
     //m_shaderProgram->disable();
 
-    getUtility()->bindBuffer( BufferTypes::ARRAY_BUFFER, 0 );
-    getUtility()->bindBuffer( BufferTypes::VERTEX_ARRAY, 0 );
+    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, 0 );
+    getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, 0 );
 }
 
 void QuadImpl::setColor(const QuadColors& colors)

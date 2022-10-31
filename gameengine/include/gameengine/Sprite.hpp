@@ -2,6 +2,7 @@
 
 #include "gameengine/IObject.hpp"
 #include "gameengine/IUtilityUser.hpp"
+#include "gameengine/IRenderDevice.hpp"
 
 NAMESPACE_BEGIN( CUL )
 class CULInterface;

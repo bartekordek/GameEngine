@@ -1,12 +1,12 @@
 #include "TextureConcrete.hpp"
 #include "CUL/Graphics/IImageLoader.hpp"
 #include "CUL/Graphics/IImage.hpp"
-#include "gameengine/IUtility.hpp"
+#include "gameengine/IRenderDevice.hpp"
 
 using namespace LOGLW;
 
 TextureConcrete::TextureConcrete(
-    IUtility* utility,
+    IRenderDevice* utility,
     CUL::Graphics::IImageLoader* imageLoader,
     const CUL::FS::Path& path ):
     m_utility( utility ),

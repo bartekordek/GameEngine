@@ -22,7 +22,7 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent ) : IOb
     m_triangleMath.vals[1] = { size / 2.f, size, 0.f };
     m_triangleMath.vals[2] = { size, 0.f, 0.f };
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         init();
     }
@@ -38,7 +38,7 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent ) : IOb
 
 void Triangle::init()
 {
-    if( getUtility()->isLegacy() )
+    if( getDevice()->isLegacy() )
     {
     }
     else
@@ -88,19 +88,19 @@ void Triangle::createShaders()
 
 void Triangle::render()
 {
-    if( getUtility()->isLegacy() )
+    if( getDevice()->isLegacy() )
     {
-        getUtility()->matrixStackPush();
+        getDevice()->matrixStackPush();
 
         const auto position = m_transformComponent->getWorldPosition();
         const auto rotation = m_transformComponent->getWorldRotation();
 
-        getUtility()->translate( position );
+        getDevice()->translate( position );
 
-        getUtility()->rotate( rotation );
-        getUtility()->draw( m_triangleMath, m_color );
+        getDevice()->rotate( rotation );
+        getDevice()->draw( m_triangleMath, m_color );
 
-        getUtility()->matrixStackPop();
+        getDevice()->matrixStackPop();
     }
     else
     {
@@ -156,7 +156,7 @@ void Triangle::setColor( const ColorS& color )
 
 Triangle::~Triangle()
 {
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         release();
     }

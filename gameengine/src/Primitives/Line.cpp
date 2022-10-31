@@ -25,7 +25,7 @@ Line::Line( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &e
         m_recreateBuffers = true;
     } );
 
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         init();
     }
@@ -41,7 +41,7 @@ Line::Line( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &e
 
 void Line::init()
 {
-    if( getUtility()->isLegacy() )
+    if( getDevice()->isLegacy() )
     {
     }
     else
@@ -91,19 +91,19 @@ void Line::createShaders()
 
 void Line::render()
 {
-    if( getUtility()->isLegacy() )
+    if( getDevice()->isLegacy() )
     {
-        getUtility()->matrixStackPush();
+        getDevice()->matrixStackPush();
 
         const auto position = m_transformComponent->getWorldPosition();
         const auto rotation = m_transformComponent->getWorldRotation();
 
-        getUtility()->translate( position );
+        getDevice()->translate( position );
 
-        getUtility()->rotate( rotation );
-        getUtility()->draw( m_line, m_color );
+        getDevice()->rotate( rotation );
+        getDevice()->draw( m_line, m_color );
 
-        getUtility()->matrixStackPop();
+        getDevice()->matrixStackPop();
     }
     else
     {
@@ -160,7 +160,7 @@ void Line::setLength( float length )
 
 Line::~Line()
 {
-    if( getUtility()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice()->getCUl()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         release();
     }
