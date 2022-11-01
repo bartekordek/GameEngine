@@ -1,6 +1,7 @@
 #include "DeviceOpenGL.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/Viewport.hpp"
+#include "gameengine/Program.hpp"
 
 #include "SDL2Wrapper/IWindow.hpp"
 
@@ -168,11 +169,13 @@ void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum
 CUL::String enumToString( const GLenum val );
 GLuint toGluint( unsigned value );
 
-DeviceOpenGL::DeviceOpenGL( CUL::CULInterface* culInterface, bool forceLegacy ) : IRenderDevice( culInterface, forceLegacy )
+DeviceOpenGL::DeviceOpenGL( CUL::CULInterface* culInterface ) : IRenderDevice( culInterface )
 {
+    g_loggerOGL = culInterface->getLogger();
+
     log( "DeviceOpenGL::DeviceOpenGL();" );
 
-    g_loggerOGL = culInterface->getLogger();
+    m_forceLegacy = false;
 
     glGetIntegerv( GL_MAJOR_VERSION, &m_supportedVersion.major );
     checkLastCommandForErrors();

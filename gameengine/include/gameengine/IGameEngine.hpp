@@ -49,6 +49,7 @@ class Triangle;
 class Viewport;
 class IRenderDevice;
 class Shader;
+class Program;
 struct EngineParams;
 
 using String = CUL::String;
@@ -152,7 +153,9 @@ public:
 
 
     // Shaders
-    GAME_ENGINE_API class Program* createProgram();
+
+    GAME_ENGINE_API Program* getDefaultShader();
+    GAME_ENGINE_API Program* createProgram();
     GAME_ENGINE_API void removeProgram(Program* program);
 
     GAME_ENGINE_API Shader* createShader( const String& path, const String& source = "" );

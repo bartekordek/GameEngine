@@ -14,6 +14,7 @@
 
 #include "SDL2Wrapper/WindowData.hpp"
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
+#include "SDL2Wrapper/IWindow.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
 
@@ -154,6 +155,38 @@ void IGameEngine::drawOrigin( bool enable )
             }
         }
     }
+}
+
+Program* IGameEngine::getDefaultShader()
+{
+    Program* result = createProgram();
+
+    if( getMainWindow()->getRenderName().toLowerR().contains( "opengl" ) )
+    {
+        const std::string vertexShaderSource =
+    #include "embedded_shaders/basic_pos.vert"
+            ;
+
+        const std::string fragmentShaderSource =
+    #include "embedded_shaders/basic_color.frag"
+            ;
+
+        auto fragmentShader = createShader( "embedded_shaders/basic_color.frag", fragmentShaderSource );
+        auto vertexShader = createShader( "embedded_shaders/basic_pos.vert", vertexShaderSource );
+
+        result->attachShader( vertexShader );
+        result->attachShader( fragmentShader );
+        result->link();
+        result->validate();
+
+        result->enable();
+    }
+    else
+    {
+        CUL::Assert::simple( false, "Not implemented yet." );
+    }
+
+    return result;
 }
 
 Program* IGameEngine::createProgram()

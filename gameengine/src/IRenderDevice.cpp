@@ -32,8 +32,8 @@ const String TextureInfo::toString() const
 #pragma warning( pop )
 #endif // #if _MSC_VER
 
-IRenderDevice::IRenderDevice( CUL::CULInterface* culInterface, bool forceLegacy )
-    : m_forceLegacy( forceLegacy ), m_culInterface( culInterface ), m_logger( m_culInterface->getLogger() )
+IRenderDevice::IRenderDevice( CUL::CULInterface* culInterface )
+    :  m_culInterface( culInterface ), m_logger( m_culInterface->getLogger() )
 {
     if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {

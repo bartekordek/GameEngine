@@ -9,4 +9,5 @@ Z_FAR 128.0
 EYE_Z 24
 CENTER_Z -128
 
-RENDERER opengl
+//RENDERER opengl
+RENDERER direct3d

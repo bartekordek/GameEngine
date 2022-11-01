@@ -65,25 +65,7 @@ void Triangle::createBuffers()
 
 void Triangle::createShaders()
 {
-    m_shaderProgram = getEngine().createProgram();
-
-    const std::string vertexShaderSource =
-#include "embedded_shaders/basic_pos.vert"
-        ;
-
-    const std::string fragmentShaderSource =
-#include "embedded_shaders/basic_color.frag"
-        ;
-
-    auto fragmentShader = getEngine().createShader( "embedded_shaders/basic_color.frag", fragmentShaderSource );
-    auto vertexShader = getEngine().createShader( "embedded_shaders/basic_pos.vert", vertexShaderSource );
-
-    m_shaderProgram->attachShader( vertexShader );
-    m_shaderProgram->attachShader( fragmentShader );
-    m_shaderProgram->link();
-    m_shaderProgram->validate();
-
-    m_shaderProgram->enable();
+    m_shaderProgram = getEngine().getDefaultShader();
 }
 
 void Triangle::render()

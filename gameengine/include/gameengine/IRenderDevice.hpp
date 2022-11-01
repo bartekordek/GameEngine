@@ -210,7 +210,7 @@ class Viewport;
 class GAME_ENGINE_API IRenderDevice
 {
 public:
-    IRenderDevice( CUL::CULInterface* culInterface, bool forceLegacy );
+    IRenderDevice( CUL::CULInterface* culInterface );
 
     virtual bool isLegacy() = 0;
 

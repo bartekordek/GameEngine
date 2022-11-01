@@ -12,7 +12,10 @@
 #include "ObjLoader.hpp"
 #include "gameengine/Sprite.hpp"
 #include "TextureConcrete.hpp"
+
 #include "DeviceOpenGL.hpp"
+#include "DeviceDX9.hpp"
+#include "DeviceOpenGL_Legacy.hpp"
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
@@ -59,12 +62,20 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
 
     const auto rendererName = m_activeWindow->getRenderName();
 
-    if( rendererName == "DX9" )
+    if( rendererName.toLowerR().contains( "opengl" ) )
     {
+        if( forceLegacy )
+        {
+            m_renderDevice = new DeviceOpenGL_Legacy( sdl2w->getCul() );
+        }
+        else
+        {
+            m_renderDevice = new DeviceOpenGL( sdl2w->getCul() );
+        }
     }
     else
     {
-        m_renderDevice = new DeviceOpenGL( sdl2w->getCul(), forceLegacy );
+        m_renderDevice = new DeviceDX9( sdl2w->getCul() );
     }
     
     registerObjectForUtility();
@@ -413,9 +424,16 @@ void GameEngineConcrete::initialize()
 
     m_logger->log( "GameEngineConcrete::initialize()..." );
 
-    m_glContext = m_renderDevice->initContextVersion( m_activeWindow );
-    m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
-    m_logger->log( m_glContext.glVersion );
+    if( m_activeWindow->getRenderName().toLowerR().contains("opengl") )
+    {
+        m_glContext = m_renderDevice->initContextVersion( m_activeWindow );
+        m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
+        m_logger->log( m_glContext.glVersion );
+    }
+    else
+    {
+        m_renderDevice->initContextVersion( m_activeWindow );
+    }
 
     m_sdlW->registerSDLEventObserver( this );
 
@@ -1069,6 +1087,7 @@ float GameEngineConcrete::getFpsLimit() const
 {
     return m_fpsLimit.getVal();
 }
+
 
 GameEngineConcrete::~GameEngineConcrete()
 {
