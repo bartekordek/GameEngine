@@ -17,13 +17,13 @@ void Camera::setProjectionType( const ProjectionType type )
     changeDelegate.execute();
 }
 
-glm::mat4 Camera::getViewMatrix()
+glm::mat4 Camera::getViewMatrix() const
 {
     glm::mat4 viewMatrix = glm::lookAt( m_pos, m_target, m_up );
     return viewMatrix;
 }
 
-glm::mat4 Camera::getProjectionMatrix()
+glm::mat4 Camera::getProjectionMatrix() const
 {
     glm::mat4 projection = glm::perspective( glm::radians( m_fov ), m_aspectRatio, m_zNear, m_target.z );
     return projection;
