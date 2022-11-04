@@ -123,12 +123,10 @@ void Quad::render()
         auto size = m_transformComponent->getSize();
 
         QuadCUL quad;
-        quad[1][0] = size.x();
-
-        quad[2][0] = size.x();
-        quad[2][1] = size.y();
-
-        quad[3][1] = size.y();
+        quad[0] = { -size.x() / 2.f, -size.y() / 2.f, 0.f };
+        quad[1] = {  size.x() / 2.f, -size.y() / 2.f, 0.f };
+        quad[2] = {  size.x() / 2.f,  size.y() / 2.f, 0.f };
+        quad[3] = { -size.x() / 2.f,  size.y() / 2.f, 0.f };
 
         getDevice()->matrixStackPush();
 
