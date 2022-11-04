@@ -161,7 +161,6 @@ void Cube::createPlaceHolders()
 
 void Cube::render()
 {
-    std::lock_guard<std::mutex> renderLock( m_renderMutex );
     if( getDevice()->isLegacy() )
     {
         getDevice()->matrixStackPush();
