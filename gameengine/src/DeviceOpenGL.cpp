@@ -1003,6 +1003,17 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const QuadCUL& texQuad )
     glEnd();
 }
 
+void DeviceOpenGL::draw( const QuadCUL& quad, const Point& translation, const CUL::MATH::Rotation& rotation, const ColorS& color )
+{
+    matrixStackPush();
+
+    translate( translation );
+    rotate( rotation );
+    draw( quad, color );
+
+    matrixStackPop();
+}
+
 void DeviceOpenGL::draw( const QuadCUL& quad, const ColorS& color )
 {
     if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )

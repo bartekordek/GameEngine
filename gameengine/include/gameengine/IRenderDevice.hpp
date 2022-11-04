@@ -310,6 +310,7 @@ public:
     virtual void draw( const QuadCUL& quad, const QuadCUL& texQuad ) = 0;
 
     virtual void draw( const QuadCUL& quad, const ColorS& color ) = 0;
+    virtual void draw( const QuadCUL& quad, const Point& translation, const CUL::MATH::Rotation& rotation, const ColorS& color ) = 0;
     virtual void draw( const QuadCUL& quad, const QuadColors& color ) = 0;
 
     virtual void draw( const QuadData& quad, const ColorS& color ) = 0;

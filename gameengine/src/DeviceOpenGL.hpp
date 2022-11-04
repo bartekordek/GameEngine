@@ -123,6 +123,7 @@ private:
     void draw( const TriangleData& values, const std::array<ColorS, 3>& color ) override;
 
     void draw( const QuadCUL& quad, const QuadCUL& texQuad ) override;
+    void draw( const QuadCUL& quad, const Point& translation, const CUL::MATH::Rotation& rotation, const ColorS& color ) override;
 
     void draw( const QuadCUL& quad, const ColorS& color ) override;
     void draw( const QuadCUL& quad, const std::array<ColorS, 4>& color ) override;
