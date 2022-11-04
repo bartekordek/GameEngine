@@ -6,6 +6,11 @@
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Program.hpp"
+
+#include "IMPORT_glew.hpp"
+
+#include "CUL/IMPORT_GLM.hpp"
+
 #include "CUL/Filesystem/FileFactory.hpp"
 
 #include "CUL/Threading/ThreadUtils.hpp"
@@ -128,17 +133,10 @@ void Quad::render()
         quad[2] = {  size.x() / 2.f,  size.y() / 2.f, 0.f };
         quad[3] = { -size.x() / 2.f,  size.y() / 2.f, 0.f };
 
-        getDevice()->matrixStackPush();
-
         const auto position = m_transformComponent->getWorldPosition();
         const auto rotation = m_transformComponent->getWorldRotation();
 
-        getDevice()->translate( position );
-
-        getDevice()->rotate( rotation );
-        getDevice()->draw( quad, m_color );
-
-        getDevice()->matrixStackPop();
+        getDevice()->draw( quad, position, rotation, m_color );
     }
     else
     {
@@ -161,9 +159,9 @@ void Quad::render()
 
 void Quad::setTransformation()
 {
-    Camera& camera = m_engine.getCamera();
-    auto projectionMatrix = camera.getProjectionMatrix();
-    auto viewMatrix = camera.getViewMatrix();
+    const Camera& camera = m_engine.getCamera();
+    const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
+    const glm::mat4 viewMatrix = camera.getViewMatrix();
 
     glm::mat4 model = m_transformComponent->getModel();
 
