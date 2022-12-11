@@ -11,6 +11,11 @@ TransformComponent::TransformComponent(IObject& owner):m_owner(owner)
 
 void TransformComponent::setWorldPosition( const Pos& position )
 {
+    if( std::abs(position.y()) > 90.f )
+    {
+        auto i = 0;
+    }
+
     m_pos = position;
 }
 
@@ -23,7 +28,7 @@ void TransformComponent::setWorldPosition( Pos::Type x, Pos::Type y, Pos::Type z
 
 const TransformComponent::Pos TransformComponent::getWorldPosition() const
 {
-    static bool oldWay = true;
+    static bool oldWay = false;
     if( oldWay )
     {
         return m_pos;
@@ -198,9 +203,15 @@ glm::mat4 TransformComponent::getTranslation() const
 {
     glm::mat4 result(1.f);
 
-    const Pos& position = m_pos - m_pivotReal;
+    const Pos& position = m_pos;// -m_pivotReal;
     glm::vec3 posVec = position.toGlmVec();
     result = glm::translate( result, posVec );
+
+    if( std::abs( posVec.y ) > 90.f )
+    if( std::abs( posVec.y ) > 90.f )
+    {
+        int i = 0;
+    }
 
     return result;
 }

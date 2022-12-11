@@ -9,9 +9,6 @@ IObject::IObject( IGameEngine* engine, bool forceLegacy ) : IRenderable( engine 
 {
     m_transform = new TransformComponent( *this );
     addComponent( "TransformComponent", m_transform );
-
-    m_nameCmp = new Name( *this );
-    addComponent( "Name", m_nameCmp );
 }
 
 // Dummy
@@ -61,11 +58,6 @@ TransformComponent* IObject::getTransform()
     return m_transform;
 }
 
-Name* IObject::getnameCmp()
-{
-    return m_nameCmp;
-}
-
 IObject::~IObject()
 {
     for( const auto& componentPair: m_components)
@@ -110,4 +102,14 @@ IGameEngine& IObject::getEngine()
 bool IObject::getForceLegacy() const
 {
     return m_forceLegacy;
+}
+
+void IObject::setName( const CUL::String& name )
+{
+    m_name = name;
+}
+
+const CUL::String& IObject::getName() const
+{
+    return m_name;
 }

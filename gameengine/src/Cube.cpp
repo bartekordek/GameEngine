@@ -71,7 +71,7 @@ void Cube::createPlaceHolders()
         transformCmp->setWorldPosition( CUL::MATH::Point( 0.f, 0.f, 1.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
-        quad->getnameCmp()->setName( "Wall00" );
+        quad->setName( "Wall00" );
         quad->setColor( CUL::Graphics::ColorE::GREEN );
         m_walls[0] = quad;
     }
@@ -85,7 +85,7 @@ void Cube::createPlaceHolders()
         transformCmp->setWorldPosition( CUL::MATH::Point( 0.f, 0.f, -1.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
-        quad->getnameCmp()->setName( "Wall01" );
+        quad->setName( "Wall01" );
         quad->setColor( m_color );
         m_walls[1] = quad;
     }
@@ -102,7 +102,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
-        quad->getnameCmp()->setName( "Wall02" );
+        quad->setName( "Wall02" );
         quad->setColor( m_color );
         m_walls[2] = quad;
     }
@@ -119,7 +119,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
-        quad->getnameCmp()->setName( "Wall03" );
+        quad->setName( "Wall03" );
         quad->setColor( m_color );
         m_walls[3] = quad;
     }
@@ -136,7 +136,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
-        quad->getnameCmp()->setName( "Wall04" );
+        quad->setName( "Wall04" );
         quad->setColor( m_color );
         m_walls[4] = quad;
     }
@@ -153,7 +153,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
-        quad->getnameCmp()->setName( "Wall05" );
+        quad->setName( "Wall05" );
         quad->setColor( m_color );
         m_walls[5] = quad;
     }

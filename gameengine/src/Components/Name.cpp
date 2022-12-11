@@ -5,17 +5,17 @@ using namespace LOGLW;
 
 Name::Name( IObject& owner ) : m_owner( owner )
 {
-    IObject* parent = m_owner.getParent();
-    if( parent )
-    {
-        Name* parentName = parent->getnameCmp();
-        if( parentName )
-        {
-            m_rootPath = parentName->getFullName() + String( "::" ) + m_rootPath;
-        }
-    }
+    //IObject* parent = m_owner.getParent();
+    //if( parent )
+    //{
+    //    Name* parentName = parent->getnameCmp();
+    //    if( parentName )
+    //    {
+    //        m_rootPath = parentName->getFullName() + String( "::" ) + m_rootPath;
+    //    }
+    //}
 
-    setName("");
+    //setName("");
 }
 
 const String& Name::getName() const
