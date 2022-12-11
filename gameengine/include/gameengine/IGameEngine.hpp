@@ -126,11 +126,11 @@ public:
 
     // Object Factory
     GAME_ENGINE_API Sprite* createSprite();
-    GAME_ENGINE_API Line* createLine( IObject* parent );
-    GAME_ENGINE_API Triangle* createTriangle( IObject* parent );
-    GAME_ENGINE_API Quad* createQuad( IObject* parent );
+    GAME_ENGINE_API Line* createLine( IObject* parent, bool forceLegacy );
+    GAME_ENGINE_API Triangle* createTriangle( IObject* parent, bool forceLegacy = false );
+    GAME_ENGINE_API Quad* createQuad( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API class VertexArray* createVAO();
-    GAME_ENGINE_API Cube* createCube();
+    GAME_ENGINE_API Cube* createCube( bool forceLegacy = false );
 
     GAME_ENGINE_API void pushPreRenderTask( IPreRenderTask* preRenderTask );
     GAME_ENGINE_API void pushPreRenderTask( std::function<void( void )> task );

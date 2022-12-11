@@ -16,7 +16,7 @@ class TransformComponent;
 class Quad final: public IUtilityUser, public IObject
 {
 public:
-    GAME_ENGINE_API Quad( Camera& camera, IGameEngine& engine, IObject* parent );
+    GAME_ENGINE_API Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
 

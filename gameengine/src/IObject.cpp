@@ -5,7 +5,7 @@
 
 using namespace LOGLW;
 
-IObject::IObject( IGameEngine* engine ) : IRenderable( engine ), m_engine( *engine )
+IObject::IObject( IGameEngine* engine, bool forceLegacy ) : IRenderable( engine ), m_engine( *engine ), m_forceLegacy( forceLegacy )
 {
     m_transform = new TransformComponent( *this );
     addComponent( "TransformComponent", m_transform );
@@ -105,4 +105,9 @@ void IObject::removeChild( IObject* child )
 IGameEngine& IObject::getEngine()
 {
     return m_engine;
+}
+
+bool IObject::getForceLegacy() const
+{
+    return m_forceLegacy;
 }

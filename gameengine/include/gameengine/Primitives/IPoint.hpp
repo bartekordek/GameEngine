@@ -8,7 +8,7 @@ class IPoint:
     public IObject
 {
 public:
-    GAME_ENGINE_API IPoint( IGameEngine* engine ) : IObject( engine )
+    GAME_ENGINE_API IPoint( IGameEngine* engine, bool forceLegacy ): IObject( engine, forceLegacy )
     {
     }
 

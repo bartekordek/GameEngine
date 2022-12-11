@@ -9,7 +9,7 @@
 
 using namespace LOGLW;
 
-Cube::Cube( Camera* camera, IGameEngine* engine ) : IObject( engine ), m_camera( camera ), m_engine( engine )
+Cube::Cube( Camera* camera, IGameEngine* engine, bool forceLegacy ) : IObject( engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 
@@ -64,7 +64,7 @@ void Cube::createPlaceHolders()
     TransformComponent::Pos pivot = { 0.5f, 0.5f, 0.f };
     // 0
     {
-        Quad* quad = m_engine->createQuad( this );
+        Quad* quad = m_engine->createQuad( this, false );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -78,7 +78,7 @@ void Cube::createPlaceHolders()
 
     // 1
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this );
+        LOGLW::Quad* quad = m_engine->createQuad( this, false );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -92,7 +92,7 @@ void Cube::createPlaceHolders()
 
     // 2
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this );
+        LOGLW::Quad* quad = m_engine->createQuad( this, false );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -109,7 +109,7 @@ void Cube::createPlaceHolders()
 
     // 3
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this );
+        LOGLW::Quad* quad = m_engine->createQuad( this, false );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();

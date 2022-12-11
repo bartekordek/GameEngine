@@ -15,7 +15,7 @@ class TransformComponent;
 class Triangle: public IObject, public IUtilityUser
 {
 public:
-    GAME_ENGINE_API Triangle( Camera& camera, IGameEngine& engine, IObject* parent  );
+    GAME_ENGINE_API Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void setValues( const TriangleData& values );
     GAME_ENGINE_API void setColor( const TriangleColors& colors );

@@ -5,6 +5,7 @@
 #include "gameengine/EngineParams.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Primitives/Triangle.hpp"
+#include "gameengine/Cube.hpp"
 
 #include "SDL2Wrapper/IWindowEventListener.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
@@ -22,7 +23,6 @@ template <typename TYPE>
 using DumbPtr = CUL::GUTILS::DumbPtr<TYPE>;
 using FF = CUL::FS::FileFactory;
 using Rect = CUL::Graphics::Rect3Di;
-using Pos3Df = CUL::Graphics::Pos3Df;
 using Triangle = CUL::MATH::Primitives::Triangle;
 using String = CUL::String;
 
@@ -55,7 +55,13 @@ LOGLW::Triangle* g_whiteTriangle = nullptr;
 LOGLW::Triangle* g_redTriangle = nullptr;
 LOGLW::Triangle* g_yellowTriangle = nullptr;
 
+LOGLW::Triangle* g_triangle00 = nullptr;
+LOGLW::Triangle* g_triangle01 = nullptr;
+
 LOGLW::Sprite* g_sprite = nullptr;
+LOGLW::Cube* g_cube = nullptr;
+LOGLW::TransformComponent::Pos g_cubePos;
+CUL::MATH::Rotation g_cubeRotation;
 
 const CUL::String wrapperDir = "../gameengine";
 const CUL::FS::Path shadersDir( wrapperDir + "/shaders/" );
@@ -172,7 +178,15 @@ void afterInit()
     g_redTriangle = g_oglw->getObjectFactory()->createTriangle( values, LOGLW::ColorE::RED );
     g_yellowTriangle = g_oglw->getObjectFactory()->createTriangle( values, LOGLW::ColorE::YELLOW );
 
+    g_triangle00 = g_oglw->getObjectFactory()->createTriangle( values, LOGLW::ColorE::WHITE );
+    g_triangle00->getTransform()->setPivot( { 0.5f, 0.f, 0.f } );
+    g_triangle01 = g_oglw->getObjectFactory()->createTriangle( values, LOGLW::ColorE::RED, true );
+    g_triangle01->getTransform()->setPivot( { 0.5f, 0.f, 0.f } );
+
     g_sprite = g_oglw->getObjectFactory()->createSprite( "../../media/texture.png" );
+
+    g_cube = g_oglw->createCube();
+    g_cube->setColor( CUL::Graphics::ColorE::BLUE );
 }
 
 void renderScene()
@@ -197,7 +211,16 @@ void renderScene()
     oldPosRedYellow.x() = 0.f;
     g_yellowTriangle->getTransform()->setWorldPosition( oldPosRedYellow );
 
+    g_triangle00->getTransform()->setWorldPosition( { 0.f, 0.f, 12.f } );
+    g_triangle01->getTransform()->setWorldPosition( { 0.f, -4.f, 12.f } );
+
     g_sprite->getTransform()->setWorldPosition( 0.f, 80.f * std::sin( g_angle.getRad() ), 40.f * std::cos( g_angle.getRad() ) );
+
+    g_cubePos = { 4.f, 0.f, 0.f };
+
+    g_cube->getTransform()->setWorldPosition( g_cubePos );
+    g_cubeRotation.pitch += g_angle * 0.001f;
+    g_cube->getTransform()->setWorldRotation( g_cubeRotation );
 
     g_angle += 0.01f;
 

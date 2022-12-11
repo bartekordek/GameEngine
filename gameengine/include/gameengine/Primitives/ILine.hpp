@@ -8,7 +8,7 @@ NAMESPACE_BEGIN( LOGLW )
 class ILine: public IObject
 {
 public:
-    GAME_ENGINE_API ILine( IGameEngine* engine ) : IObject( engine )
+    GAME_ENGINE_API ILine( IGameEngine* engine, bool forceLegacy ) : IObject( engine, forceLegacy )
     {
     }
 

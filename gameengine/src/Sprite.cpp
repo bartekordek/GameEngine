@@ -16,7 +16,7 @@
 
 using namespace LOGLW;
 
-Sprite::Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine ) : IObject( engine ), m_camera( camera ), m_cul( cul )
+Sprite::Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy ): IObject( engine, forceLegacy ), m_camera( camera ), m_cul( cul )
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );

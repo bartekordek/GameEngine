@@ -23,8 +23,19 @@ void TransformComponent::setWorldPosition( Pos::Type x, Pos::Type y, Pos::Type z
 
 const TransformComponent::Pos TransformComponent::getWorldPosition() const
 {
-    //return m_pos - m_pivotReal;
-    return m_pos;
+    static bool oldWay = true;
+    if( oldWay )
+    {
+        return m_pos;
+    }
+
+    glm::vec3 scale;
+    glm::quat rotation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    glm::decompose( getModel(), scale, rotation, translation, skew, perspective );
+    return translation;
 }
 
 void TransformComponent::setWorldAngle( CUL::MATH::EulerAngles type, const CUL::MATH::Angle& angle )
@@ -52,7 +63,23 @@ const CUL::MATH::Rotation TransformComponent::getWorldRotation() const
 {
     if( true )
     {
-        return m_rotation;
+        static bool oldWay = true;
+        if( oldWay )
+        {
+            return m_rotation;
+        }
+        else
+        {
+            glm::vec3 scale;
+            glm::quat rotation;
+            glm::vec3 translation;
+            glm::vec3 skew;
+            glm::vec4 perspective;
+            glm::decompose( getModel(), scale, rotation, translation, skew, perspective );
+            CUL::MATH::Rotation result;
+
+            return result;
+        }
     }
     else
     {
@@ -89,7 +116,7 @@ const CUL::MATH::Angle& TransformComponent::getWorldAngle( CUL::MATH::EulerAngle
     }
 }
 
-const glm::mat4 TransformComponent::getModel()
+const glm::mat4 TransformComponent::getModel() const
 {
     bool old = true;
     if( old )
@@ -128,10 +155,10 @@ const glm::mat4 TransformComponent::getModel()
     }
 }
 
-glm::vec3 TransformComponent::getPivotReal()
+glm::vec3 TransformComponent::getPivotReal() const
 {
     // return m_pivot.toGlmVec() * m_size.toGlmVec();
-    return m_pivotReal;
+    return m_pivotReal.toGlmVec();
 }
 
 glm::vec3 TransformComponent::getPivotNormalized()
@@ -139,7 +166,7 @@ glm::vec3 TransformComponent::getPivotNormalized()
     return m_pivot;
 }
 
-glm::mat4 TransformComponent::getRotation()
+glm::mat4 TransformComponent::getRotation() const
 {
     glm::mat4 model(1.f);
 
@@ -167,7 +194,7 @@ glm::mat4 TransformComponent::getRotation()
     return model;
 }
 
-glm::mat4 TransformComponent::getTranslation()
+glm::mat4 TransformComponent::getTranslation() const
 {
     glm::mat4 result(1.f);
 

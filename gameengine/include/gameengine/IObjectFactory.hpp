@@ -21,7 +21,7 @@ public:
     virtual IObject* createFromFile( IFile* file ) = 0;
     virtual IObject* createFromFile( const String& path ) = 0;
 
-    virtual Triangle* createTriangle( const TriangleData& data, const ColorS& color = ColorE::WHITE ) = 0;
+    virtual Triangle* createTriangle( const TriangleData& data, const ColorS& color, bool forceLegacy = false ) = 0;
 
     virtual IQuad* createQuad( const QuadData& data, bool legacy = false, const ColorS& color = ColorE::WHITE ) = 0;
 

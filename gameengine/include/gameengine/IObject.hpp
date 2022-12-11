@@ -18,7 +18,7 @@ class Name;
 class IObject: public IRenderable
 {
 public:
-    GAME_ENGINE_API IObject( IGameEngine* engine );
+    GAME_ENGINE_API IObject( IGameEngine* engine, bool forceLegacy );
 
     GAME_ENGINE_API virtual const std::vector<float> getVertices() const;
 
@@ -39,10 +39,13 @@ public:
 protected:
     IGameEngine& getEngine();
 
+    bool getForceLegacy() const;
+
 private:
     void removeChild( IObject* child );
 
     IGameEngine& m_engine;
+    bool m_forceLegacy = false;
 
     IObject* m_parent = nullptr;
 

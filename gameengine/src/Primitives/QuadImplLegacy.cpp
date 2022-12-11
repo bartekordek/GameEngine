@@ -4,9 +4,9 @@
 
 using namespace LOGLW;
 
-QuadImplLegacy::QuadImplLegacy( IGameEngine* engine ) : IQuad(engine)
+QuadImplLegacy::QuadImplLegacy( IGameEngine* engine, bool forceLegacy ): IQuad( engine, forceLegacy )
 {
-    m_data[ 0 ] = m_data[ 1 ] = m_data[ 2 ] = m_data[ 3 ] = { 0.0f, 0.0f, 0.0f };
+    m_data[0] = m_data[1] = m_data[2] = m_data[3] = { 0.0f, 0.0f, 0.0f };
     m_transform = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 }
 

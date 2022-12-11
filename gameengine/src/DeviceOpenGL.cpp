@@ -321,7 +321,7 @@ void DeviceOpenGL::setPerspectiveProjection( const Camera& projectionData )
     auto ar = projectionData.getAspectRatio();
     auto zNear = projectionData.getZnear();
     auto zFar = projectionData.getZfar();
-    if( isLegacy() )
+    //if( isLegacy() )
     {
          resetMatrixToIdentity( MatrixTypes::PROJECTION );
          gluPerspective( fov, ar, zNear, zFar );
@@ -358,7 +358,7 @@ void DeviceOpenGL::lookAt( const Camera& vp )
     const auto& eye = vp.getEye();
     const auto& center = vp.getCenter();
     const auto& up = vp.getUp();
-    if( isLegacy() )
+    //if( isLegacy() )
     {
         gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z );
     }

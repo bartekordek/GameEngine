@@ -73,23 +73,23 @@ Sprite* IGameEngine::createSprite()
 }
 
 
-Line* IGameEngine::createLine( IObject* parent )
+Line* IGameEngine::createLine( IObject* parent, bool forceLegacy )
 {
-    Line* line = new Line( getCamera(), *this, parent );
+    Line* line = new Line( getCamera(), *this, parent, forceLegacy );
     return line;
 }
 
-Triangle* IGameEngine::createTriangle( IObject* parent )
+Triangle* IGameEngine::createTriangle( IObject* parent, bool forceLegacy )
 {
-    Triangle* result = new Triangle( getCamera(), *this, parent );
+    Triangle* result = new Triangle( getCamera(), *this, parent, forceLegacy );
 
     return result;
 }
 
 
-Quad* IGameEngine::createQuad( IObject* parent )
+Quad* IGameEngine::createQuad( IObject* parent, bool forceLegacy )
 {
-    Quad* result = new Quad( getCamera(), *this, parent );
+    Quad* result = new Quad( getCamera(), *this, parent, forceLegacy );
 
     return result;
 }
@@ -106,9 +106,9 @@ VertexArray* IGameEngine::createVAO()
     return result;
 }
 
-Cube* IGameEngine::createCube()
+Cube* IGameEngine::createCube( bool forceLegacy )
 {
-    return new Cube( &getCamera(), this );
+    return new Cube( &getCamera(), this, forceLegacy );
 }
 
 void IGameEngine::drawOrigin( bool enable )
@@ -119,7 +119,7 @@ void IGameEngine::drawOrigin( bool enable )
         {
             static float originLinesLength = 4096.f;
             // X
-            Line* lineX = createLine( nullptr );
+            Line* lineX = createLine( nullptr, false );
             lineX->setColor( ColorE::RED );
             lineX->setLength( originLinesLength );
             m_axis[0] = lineX;
@@ -127,7 +127,7 @@ void IGameEngine::drawOrigin( bool enable )
             CUL::MATH::Rotation rotation;
 
             // Y
-            Line* lineY = createLine( nullptr );
+            Line* lineY = createLine( nullptr, false );
             lineY->setColor( ColorE::GREEN );
             rotation.roll.setValue( 90, CUL::MATH::Angle::Type::DEGREE );
             lineY->getTransform()->setWorldRotation( rotation );
@@ -137,7 +137,7 @@ void IGameEngine::drawOrigin( bool enable )
             rotation.roll.setValue( 0, CUL::MATH::Angle::Type::DEGREE );
             rotation.yaw.setValue( 90, CUL::MATH::Angle::Type::DEGREE );
             // Z
-            Line* lineZ = createLine( nullptr );
+            Line* lineZ = createLine( nullptr, false );
             lineZ->setColor( ColorE::BLUE );
             lineZ->getTransform()->setWorldRotation( rotation );
             lineZ->setLength( originLinesLength );

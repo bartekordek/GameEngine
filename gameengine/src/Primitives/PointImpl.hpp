@@ -9,7 +9,7 @@ class PointImpl final:
     public IUtilityUser
 {
 public:
-    PointImpl( IGameEngine* engine ) : IPoint(engine)
+    PointImpl( IGameEngine* engine, bool forceLegacy ): IPoint( engine, forceLegacy )
     {
 
     }

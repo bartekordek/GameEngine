@@ -13,7 +13,7 @@ using Size = CUL::Graphics::SimpleSize3D<float>;
 class IQuad: public IObject
 {
 public:
-    GAME_ENGINE_API IQuad( IGameEngine* engine );
+    GAME_ENGINE_API IQuad( IGameEngine* engine, bool forceLegacy );
 
     GAME_ENGINE_API virtual void setValues( const QuadData& values ) = 0;
     GAME_ENGINE_API virtual void setColor( const QuadColors& colors ) = 0;

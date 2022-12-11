@@ -36,9 +36,9 @@ public:
     const CUL::MATH::Rotation getWorldRotation() const;
 
     const CUL::MATH::Angle& getWorldAngle( CUL::MATH::EulerAngles type ) const;
-    const glm::mat4 getModel();
-    glm::mat4 getRotation();
-    glm::mat4 getTranslation();
+    const glm::mat4 getModel() const;
+    glm::mat4 getRotation() const;
+    glm::mat4 getTranslation() const;
 
     void setSize( const Pos& size );
     const Pos& getSize() const;
@@ -46,7 +46,7 @@ public:
     const Pos& getPivot() const;
     void setPivot( const Pos& pivot );
 
-    glm::vec3 getPivotReal();
+    glm::vec3 getPivotReal() const;
     glm::vec3 getPivotNormalized();
 
     void addOnChangeCallback( const String& callbackName, const std::function<void( const Pos& position )> callback );

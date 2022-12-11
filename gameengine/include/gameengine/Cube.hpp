@@ -28,7 +28,7 @@ class TransformComponent;
 class Cube final: public IObject, public IUtilityUser
 {
 public:
-    GAME_ENGINE_API Cube( Camera* camera, IGameEngine* engine );
+    GAME_ENGINE_API Cube( Camera* camera, IGameEngine* engine, bool forceLegacy );
 
     GAME_ENGINE_API void setImage( unsigned wallIndex, const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
