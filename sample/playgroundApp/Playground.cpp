@@ -12,6 +12,9 @@
 #include "SDL2Wrapper/IWindow.hpp"
 #include "SDL2Wrapper/Input/MouseData.hpp"
 
+
+#include "CUL/ITimer.hpp"
+
 CUL::MATH::Angle ang90( 90, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang180( 180, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
@@ -36,12 +39,13 @@ void Playground::run()
     m_engine->addMouseEventCallback( [this] ( const SDL2W::MouseData& mouseData ){onMouseEvent( mouseData ); } );
 
     m_engine->onInitialize( [this] (){afterInit(); } );
-    m_engine->beforeFrame( [this] (){timer(); } );
 
     m_engine->registerKeyboardEventCallback( [this] ( const SDL2W::KeyboardState& key ){onKeyBoardEvent( key ); } );
     m_engine->registerWindowEventCallback( [this] ( const SDL2W::WindowEvent::Type type ){onWindowEvent( type ); } );
 
     m_engine->startRenderingLoop();
+
+    m_timer.reset(CUL::TimerFactory::getChronoTimer( m_engine->getLoger() ) );
 
     m_engine->runEventLoop();
 }
@@ -101,6 +105,9 @@ void Playground::afterInit()
 
     g_cube = m_engine->createCube();
     g_cube->setColor( CUL::Graphics::ColorE::BLUE );
+
+
+    m_timer->runEveryPeriod( [this] (){timer(); }, 20000 );
 }
 
 void Playground::timer()
@@ -144,6 +151,8 @@ void Playground::timer()
 
     blueTriangleZ = amp + std::sin( g_angle.getRad() * frac ) * amp;
     redTriangleZ = amp + std::cos( g_angle.getRad() * frac ) * amp;
+
+    m_engine->getLoger()->log( "Tick!" );
 }
 
 void Playground::onMouseEvent( const SDL2W::MouseData& mouseData )

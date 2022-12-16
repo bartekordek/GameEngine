@@ -35,7 +35,7 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
       m_activeWindow( sdl2w->getMainWindow() ),
       m_cul( sdl2w->getCul() ),
       m_logger( sdl2w->getCul()->getLogger() ),
-      m_frameTimer( CUL::TimerFactory::getChronoTimer() )
+      m_frameTimer( CUL::TimerFactory::getChronoTimer( sdl2w->getCul()->getLogger() ) )
 {
     CUL::Assert::simple( nullptr != sdl2w, "NO SDL WRAPPER." );
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );

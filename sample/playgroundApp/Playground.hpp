@@ -3,10 +3,17 @@
 #include "SDL2Wrapper/Input/IKeyboardObserver.hpp"
 #include "SDL2Wrapper/Input/IMouseObserver.hpp"
 
+#include "CUL/ITimer.hpp"
 #include "CUL/Math/Angle.hpp"
 #include "CUL/Math/Point.hpp"
 #include "CUL/Math/Rotation.hpp"
 #include "CUL/IMPORT_GLM.hpp"
+#include "CUL/STL_IMPORTS/STD_memory.hpp"
+
+namespace CUL
+{
+	class ITimer;
+}
 
 namespace LOGLW
 {
@@ -65,4 +72,6 @@ private:
 	CUL::MATH::Rotation g_cubeRotation;
 
 	glm::vec3 g_eyePos;
+
+	std::unique_ptr<CUL::ITimer> m_timer;
 };
