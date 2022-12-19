@@ -5,215 +5,126 @@
 
 using namespace LOGLW;
 
-TransformComponent::TransformComponent(IObject& owner):m_owner(owner)
+TransformComponent::TransformComponent( IObject& owner ):m_owner( owner )
 {
 }
 
-void TransformComponent::setWorldPosition( const Pos& position )
+void TransformComponent::setPositionToParent( const glm::vec3& position )
 {
-    if( std::abs(position.y()) > 90.f )
-    {
-        auto i = 0;
-    }
-
     m_pos = position;
 }
 
-void TransformComponent::setWorldPosition( Pos::Type x, Pos::Type y, Pos::Type z )
+const glm::vec3 TransformComponent::getPositionToParent() const
 {
-    m_pos[0] = x;
-    m_pos[1] = y;
-    m_pos[2] = z;
+    return m_pos;
 }
 
-const TransformComponent::Pos TransformComponent::getWorldPosition() const
+void TransformComponent::setPositionAbsolute( const glm::vec3& position )
 {
-    static bool oldWay = false;
-    if( oldWay )
+    const auto parent = m_owner.getParent();
+    if( parent )
+    {
+        const auto parentAbsolutePos = parent->getTransform()->getPositionAbsolut();
+        m_pos = position - parentAbsolutePos;
+    }
+    else
+    {
+        m_pos = position;
+    }
+}
+
+const glm::vec3 TransformComponent::getPositionAbsolut() const
+{
+    const auto parent = m_owner.getParent();
+    if( parent )
+    {
+        const auto parentAbsolutePos = parent->getTransform()->getPositionAbsolut();
+        return parentAbsolutePos + m_pos;
+    }
+    else
     {
         return m_pos;
     }
+}
+
+void TransformComponent::setRotationToParent( const CUL::MATH::Rotation& rotation )
+{
+}
+
+const CUL::MATH::Rotation TransformComponent::getRotationToParent() const
+{
+    return CUL::MATH::Rotation();
+}
+
+void TransformComponent::setRotationAbsolute( const CUL::MATH::Rotation& rotation )
+{
+    const auto rot = getRotationAbsolute();
+    //abs = local + parent
+}
+
+const CUL::MATH::Rotation TransformComponent::getParentRotation() const
+{
+    IObject* parent = m_owner.getParent();
+    if( parent )
+    {
+    }
+    else
+    {
+        return CUL::MATH::Rotation();
+    }
+}
+
+const CUL::MATH::Rotation TransformComponent::getRotationAbsolute() const
+{
+    const glm::mat4 model = getModel();
 
     glm::vec3 scale;
     glm::quat rotation;
     glm::vec3 translation;
     glm::vec3 skew;
     glm::vec4 perspective;
-    glm::decompose( getModel(), scale, rotation, translation, skew, perspective );
-    return translation;
-}
+    glm::decompose( model, scale, rotation, translation, skew, perspective );
 
-void TransformComponent::setWorldAngle( CUL::MATH::EulerAngles type, const CUL::MATH::Angle& angle )
-{
-    if( type == CUL::MATH::EulerAngles::PITCH )
-    {
-        m_rotation.pitch = angle;
-    }
-    else if( type == CUL::MATH::EulerAngles::YAW )
-    {
-        m_rotation.yaw = angle;
-    }
-    else
-    {
-        m_rotation.roll = angle;
-    }
-}
+    CUL::MATH::Rotation result( rotation );
 
-void TransformComponent::setWorldRotation( const CUL::MATH::Rotation& rotation )
-{
-    m_rotation = rotation;
-}
-
-const CUL::MATH::Rotation TransformComponent::getWorldRotation() const
-{
-    if( true )
-    {
-        static bool oldWay = true;
-        if( oldWay )
-        {
-            return m_rotation;
-        }
-        else
-        {
-            glm::vec3 scale;
-            glm::quat rotation;
-            glm::vec3 translation;
-            glm::vec3 skew;
-            glm::vec4 perspective;
-            glm::decompose( getModel(), scale, rotation, translation, skew, perspective );
-            CUL::MATH::Rotation result;
-
-            return result;
-        }
-    }
-    else
-    {
-        CUL::MATH::Rotation result = m_rotation;
-
-        IObject* parent = m_owner.getParent();
-        if( parent )
-        {
-            TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
-            if( parentTransform )
-            {
-                const CUL::MATH::Rotation parentRotation = parentTransform->getWorldRotation();
-                result += parentRotation;
-            }
-        }
-
-        return result;
-    }
-}
-
-const CUL::MATH::Angle& TransformComponent::getWorldAngle( CUL::MATH::EulerAngles type ) const
-{
-    if( type == CUL::MATH::EulerAngles::PITCH )
-    {
-        return m_rotation.pitch;
-    }
-    else if( type == CUL::MATH::EulerAngles::ROLL )
-    {
-        return m_rotation.roll;
-    }
-    else
-    {
-        return m_rotation.yaw;
-    }
+    return result;
 }
 
 const glm::mat4 TransformComponent::getModel() const
 {
-    bool old = true;
-    if( old )
+    glm::mat4 result( 1.f );
+
+    const glm::vec3 translVec = getPositionToParent();
+    result = glm::translate(result, translVec);
+
+    glm::vec3 pivotReal = getPivotReal();
+    glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), pivotReal );
+    glm::mat4 rotation = glm::toMat3( m_rotation.toQuat() );
+    glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), -pivotReal );
+
+    glm::mat4 model = result * trans_to_pivot * rotation * trans_from_pivot;
+
+    IObject* parent = m_owner.getParent();
+    if( parent )
     {
-        glm::vec3 pivotReal = getPivotReal();
-
-        glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), pivotReal );
-        glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), -pivotReal );
-
-        glm::mat4 model = getTranslation() * trans_to_pivot * getRotation() * trans_from_pivot;
-
-        IObject* parent = m_owner.getParent();
-        if( parent )
+        TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
+        if( parentTransform )
         {
-            TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
-            if( parentTransform )
-            {
-                return parentTransform->getModel() * model;
-            }
+            return parentTransform->getModel() * model;
         }
-
-        return model;
     }
-    else
-    {
-        glm::mat4 model = glm::mat4( 1.0f );
 
-        //glm::vec3 pivot = m_pivot.toGlmVec();
-        // glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), -pivot );
-        // glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), pivot );
-        // glm::mat4 rotation(1.f);
-        //rotation =
-        //glm::mat4 rotate = trans_from_pivot * rotate_matrix * trans_to_pivot;
-
-        return model;
-    }
+    return model;
 }
 
 glm::vec3 TransformComponent::getPivotReal() const
 {
-    // return m_pivot.toGlmVec() * m_size.toGlmVec();
     return m_pivotReal.toGlmVec();
 }
 
 glm::vec3 TransformComponent::getPivotNormalized()
 {
     return m_pivot;
-}
-
-glm::mat4 TransformComponent::getRotation() const
-{
-    glm::mat4 model(1.f);
-
-    CUL::MATH::Rotation rotation = m_rotation;
-
-
-    // Yaw
-    {
-        glm::vec3 normal( 0.f, 1.f, 0.f );
-        model = glm::rotate( model, -rotation.yaw.getRad(), normal );
-    }
-
-    // Pitch
-    {
-        glm::vec3 normal( -1.f, 0.f, 0.f );
-        model = glm::rotate( model, rotation.pitch.getRad(), normal );
-    }
-
-    // Roll
-    {
-        glm::vec3 normal( 0.f, 0.f, 1.f );
-        model = glm::rotate( model, rotation.roll.getRad(), normal );
-    }
-
-    return model;
-}
-
-glm::mat4 TransformComponent::getTranslation() const
-{
-    glm::mat4 result(1.f);
-
-    const Pos& position = m_pos;// -m_pivotReal;
-    glm::vec3 posVec = position.toGlmVec();
-    result = glm::translate( result, posVec );
-
-    if( std::abs( posVec.y ) > 90.f )
-    if( std::abs( posVec.y ) > 90.f )
-    {
-        int i = 0;
-    }
-
-    return result;
 }
 
 const TransformComponent::Pos& TransformComponent::getPivot() const

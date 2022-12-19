@@ -7,6 +7,7 @@
 #include "gameengine/Primitives/Triangle.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Cube.hpp"
+#include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Sprite.hpp"
 
 #include "SDL2Wrapper/IWindow.hpp"
@@ -101,13 +102,28 @@ void Playground::afterInit()
     g_triangle01->getTransform()->setPivot( { 0.5f, 0.f, 0.f } );
     g_triangle01->setName( "g_triangle01" );
 
+    const float z = 20.f;
+
+    m_quad00 = m_engine->createQuad( nullptr );
+    m_quad00->setColor( CUL::Graphics::ColorE::RED );
+    m_quad00->getTransform()->setWorldPosition( { 0.f, -5.f, z } );
+
+    m_quad01 = m_engine->createQuad( nullptr, true );
+    m_quad01->setColor( CUL::Graphics::ColorE::BLUE );
+    m_quad01->getTransform()->setWorldPosition( { 0.f, -0.f, z } );
+
     g_sprite = m_engine->getObjectFactory()->createSprite( "../../media/texture.png" );
 
-    g_cube = m_engine->createCube();
-    g_cube->setColor( CUL::Graphics::ColorE::BLUE );
+    m_cube00 = m_engine->createCube();
+    m_cube00->getTransform()->setWorldPosition( { 4.f, 2.f, 16.f } );
+    m_cube00->setColor( CUL::Graphics::ColorE::BLUE );
+
+    m_cube01 = m_engine->createCube( true );
+    m_cube01->getTransform()->setWorldPosition( { 4.f, -2.f, 16.f } );
+    m_cube01->setColor( CUL::Graphics::ColorE::RED );
 
 
-    m_timer->runEveryPeriod( [this] (){timer(); }, 20000 );
+    m_timer->runEveryPeriod( [this] (){timer(); }, 80000 );
 }
 
 void Playground::timer()
@@ -138,11 +154,14 @@ void Playground::timer()
     const LOGLW::TransformComponent::Pos pos = { 0.f, 80.f * std::sin( g_angle.getRad() ), 40.f * std::cos( g_angle.getRad() ) };
     g_sprite->getTransform()->setWorldPosition( pos );
 
-    g_cubePos = { 4.f, 0.f, 0.f };
 
-    g_cube->getTransform()->setWorldPosition( g_cubePos );
-    g_cubeRotation.pitch += g_angle * 0.001f;
-    g_cube->getTransform()->setWorldRotation( g_cubeRotation );
+    m_cubeRotation.pitch += g_angle * 0.001f;
+    m_cube00->getTransform()->setWorldRotation( m_cubeRotation );
+    m_cube01->getTransform()->setWorldRotation( m_cubeRotation );
+
+    m_triangleRotation.roll += g_angle * 0.001f;
+    m_quad00->getTransform()->setWorldRotation( m_triangleRotation );
+    m_quad01->getTransform()->setWorldRotation( m_triangleRotation );
 
     g_angle += 0.01f;
 
@@ -230,12 +249,14 @@ void Playground::onKeyBoardEvent( const SDL2W::KeyboardState& key )
 
     if( key.at( "I" ) )
     {
+        g_eyePos = m_engine->getCamera().getEye();
         g_eyePos.z += 2.0f;
         m_engine->getCamera().setEyePos( g_eyePos );
     }
 
     if( key.at( "K" ) )
     {
+        g_eyePos = m_engine->getCamera().getEye();
         g_eyePos.z -= 2.0f;
         m_engine->getCamera().setEyePos( g_eyePos );
     }

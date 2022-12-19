@@ -23,7 +23,14 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     setParent( parent );
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );
+    const float size = 2.f;
+    m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
+
+    m_model.data[0] = { size, size, 0.f };
+    m_model.data[1] = { size, 0.f, 0.f };
+    m_model.data[2] = { 0.f, 0.f, 0.f };
+    m_model.data[3] = { 0.f, size, 0.f };
+
 
     if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -74,20 +81,7 @@ void Quad::createBuffers()
         1, 2, 3   // second Triangle
     };
 
-    const CUL::MATH::Point& size = m_transformComponent->getSize();
-
-    float x0 = 0.0f;
-    float x1 = size.x();
-
-    float y0 = 0.0f;
-    float y1 = size.y();
-
-    vboData.vertices = {
-        x1, y1, 0.f,  // top right
-        x1, y0, 0.f,  // bottom right
-        x0, y0, 0.f,  // bottom left
-        x0, y1, 0.f   // top left
-    };
+    vboData.vertices = m_model.toVectorOfFloat();
 
     vboData.containsColorData = false;
     vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
@@ -123,20 +117,12 @@ void Quad::createShaders()
 
 void Quad::render()
 {
-    if( getDevice()->isLegacy() )
+    if( getDevice()->isLegacy() || getForceLegacy() )
     {
-        auto size = m_transformComponent->getSize();
-
-        QuadCUL quad;
-        quad[0] = { -size.x() / 2.f, -size.y() / 2.f, 0.f };
-        quad[1] = {  size.x() / 2.f, -size.y() / 2.f, 0.f };
-        quad[2] = {  size.x() / 2.f,  size.y() / 2.f, 0.f };
-        quad[3] = { -size.x() / 2.f,  size.y() / 2.f, 0.f };
-
         const auto position = m_transformComponent->getWorldPosition();
         const auto rotation = m_transformComponent->getWorldRotation();
 
-        getDevice()->draw( quad, position, rotation, m_color );
+        getDevice()->draw( m_model, position, rotation, m_color );
     }
     else
     {

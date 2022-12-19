@@ -4,6 +4,7 @@
 #include "gameengine/IUtilityUser.hpp"
 
 #include "CUL/Graphics/Color.hpp"
+#include "CUL/Math/Primitives/Quad.hpp"
 
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
 
@@ -33,6 +34,7 @@ private:
     void release();
     void deleteBuffers();
 
+    CUL::MATH::Primitives::Quad m_model;
     TransformComponent* m_transformComponent = nullptr;
     std::atomic<bool> m_recreateBuffers = false;
     class Program* m_shaderProgram = nullptr;

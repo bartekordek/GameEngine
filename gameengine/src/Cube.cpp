@@ -64,7 +64,7 @@ void Cube::createPlaceHolders()
     TransformComponent::Pos pivot = { 0.5f, 0.5f, 0.f };
     // 0
     {
-        Quad* quad = m_engine->createQuad( this, false );
+        Quad* quad = m_engine->createQuad( this, getForceLegacy() );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -78,7 +78,7 @@ void Cube::createPlaceHolders()
 
     // 1
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this, false );
+        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -92,7 +92,7 @@ void Cube::createPlaceHolders()
 
     // 2
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this, false );
+        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -109,7 +109,7 @@ void Cube::createPlaceHolders()
 
     // 3
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this, false );
+        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -126,7 +126,7 @@ void Cube::createPlaceHolders()
 
     // 4
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this );
+        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -143,7 +143,7 @@ void Cube::createPlaceHolders()
 
     // 5
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this );
+        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
         quad->setDisableRenderOnMyOwn( true );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -161,15 +161,15 @@ void Cube::createPlaceHolders()
 
 void Cube::render()
 {
-    if( getDevice()->isLegacy() )
+    if( getDevice()->isLegacy() || getForceLegacy() )
     {
-        getDevice()->matrixStackPush();
+        //getDevice()->matrixStackPush();
 
-        const auto position = getTransform()->getWorldPosition();
-        const auto rotation = getTransform()->getWorldRotation();
+        //const auto position = getTransform()->getWorldPosition();
+        //const auto rotation = getTransform()->getWorldRotation();
 
-        getDevice()->translate( position );
-        getDevice()->rotate( rotation );
+        //getDevice()->translate( position );
+        //getDevice()->rotate( rotation );
     }
 
     const auto children = getChildren();
@@ -180,7 +180,7 @@ void Cube::render()
 
     if( getDevice()->isLegacy() )
     {
-        getDevice()->matrixStackPop();
+        //getDevice()->matrixStackPop();
     }
 }
 

@@ -23,6 +23,7 @@ namespace LOGLW
 	class Triangle;
 	class Sprite;
 	class Cube;
+	class Quad;
 }
 
 namespace SDL2W
@@ -60,16 +61,21 @@ private:
 
 	LOGLW::Triangle* g_triangle00 = nullptr;
 	LOGLW::Triangle* g_triangle01 = nullptr;
+	CUL::MATH::Rotation m_triangleRotation;
+
+	LOGLW::Quad* m_quad00 = nullptr;
+	LOGLW::Quad* m_quad01 = nullptr;
 
 	float blueTriangleZ = -1.0f;
 	float redTriangleZ = 1.0f;
 
 	LOGLW::Sprite* g_sprite = nullptr;
-	LOGLW::Cube* g_cube = nullptr;
+	LOGLW::Cube* m_cube00 = nullptr;
+	LOGLW::Cube* m_cube01 = nullptr;
 
 	CUL::MATH::Angle g_angle;
 	CUL::MATH::Point g_cubePos;
-	CUL::MATH::Rotation g_cubeRotation;
+	CUL::MATH::Rotation m_cubeRotation;
 
 	glm::vec3 g_eyePos;
 
