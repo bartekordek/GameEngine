@@ -31,7 +31,7 @@ private:
     {
         getDevice()->matrixStackPush();
         getDevice()->translate( m_pos );
-        getDevice()->draw( getTransform()->getWorldPosition(), m_color );
+        getDevice()->draw( getTransform()->getPositionAbsolut(), m_color );
         getDevice()->matrixStackPop();
     }
 

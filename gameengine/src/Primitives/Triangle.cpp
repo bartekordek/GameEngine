@@ -92,8 +92,8 @@ void Triangle::render()
     {
         getDevice()->matrixStackPush();
 
-        const auto position = m_transformComponent->getWorldPosition();
-        const auto rotation = m_transformComponent->getWorldRotation();
+        const auto position = m_transformComponent->getPositionAbsolut();
+        const auto rotation = m_transformComponent->getRotationAbsolute();
 
         getDevice()->translate( position );
 

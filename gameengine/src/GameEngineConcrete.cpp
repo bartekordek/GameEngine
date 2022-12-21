@@ -244,7 +244,7 @@ IPoint* GameEngineConcrete::createPoint( const Point& position, const ColorS& co
 {
     auto result = new PointImpl( this, false );
     result->setColor( color );
-    result->getTransform()->setWorldPosition( position );
+    result->getTransform()->setPositionAbsolute( position.toGlmVec() );
     addObjectToRender( result );
 
     return result;

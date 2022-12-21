@@ -117,10 +117,13 @@ void Quad::createShaders()
 
 void Quad::render()
 {
+    const glm::mat4 model = m_transformComponent->getModel();
+    m_transformComponent->decomposeAndLogData( model );
+
     if( getDevice()->isLegacy() || getForceLegacy() )
     {
-        const auto position = m_transformComponent->getWorldPosition();
-        const auto rotation = m_transformComponent->getWorldRotation();
+        const auto position = m_transformComponent->getPositionAbsolut();
+        const auto rotation = m_transformComponent->getRotationAbsolute();
 
         getDevice()->draw( m_model, position, rotation, m_color );
     }
@@ -134,6 +137,9 @@ void Quad::render()
         }
 
         m_shaderProgram->enable();
+
+        const glm::mat4 model = m_transformComponent->getModel();
+        m_transformComponent->decomposeAndLogData( model );
 
         setTransformation();
         applyColor();

@@ -63,8 +63,8 @@ private:
 	LOGLW::Triangle* g_triangle01 = nullptr;
 	CUL::MATH::Rotation m_triangleRotation;
 
-	LOGLW::Quad* m_quad00 = nullptr;
-	LOGLW::Quad* m_quad01 = nullptr;
+	LOGLW::Quad* m_quadModern = nullptr;
+	LOGLW::Quad* m_quadLegacy = nullptr;
 
 	float blueTriangleZ = -1.0f;
 	float redTriangleZ = 1.0f;

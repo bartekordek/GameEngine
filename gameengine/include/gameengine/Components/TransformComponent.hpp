@@ -53,12 +53,15 @@ public:
     void removeCallback( const String& callbackName );
 
     CUL::GUTILS::SimpleDelegate changeSizeDelegate;
+    void decomposeAndLogData( const glm::mat4& data ) const;
 
     ~TransformComponent();
 
 protected:
 private:
-    const CUL::MATH::Rotation getParentRotation() const;
+    glm::mat4 getTranslation() const;
+    glm::mat4 getRotation() const;
+    
     IObject& m_owner;
 
     Pos m_size;

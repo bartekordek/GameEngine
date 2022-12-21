@@ -242,12 +242,12 @@ void Sprite::renderLegacy()
 
     getDevice()->bindTexture( m_textureId );
 
-    const auto position = m_transformComponent->getWorldPosition();
+    const auto position = m_transformComponent->getPositionAbsolut();
 
     getDevice()->matrixStackPush();
     getDevice()->translate( position );
     //static const auto type = CUL::MATH::Angle::Type::DEGREE;
-    const auto rotation = m_transformComponent->getWorldRotation();
+    const auto rotation = m_transformComponent->getRotationAbsolute();
     getDevice()->rotate( rotation );
     getDevice()->draw( positions, colors );
     getDevice()->matrixStackPop();

@@ -1,6 +1,8 @@
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/IObject.hpp"
 
+#include "CUL/Log/ILogger.hpp"
+#include "CUL/Log/ILogContainer.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 
 using namespace LOGLW;
@@ -58,56 +60,40 @@ const CUL::MATH::Rotation TransformComponent::getRotationToParent() const
 
 void TransformComponent::setRotationAbsolute( const CUL::MATH::Rotation& rotation )
 {
+    //rotation = absolute + delta;
+    //delta = rotation - absolute;
     const auto rot = getRotationAbsolute();
-    //abs = local + parent
-}
-
-const CUL::MATH::Rotation TransformComponent::getParentRotation() const
-{
-    IObject* parent = m_owner.getParent();
-    if( parent )
-    {
-    }
-    else
-    {
-        return CUL::MATH::Rotation();
-    }
+    const auto delta = rotation - rot;
+    m_rotation = delta;
 }
 
 const CUL::MATH::Rotation TransformComponent::getRotationAbsolute() const
 {
-    const glm::mat4 model = getModel();
-
-    glm::vec3 scale;
-    glm::quat rotation;
-    glm::vec3 translation;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-    glm::decompose( model, scale, rotation, translation, skew, perspective );
-
-    CUL::MATH::Rotation result( rotation );
-
-    return result;
+    const auto parent = m_owner.getParent();
+    if( parent )
+    {
+        const auto parentRotation = parent->getTransform()->getRotationAbsolute();
+        return parentRotation + m_rotation;
+    }
+    else
+    {
+        return m_rotation;
+    }
 }
 
 const glm::mat4 TransformComponent::getModel() const
 {
-    glm::mat4 result( 1.f );
-
-    const glm::vec3 translVec = getPositionToParent();
-    result = glm::translate(result, translVec);
-
     glm::vec3 pivotReal = getPivotReal();
+
     glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), pivotReal );
-    glm::mat4 rotation = glm::toMat3( m_rotation.toQuat() );
     glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), -pivotReal );
 
-    glm::mat4 model = result * trans_to_pivot * rotation * trans_from_pivot;
+    glm::mat4 model = getTranslation() * trans_to_pivot * getRotation() * trans_from_pivot;
 
     IObject* parent = m_owner.getParent();
     if( parent )
     {
-        TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
+        TransformComponent* parentTransform = static_cast< TransformComponent* >( parent->getComponent( "TransformComponent" ) );
         if( parentTransform )
         {
             return parentTransform->getModel() * model;
@@ -115,6 +101,20 @@ const glm::mat4 TransformComponent::getModel() const
     }
 
     return model;
+}
+
+glm::mat4 TransformComponent::getTranslation() const
+{
+    glm::mat4 result( 1.f );
+    result = glm::translate( result, m_pos - m_pivotReal.toGlmVec() );
+
+    return result;
+}
+
+glm::mat4 TransformComponent::getRotation() const
+{
+    glm::mat4 result = glm::toMat4( m_rotation.toQuat() );
+    return result;
 }
 
 glm::vec3 TransformComponent::getPivotReal() const
@@ -166,6 +166,23 @@ const TransformComponent::Pos& TransformComponent::TransformComponent::getSize()
 void TransformComponent::removeCallback(const String& callbackName)
 {
     m_onChangeCallbacks.erase(callbackName);
+}
+
+void TransformComponent::decomposeAndLogData( const glm::mat4& data ) const
+{
+    glm::vec3 scale;
+    glm::quat rotation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    glm::decompose( data, scale, rotation, translation, skew, perspective );
+
+    const auto rotationString = glm::to_string( rotation );
+    const auto translationString = glm::to_string( translation );
+
+    const auto name = m_owner.getName();
+
+    CUL::LOG::LOG_CONTAINER::getLogger()->log( name + ", translation: " + translationString + ", rotation: " + rotationString );
 }
 
 TransformComponent::~TransformComponent()
