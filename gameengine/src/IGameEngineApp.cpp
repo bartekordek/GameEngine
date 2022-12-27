@@ -78,7 +78,7 @@ void IGameEngineApp::init( const SDL2W::WindowData& windowData,
     //m_oglw->setProjection( g_projectionData );
 
 
-    m_logicTimer.reset( CUL::TimerFactory::getChronoTimer() );
+    m_logicTimer.reset( CUL::TimerFactory::getChronoTimer( m_logger ) );
     m_logicThread = std::thread( &IGameEngineApp::logicThread, this );
 }
 

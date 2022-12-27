@@ -795,9 +795,9 @@ void DeviceOpenGL::rotate( const CUL::MATH::Rotation& rotation )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    glRotatef( rotation.yaw.getDeg(), 0.f, -1.f, 0.f );
-    glRotatef( rotation.pitch.getDeg(), 1.f, 0.f, 0.f );
-    glRotatef( rotation.roll.getDeg(), 0.f, 0.f, 1.f );
+    glRotatef( rotation.Yaw.getDeg(), 0.f, -1.f, 0.f );
+    glRotatef( rotation.Pitch.getDeg(), 1.f, 0.f, 0.f );
+    glRotatef( rotation.Roll.getDeg(), 0.f, 0.f, 1.f );
 }
 
 void DeviceOpenGL::draw( const CUL::MATH::Primitives::Line& values, const ColorS& color )

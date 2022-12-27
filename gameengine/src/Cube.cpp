@@ -100,7 +100,7 @@ void Cube::createPlaceHolders()
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;
-        rotation.yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
         quad->getnameCmp()->setName( "Wall02" );
         quad->setColor( m_color );
@@ -117,7 +117,7 @@ void Cube::createPlaceHolders()
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;
-        rotation.yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
         quad->getnameCmp()->setName( "Wall03" );
         quad->setColor( m_color );
@@ -134,7 +134,7 @@ void Cube::createPlaceHolders()
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;
-        rotation.pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
         quad->getnameCmp()->setName( "Wall04" );
         quad->setColor( m_color );
@@ -151,7 +151,7 @@ void Cube::createPlaceHolders()
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;
-        rotation.pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setWorldRotation( rotation );
         quad->getnameCmp()->setName( "Wall05" );
         quad->setColor( m_color );

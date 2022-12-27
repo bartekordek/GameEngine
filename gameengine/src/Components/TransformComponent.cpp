@@ -31,15 +31,15 @@ void TransformComponent::setWorldAngle( CUL::MATH::EulerAngles type, const CUL::
 {
     if( type == CUL::MATH::EulerAngles::PITCH )
     {
-        m_rotation.pitch = angle;
+        m_rotation.Pitch = angle;
     }
     else if( type == CUL::MATH::EulerAngles::YAW )
     {
-        m_rotation.yaw = angle;
+        m_rotation.Yaw = angle;
     }
     else
     {
-        m_rotation.roll = angle;
+        m_rotation.Roll = angle;
     }
 }
 
@@ -77,15 +77,15 @@ const CUL::MATH::Angle& TransformComponent::getWorldAngle( CUL::MATH::EulerAngle
 {
     if( type == CUL::MATH::EulerAngles::PITCH )
     {
-        return m_rotation.pitch;
+        return m_rotation.Pitch;
     }
     else if( type == CUL::MATH::EulerAngles::ROLL )
     {
-        return m_rotation.roll;
+        return m_rotation.Roll;
     }
     else
     {
-        return m_rotation.yaw;
+        return m_rotation.Yaw;
     }
 }
 
@@ -149,19 +149,19 @@ glm::mat4 TransformComponent::getRotation()
     // Yaw
     {
         glm::vec3 normal( 0.f, 1.f, 0.f );
-        model = glm::rotate( model, -rotation.yaw.getRad(), normal );
+        model = glm::rotate( model, -rotation.Yaw.getRad(), normal );
     }
 
     // Pitch
     {
         glm::vec3 normal( -1.f, 0.f, 0.f );
-        model = glm::rotate( model, rotation.pitch.getRad(), normal );
+        model = glm::rotate( model, rotation.Pitch.getRad(), normal );
     }
 
     // Roll
     {
         glm::vec3 normal( 0.f, 0.f, 1.f );
-        model = glm::rotate( model, rotation.roll.getRad(), normal );
+        model = glm::rotate( model, rotation.Roll.getRad(), normal );
     }
 
     return model;

@@ -129,13 +129,13 @@ void IGameEngine::drawOrigin( bool enable )
             // Y
             Line* lineY = createLine( nullptr );
             lineY->setColor( ColorE::GREEN );
-            rotation.roll.setValue( 90, CUL::MATH::Angle::Type::DEGREE );
+            rotation.Roll.setValue( 90, CUL::MATH::Angle::Type::DEGREE );
             lineY->getTransform()->setWorldRotation( rotation );
             lineY->setLength( originLinesLength );
             m_axis[1] = lineY;
 
-            rotation.roll.setValue( 0, CUL::MATH::Angle::Type::DEGREE );
-            rotation.yaw.setValue( 90, CUL::MATH::Angle::Type::DEGREE );
+            rotation.Roll.setValue( 0, CUL::MATH::Angle::Type::DEGREE );
+            rotation.Yaw.setValue( 90, CUL::MATH::Angle::Type::DEGREE );
             // Z
             Line* lineZ = createLine( nullptr );
             lineZ->setColor( ColorE::BLUE );
