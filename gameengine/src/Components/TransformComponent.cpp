@@ -37,20 +37,21 @@ void TransformComponent::setPositionAbsolute( const glm::vec3& position )
 
 const glm::vec3 TransformComponent::getPositionAbsolut() const
 {
-    const auto parent = m_owner.getParent();
-    if( parent )
-    {
-        const auto parentAbsolutePos = parent->getTransform()->getPositionAbsolut();
-        return parentAbsolutePos + m_pos;
-    }
-    else
-    {
-        return m_pos;
-    }
+    const auto model = getModel();
+
+    glm::vec3 scale;
+    glm::quat rotation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    glm::decompose( model, scale, rotation, translation, skew, perspective );
+
+    return translation;
 }
 
 void TransformComponent::setRotationToParent( const CUL::MATH::Rotation& rotation )
 {
+    m_rotation = rotation;
 }
 
 const CUL::MATH::Rotation TransformComponent::getRotationToParent() const

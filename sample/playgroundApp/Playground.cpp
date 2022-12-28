@@ -136,7 +136,11 @@ void Playground::timer()
     static CUL::MATH::Rotation rotation;
     rotation.reset();
 
-    //rotation.Yaw = g_angle;
+    rotation.Yaw = g_angle;
+
+    m_quadLegacy->getTransform()->setRotationToParent( rotation );
+    m_quadModern->getTransform()->setRotationToParent( rotation );
+
     //g_blueTriangle->getTransform()->setRotationToParent( rotation );
 
 
