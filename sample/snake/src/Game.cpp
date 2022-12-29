@@ -115,24 +115,13 @@ void Game::afterInit()
                 LOGLW::Quad* quad = m_oglw->createQuad( nullptr );
                 quad->getTransform()->setPivot( { 0.5f, 0.5f, 0.f } );
                 quad->getTransform()->setSize( { size, size, size } );
-                quad->getTransform()->setWorldPosition( xOffset + col * ( size + offset ), yOffset + row * ( size + offset ), 0.f );
+ 
+                quad->getTransform()->setPositionToParent( { xOffset + col * ( size + offset ), yOffset + row * ( size + offset ), 0.f } );
                 m_background[row][col] = quad;
                 ++index;
             }
         }
     }
-
-    //m_testQuadUp = m_oglw->createQuad( nullptr );
-    //m_testQuadUp->getTransform()->setPivot( { 0.5f, 0.f, 0.f } );
-    //m_testQuadUp->getTransform()->setSize( { size, size, size } );
-    //m_testQuadUp->getTransform()->setWorldPosition( 0.f, 0.0f, 200.f );
-    //m_testQuadUp->setColor( CUL::Graphics::ColorE::GREEN );
-
-    //m_testQuadDown = m_oglw->createQuad( nullptr );
-    //m_testQuadDown->getTransform()->setPivot( { 0.5f, 1.f, 0.f } );
-    //m_testQuadDown->getTransform()->setSize( { size, size, size } );
-    //m_testQuadDown->getTransform()->setWorldPosition( 0.0f, 0.f, 200.f );
-    //m_testQuadDown->setColor( CUL::Graphics::ColorE::RED );
 
     m_boardInitializedB = true;
     m_boardInitialized.notify_one();
