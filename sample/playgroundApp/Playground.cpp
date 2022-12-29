@@ -85,6 +85,7 @@ void Playground::afterInit()
     const float z = 26.f;
     const float x = 1.f;
     const float yTriangle = -1.f;
+    const float yCube = -3.f;
 
     m_triangleModern = m_engine->createTriangle( nullptr, false );
     m_triangleModern->setColor( LOGLW::ColorE::RED );
@@ -95,21 +96,6 @@ void Playground::afterInit()
     m_triangleLegacy->setColor( LOGLW::ColorE::BLUE );
     m_triangleLegacy->getTransform()->setPositionAbsolute( { x, yTriangle, z } );
     m_triangleLegacy->setName( "m_triangleLegacy" );
-
-    g_redTriangle = m_engine->getObjectFactory()->createTriangle( values, LOGLW::ColorE::RED );
-    g_redTriangle->setName( "g_redTriangle" );
-
-    g_yellowTriangle = m_engine->getObjectFactory()->createTriangle( values, LOGLW::ColorE::YELLOW );
-    g_yellowTriangle->setName( "g_yellowTriangle" );
-
-    g_triangle00 = m_engine->getObjectFactory()->createTriangle( values, LOGLW::ColorE::WHITE );
-    g_triangle00->setName( "g_triangle00" );
-    g_triangle00->getTransform()->setPivot( { 0.5f, 0.f, 0.f } );
-
-    g_triangle01 = m_engine->getObjectFactory()->createTriangle( values, LOGLW::ColorE::RED, true );
-    g_triangle01->getTransform()->setPivot( { 0.5f, 0.f, 0.f } );
-    g_triangle01->setName( "g_triangle01" );
-
     
 
     m_quadModern = m_engine->createQuad( nullptr );
@@ -128,13 +114,13 @@ void Playground::afterInit()
     g_sprite->setName( "g_sprite" );
     g_sprite->getTransform()->setPositionToParent( { -0.2f, 0.f, 4.f } );
 
-    //m_cube00 = m_engine->createCube();
-    //m_cube00->getTransform()->setPositionAbsolute( { 4.f, 2.f, 16.f } );
-    //m_cube00->setColor( CUL::Graphics::ColorE::BLUE );
+    m_cubeModern = m_engine->createCube( false );
+    m_cubeModern->getTransform()->setPositionAbsolute( { -x, yCube, z } );
+    m_cubeModern->setColor( CUL::Graphics::ColorE::BLUE );
 
-    //m_cube01 = m_engine->createCube( true );
-    //m_cube01->getTransform()->setPositionAbsolute( { 4.f, -2.f, 16.f } );
-    //m_cube01->setColor( CUL::Graphics::ColorE::RED );
+    m_cubeLegacy = m_engine->createCube( true );
+    m_cubeLegacy->getTransform()->setPositionAbsolute( { x, yCube, z } );
+    m_cubeLegacy->setColor( CUL::Graphics::ColorE::RED );
 
 
     m_timer->runEveryPeriod( [this] (){timer(); }, 40000 );
@@ -155,56 +141,10 @@ void Playground::timer()
     m_triangleModern->getTransform()->setRotationToParent( rotation );
     m_triangleLegacy->getTransform()->setRotationToParent( rotation );
 
-    //m_triangleModern->getTransform()->setRotationToParent( rotation );
-
-
-    //rotation.reset();
-    //rotation.Yaw = g_angle + ang180;
-    //m_triangleLegacy->getTransform()->setRotationToParent( rotation );
-
-    //rotation.reset();
-    //rotation.Yaw = g_angle;
-    //g_redTriangle->getTransform()->setRotationToParent( rotation );
-
-    //rotation.reset();
-    //rotation.Yaw = g_angle + ang180;
-    //g_yellowTriangle->getTransform()->setRotationToParent( rotation );
-
-    //auto oldPosWhiteBlue = m_triangleModern->getTransform()->getPositionAbsolut();
-    //oldPosWhiteBlue.z = blueTriangleZ;
-    //oldPosWhiteBlue.x = -16.f;
-    //m_triangleModern->getTransform()->setPositionAbsolute( oldPosWhiteBlue );
-    //oldPosWhiteBlue.x = 0.f;
-    //m_triangleLegacy->getTransform()->setPositionAbsolute( oldPosWhiteBlue );
-
-    //auto oldPosRedYellow = g_redTriangle->getTransform()->getPositionAbsolut();
-    //oldPosRedYellow.z = redTriangleZ;
-    //oldPosRedYellow.x = -16.f;
-    //g_redTriangle->getTransform()->setPositionToParent( oldPosRedYellow );
-
-    //oldPosRedYellow.x = 0.f;
-    //g_yellowTriangle->getTransform()->setPositionAbsolute( oldPosRedYellow );
-
-    //g_triangle00->getTransform()->setPositionAbsolute( { 0.f, 0.f, 12.f } );
-    //g_triangle01->getTransform()->setPositionAbsolute( { 0.f, -4.f, 12.f } );
-
-    //const LOGLW::TransformComponent::Pos pos = { 0.f, 80.f * std::sin( g_angle.getRad() ), 40.f * std::cos( g_angle.getRad() ) };
-    //g_sprite->getTransform()->setPositionAbsolute( pos.toGlmVec() );
-
-
-    //m_cubeRotation.Pitch += g_angle * 0.001f;
-    //m_cube00->getTransform()->setRotationAbsolute( m_cubeRotation );
-    //m_cube01->getTransform()->setRotationAbsolute( m_cubeRotation );
-
-    //m_triangleRotation.Roll += g_angle * 0.001f;
-    //m_quadModern->getTransform()->setRotationToParent( m_triangleRotation );
-    //m_quadLegacy->getTransform()->setRotationToParent( m_triangleRotation );
-
-    //const auto amp = 8.f;
-    //const auto frac = 0.8f;
-
-    //blueTriangleZ = amp + std::sin( g_angle.getRad() * frac ) * amp;
-    //redTriangleZ = amp + std::cos( g_angle.getRad() * frac ) * amp;
+    rotation.reset();
+    rotation.Roll = g_angle;
+    m_cubeModern->getTransform()->setRotationToParent( rotation );
+    m_cubeLegacy->getTransform()->setRotationToParent( rotation );
 
     m_engine->getLoger()->log( "Tick!" );
 

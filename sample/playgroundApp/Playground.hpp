@@ -56,11 +56,6 @@ private:
 	LOGLW::Triangle* m_triangleModern = nullptr;
 	LOGLW::Triangle* m_triangleLegacy = nullptr;
 
-	LOGLW::Triangle* g_redTriangle = nullptr;
-	LOGLW::Triangle* g_yellowTriangle = nullptr;
-
-	LOGLW::Triangle* g_triangle00 = nullptr;
-	LOGLW::Triangle* g_triangle01 = nullptr;
 	CUL::MATH::Rotation m_triangleRotation;
 
 	LOGLW::Quad* m_quadModern = nullptr;
@@ -70,8 +65,8 @@ private:
 	float redTriangleZ = 1.0f;
 
 	LOGLW::Sprite* g_sprite = nullptr;
-	LOGLW::Cube* m_cube00 = nullptr;
-	LOGLW::Cube* m_cube01 = nullptr;
+	LOGLW::Cube* m_cubeModern = nullptr;
+	LOGLW::Cube* m_cubeLegacy = nullptr;
 
 	CUL::MATH::Angle g_angle;
 	CUL::MATH::Point g_cubePos;
