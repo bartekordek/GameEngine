@@ -82,11 +82,19 @@ void Playground::afterInit()
     values[1] = LOGLW::PointType{ -size, -size, 0.0f };
     values[2] = LOGLW::PointType{ -size, size, 0.0f };
 
-    g_blueTriangle = m_engine->getObjectFactory()->createTriangle( values, LOGLW::ColorE::BLUE );
-    g_blueTriangle->setName( "g_blueTriangle" );
+    const float z = 26.f;
+    const float x = 1.f;
+    const float yTriangle = -1.f;
 
-    g_whiteTriangle = m_engine->getObjectFactory()->createTriangle( values, LOGLW::ColorE::WHITE );
-    g_whiteTriangle->setName( "g_whiteTriangle" );
+    m_triangleModern = m_engine->createTriangle( nullptr, false );
+    m_triangleModern->setColor( LOGLW::ColorE::RED );
+    m_triangleModern->getTransform()->setPositionAbsolute( { -x, yTriangle, z } );
+    m_triangleModern->setName( "m_triangleModern" );
+
+    m_triangleLegacy = m_engine->createTriangle( nullptr, true );
+    m_triangleLegacy->setColor( LOGLW::ColorE::BLUE );
+    m_triangleLegacy->getTransform()->setPositionAbsolute( { x, yTriangle, z } );
+    m_triangleLegacy->setName( "m_triangleLegacy" );
 
     g_redTriangle = m_engine->getObjectFactory()->createTriangle( values, LOGLW::ColorE::RED );
     g_redTriangle->setName( "g_redTriangle" );
@@ -102,18 +110,19 @@ void Playground::afterInit()
     g_triangle01->getTransform()->setPivot( { 0.5f, 0.f, 0.f } );
     g_triangle01->setName( "g_triangle01" );
 
-    const float z = 26.f;
+    
 
     m_quadModern = m_engine->createQuad( nullptr );
     m_quadModern->setName( "m_quadModern" );
     m_quadModern->setColor( CUL::Graphics::ColorE::RED );
     m_quadModern->getTransform()->setPositionAbsolute( { 0.f, 4.f, z } );
-    m_quadModern->getTransform()->setPivot( { 0.5f, 0.5f, 0.f } );
+    m_quadModern->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
 
     m_quadLegacy = m_engine->createQuad( nullptr, true );
     m_quadLegacy->setName( "m_quadLegacy" );
     m_quadLegacy->setColor( CUL::Graphics::ColorE::BLUE );
     m_quadLegacy->getTransform()->setPositionAbsolute( { 0.f, 2.f, z } );
+    m_quadLegacy->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
 
     g_sprite = m_engine->getObjectFactory()->createSprite( "../../media/texture.png" );
     g_sprite->setName( "g_sprite" );
@@ -141,12 +150,17 @@ void Playground::timer()
     m_quadLegacy->getTransform()->setRotationToParent( rotation );
     m_quadModern->getTransform()->setRotationToParent( rotation );
 
-    //g_blueTriangle->getTransform()->setRotationToParent( rotation );
+    rotation.reset();
+    rotation.Pitch = g_angle;
+    m_triangleModern->getTransform()->setRotationToParent( rotation );
+    m_triangleLegacy->getTransform()->setRotationToParent( rotation );
+
+    //m_triangleModern->getTransform()->setRotationToParent( rotation );
 
 
     //rotation.reset();
     //rotation.Yaw = g_angle + ang180;
-    //g_whiteTriangle->getTransform()->setRotationToParent( rotation );
+    //m_triangleLegacy->getTransform()->setRotationToParent( rotation );
 
     //rotation.reset();
     //rotation.Yaw = g_angle;
@@ -156,12 +170,12 @@ void Playground::timer()
     //rotation.Yaw = g_angle + ang180;
     //g_yellowTriangle->getTransform()->setRotationToParent( rotation );
 
-    //auto oldPosWhiteBlue = g_blueTriangle->getTransform()->getPositionAbsolut();
+    //auto oldPosWhiteBlue = m_triangleModern->getTransform()->getPositionAbsolut();
     //oldPosWhiteBlue.z = blueTriangleZ;
     //oldPosWhiteBlue.x = -16.f;
-    //g_blueTriangle->getTransform()->setPositionAbsolute( oldPosWhiteBlue );
+    //m_triangleModern->getTransform()->setPositionAbsolute( oldPosWhiteBlue );
     //oldPosWhiteBlue.x = 0.f;
-    //g_whiteTriangle->getTransform()->setPositionAbsolute( oldPosWhiteBlue );
+    //m_triangleLegacy->getTransform()->setPositionAbsolute( oldPosWhiteBlue );
 
     //auto oldPosRedYellow = g_redTriangle->getTransform()->getPositionAbsolut();
     //oldPosRedYellow.z = redTriangleZ;
@@ -186,8 +200,6 @@ void Playground::timer()
     //m_quadModern->getTransform()->setRotationToParent( m_triangleRotation );
     //m_quadLegacy->getTransform()->setRotationToParent( m_triangleRotation );
 
-    //g_angle += 0.01f;
-
     //const auto amp = 8.f;
     //const auto frac = 0.8f;
 
@@ -195,6 +207,8 @@ void Playground::timer()
     //redTriangleZ = amp + std::cos( g_angle.getRad() * frac ) * amp;
 
     m_engine->getLoger()->log( "Tick!" );
+
+    g_angle += 0.01f;
 }
 
 void Playground::onMouseEvent( const SDL2W::MouseData& mouseData )

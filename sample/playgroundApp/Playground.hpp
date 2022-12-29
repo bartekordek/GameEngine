@@ -53,8 +53,8 @@ private:
 	SDL2W::IWindow* m_mainWindow = nullptr;
 	LOGLW::Camera* m_camera = nullptr;
 
-	LOGLW::Triangle* g_blueTriangle = nullptr;
-	LOGLW::Triangle* g_whiteTriangle = nullptr;
+	LOGLW::Triangle* m_triangleModern = nullptr;
+	LOGLW::Triangle* m_triangleLegacy = nullptr;
 
 	LOGLW::Triangle* g_redTriangle = nullptr;
 	LOGLW::Triangle* g_yellowTriangle = nullptr;

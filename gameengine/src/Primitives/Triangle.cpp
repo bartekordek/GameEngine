@@ -90,17 +90,7 @@ void Triangle::render()
 {
     if( getDevice()->isLegacy() || getForceLegacy() )
     {
-        getDevice()->matrixStackPush();
-
-        const auto position = m_transformComponent->getPositionAbsolut();
-        const auto rotation = m_transformComponent->getRotationAbsolute();
-
-        getDevice()->translate( position );
-
-        getDevice()->rotate( rotation );
-        getDevice()->draw( m_triangleMath, m_color );
-
-        getDevice()->matrixStackPop();
+        getDevice()->draw( m_triangleMath, m_transformComponent->getModel(), m_color );
     }
     else
     {
