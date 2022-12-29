@@ -28,7 +28,7 @@ jobs:
       run: gcc -v
 
     - name: Update gcc
-      run: sudo apt install g++ g++-8 g++-9 gcc && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 800 --slave /usr/bin/g++ g++ /usr/bin/g++-9
+      run: sudo apt install g++ g++-9 gcc && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 800 --slave /usr/bin/g++ g++ /usr/bin/g++-9
 
     - name: Check env 1
       run: gcc -v
