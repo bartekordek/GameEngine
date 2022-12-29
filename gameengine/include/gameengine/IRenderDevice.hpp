@@ -326,6 +326,9 @@ public:
 
     virtual void draw( const Point& position, const ColorS& color ) = 0;
 
+    virtual void draw( const QuadCUL& quad, const glm::mat4& model, const ColorS& color ) = 0;
+    virtual void draw( const TriangleCUL& triangle, const glm::mat4& model, const ColorS& color ) = 0;
+
     virtual void translate( const Point& point ) = 0;
     virtual void translate( const float x, const float y, const float z ) = 0;
 

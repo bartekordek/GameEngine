@@ -659,6 +659,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::mat4& val )
     }
 
     // log( "setUniformValue" );
+    // //https://stackoverflow.com/questions/17630313/rotation-around-a-pivot-point-with-opengl
     glUniformMatrix4fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
 }
 
@@ -795,8 +796,8 @@ void DeviceOpenGL::rotate( const CUL::MATH::Rotation& rotation )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    glRotatef( rotation.Yaw.getDeg(), 0.f, -1.f, 0.f );
     glRotatef( rotation.Pitch.getDeg(), 1.f, 0.f, 0.f );
+    glRotatef( rotation.Yaw.getDeg(), 0.f, -1.f, 0.f );
     glRotatef( rotation.Roll.getDeg(), 0.f, 0.f, 1.f );
 }
 
@@ -1007,9 +1008,31 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const Point& translation, const CU
 {
     matrixStackPush();
 
+    //https://stackoverflow.com/questions/17630313/rotation-around-a-pivot-point-with-opengl
+
     translate( translation );
     rotate( rotation );
     draw( quad, color );
+
+    matrixStackPop();
+}
+
+void DeviceOpenGL::draw( const QuadCUL& quad, const glm::mat4& model, const ColorS& color )
+{
+    matrixStackPush();
+
+    glMultMatrixf( glm::value_ptr( model ) );
+    draw( quad, color );
+
+    matrixStackPop();
+}
+
+void DeviceOpenGL::draw( const TriangleCUL& triangle, const glm::mat4& model, const ColorS& color )
+{
+    matrixStackPush();
+
+    glMultMatrixf( glm::value_ptr( model ) );
+    draw( triangle, color );
 
     matrixStackPop();
 }
