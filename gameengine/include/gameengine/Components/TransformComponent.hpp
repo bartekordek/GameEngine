@@ -55,6 +55,9 @@ public:
     CUL::GUTILS::SimpleDelegate changeSizeDelegate;
     void decomposeAndLogData( const glm::mat4& data ) const;
 
+    const glm::vec3& getScale() const;
+    void setScale( const glm::vec3& scale );
+
     ~TransformComponent();
 
 protected:
@@ -66,6 +69,7 @@ private:
 
     Pos m_size;
     glm::vec3 m_pos = { 0.f, 0.f, 0.f };
+    glm::vec3 m_scale = { 1.f, 1.f, 0.f };
     CUL::MATH::Rotation m_rotation;
     Pos m_pivot = Pos( 0.5f, 0.5f, 0.0f );
     Pos m_pivotReal = { 0.f, 0.f, 0.f };

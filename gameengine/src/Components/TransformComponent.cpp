@@ -37,16 +37,7 @@ void TransformComponent::setPositionAbsolute( const glm::vec3& position )
 
 const glm::vec3 TransformComponent::getPositionAbsolut() const
 {
-    const auto model = getModel();
-
-    glm::vec3 scale;
-    glm::quat rotation;
-    glm::vec3 translation;
-    glm::vec3 skew;
-    glm::vec4 perspective;
-    glm::decompose( model, scale, rotation, translation, skew, perspective );
-
-    return translation;
+    return m_pos - m_pivotReal.toGlmVec();
 }
 
 void TransformComponent::setRotationToParent( const CUL::MATH::Rotation& rotation )
@@ -56,7 +47,7 @@ void TransformComponent::setRotationToParent( const CUL::MATH::Rotation& rotatio
 
 const CUL::MATH::Rotation TransformComponent::getRotationToParent() const
 {
-    return CUL::MATH::Rotation();
+    return m_rotation;
 }
 
 void TransformComponent::setRotationAbsolute( const CUL::MATH::Rotation& rotation )
@@ -70,16 +61,7 @@ void TransformComponent::setRotationAbsolute( const CUL::MATH::Rotation& rotatio
 
 const CUL::MATH::Rotation TransformComponent::getRotationAbsolute() const
 {
-    const auto parent = m_owner.getParent();
-    if( parent )
-    {
-        const auto parentRotation = parent->getTransform()->getRotationAbsolute();
-        return parentRotation + m_rotation;
-    }
-    else
-    {
-        return m_rotation;
-    }
+    return m_rotation;
 }
 
 const glm::mat4 TransformComponent::getModel() const
@@ -89,7 +71,13 @@ const glm::mat4 TransformComponent::getModel() const
     glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), pivotReal );
     glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), -pivotReal );
 
-    glm::mat4 model = getTranslation() * trans_to_pivot * getRotation() * trans_from_pivot;
+    glm::mat4 rotationMat = getRotation();
+
+    glm::mat4 scale = glm::scale( glm::mat4( 1.f ), m_scale );
+
+    glm::mat4 model = getTranslation() * trans_to_pivot * rotationMat * trans_from_pivot * scale;
+
+   
 
     IObject* parent = m_owner.getParent();
     if( parent )
@@ -114,8 +102,32 @@ glm::mat4 TransformComponent::getTranslation() const
 
 glm::mat4 TransformComponent::getRotation() const
 {
-    glm::mat4 result = glm::toMat4( m_rotation.toQuat() );
-    return result;
+    glm::mat4 model( 1.f );
+
+    const CUL::MATH::Rotation& rotation = m_rotation;
+    // PITCH - X
+// YAW - Y
+// ROLL - Z
+
+
+        // Pitch
+    {
+        glm::vec3 normal( 1.f, 0.f, 0.f );
+        model = glm::rotate( model, rotation.Pitch.getRad(), normal );
+    }
+    // Yaw
+    {
+        glm::vec3 normal( 0.f, 1.f, 0.f );
+        model = glm::rotate( model, -rotation.Yaw.getRad(), normal );
+    }
+
+    // Roll
+    {
+        glm::vec3 normal( 0.f, 0.f, 1.f );
+        model = glm::rotate( model, rotation.Roll.getRad(), normal );
+    }
+
+    return model;
 }
 
 glm::vec3 TransformComponent::getPivotReal() const
@@ -184,6 +196,17 @@ void TransformComponent::decomposeAndLogData( const glm::mat4& data ) const
     const auto name = m_owner.getName();
 
     CUL::LOG::LOG_CONTAINER::getLogger()->log( name + ", translation: " + translationString + ", rotation: " + rotationString );
+}
+
+const glm::vec3& TransformComponent::getScale() const
+{
+    return m_scale;
+}
+
+void TransformComponent::setScale( const glm::vec3& scale )
+{
+    m_scale = scale;
+    changeSizeDelegate.execute();
 }
 
 TransformComponent::~TransformComponent()
