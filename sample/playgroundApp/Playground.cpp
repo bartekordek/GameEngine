@@ -103,12 +103,14 @@ void Playground::afterInit()
     m_quadModern->setColor( CUL::Graphics::ColorE::RED );
     m_quadModern->getTransform()->setPositionAbsolute( { 0.f, 4.f, z } );
     m_quadModern->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
+    m_quadModern->getTransform()->setScale( { 1.f, 1.f, 0.f } );
 
     m_quadLegacy = m_engine->createQuad( nullptr, true );
     m_quadLegacy->setName( "m_quadLegacy" );
     m_quadLegacy->setColor( CUL::Graphics::ColorE::BLUE );
     m_quadLegacy->getTransform()->setPositionAbsolute( { 0.f, 2.f, z } );
     m_quadLegacy->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
+    m_quadLegacy->getTransform()->setScale( { 1.f, 1.f, 0.f } );
 
     g_sprite = m_engine->getObjectFactory()->createSprite( "../../media/texture.png" );
     g_sprite->setName( "g_sprite" );
@@ -132,9 +134,12 @@ void Playground::timer()
     rotation.reset();
 
     rotation.Yaw = g_angle;
-
+    const float t = ( 1.f + std::sin( m_time ) ) / 2.f;
+    const float ampplitude = t * 0.9f + 0.1f;
     m_quadLegacy->getTransform()->setRotationToParent( rotation );
+    m_quadLegacy->getTransform()->setScale( { ampplitude, ampplitude, 0.f } );
     m_quadModern->getTransform()->setRotationToParent( rotation );
+    m_quadModern->getTransform()->setScale( { ampplitude, ampplitude, 0.f } );
 
     rotation.reset();
     rotation.Pitch = g_angle;
@@ -149,6 +154,7 @@ void Playground::timer()
     m_engine->getLoger()->log( "Tick!" );
 
     g_angle += 0.01f;
+    m_time += 0.01f;
 }
 
 void Playground::onMouseEvent( const SDL2W::MouseData& mouseData )

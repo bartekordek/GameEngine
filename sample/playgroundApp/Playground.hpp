@@ -75,4 +75,6 @@ private:
 	glm::vec3 g_eyePos;
 
 	std::unique_ptr<CUL::ITimer> m_timer;
+
+	float m_time = 0.f;
 };
