@@ -1,4 +1,5 @@
 #include "DeviceOpenGL.hpp"
+
 #include "gameengine/Camera.hpp"
 #include "gameengine/Viewport.hpp"
 

@@ -26,10 +26,10 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     const float size = 2.f;
     m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
 
-    m_model.data[0] = { size, size, 0.f };
-    m_model.data[1] = { size, 0.f, 0.f };
-    m_model.data[2] = { 0.f, 0.f, 0.f };
-    m_model.data[3] = { 0.f, size, 0.f };
+    m_shape.data[0] = { size, size, 0.f };
+    m_shape.data[1] = { size, 0.f, 0.f };
+    m_shape.data[2] = { 0.f, 0.f, 0.f };
+    m_shape.data[3] = { 0.f, size, 0.f };
 
 
     if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
@@ -81,7 +81,7 @@ void Quad::createBuffers()
         1, 2, 3   // second Triangle
     };
 
-    vboData.vertices = m_model.toVectorOfFloat();
+    vboData.vertices = m_shape.toVectorOfFloat();
 
     vboData.containsColorData = false;
     vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
@@ -122,7 +122,7 @@ void Quad::render()
 
     if( getDevice()->isLegacy() || getForceLegacy() )
     {
-        getDevice()->draw( m_model, m_transformComponent->getModel(), m_color );
+        getDevice()->draw( m_shape, m_transformComponent->getModel(), m_color );
     }
     else
     {

@@ -75,7 +75,14 @@ const glm::mat4 TransformComponent::getModel() const
 
     glm::mat4 scale = glm::scale( glm::mat4( 1.f ), m_scale );
 
-    glm::mat4 model = getTranslation() * trans_to_pivot * rotationMat * trans_from_pivot * scale;
+    glm::mat4 model = getTranslation();
+
+    model = model * trans_to_pivot;
+    model = model * rotationMat;
+    model = model * trans_from_pivot;
+    model = model * scale;
+
+    // = getTranslation() * trans_to_pivot * rotationMat * trans_from_pivot * scale;
 
    
 
@@ -151,7 +158,7 @@ void TransformComponent::setPivot( const TransformComponent::Pos& pivot )
     m_pivotReal = m_size.toGlmVec() * m_pivot.toGlmVec();
 }
 
-void TransformComponent::addOnChangeCallback(const String& callbackName, const std::function<void( const Pos& position )> callback)
+void TransformComponent::addOnChangeCallback(const String& callbackName, const std::function<void( const glm::mat4& model )> callback)
 {
     auto it = m_onChangeCallbacks.find(callbackName);
     if( it == m_onChangeCallbacks.end() )

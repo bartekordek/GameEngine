@@ -98,27 +98,27 @@ void Playground::afterInit()
     m_triangleLegacy->setName( "m_triangleLegacy" );
     
 
-    m_quadModern = m_engine->createQuad( nullptr );
-    m_quadModern->setName( "m_quadModern" );
-    m_quadModern->setColor( CUL::Graphics::ColorE::RED );
-    m_quadModern->getTransform()->setPositionAbsolute( { 0.f, 4.f, z } );
-    m_quadModern->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
-    m_quadModern->getTransform()->setScale( { 1.f, 1.f, 0.f } );
+    //m_quadModern = m_engine->createQuad( nullptr );
+    //m_quadModern->setName( "m_quadModern" );
+    //m_quadModern->setColor( CUL::Graphics::ColorE::RED );
+    //m_quadModern->getTransform()->setPositionAbsolute( { 0.f, 4.f, z } );
+    //m_quadModern->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
+    //m_quadModern->getTransform()->setScale( { 1.f, 1.f, 0.f } );
 
-    m_quadLegacy = m_engine->createQuad( nullptr, true );
-    m_quadLegacy->setName( "m_quadLegacy" );
-    m_quadLegacy->setColor( CUL::Graphics::ColorE::BLUE );
-    m_quadLegacy->getTransform()->setPositionAbsolute( { 0.f, 2.f, z } );
-    m_quadLegacy->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
-    m_quadLegacy->getTransform()->setScale( { 1.f, 1.f, 0.f } );
+    //m_quadLegacy = m_engine->createQuad( nullptr, true );
+    //m_quadLegacy->setName( "m_quadLegacy" );
+    //m_quadLegacy->setColor( CUL::Graphics::ColorE::BLUE );
+    //m_quadLegacy->getTransform()->setPositionAbsolute( { 0.f, 2.f, z } );
+    //m_quadLegacy->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
+    //m_quadLegacy->getTransform()->setScale( { 1.f, 1.f, 0.f } );
 
     g_sprite = m_engine->getObjectFactory()->createSprite( "../../media/texture.png" );
     g_sprite->setName( "g_sprite" );
     g_sprite->getTransform()->setPositionToParent( { -0.2f, 0.f, 4.f } );
 
-    m_cubeModern = m_engine->createCube( false );
-    m_cubeModern->getTransform()->setPositionAbsolute( { -x, yCube, z } );
-    m_cubeModern->setColor( CUL::Graphics::ColorE::BLUE );
+    //m_cubeModern = m_engine->createCube( false );
+    //m_cubeModern->getTransform()->setPositionAbsolute( { -x, yCube, z } );
+    //m_cubeModern->setColor( CUL::Graphics::ColorE::BLUE );
 
     m_cubeLegacy = m_engine->createCube( true );
     m_cubeLegacy->getTransform()->setPositionAbsolute( { x, yCube, z } );
@@ -133,27 +133,42 @@ void Playground::timer()
     static CUL::MATH::Rotation rotation;
     rotation.reset();
 
-    rotation.Yaw = g_angle;
+    rotation.Yaw = m_angle;
     const float t = ( 1.f + std::sin( m_time ) ) / 2.f;
     const float ampplitude = t * 0.9f + 0.1f;
-    m_quadLegacy->getTransform()->setRotationToParent( rotation );
-    m_quadLegacy->getTransform()->setScale( { ampplitude, ampplitude, 0.f } );
-    m_quadModern->getTransform()->setRotationToParent( rotation );
-    m_quadModern->getTransform()->setScale( { ampplitude, ampplitude, 0.f } );
+
+    if( m_quadLegacy )
+    {
+        m_quadLegacy->getTransform()->setRotationToParent( rotation );
+        m_quadLegacy->getTransform()->setScale( { ampplitude, ampplitude, 0.f } );
+    }
+
+    if( m_quadModern )
+    {
+        m_quadModern->getTransform()->setRotationToParent( rotation );
+        m_quadModern->getTransform()->setScale( { ampplitude, ampplitude, 0.f } );
+    }
 
     rotation.reset();
-    rotation.Pitch = g_angle;
+    rotation.Pitch = m_angle;
     m_triangleModern->getTransform()->setRotationToParent( rotation );
     m_triangleLegacy->getTransform()->setRotationToParent( rotation );
 
     rotation.reset();
-    rotation.Roll = g_angle;
-    m_cubeModern->getTransform()->setRotationToParent( rotation );
-    m_cubeLegacy->getTransform()->setRotationToParent( rotation );
+    rotation.Roll = m_angle;
+    if( m_cubeModern )
+    {
+        m_cubeModern->getTransform()->setRotationToParent( rotation );
+    }
+
+    if( m_cubeLegacy )
+    {
+        m_cubeLegacy->getTransform()->setRotationToParent( rotation );
+    }
 
     m_engine->getLoger()->log( "Tick!" );
 
-    g_angle += 0.01f;
+    m_angle += 0.01f;
     m_time += 0.01f;
 }
 

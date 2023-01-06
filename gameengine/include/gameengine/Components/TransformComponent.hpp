@@ -49,7 +49,7 @@ public:
     glm::vec3 getPivotReal() const;
     glm::vec3 getPivotNormalized();
 
-    void addOnChangeCallback( const String& callbackName, const std::function<void( const Pos& position )> callback );
+    void addOnChangeCallback( const String& callbackName, const std::function<void( const glm::mat4& model )> callback );
     void removeCallback( const String& callbackName );
 
     CUL::GUTILS::SimpleDelegate changeSizeDelegate;
@@ -69,12 +69,12 @@ private:
 
     Pos m_size;
     glm::vec3 m_pos = { 0.f, 0.f, 0.f };
-    glm::vec3 m_scale = { 1.f, 1.f, 0.f };
+    glm::vec3 m_scale = { 1.f, 1.f, 1.f };
     CUL::MATH::Rotation m_rotation;
     Pos m_pivot = Pos( 0.5f, 0.5f, 0.0f );
     Pos m_pivotReal = { 0.f, 0.f, 0.f };
 
-    std::map<String, std::function<void( const Pos& position )> > m_onChangeCallbacks;
+    std::map<String, std::function<void( const glm::mat4 )> > m_onChangeCallbacks;
 
     // Deleted:
     TransformComponent( const TransformComponent& value ) = delete;

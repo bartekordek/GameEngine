@@ -34,7 +34,9 @@ private:
     void release();
     void deleteBuffers();
 
-    CUL::MATH::Primitives::Quad m_model;
+    CUL::MATH::Primitives::Quad m_shape;
+    glm::mat4 m_model;
+
     TransformComponent* m_transformComponent = nullptr;
     std::atomic<bool> m_recreateBuffers = false;
     class Program* m_shaderProgram = nullptr;

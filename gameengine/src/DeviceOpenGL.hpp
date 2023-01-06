@@ -136,8 +136,8 @@ private:
 
     void draw( const Point& position, const ColorS& color ) override;
 
-    void draw( const QuadCUL& quad, const glm::mat4& model, const ColorS& color ) override;
     void draw( const TriangleCUL& triangle, const glm::mat4& model, const ColorS& color ) override;
+    void draw( const QuadCUL& quad, const glm::mat4& model, const ColorS& color ) override;
 
     void assertOnProgramError( unsigned programId, unsigned val );
     void setDepthTest( const bool enabled ) override;

@@ -68,7 +68,7 @@ private:
 	LOGLW::Cube* m_cubeModern = nullptr;
 	LOGLW::Cube* m_cubeLegacy = nullptr;
 
-	CUL::MATH::Angle g_angle;
+	CUL::MATH::Angle m_angle;
 	CUL::MATH::Point g_cubePos;
 	CUL::MATH::Rotation m_cubeRotation;
 

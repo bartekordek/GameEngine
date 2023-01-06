@@ -40,8 +40,6 @@ private:
     void createPlaceHolders();
 
     void render() override;
-    void renderModern();
-    void renderLegacy();
 
     void release();
 

@@ -69,6 +69,7 @@ void Cube::createPlaceHolders()
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
         transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, 1.f ) );
+        //transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, 3.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
         quad->setName( "Wall00" );
@@ -101,7 +102,7 @@ void Cube::createPlaceHolders()
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;
         rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-        transformCmp->setRotationAbsolute( rotation );
+        transformCmp->setRotationToParent( rotation );
         quad->setName( "Wall02" );
         quad->setColor( m_color );
         m_walls[2] = quad;
@@ -118,7 +119,7 @@ void Cube::createPlaceHolders()
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;
         rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-        transformCmp->setRotationAbsolute( rotation );
+        transformCmp->setRotationToParent( rotation );
         quad->setName( "Wall03" );
         quad->setColor( m_color );
         m_walls[3] = quad;
@@ -135,7 +136,7 @@ void Cube::createPlaceHolders()
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;
         rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-        transformCmp->setRotationAbsolute( rotation );
+        transformCmp->setRotationToParent( rotation );
         quad->setName( "Wall04" );
         quad->setColor( m_color );
         m_walls[4] = quad;
@@ -152,7 +153,7 @@ void Cube::createPlaceHolders()
         transformCmp->setPivot( pivot );
         CUL::MATH::Rotation rotation;
         rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-        transformCmp->setRotationAbsolute( rotation );
+        transformCmp->setRotationToParent( rotation );
         quad->setName( "Wall05" );
         quad->setColor( m_color );
         m_walls[5] = quad;
@@ -161,35 +162,11 @@ void Cube::createPlaceHolders()
 
 void Cube::render()
 {
-    if( getDevice()->isLegacy() || getForceLegacy() )
-    {
-        //getDevice()->matrixStackPush();
-
-        //const auto position = getTransform()->getWorldPosition();
-        //const auto rotation = getTransform()->getWorldRotation();
-
-        //getDevice()->translate( position );
-        //getDevice()->rotate( rotation );
-    }
-
     const auto children = getChildren();
     for( const auto child : children )
     {
         child->render();
     }
-
-    if( getDevice()->isLegacy() )
-    {
-        //getDevice()->matrixStackPop();
-    }
-}
-
-void Cube::renderModern()
-{
-}
-
-void Cube::renderLegacy()
-{
 }
 
 Cube::~Cube()
