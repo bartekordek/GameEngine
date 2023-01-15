@@ -102,7 +102,8 @@ const glm::mat4 TransformComponent::getModel() const
 glm::mat4 TransformComponent::getTranslation() const
 {
     glm::mat4 result( 1.f );
-    result = glm::translate( result, m_pos - m_pivotReal.toGlmVec() );
+    auto pivotTimesScale = m_pivotReal.toGlmVec() * m_scale;
+    result = glm::translate( result, m_pos - pivotTimesScale );
 
     return result;
 }

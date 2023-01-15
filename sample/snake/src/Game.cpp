@@ -114,7 +114,8 @@ void Game::afterInit()
             {
                 LOGLW::Quad* quad = m_oglw->createQuad( nullptr );
                 quad->getTransform()->setPivot( { 0.5f, 0.5f, 0.f } );
-                quad->getTransform()->setSize( { size, size, size } );
+                static float scale = 20.f;
+                quad->getTransform()->setScale( { scale, scale, scale } );
  
                 quad->getTransform()->setPositionToParent( { xOffset + col * ( size + offset ), yOffset + row * ( size + offset ), 0.f } );
                 m_background[row][col] = quad;

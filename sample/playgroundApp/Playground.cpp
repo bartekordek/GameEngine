@@ -43,7 +43,7 @@ void Playground::run()
 
     m_engine->registerKeyboardEventCallback( [this] ( const SDL2W::KeyboardState& key ){onKeyBoardEvent( key ); } );
     m_engine->registerWindowEventCallback( [this] ( const SDL2W::WindowEvent::Type type ){onWindowEvent( type ); } );
-
+    m_engine->drawOrigin( true );
     m_engine->startRenderingLoop();
 
     m_timer.reset(CUL::TimerFactory::getChronoTimer( m_engine->getLoger() ) );
@@ -64,6 +64,7 @@ void Playground::afterInit()
     m_camera->setEyePos( { 0.0f, 0.0f, 32.f } );
     m_camera->setCenter( { 0.f, 0.f, -10.f } );
     m_camera->setZNear( 1.f );
+    m_camera->setAspectRatio( 1.0f );
 
     m_mainWindow->toggleFpsCounter( true, 8u );
 
@@ -98,27 +99,27 @@ void Playground::afterInit()
     m_triangleLegacy->setName( "m_triangleLegacy" );
     
 
-    //m_quadModern = m_engine->createQuad( nullptr );
-    //m_quadModern->setName( "m_quadModern" );
-    //m_quadModern->setColor( CUL::Graphics::ColorE::RED );
-    //m_quadModern->getTransform()->setPositionAbsolute( { 0.f, 4.f, z } );
-    //m_quadModern->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
-    //m_quadModern->getTransform()->setScale( { 1.f, 1.f, 0.f } );
+    m_quadModern = m_engine->createQuad( nullptr );
+    m_quadModern->setName( "m_quadModern" );
+    m_quadModern->setColor( CUL::Graphics::ColorE::RED );
+    m_quadModern->getTransform()->setPositionAbsolute( { 0.f, 4.f, z } );
+    m_quadModern->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
+    m_quadModern->getTransform()->setScale( { 1.f, 1.f, 0.f } );
 
-    //m_quadLegacy = m_engine->createQuad( nullptr, true );
-    //m_quadLegacy->setName( "m_quadLegacy" );
-    //m_quadLegacy->setColor( CUL::Graphics::ColorE::BLUE );
-    //m_quadLegacy->getTransform()->setPositionAbsolute( { 0.f, 2.f, z } );
-    //m_quadLegacy->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
-    //m_quadLegacy->getTransform()->setScale( { 1.f, 1.f, 0.f } );
+    m_quadLegacy = m_engine->createQuad( nullptr, true );
+    m_quadLegacy->setName( "m_quadLegacy" );
+    m_quadLegacy->setColor( CUL::Graphics::ColorE::BLUE );
+    m_quadLegacy->getTransform()->setPositionAbsolute( { 0.f, 2.f, z } );
+    m_quadLegacy->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
+    m_quadLegacy->getTransform()->setScale( { 1.f, 1.f, 0.f } );
 
     g_sprite = m_engine->getObjectFactory()->createSprite( "../../media/texture.png" );
     g_sprite->setName( "g_sprite" );
     g_sprite->getTransform()->setPositionToParent( { -0.2f, 0.f, 4.f } );
 
-    //m_cubeModern = m_engine->createCube( false );
-    //m_cubeModern->getTransform()->setPositionAbsolute( { -x, yCube, z } );
-    //m_cubeModern->setColor( CUL::Graphics::ColorE::BLUE );
+    m_cubeModern = m_engine->createCube( false );
+    m_cubeModern->getTransform()->setPositionAbsolute( { -x, yCube, z } );
+    m_cubeModern->setColor( CUL::Graphics::ColorE::BLUE );
 
     m_cubeLegacy = m_engine->createCube( true );
     m_cubeLegacy->getTransform()->setPositionAbsolute( { x, yCube, z } );
@@ -139,13 +140,13 @@ void Playground::timer()
 
     if( m_quadLegacy )
     {
-        m_quadLegacy->getTransform()->setRotationToParent( rotation );
+        //m_quadLegacy->getTransform()->setRotationToParent( rotation );
         m_quadLegacy->getTransform()->setScale( { ampplitude, ampplitude, 0.f } );
     }
 
     if( m_quadModern )
     {
-        m_quadModern->getTransform()->setRotationToParent( rotation );
+        //m_quadModern->getTransform()->setRotationToParent( rotation );
         m_quadModern->getTransform()->setScale( { ampplitude, ampplitude, 0.f } );
     }
 

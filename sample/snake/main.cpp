@@ -8,7 +8,7 @@ int main( int argc, char** argv )
     cu.setArgs( argc, argv );
 
     auto width = 1280;
-    auto height = 600;
+    auto height = 800;
 
     auto valW = cu.getFlagValue( "-w" ).string();
     if( !valW.empty() )

@@ -417,12 +417,15 @@ void GameEngineConcrete::initialize()
     m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
     m_logger->log( m_glContext.glVersion );
 
+    const auto& winSize = m_activeWindow->getSize();
+    const float aspectRatio = 1.f * winSize.w / winSize.h;
+    getCamera().setAspectRatio( aspectRatio );
+
     m_sdlW->registerSDLEventObserver( this );
 
     m_renderDevice->setProjectionAndModelToIdentity();
     m_renderDevice->setTexuring( true );
 
-    const auto& winSize = m_activeWindow->getSize();
     setupProjectionData( winSize.getWidth(), winSize.getHeight() );
 
     m_viewport.pos.setXY( 0, 0 );
