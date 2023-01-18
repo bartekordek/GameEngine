@@ -82,10 +82,6 @@ const glm::mat4 TransformComponent::getModel() const
     model = model * trans_from_pivot;
     model = model * scale;
 
-    // = getTranslation() * trans_to_pivot * rotationMat * trans_from_pivot * scale;
-
-   
-
     IObject* parent = m_owner.getParent();
     if( parent )
     {
