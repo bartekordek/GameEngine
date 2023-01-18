@@ -117,9 +117,6 @@ void Quad::createShaders()
 
 void Quad::render()
 {
-    const glm::mat4 model = m_transformComponent->getModel();
-    m_transformComponent->decomposeAndLogData( model );
-
     if( getDevice()->isLegacy() || getForceLegacy() )
     {
         getDevice()->draw( m_shape, m_transformComponent->getModel(), m_color );

@@ -64,11 +64,11 @@ void Playground::afterInit()
     m_camera->setEyePos( { 0.0f, 0.0f, 32.f } );
     m_camera->setCenter( { 0.f, 0.f, -10.f } );
     m_camera->setZNear( 1.f );
-    m_camera->setAspectRatio( 1.0f );
 
     m_mainWindow->toggleFpsCounter( true, 8u );
 
     m_engine->drawDebugInfo( true );
+    m_engine->drawOrigin( true );
 
     m_engine->getDebugOverlay()->addSliderValue( "Blue Z", &blueTriangleZ, -64.0f, 128.f, [] (){
     } );
