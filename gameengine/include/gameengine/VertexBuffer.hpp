@@ -47,7 +47,7 @@ struct GAME_ENGINE_API VertexBufferData
 {
     class VertexArray* vao = nullptr;
     std::vector<float> vertices;
-    IndexBuffer::DataType indices;
+    std::vector<unsigned> indices;
     bool containsColorData = false;
     LOGLW::PrimitiveType primitiveType = LOGLW::PrimitiveType::NONE;
     bool containsTextureCoords = false;

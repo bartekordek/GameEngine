@@ -4,6 +4,7 @@
 #include "gameengine/IUtilityUser.hpp"
 
 #include "CUL/Graphics/Color.hpp"
+#include "CUL/Math/Primitives/Quad.hpp"
 
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
 
@@ -16,7 +17,7 @@ class TransformComponent;
 class Quad final: public IUtilityUser, public IObject
 {
 public:
-    GAME_ENGINE_API Quad( Camera& camera, IGameEngine& engine, IObject* parent );
+    GAME_ENGINE_API Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
 
@@ -32,6 +33,9 @@ private:
     void applyColor();
     void release();
     void deleteBuffers();
+
+    CUL::MATH::Primitives::Quad m_shape;
+    glm::mat4 m_model;
 
     TransformComponent* m_transformComponent = nullptr;
     std::atomic<bool> m_recreateBuffers = false;

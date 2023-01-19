@@ -10,9 +10,9 @@
 
 using namespace LOGLW;
 
-QuadImpl::QuadImpl( IGameEngine* engine ) : IQuad( engine ), m_engine(*engine)
+QuadImpl::QuadImpl( IGameEngine* engine, bool forceLegacy ): IQuad( engine, forceLegacy ), m_engine( *engine )
 {
-    m_data[ 0 ] = m_data[ 1 ] = m_data[ 2 ] = m_data[ 3 ] = { 0.0f, 0.0f, 0.0f };
+    m_data[0] = m_data[1] = m_data[2] = m_data[3] = { 0.0f, 0.0f, 0.0f };
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );

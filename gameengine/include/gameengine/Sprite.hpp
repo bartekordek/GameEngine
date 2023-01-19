@@ -23,7 +23,7 @@ class TransformComponent;
 class Sprite final: public IObject, public IUtilityUser
 {
 public:
-    Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine );
+    Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy = false );
 
     GAME_ENGINE_API void LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
     GAME_ENGINE_API void LoadImage( unsigned char* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader*,

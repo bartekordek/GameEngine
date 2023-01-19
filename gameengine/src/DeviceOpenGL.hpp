@@ -123,6 +123,7 @@ private:
     void draw( const TriangleData& values, const std::array<ColorS, 3>& color ) override;
 
     void draw( const QuadCUL& quad, const QuadCUL& texQuad ) override;
+    void draw( const QuadCUL& quad, const Point& translation, const CUL::MATH::Rotation& rotation, const ColorS& color ) override;
 
     void draw( const QuadCUL& quad, const ColorS& color ) override;
     void draw( const QuadCUL& quad, const std::array<ColorS, 4>& color ) override;
@@ -134,6 +135,9 @@ private:
     void draw( const LineData& values, const ColorS& color ) override;
 
     void draw( const Point& position, const ColorS& color ) override;
+
+    void draw( const TriangleCUL& triangle, const glm::mat4& model, const ColorS& color ) override;
+    void draw( const QuadCUL& quad, const glm::mat4& model, const ColorS& color ) override;
 
     void assertOnProgramError( unsigned programId, unsigned val );
     void setDepthTest( const bool enabled ) override;

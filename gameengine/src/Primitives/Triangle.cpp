@@ -9,7 +9,7 @@
 
 using namespace LOGLW;
 
-Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &engine ), m_camera( camera ), m_engine( engine )
+Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
     m_transformComponent = getTransform();
     setParent( parent );
@@ -38,7 +38,7 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent ) : IOb
 
 void Triangle::init()
 {
-    if( getDevice()->isLegacy() )
+    if( getDevice()->isLegacy() || getForceLegacy() )
     {
     }
     else
@@ -88,19 +88,9 @@ void Triangle::createShaders()
 
 void Triangle::render()
 {
-    if( getDevice()->isLegacy() )
+    if( getDevice()->isLegacy() || getForceLegacy() )
     {
-        getDevice()->matrixStackPush();
-
-        const auto position = m_transformComponent->getWorldPosition();
-        const auto rotation = m_transformComponent->getWorldRotation();
-
-        getDevice()->translate( position );
-
-        getDevice()->rotate( rotation );
-        getDevice()->draw( m_triangleMath, m_color );
-
-        getDevice()->matrixStackPop();
+        getDevice()->draw( m_triangleMath, m_transformComponent->getModel(), m_color );
     }
     else
     {

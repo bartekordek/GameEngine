@@ -14,7 +14,7 @@ class QuadImplLegacy final:
 public:
     QuadData m_data;
 
-    QuadImplLegacy(IGameEngine* engine);
+    QuadImplLegacy( IGameEngine* engine, bool forceLegacy );
 
     void setColor( const QuadColors& colors ) override;
     void setColor( const ColorS& color ) override;

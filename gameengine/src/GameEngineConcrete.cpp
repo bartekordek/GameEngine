@@ -213,9 +213,9 @@ IObject* GameEngineConcrete::createTriangle( CUL::JSON::INode* /*jNode*/ )
     return result;
 }
 
-Triangle* GameEngineConcrete::createTriangle( const TriangleData& data, const ColorS& color )
+Triangle* GameEngineConcrete::createTriangle( const TriangleData& data, const ColorS& color, bool forceLegacy )
 {
-    Triangle* triangle = new Triangle( getCamera(), *this, nullptr );
+    Triangle* triangle = new Triangle( getCamera(), *this, nullptr, forceLegacy );
     triangle->setValues( data );
     triangle->setColor( color );
     return triangle;
@@ -227,7 +227,7 @@ IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS&
     if( m_renderDevice->isLegacy() )
     {
         m_logger->log( "GameEngineConcrete::createQuad - legacy." );
-        quad = new QuadImplLegacy( this );
+        quad = new QuadImplLegacy( this, false );
     }
     else
     {
@@ -242,9 +242,9 @@ IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS&
 
 IPoint* GameEngineConcrete::createPoint( const Point& position, const ColorS& color )
 {
-    auto result = new PointImpl( this );
+    auto result = new PointImpl( this, false );
     result->setColor( color );
-    result->getTransform()->setWorldPosition( position );
+    result->getTransform()->setPositionAbsolute( position.toGlmVec() );
     addObjectToRender( result );
 
     return result;
@@ -417,12 +417,15 @@ void GameEngineConcrete::initialize()
     m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
     m_logger->log( m_glContext.glVersion );
 
+    const auto& winSize = m_activeWindow->getSize();
+    const float aspectRatio = 1.f * winSize.w / winSize.h;
+    getCamera().setAspectRatio( aspectRatio );
+
     m_sdlW->registerSDLEventObserver( this );
 
     m_renderDevice->setProjectionAndModelToIdentity();
     m_renderDevice->setTexuring( true );
 
-    const auto& winSize = m_activeWindow->getSize();
     setupProjectionData( winSize.getWidth(), winSize.getHeight() );
 
     m_viewport.pos.setXY( 0, 0 );

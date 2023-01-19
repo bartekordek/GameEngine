@@ -1,4 +1,5 @@
 #include "DeviceOpenGL.hpp"
+
 #include "gameengine/Camera.hpp"
 #include "gameengine/Viewport.hpp"
 
@@ -321,7 +322,7 @@ void DeviceOpenGL::setPerspectiveProjection( const Camera& projectionData )
     auto ar = projectionData.getAspectRatio();
     auto zNear = projectionData.getZnear();
     auto zFar = projectionData.getZfar();
-    if( isLegacy() )
+    //if( isLegacy() )
     {
          resetMatrixToIdentity( MatrixTypes::PROJECTION );
          gluPerspective( fov, ar, zNear, zFar );
@@ -358,7 +359,7 @@ void DeviceOpenGL::lookAt( const Camera& vp )
     const auto& eye = vp.getEye();
     const auto& center = vp.getCenter();
     const auto& up = vp.getUp();
-    if( isLegacy() )
+    //if( isLegacy() )
     {
         gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z );
     }
@@ -659,6 +660,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::mat4& val )
     }
 
     // log( "setUniformValue" );
+    // //https://stackoverflow.com/questions/17630313/rotation-around-a-pivot-point-with-opengl
     glUniformMatrix4fv( uniformLocation, 1, GL_FALSE, &val[0][0] );
 }
 
@@ -795,8 +797,8 @@ void DeviceOpenGL::rotate( const CUL::MATH::Rotation& rotation )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    glRotatef( rotation.Yaw.getDeg(), 0.f, -1.f, 0.f );
     glRotatef( rotation.Pitch.getDeg(), 1.f, 0.f, 0.f );
+    glRotatef( rotation.Yaw.getDeg(), 0.f, -1.f, 0.f );
     glRotatef( rotation.Roll.getDeg(), 0.f, 0.f, 1.f );
 }
 
@@ -1001,6 +1003,39 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const QuadCUL& texQuad )
     glTexCoord3f( texQuad[3][0], texQuad[3][1], texQuad[3][2] );
     glVertex3f( quad[3][0], quad[3][1], quad[3][2] );
     glEnd();
+}
+
+void DeviceOpenGL::draw( const QuadCUL& quad, const Point& translation, const CUL::MATH::Rotation& rotation, const ColorS& color )
+{
+    matrixStackPush();
+
+    //https://stackoverflow.com/questions/17630313/rotation-around-a-pivot-point-with-opengl
+
+    translate( translation );
+    rotate( rotation );
+    draw( quad, color );
+
+    matrixStackPop();
+}
+
+void DeviceOpenGL::draw( const QuadCUL& quad, const glm::mat4& model, const ColorS& color )
+{
+    matrixStackPush();
+
+    glMultMatrixf( glm::value_ptr( model ) );
+    draw( quad, color );
+
+    matrixStackPop();
+}
+
+void DeviceOpenGL::draw( const TriangleCUL& triangle, const glm::mat4& model, const ColorS& color )
+{
+    matrixStackPush();
+
+    glMultMatrixf( glm::value_ptr( model ) );
+    draw( triangle, color );
+
+    matrixStackPop();
 }
 
 void DeviceOpenGL::draw( const QuadCUL& quad, const ColorS& color )

@@ -17,7 +17,7 @@ class TransformComponent;
 class Line final: public IObject, public IUtilityUser
 {
 public:
-    GAME_ENGINE_API Line( Camera& camera, IGameEngine& engine, IObject* parent  );
+    GAME_ENGINE_API Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void setValues( const CUL::MATH::Primitives::Line& values );
     GAME_ENGINE_API void setColor( const ColorS& color );

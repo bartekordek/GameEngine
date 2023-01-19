@@ -3,7 +3,7 @@
 
 using namespace LOGLW;
 
-LineImpl::LineImpl( IGameEngine* engine ) : ILine( engine )
+LineImpl::LineImpl( IGameEngine* engine ) : ILine( engine, false )
 {
     m_data[0] = m_data[1] = { 0.0f, 0.0f, 0.0f };
 
@@ -18,12 +18,13 @@ void LineImpl::setValues( const LineData& values )
 void LineImpl::render()
 {
     getDevice()->matrixStackPush();
-    auto position = m_transform->getWorldPosition();
+    auto position = m_transform->getPositionAbsolut();
     getDevice()->translate( position );
     static const auto type = CUL::MATH::Angle::Type::DEGREE;
-    getDevice()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::YAW ).getValueF( type ), 0.f, 0.f, 1.f );
-    getDevice()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::PITCH ).getValueF( type ), 0.f, 1.f, 0.f );
-    getDevice()->rotate( m_transform->getWorldAngle( CUL::MATH::EulerAngles::ROLL ).getValueF( type ), 1.f, 0.f, 0.f );
+    const auto rotation = m_transform->getRotationAbsolute();
+    getDevice()->rotate( rotation.Yaw.getValueF( type ), 0.f, 0.f, 1.f );
+    getDevice()->rotate( rotation.Pitch.getValueF( type ), 0.f, 1.f, 0.f );
+    getDevice()->rotate( rotation.Roll.getValueF( type ), 1.f, 0.f, 0.f );
     getDevice()->draw( m_data, m_colors );
     getDevice()->matrixStackPop();
 }

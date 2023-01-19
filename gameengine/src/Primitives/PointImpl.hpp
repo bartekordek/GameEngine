@@ -9,7 +9,7 @@ class PointImpl final:
     public IUtilityUser
 {
 public:
-    PointImpl( IGameEngine* engine ) : IPoint(engine)
+    PointImpl( IGameEngine* engine, bool forceLegacy ): IPoint( engine, forceLegacy )
     {
 
     }
@@ -31,7 +31,7 @@ private:
     {
         getDevice()->matrixStackPush();
         getDevice()->translate( m_pos );
-        getDevice()->draw( getTransform()->getWorldPosition(), m_color );
+        getDevice()->draw( getTransform()->getPositionAbsolut(), m_color );
         getDevice()->matrixStackPop();
     }
 

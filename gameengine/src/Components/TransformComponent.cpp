@@ -1,161 +1,128 @@
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/IObject.hpp"
 
+#include "CUL/Log/ILogger.hpp"
+#include "CUL/Log/ILogContainer.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 
 using namespace LOGLW;
 
-TransformComponent::TransformComponent(IObject& owner):m_owner(owner)
+TransformComponent::TransformComponent( IObject& owner ):m_owner( owner )
 {
 }
 
-void TransformComponent::setWorldPosition( const Pos& position )
+void TransformComponent::setPositionToParent( const glm::vec3& position )
 {
     m_pos = position;
 }
 
-void TransformComponent::setWorldPosition( Pos::Type x, Pos::Type y, Pos::Type z )
+const glm::vec3 TransformComponent::getPositionToParent() const
 {
-    m_pos[0] = x;
-    m_pos[1] = y;
-    m_pos[2] = z;
-}
-
-const TransformComponent::Pos TransformComponent::getWorldPosition() const
-{
-    //return m_pos - m_pivotReal;
     return m_pos;
 }
 
-void TransformComponent::setWorldAngle( CUL::MATH::EulerAngles type, const CUL::MATH::Angle& angle )
+void TransformComponent::setPositionAbsolute( const glm::vec3& position )
 {
-    if( type == CUL::MATH::EulerAngles::PITCH )
+    const auto parent = m_owner.getParent();
+    if( parent )
     {
-        m_rotation.Pitch = angle;
-    }
-    else if( type == CUL::MATH::EulerAngles::YAW )
-    {
-        m_rotation.Yaw = angle;
+        const auto parentAbsolutePos = parent->getTransform()->getPositionAbsolut();
+        m_pos = position - parentAbsolutePos;
     }
     else
     {
-        m_rotation.Roll = angle;
+        m_pos = position;
     }
 }
 
-void TransformComponent::setWorldRotation( const CUL::MATH::Rotation& rotation )
+const glm::vec3 TransformComponent::getPositionAbsolut() const
+{
+    return m_pos - m_pivotReal.toGlmVec();
+}
+
+void TransformComponent::setRotationToParent( const CUL::MATH::Rotation& rotation )
 {
     m_rotation = rotation;
 }
 
-const CUL::MATH::Rotation TransformComponent::getWorldRotation() const
+const CUL::MATH::Rotation TransformComponent::getRotationToParent() const
 {
-    if( true )
-    {
-        return m_rotation;
-    }
-    else
-    {
-        CUL::MATH::Rotation result = m_rotation;
+    return m_rotation;
+}
 
-        IObject* parent = m_owner.getParent();
-        if( parent )
+void TransformComponent::setRotationAbsolute( const CUL::MATH::Rotation& rotation )
+{
+    //rotation = absolute + delta;
+    //delta = rotation - absolute;
+    const auto rot = getRotationAbsolute();
+    const auto delta = rotation - rot;
+    m_rotation = delta;
+}
+
+const CUL::MATH::Rotation TransformComponent::getRotationAbsolute() const
+{
+    return m_rotation;
+}
+
+const glm::mat4 TransformComponent::getModel() const
+{
+    glm::vec3 pivotReal = getPivotReal();
+
+    glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), pivotReal );
+    glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), -pivotReal );
+
+    glm::mat4 rotationMat = getRotation();
+
+    glm::mat4 scale = glm::scale( glm::mat4( 1.f ), m_scale );
+
+    glm::mat4 model = getTranslation();
+
+    model = model * trans_to_pivot;
+    model = model * rotationMat;
+    model = model * trans_from_pivot;
+    model = model * scale;
+
+    IObject* parent = m_owner.getParent();
+    if( parent )
+    {
+        TransformComponent* parentTransform = static_cast< TransformComponent* >( parent->getComponent( "TransformComponent" ) );
+        if( parentTransform )
         {
-            TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
-            if( parentTransform )
-            {
-                const CUL::MATH::Rotation parentRotation = parentTransform->getWorldRotation();
-                result += parentRotation;
-            }
+            return parentTransform->getModel() * model;
         }
-
-        return result;
     }
+
+    return model;
 }
 
-const CUL::MATH::Angle& TransformComponent::getWorldAngle( CUL::MATH::EulerAngles type ) const
+glm::mat4 TransformComponent::getTranslation() const
 {
-    if( type == CUL::MATH::EulerAngles::PITCH )
-    {
-        return m_rotation.Pitch;
-    }
-    else if( type == CUL::MATH::EulerAngles::ROLL )
-    {
-        return m_rotation.Roll;
-    }
-    else
-    {
-        return m_rotation.Yaw;
-    }
+    glm::mat4 result( 1.f );
+    auto pivotTimesScale = m_pivotReal.toGlmVec() * m_scale;
+    result = glm::translate( result, m_pos - pivotTimesScale );
+
+    return result;
 }
 
-const glm::mat4 TransformComponent::getModel()
+glm::mat4 TransformComponent::getRotation() const
 {
-    bool old = true;
-    if( old )
+    glm::mat4 model( 1.f );
+
+    const CUL::MATH::Rotation& rotation = m_rotation;
+    // PITCH - X
+// YAW - Y
+// ROLL - Z
+
+
+        // Pitch
     {
-        glm::vec3 pivotReal = getPivotReal();
-
-        glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), pivotReal );
-        glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), -pivotReal );
-
-        glm::mat4 model = getTranslation() * trans_to_pivot * getRotation() * trans_from_pivot;
-
-        IObject* parent = m_owner.getParent();
-        if( parent )
-        {
-            TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
-            if( parentTransform )
-            {
-                return parentTransform->getModel() * model;
-            }
-        }
-
-        return model;
+        glm::vec3 normal( 1.f, 0.f, 0.f );
+        model = glm::rotate( model, rotation.Pitch.getRad(), normal );
     }
-    else
-    {
-        glm::mat4 model = glm::mat4( 1.0f );
-
-        //glm::vec3 pivot = m_pivot.toGlmVec();
-        // glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), -pivot );
-        // glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), pivot );
-        // glm::mat4 rotation(1.f);
-        //rotation =
-        //glm::mat4 rotate = trans_from_pivot * rotate_matrix * trans_to_pivot;
-
-        return model;
-    }
-}
-
-glm::vec3 TransformComponent::getPivotReal()
-{
-    // return m_pivot.toGlmVec() * m_size.toGlmVec();
-    return m_pivotReal;
-}
-
-glm::vec3 TransformComponent::getPivotNormalized()
-{
-    return m_pivot;
-}
-
-glm::mat4 TransformComponent::getRotation()
-{
-    glm::mat4 model(1.f);
-
-    CUL::MATH::Rotation rotation = m_rotation;
-
-
     // Yaw
     {
         glm::vec3 normal( 0.f, 1.f, 0.f );
         model = glm::rotate( model, -rotation.Yaw.getRad(), normal );
-    }
-
-    // Pitch
-    {
-        glm::vec3 normal( -1.f, 0.f, 0.f );
-        model = glm::rotate( model, rotation.Pitch.getRad(), normal );
     }
 
     // Roll
@@ -167,15 +134,14 @@ glm::mat4 TransformComponent::getRotation()
     return model;
 }
 
-glm::mat4 TransformComponent::getTranslation()
+glm::vec3 TransformComponent::getPivotReal() const
 {
-    glm::mat4 result(1.f);
+    return m_pivotReal.toGlmVec();
+}
 
-    const Pos& position = m_pos - m_pivotReal;
-    glm::vec3 posVec = position.toGlmVec();
-    result = glm::translate( result, posVec );
-
-    return result;
+glm::vec3 TransformComponent::getPivotNormalized()
+{
+    return m_pivot;
 }
 
 const TransformComponent::Pos& TransformComponent::getPivot() const
@@ -189,7 +155,7 @@ void TransformComponent::setPivot( const TransformComponent::Pos& pivot )
     m_pivotReal = m_size.toGlmVec() * m_pivot.toGlmVec();
 }
 
-void TransformComponent::addOnChangeCallback(const String& callbackName, const std::function<void( const Pos& position )> callback)
+void TransformComponent::addOnChangeCallback(const String& callbackName, const std::function<void( const glm::mat4& model )> callback)
 {
     auto it = m_onChangeCallbacks.find(callbackName);
     if( it == m_onChangeCallbacks.end() )
@@ -217,6 +183,34 @@ const TransformComponent::Pos& TransformComponent::TransformComponent::getSize()
 void TransformComponent::removeCallback(const String& callbackName)
 {
     m_onChangeCallbacks.erase(callbackName);
+}
+
+void TransformComponent::decomposeAndLogData( const glm::mat4& data ) const
+{
+    glm::vec3 scale;
+    glm::quat rotation;
+    glm::vec3 translation;
+    glm::vec3 skew;
+    glm::vec4 perspective;
+    glm::decompose( data, scale, rotation, translation, skew, perspective );
+
+    const auto rotationString = glm::to_string( rotation );
+    const auto translationString = glm::to_string( translation );
+
+    const auto name = m_owner.getName();
+
+    CUL::LOG::LOG_CONTAINER::getLogger()->log( name + ", translation: " + translationString + ", rotation: " + rotationString );
+}
+
+const glm::vec3& TransformComponent::getScale() const
+{
+    return m_scale;
+}
+
+void TransformComponent::setScale( const glm::vec3& scale )
+{
+    m_scale = scale;
+    changeSizeDelegate.execute();
 }
 
 TransformComponent::~TransformComponent()

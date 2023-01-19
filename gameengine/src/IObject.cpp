@@ -1,17 +1,13 @@
 #include "gameengine/IObject.hpp"
 
 #include "gameengine/Components/TransformComponent.hpp"
-#include "gameengine/Components/Name.hpp"
 
 using namespace LOGLW;
 
-IObject::IObject( IGameEngine* engine ) : IRenderable( engine ), m_engine( *engine )
+IObject::IObject( IGameEngine* engine, bool forceLegacy ) : IRenderable( engine ), m_engine( *engine ), m_forceLegacy( forceLegacy )
 {
     m_transform = new TransformComponent( *this );
     addComponent( "TransformComponent", m_transform );
-
-    m_nameCmp = new Name( *this );
-    addComponent( "Name", m_nameCmp );
 }
 
 // Dummy
@@ -41,10 +37,10 @@ void IObject::addChild(IObject* child)
     m_children.insert(child);
 }
 
-IComponent* IObject::getComponent(const String& name)
+IComponent* IObject::getComponent( const String& name )
 {
-    const auto it = m_components.find(name);
-    if (it != m_components.end())
+    const auto it = m_components.find( name );
+    if( it != m_components.end() )
     {
         return it->second;
     }
@@ -59,11 +55,6 @@ void IObject::addComponent(const String& name, IComponent* component)
 TransformComponent* IObject::getTransform()
 {
     return m_transform;
-}
-
-Name* IObject::getnameCmp()
-{
-    return m_nameCmp;
 }
 
 IObject::~IObject()
@@ -91,18 +82,33 @@ IObject::~IObject()
 void IObject::removeChild( IObject* child )
 {
     std::lock_guard<std::mutex> locker( m_childrenMtx );
-    auto it = m_children.find(child);
+    auto it = m_children.find( child );
     if( it == m_children.end() )
     {
         CUL::Assert::simple( false, "Trying to remove already removed child." );
     }
     else
     {
-        m_children.erase(it);
+        m_children.erase( it );
     }
 }
 
 IGameEngine& IObject::getEngine()
 {
     return m_engine;
+}
+
+bool IObject::getForceLegacy() const
+{
+    return m_forceLegacy;
+}
+
+void IObject::setName( const CUL::String& name )
+{
+    m_name = name;
+}
+
+const CUL::String& IObject::getName() const
+{
+    return m_name;
 }

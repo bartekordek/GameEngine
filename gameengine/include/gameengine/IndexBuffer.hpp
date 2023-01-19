@@ -5,23 +5,21 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
-class GAME_ENGINE_API IndexBuffer final : private IUtilityUser
+class IndexBuffer final : private IUtilityUser
 {
 public:
-    using DataType = std::vector<unsigned>;
+    GAME_ENGINE_API IndexBuffer();
+    GAME_ENGINE_API void loadData( std::vector<unsigned>& data );
+    GAME_ENGINE_API const std::vector<unsigned>& getData() const;
+
+    GAME_ENGINE_API void bind();
+
+    GAME_ENGINE_API ~IndexBuffer();
+
 private:
     unsigned m_id = 0;
 
-    DataType m_data;
-
-public:
-    IndexBuffer();
-    void loadData( DataType& data );
-    const DataType& getData() const;
-
-    void bind();
-
-    ~IndexBuffer();
+    std::vector<unsigned> m_data;
 
 private:
     IndexBuffer( const IndexBuffer& arg ) = delete;

@@ -26,19 +26,19 @@ public:
 
     TransformComponent( IObject& owner );
 
-    void setWorldPosition( const Pos& position );
-    void setWorldPosition( Pos::Type x, Pos::Type y, Pos::Type z );
-    const Pos getWorldPosition() const;
+    void setPositionToParent( const glm::vec3& position );
+    const glm::vec3 getPositionToParent() const;
 
-    void setWorldAngle( CUL::MATH::EulerAngles type, const CUL::MATH::Angle& angle );
+    void setPositionAbsolute( const glm::vec3& position );
+    const glm::vec3 getPositionAbsolut() const;
 
-    void setWorldRotation( const CUL::MATH::Rotation& rotation );
-    const CUL::MATH::Rotation getWorldRotation() const;
+    void setRotationToParent( const CUL::MATH::Rotation& rotation );
+    const CUL::MATH::Rotation getRotationToParent() const;
 
-    const CUL::MATH::Angle& getWorldAngle( CUL::MATH::EulerAngles type ) const;
-    const glm::mat4 getModel();
-    glm::mat4 getRotation();
-    glm::mat4 getTranslation();
+    void setRotationAbsolute( const CUL::MATH::Rotation& rotation );
+    const CUL::MATH::Rotation getRotationAbsolute() const;
+
+    const glm::mat4 getModel() const;
 
     void setSize( const Pos& size );
     const Pos& getSize() const;
@@ -46,28 +46,35 @@ public:
     const Pos& getPivot() const;
     void setPivot( const Pos& pivot );
 
-    glm::vec3 getPivotReal();
+    glm::vec3 getPivotReal() const;
     glm::vec3 getPivotNormalized();
 
-    void addOnChangeCallback( const String& callbackName, const std::function<void( const Pos& position )> callback );
+    void addOnChangeCallback( const String& callbackName, const std::function<void( const glm::mat4& model )> callback );
     void removeCallback( const String& callbackName );
 
     CUL::GUTILS::SimpleDelegate changeSizeDelegate;
+    void decomposeAndLogData( const glm::mat4& data ) const;
+
+    const glm::vec3& getScale() const;
+    void setScale( const glm::vec3& scale );
 
     ~TransformComponent();
 
 protected:
 private:
+    glm::mat4 getTranslation() const;
+    glm::mat4 getRotation() const;
+    
     IObject& m_owner;
 
     Pos m_size;
-    Pos m_pos;
+    glm::vec3 m_pos = { 0.f, 0.f, 0.f };
+    glm::vec3 m_scale = { 1.f, 1.f, 1.f };
+    CUL::MATH::Rotation m_rotation;
     Pos m_pivot = Pos( 0.5f, 0.5f, 0.0f );
     Pos m_pivotReal = { 0.f, 0.f, 0.f };
 
-    CUL::MATH::Rotation m_rotation;
-
-    std::map<String, std::function<void( const Pos& position )> > m_onChangeCallbacks;
+    std::map<String, std::function<void( const glm::mat4 )> > m_onChangeCallbacks;
 
     // Deleted:
     TransformComponent( const TransformComponent& value ) = delete;

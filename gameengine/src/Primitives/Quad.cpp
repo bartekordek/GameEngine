@@ -6,19 +6,27 @@
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Program.hpp"
-#include "CUL/Filesystem/FileFactory.hpp"
+
+#include "CUL/IMPORT_GLM.hpp"
 
 #include "CUL/Threading/ThreadUtils.hpp"
 
 using namespace LOGLW;
 
-Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &engine ), m_camera( camera ), m_engine( engine )
+Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
     m_transformComponent = getTransform();
     setParent( parent );
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );
+    const float size = 2.f;
+    m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
+
+    m_shape.data[0] = { size, size, 0.f };
+    m_shape.data[1] = { size, 0.f, 0.f };
+    m_shape.data[2] = { 0.f, 0.f, 0.f };
+    m_shape.data[3] = { 0.f, size, 0.f };
+
 
     if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -69,20 +77,7 @@ void Quad::createBuffers()
         1, 2, 3   // second Triangle
     };
 
-    const CUL::MATH::Point& size = m_transformComponent->getSize();
-
-    float x0 = 0.0f;
-    float x1 = size.x();
-
-    float y0 = 0.0f;
-    float y1 = size.y();
-
-    vboData.vertices = {
-        x1, y1, 0.f,  // top right
-        x1, y0, 0.f,  // bottom right
-        x0, y0, 0.f,  // bottom left
-        x0, y1, 0.f   // top left
-    };
+    vboData.vertices = m_shape.toVectorOfFloat();
 
     vboData.containsColorData = false;
     vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
@@ -118,27 +113,9 @@ void Quad::createShaders()
 
 void Quad::render()
 {
-    if( getDevice()->isLegacy() )
+    if( getDevice()->isLegacy() || getForceLegacy() )
     {
-        auto size = m_transformComponent->getSize();
-
-        QuadCUL quad;
-        quad[0] = { -size.x() / 2.f, -size.y() / 2.f, 0.f };
-        quad[1] = {  size.x() / 2.f, -size.y() / 2.f, 0.f };
-        quad[2] = {  size.x() / 2.f,  size.y() / 2.f, 0.f };
-        quad[3] = { -size.x() / 2.f,  size.y() / 2.f, 0.f };
-
-        getDevice()->matrixStackPush();
-
-        const auto position = m_transformComponent->getWorldPosition();
-        const auto rotation = m_transformComponent->getWorldRotation();
-
-        getDevice()->translate( position );
-
-        getDevice()->rotate( rotation );
-        getDevice()->draw( quad, m_color );
-
-        getDevice()->matrixStackPop();
+        getDevice()->draw( m_shape, m_transformComponent->getModel(), m_color );
     }
     else
     {
@@ -161,9 +138,9 @@ void Quad::render()
 
 void Quad::setTransformation()
 {
-    Camera& camera = m_engine.getCamera();
-    auto projectionMatrix = camera.getProjectionMatrix();
-    auto viewMatrix = camera.getViewMatrix();
+    const Camera& camera = m_engine.getCamera();
+    const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
+    const glm::mat4 viewMatrix = camera.getViewMatrix();
 
     glm::mat4 model = m_transformComponent->getModel();
 

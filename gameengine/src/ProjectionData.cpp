@@ -1,5 +1,4 @@
 #include "gameengine/ProjectionData.hpp"
-#include "CUL/STL_IMPORTS/STD_utility.hpp"
 
 using namespace LOGLW;
 
@@ -8,7 +7,6 @@ ProjectionData::ProjectionData()
 }
 
 ProjectionData::ProjectionData( const ProjectionData& val ):
-    CUL::GUTILS::IOnChange(),
     m_center( val.m_center ),
     m_eye( val.m_eye ),
     m_up( val.m_up ),
@@ -23,24 +21,9 @@ ProjectionData::ProjectionData( const ProjectionData& val ):
 {
 }
 
-ProjectionData::ProjectionData( ProjectionData&& val ):
-    m_center( std::move( val.m_center ) ),
-    m_eye( std::move( val.m_eye ) ),
-    m_up( std::move( val.m_up ) ),
-    m_size( std::move( val.m_size ) ),
-    m_fov( val.m_fov ),
-    m_zNear( val.m_zNear ),
-    m_zFar( val.m_zFar ),
-    m_left( val.m_left ),
-    m_right( val.m_right ),
-    m_top( val.m_top ),
-    m_bottom( val.m_bottom )
-{
-}
-
 float ProjectionData::getAspectRatio() const
 {
-    return static_cast<float>(m_size.getWidth()) / static_cast<float>(m_size.getHeight());
+    return static_cast< float >( m_size.getWidth() ) / static_cast< float >( m_size.getHeight() );
 }
 
 ProjectionData& ProjectionData::operator=( const ProjectionData& rhv )
@@ -62,26 +45,7 @@ ProjectionData& ProjectionData::operator=( const ProjectionData& rhv )
     return *this;
 }
 
-ProjectionData& ProjectionData::operator=( ProjectionData&& rhv )
-{
-    if( this != &rhv )
-    {
-        m_center = std::move( rhv.m_center );
-        m_eye = std::move( rhv.m_eye );
-        m_up = std::move( rhv.m_up );
-        m_size = std::move( rhv.m_size );
-        m_fov = rhv.m_fov;
-        m_zNear = rhv.m_zNear;
-        m_zFar = rhv.m_zFar;
-        m_left = rhv.m_left;
-        m_right = rhv.m_right;
-        m_top = rhv.m_top;
-        m_bottom = rhv.m_bottom;
-    }
-    return *this;
-}
-
-void ProjectionData::setSize( const SDL2W::WinSize& winSize )
+void ProjectionData::setSize( const WindowSize& winSize )
 {
     m_size = winSize;
 
@@ -107,32 +71,32 @@ void ProjectionData::setEyePos( const Pos3Df& pos )
 {
     m_eye = pos;
     //m_zNear = pos.z;
-    onChange();
+    OnChange.execute();
 }
 
 void ProjectionData::setUp( const Pos3Df& pos )
 {
     m_up = pos;
-    onChange();
+    OnChange.execute();
 }
 
 void ProjectionData::setZNear( const float val )
 {
     m_zNear = val;
     //m_eye.z = val;
-    onChange();
+    OnChange.execute();
 }
 
 void ProjectionData::setZfar( const float val )
 {
     m_zFar = val;
-    onChange();
+    OnChange.execute();
 }
 
 void ProjectionData::setFov( const float val )
 {
     m_fov = val;
-    onChange();
+    OnChange.execute();
 }
 
 const SDL2W::WinSize& ProjectionData::getSize() const

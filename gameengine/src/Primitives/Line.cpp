@@ -9,7 +9,7 @@
 
 using namespace LOGLW;
 
-Line::Line( Camera& camera, IGameEngine& engine, IObject* parent ) : IObject( &engine ), m_camera( camera ), m_engine( engine )
+Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
     m_transformComponent = getTransform();
     setParent( parent );
@@ -95,8 +95,8 @@ void Line::render()
     {
         getDevice()->matrixStackPush();
 
-        const auto position = m_transformComponent->getWorldPosition();
-        const auto rotation = m_transformComponent->getWorldRotation();
+        const auto position = m_transformComponent->getPositionAbsolut();
+        const auto rotation = m_transformComponent->getRotationAbsolute();
 
         getDevice()->translate( position );
 
