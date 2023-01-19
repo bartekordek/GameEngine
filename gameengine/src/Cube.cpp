@@ -3,7 +3,6 @@
 #include "gameengine/IObjectFactory.hpp"
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
-#include "gameengine/Components/Name.hpp"
 
 #include "CUL/Threading/ThreadUtils.hpp"
 

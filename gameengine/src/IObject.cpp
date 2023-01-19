@@ -1,7 +1,6 @@
 #include "gameengine/IObject.hpp"
 
 #include "gameengine/Components/TransformComponent.hpp"
-#include "gameengine/Components/Name.hpp"
 
 using namespace LOGLW;
 
