@@ -57,6 +57,7 @@ private:
 
     CUL::Graphics::ColorS m_color;
 
+public:
     // Deleted:
     Cube( const Cube& arg ) = delete;
     Cube( Cube&& arg ) = delete;
