@@ -37,10 +37,10 @@ void IObject::addChild(IObject* child)
     m_children.insert(child);
 }
 
-IComponent* IObject::getComponent(const String& name)
+IComponent* IObject::getComponent( const String& name )
 {
-    const auto it = m_components.find(name);
-    if (it != m_components.end())
+    const auto it = m_components.find( name );
+    if( it != m_components.end() )
     {
         return it->second;
     }
@@ -82,14 +82,14 @@ IObject::~IObject()
 void IObject::removeChild( IObject* child )
 {
     std::lock_guard<std::mutex> locker( m_childrenMtx );
-    auto it = m_children.find(child);
+    auto it = m_children.find( child );
     if( it == m_children.end() )
     {
         CUL::Assert::simple( false, "Trying to remove already removed child." );
     }
     else
     {
-        m_children.erase(it);
+        m_children.erase( it );
     }
 }
 

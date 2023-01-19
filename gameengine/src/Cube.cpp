@@ -54,8 +54,8 @@ void Cube::setColor( const CUL::Graphics::ColorS& color )
 
 void Cube::createPlaceHolders()
 {
-    TransformComponent::Pos cubeSize( 2.f, 2.f, 2.f );
-    TransformComponent::Pos quadSize( 2.f, 2.f, 0.f );
+    const TransformComponent::Pos cubeSize( 2.f, 2.f, 2.f );
+    const TransformComponent::Pos quadSize( 2.f, 2.f, 0.f );
 
     m_transformComponent->setSize( cubeSize );
     m_transformComponent->setPivot( { 0.0f, 0.f, 0.f } );
