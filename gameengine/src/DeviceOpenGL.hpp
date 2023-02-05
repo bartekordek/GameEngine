@@ -22,6 +22,8 @@ class DeviceOpenGL final: public IRenderDevice
 public:
     DeviceOpenGL( CUL::CULInterface* culInterface, bool forceLegacy );
 
+    ShaderTypes getShaderType( const CUL::String& fileExtension );
+
     ~DeviceOpenGL();
 
 protected:
@@ -36,8 +38,6 @@ private:
     void lookAt( const Camera& vp ) override;
     void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;
     void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) override;
-
-    ShaderTypes getShaderType( const CUL::String& fileExtension );
 
     unsigned int createProgram() override;
     void removeProgram( unsigned programId ) override;

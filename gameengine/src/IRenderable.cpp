@@ -1,5 +1,6 @@
 #include "gameengine/IRenderable.hpp"
 #include "gameengine/IGameEngine.hpp"
+#include "DeviceOpenGL.hpp"
 
 using namespace LOGLW;
 
@@ -18,6 +19,13 @@ void IRenderable::setDisableRenderOnMyOwn( bool disable )
     {
         getEngine()->addObjectToRender( this );
     }
+}
+
+void IRenderable::loadShader( const CUL::FS::Path& shaderPath )
+{
+    auto device = static_cast<DeviceOpenGL*>( getEngine()->getDevice() );
+    auto type = device->getShaderType( shaderPath.getExtension() );
+
 }
 
 IRenderable::~IRenderable()
