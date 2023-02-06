@@ -23,9 +23,20 @@ void IRenderable::setDisableRenderOnMyOwn( bool disable )
 
 void IRenderable::loadShader( const CUL::FS::Path& shaderPath )
 {
-    auto device = static_cast<DeviceOpenGL*>( getEngine()->getDevice() );
-    auto type = device->getShaderType( shaderPath.getExtension() );
+    if( m_program )
+    {
+        delete m_program;
+        m_program = nullptr;
+    }
 
+
+
+    auto device = static_cast<DeviceOpenGL*>( getEngine()->getDevice() );
+    ShaderTypes type = device->getShaderType( shaderPath.getExtension() );
+    if( type == ShaderTypes::FRAGMENT_SHADER )
+    {
+
+    }
 }
 
 IRenderable::~IRenderable()

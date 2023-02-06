@@ -1,5 +1,6 @@
 #include "gameengine/Program.hpp"
 #include "gameengine/IGameEngine.hpp"
+#include "DeviceOpenGL.hpp"
 
 #include "CUL/CULInterface.hpp"
 #include "CUL/Threading/ThreadUtils.hpp"
@@ -36,7 +37,6 @@ void Program::initialize()
     m_id = getDevice()->createProgram();
     m_initialized = true;
 }
-
 
 void Program::setUniform( const String&, const char* )
 {
@@ -104,14 +104,25 @@ void Program::setUniform( const String& name, const glm::vec4& value )
     getDevice()->setUniformValue( location, value );
 }
 
-Shader* Program::loadShader( const char* path )
+Shader* Program::loadShader( const CUL::FS::Path& shaderPath )
 {
-    auto fragmentShaderFile = getDevice()->getCUL()->getFF()->createRegularFileRawPtr( path );
-    fragmentShaderFile->load( true );
-    Shader* result = new Shader( m_engine, fragmentShaderFile );
-    attachShader( result );
-    link();
-    validate();
+    auto device = static_cast<DeviceOpenGL*>( m_engine.getDevice() );
+    ShaderTypes type = device->getShaderType( shaderPath.getExtension() );
+    if( type == ShaderTypes::FRAGMENT_SHADER )
+    {
+
+    }
+    else if( type == ShaderTypes::VERTEX_SHADER )
+    {
+
+    }
+
+    //auto fragmentShaderFile = getDevice()->getCUL()->getFF()->createRegularFileRawPtr( path );
+    //fragmentShaderFile->load( true );
+    //Shader* result = new Shader( m_engine, fragmentShaderFile );
+    //attachShader( result );
+    //link();
+    //validate();
     return result;
 }
 

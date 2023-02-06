@@ -51,7 +51,7 @@ public:
     void setUniform( const String& name, const glm::mat4& mat );
     void setUniform( const String& name, const glm::vec4& value );
 
-    Shader* loadShader( const char* path );
+    Shader* loadShader( const CUL::FS::Path& shaderPath );
 
     String getAttributeStr( const String& name );
     float getAttributeF( const String& name );
@@ -107,6 +107,9 @@ private:
     CUL::LOG::ILogger* m_logger = nullptr;
 
     bool m_initialized = false;
+
+    Shader* m_vertexShader = nullptr;
+    Shader* m_fragmentShader = nullptr;
 
 private:
     Program() = delete;
