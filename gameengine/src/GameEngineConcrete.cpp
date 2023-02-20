@@ -74,8 +74,6 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
     }
     
     registerObjectForUtility();
-
-    
 }
 
 void GameEngineConcrete::registerObjectForUtility()
