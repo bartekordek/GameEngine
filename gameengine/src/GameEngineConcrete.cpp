@@ -13,6 +13,7 @@
 #include "gameengine/Sprite.hpp"
 #include "TextureConcrete.hpp"
 #include "DeviceOpenGL.hpp"
+#include "DeviceDX12.hpp"
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
@@ -62,14 +63,19 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
     if( rendererName == "DX9" )
     {
     }
+    else if( rendererName == "DX12" )
+    {
+        m_renderDevice = new DeviceDX12( m_sdlW->getCul() );
+    }
     else
     {
         m_renderDevice = new DeviceOpenGL( sdl2w->getCul(), forceLegacy );
+        m_renderersVersions["OpenGL"] = m_renderDevice->getVersion();
     }
     
     registerObjectForUtility();
 
-    m_renderersVersions["OpenGL"] = m_renderDevice->getVersion();
+    
 }
 
 void GameEngineConcrete::registerObjectForUtility()
