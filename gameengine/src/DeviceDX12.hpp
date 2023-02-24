@@ -124,11 +124,23 @@ private:
 	void checkLastCommandForErrors() override;
 
 	void enableDebugLayers();
+
+
+private:
+	const UINT g_bbCount = 4; //define number of backbuffers to use
+
 	Microsoft::WRL::ComPtr<ID3D12Device2> CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter );
 	Microsoft::WRL::ComPtr<IDXGIAdapter4> GetAdapter( bool bUseWarp );
 
 	Microsoft::WRL::ComPtr<ID3D12Device2> m_d3d12Device;
 	Microsoft::WRL::ComPtr<IDXGIAdapter4> m_dxgiAdapter;
+	Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapChain;
+
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandListAllocator;
+	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
+
+	//CDescriptorHeapWrapper mRTVDescriptorHeap;
+
 };
 
 NAMESPACE_END( LOGLW )

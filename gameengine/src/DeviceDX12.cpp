@@ -2,7 +2,7 @@
 
 #if defined(GAME_ENGINE_WINDOWS)
 
-
+#include "SDL2Wrapper/IWindow.hpp"
 
 using namespace LOGLW;
 
@@ -90,6 +90,8 @@ void DeviceDX12::removeShader( unsigned shaderId )
 {
 }
 
+void ThrowIfFailed( HRESULT hr );
+
 ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
 {
     ContextInfo result;
@@ -101,6 +103,37 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
     {
     	m_d3d12Device = CreateDevice( m_dxgiAdapter );
     }
+
+    ThrowIfFailed( m_d3d12Device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( m_commandListAllocator.ReleaseAndGetAddressOf() ) ) );
+    D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
+    commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+    ThrowIfFailed( m_d3d12Device->CreateCommandQueue( &commandQueueDesc, IID_PPV_ARGS( m_commandQueue.ReleaseAndGetAddressOf() ) ) );
+
+    DXGI_SWAP_CHAIN_DESC swapChainDesc;
+    ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
+    swapChainDesc.BufferCount = g_bbCount;
+    swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapChainDesc.OutputWindow = window->getHWND();
+    swapChainDesc.SampleDesc.Count = 1;
+    swapChainDesc.Windowed = TRUE;
+    swapChainDesc.Flags = 0; //DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+    //swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+
+
+    IDXGIFactory2* dxgiFactory = nullptr;
+    ThrowIfFailed( CreateDXGIFactory2( 0, __uuidof( IDXGIFactory2 ), ( void** ) &dxgiFactory ) );
+    ThrowIfFailed( dxgiFactory->CreateSwapChain( m_commandQueue.Get(), &swapChainDesc, ( IDXGISwapChain** ) m_swapChain.GetAddressOf() ) );
+
+    if( swapChainDesc.Flags & DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT )
+    {
+        m_swapChain->SetMaximumFrameLatency( g_bbCount );
+    }
+
+    dxgiFactory->Release();
+
+    //mRTVDescriptorHeap.Create( mDevice.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, g_bbCount );
 
     return result;
 }
@@ -554,6 +587,18 @@ void DeviceDX12::toggleDebugOutput( bool enable )
 
 void DeviceDX12::checkLastCommandForErrors()
 {
+}
+
+
+void ThrowIfFailed( HRESULT hr )
+{
+    if( FAILED( hr ) )
+    {
+
+        char str[64] = {};
+        sprintf_s( str, "**ERROR** Fatal Error with HRESULT of %08X\n", static_cast< unsigned int >( hr ) );
+        throw;
+    }
 }
 
 #endif // GAME_ENGINE_WINDOWS
