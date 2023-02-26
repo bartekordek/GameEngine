@@ -13,7 +13,7 @@ HRESULT LOGLW::DescriptorHeap::create(
 	ID3D12Device* pDevice,
 	D3D12_DESCRIPTOR_HEAP_TYPE Type,
 	UINT NumDescriptors,
-	bool bShaderVisible = false)
+	bool bShaderVisible )
 {
 	Desc.Type = Type;
 	Desc.NumDescriptors = NumDescriptors;

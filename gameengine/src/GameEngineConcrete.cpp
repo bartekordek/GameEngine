@@ -13,7 +13,7 @@
 #include "gameengine/Sprite.hpp"
 #include "TextureConcrete.hpp"
 #include "DeviceOpenGL.hpp"
-#include "DeviceDX12.hpp"
+#include "DX12/DeviceDX12.hpp"
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"

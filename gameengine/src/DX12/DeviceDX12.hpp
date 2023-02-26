@@ -15,10 +15,32 @@ public:
 	DeviceDX12( CUL::CULInterface* culInterface );
 protected:
 private:
+
+	struct Float3
+	{
+		float x = 0.f;
+		float y = 0.f;
+		float z = 0.f;
+	};
+
+	struct Float4
+	{
+		float x = 0.f;
+		float y = 0.f;
+		float z = 0.f;
+		float w = 0.f;
+	};
+
+	struct Vertex
+	{
+		Float3 position;
+		Float4 color;
+	};
+
 	bool isLegacy() override;
 
 	// Inherited via IRenderDevice
-	void resetMatrixToIdentity( const MatrixTypes matrix ) override;
+	void resetMatrixToIdentity( const MatrixTypes matrixIn ) override;
 	void setProjection( const Camera& rect ) override;
 	void setViewport( const Viewport& viewport ) override;
 	void setOrthogonalPerspective( const Camera& vp ) override;
@@ -127,19 +149,41 @@ private:
 
 
 private:
-	const UINT g_bbCount = 4; //define number of backbuffers to use
+	static const UINT FrameCount = 2;
 
 	Microsoft::WRL::ComPtr<ID3D12Device2> CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter );
 	Microsoft::WRL::ComPtr<IDXGIAdapter4> GetAdapter( bool bUseWarp );
+	void LoadAssetsAndResources();
+	void WaitForPreviousFrame();
 
-	Microsoft::WRL::ComPtr<ID3D12Device2> m_d3d12Device;
+	Microsoft::WRL::ComPtr<ID3D12Device2> m_device;
 	Microsoft::WRL::ComPtr<IDXGIAdapter4> m_dxgiAdapter;
 	Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapChain;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandListAllocator;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
 
-	//CDescriptorHeapWrapper mRTVDescriptorHeap;
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
+	UINT m_rtvDescriptorSize = 0u;
+
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>,FrameCount>  m_renderTargets;
+
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
+
+
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
+
+	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
+
+	float m_aspectRatio;
+
+	UINT m_frameIndex = 0u;
+	UINT64 m_fenceValue = 0u;
+	Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
+	HANDLE m_fenceEvent;
 
 };
 
