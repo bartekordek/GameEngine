@@ -2076,6 +2076,10 @@ bool DeviceOpenGL::isLegacy()
     return getVersion().major < 2;
 }
 
+void DeviceOpenGL::finishFrame()
+{
+}
+
 
 void DeviceOpenGL::getLastOperationStatus()
 {

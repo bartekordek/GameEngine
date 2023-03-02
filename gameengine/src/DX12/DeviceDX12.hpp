@@ -149,16 +149,23 @@ private:
 
 
 private:
+	void GetHardwareAdapter(
+		IDXGIFactory1* pFactory,
+		IDXGIAdapter1** ppAdapter,
+		bool requestHighPerformanceAdapter = false );
+	void update();
+	bool m_useWarpDevice = false;
+	SDL2W::IWindow* m_window = nullptr;
 	static const UINT FrameCount = 2;
 
 	Microsoft::WRL::ComPtr<ID3D12Device2> CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter );
-	Microsoft::WRL::ComPtr<IDXGIAdapter4> GetAdapter( bool bUseWarp );
-	void LoadAssetsAndResources();
 	void WaitForPreviousFrame();
+	void finishFrame() override;
 
 	Microsoft::WRL::ComPtr<ID3D12Device2> m_device;
-	Microsoft::WRL::ComPtr<IDXGIAdapter4> m_dxgiAdapter;
+	Microsoft::WRL::ComPtr<IDXGIAdapter1> m_dxgiAdapter;
 	Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapChain;
+	Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandListAllocator;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
@@ -167,11 +174,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
 	UINT m_rtvDescriptorSize = 0u;
 
-	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>,FrameCount>  m_renderTargets;
+	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, FrameCount>  m_renderTargets;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
-
-
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
@@ -185,6 +190,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
 	HANDLE m_fenceEvent;
 
+	CD3DX12_VIEWPORT m_viewport;
+	CD3DX12_RECT m_scissorRect;
 };
 
 NAMESPACE_END( LOGLW )

@@ -551,7 +551,7 @@ void GameEngineConcrete::renderFrame()
         renderInfo();
     }
 
-    refreshBuffers();
+    finishFrame();
 }
 
 void GameEngineConcrete::calculateNextFrameLengths()
@@ -850,8 +850,10 @@ void GameEngineConcrete::renderObjects()
     }
 }
 
-void GameEngineConcrete::refreshBuffers()
+void GameEngineConcrete::finishFrame()
 {
+    m_renderDevice->finishFrame();
+
     if( m_updateBuffers )
     {
         m_activeWindow->updateScreenBuffers();

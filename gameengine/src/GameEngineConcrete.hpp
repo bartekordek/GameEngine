@@ -86,7 +86,7 @@ private:
     void setupProjectionData( uint16_t width, uint16_t height );
     CUL::CULInterface* getCul() override;
 
-    void refreshBuffers();
+    void finishFrame();
     void setProjection( const Camera& rect ) override;
     void setViewport( const Viewport& viewport, const bool instant = false ) override;
 

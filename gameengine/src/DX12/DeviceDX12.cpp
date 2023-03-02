@@ -1,10 +1,14 @@
-#include "DeviceDX12.hpp"
+#include "DX12/DeviceDX12.hpp"
 
 #if defined(GAME_ENGINE_WINDOWS)
-
+#include "gameengine/IGameEngine.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
+#include "SDL2Wrapper/WinSize.hpp"
 
 using namespace LOGLW;
+
+template<typename T>
+using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 DeviceDX12::DeviceDX12( CUL::CULInterface* culInterface ): IRenderDevice( culInterface, false )
 {
@@ -15,7 +19,7 @@ bool DeviceDX12::isLegacy()
 	return false;
 }
 
-void DeviceDX12::resetMatrixToIdentity( const LOGLW::MatrixTypes matrixIn )
+void DeviceDX12::resetMatrixToIdentity( const MatrixTypes matrix )
 {
 }
 
@@ -94,45 +98,97 @@ void ThrowIfFailed( HRESULT hr );
 
 ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
 {
-    ContextInfo result;
+    m_window = window;
 
-    enableDebugLayers();
+    m_viewport.TopLeftX = 0;
+    m_viewport.TopLeftY = 0;
+    m_viewport.MinDepth = 0;
+    m_viewport.MaxDepth = 1;
+    m_viewport.Width = window->getSize().getWidth();
+    m_viewport.Height = window->getSize().getHeight();
 
-    m_dxgiAdapter = GetAdapter( false );
-    if( m_dxgiAdapter )
+    m_scissorRect.bottom = m_viewport.Height;
+    m_scissorRect.left = 0;
+    m_scissorRect.right = m_viewport.Width;
+    m_scissorRect.top = 0;
+
+    m_aspectRatio = static_cast<float>( m_viewport.Width ) / static_cast<float>( m_viewport.Height );
+
+
+    UINT dxgiFactoryFlags = 0;
+
+#if defined(_DEBUG)
+    // Enable the debug layer (requires the Graphics Tools "optional feature").
+    // NOTE: Enabling the debug layer after device creation will invalidate the active device.
     {
-        m_device = CreateDevice( m_dxgiAdapter );
+        Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
+        if( SUCCEEDED( D3D12GetDebugInterface( IID_PPV_ARGS( &debugController ) ) ) )
+        {
+            debugController->EnableDebugLayer();
+
+            // Enable additional debug layers.
+            dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+        }
+    }
+#endif
+    ThrowIfFailed( CreateDXGIFactory2( dxgiFactoryFlags, IID_PPV_ARGS( m_factory.ReleaseAndGetAddressOf() ) ) );
+
+    if( m_useWarpDevice )
+    {
+        Microsoft::WRL::ComPtr<IDXGIAdapter> warpAdapter;
+        ThrowIfFailed( m_factory->EnumWarpAdapter( IID_PPV_ARGS( &warpAdapter ) ) );
+
+        ThrowIfFailed( D3D12CreateDevice(
+            warpAdapter.Get(),
+            D3D_FEATURE_LEVEL_11_0,
+            IID_PPV_ARGS( &m_device )
+        ) );
+    }
+    else
+    {
+        Microsoft::WRL::ComPtr<IDXGIAdapter1> hardwareAdapter;
+        m_dxgiAdapter = hardwareAdapter;
+        GetHardwareAdapter( m_factory.Get(), &hardwareAdapter );
+
+        ThrowIfFailed( D3D12CreateDevice(
+            hardwareAdapter.Get(),
+            D3D_FEATURE_LEVEL_11_0,
+            IID_PPV_ARGS( &m_device )
+        ) );
     }
 
-    ThrowIfFailed( m_device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( m_commandListAllocator.ReleaseAndGetAddressOf() ) ) );
-    D3D12_COMMAND_QUEUE_DESC commandQueueDesc = {};
-    commandQueueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-    ThrowIfFailed( m_device->CreateCommandQueue( &commandQueueDesc, IID_PPV_ARGS( m_commandQueue.ReleaseAndGetAddressOf() ) ) );
+    // Describe and create the command queue.
+    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-    DXGI_SWAP_CHAIN_DESC swapChainDesc;
-    ZeroMemory( &swapChainDesc, sizeof( swapChainDesc ) );
+    ThrowIfFailed( m_device->CreateCommandQueue( &queueDesc, IID_PPV_ARGS( &m_commandQueue ) ) );
+
+    // Describe and create the swap chain.
+    DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
     swapChainDesc.BufferCount = FrameCount;
-    swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapChainDesc.Width = m_window->getSize().getWidth();
+    swapChainDesc.Height = m_window->getSize().getHeight();
+    swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.OutputWindow = window->getHWND();
+    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swapChainDesc.SampleDesc.Count = 1;
-    swapChainDesc.Windowed = TRUE;
-    swapChainDesc.Flags = 0; //DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
-    //swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
 
+    ComPtr<IDXGISwapChain1> swapChain;
+    ThrowIfFailed( m_factory->CreateSwapChainForHwnd(
+        m_commandQueue.Get(),        // Swap chain needs the queue so that it can force a flush on it.
+        m_window->getHWND(),
+        &swapChainDesc,
+        nullptr,
+        nullptr,
+        &swapChain
+    ) );
 
-    IDXGIFactory2* dxgiFactory = nullptr;
-    ThrowIfFailed( CreateDXGIFactory2( 0, __uuidof( IDXGIFactory2 ), ( void** ) &dxgiFactory ) );
-    ThrowIfFailed( dxgiFactory->CreateSwapChain( m_commandQueue.Get(), &swapChainDesc, ( IDXGISwapChain** ) m_swapChain.GetAddressOf() ) );
+    // This sample does not support fullscreen transitions.
+    ThrowIfFailed( m_factory->MakeWindowAssociation( m_window->getHWND(), DXGI_MWA_NO_ALT_ENTER ) );
 
-    if( swapChainDesc.Flags & DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT )
-    {
-        m_swapChain->SetMaximumFrameLatency( FrameCount );
-    }
-
-    dxgiFactory->Release();
-
+    ThrowIfFailed( swapChain.As( &m_swapChain ) );
+    m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 
     // Create descriptor heaps.
     {
@@ -145,7 +201,6 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
 
         m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_RTV );
     }
-
 
     // Create frame resources.
     {
@@ -160,32 +215,24 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
         }
     }
 
-    ThrowIfFailed( m_device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( &m_commandListAllocator ) ) );
-
-    LoadAssetsAndResources();
-
-    return result;
-}
+    ThrowIfFailed( m_device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( m_commandListAllocator.ReleaseAndGetAddressOf() ) ) );
 
 
-// Load the sample assets.
-void DeviceDX12::LoadAssetsAndResources()
-{
     // Create an empty root signature.
     {
         CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
         rootSignatureDesc.Init( 0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT );
 
-        Microsoft::WRL::ComPtr<ID3DBlob> signature;
-        Microsoft::WRL::ComPtr<ID3DBlob> error;
+        ComPtr<ID3DBlob> signature;
+        ComPtr<ID3DBlob> error;
         ThrowIfFailed( D3D12SerializeRootSignature( &rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error ) );
         ThrowIfFailed( m_device->CreateRootSignature( 0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS( &m_rootSignature ) ) );
     }
 
     // Create the pipeline state, which includes compiling and loading shaders.
     {
-        Microsoft::WRL::ComPtr<ID3DBlob> vertexShader;
-        Microsoft::WRL::ComPtr<ID3DBlob> pixelShader;
+        ComPtr<ID3DBlob> vertexShader;
+        ComPtr<ID3DBlob> pixelShader;
 
 #if defined(_DEBUG)
         // Enable better shader debugging with the graphics debugging tools.
@@ -256,7 +303,7 @@ void DeviceDX12::LoadAssetsAndResources()
         // Copy the triangle data to the vertex buffer.
         UINT8* pVertexDataBegin;
         CD3DX12_RANGE readRange( 0, 0 );        // We do not intend to read from this resource on the CPU.
-        ThrowIfFailed( m_vertexBuffer->Map( 0, &readRange, reinterpret_cast<void**>( &pVertexDataBegin ) ) );
+        ThrowIfFailed( m_vertexBuffer->Map( 0, &readRange, reinterpret_cast< void** >( &pVertexDataBegin ) ) );
         memcpy( pVertexDataBegin, triangleVertices, sizeof( triangleVertices ) );
         m_vertexBuffer->Unmap( 0, nullptr );
 
@@ -283,6 +330,89 @@ void DeviceDX12::LoadAssetsAndResources()
         // complete before continuing.
         WaitForPreviousFrame();
     }
+
+    ContextInfo result;
+
+
+    return result;
+}
+
+
+void DeviceDX12::enableDebugLayers()
+{
+#if defined(_DEBUG)
+    // Always enable the debug layer before doing anything DX12 related
+    // so all possible errors generated while creating DX12 objects
+    // are caught by the debug layer.
+    Microsoft::WRL::ComPtr<ID3D12Debug> debugInterface;
+    WindowsUtils::ThrowIfFailed( D3D12GetDebugInterface( IID_PPV_ARGS( &debugInterface ) ) );
+    debugInterface->EnableDebugLayer();
+#endif
+}
+
+void DeviceDX12::GetHardwareAdapter(
+    IDXGIFactory1* pFactory,
+    IDXGIAdapter1** ppAdapter,
+    bool requestHighPerformanceAdapter )
+{
+    *ppAdapter = nullptr;
+
+    Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
+
+    Microsoft::WRL::ComPtr<IDXGIFactory6> factory6;
+    if( SUCCEEDED( pFactory->QueryInterface( IID_PPV_ARGS( &factory6 ) ) ) )
+    {
+        for(
+            UINT adapterIndex = 0;
+            SUCCEEDED( factory6->EnumAdapterByGpuPreference(
+                adapterIndex,
+                requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
+                IID_PPV_ARGS( &adapter ) ) );
+            ++adapterIndex )
+        {
+            DXGI_ADAPTER_DESC1 desc;
+            adapter->GetDesc1( &desc );
+
+            if( desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE )
+            {
+                // Don't select the Basic Render Driver adapter.
+                // If you want a software adapter, pass in "/warp" on the command line.
+                continue;
+            }
+
+            // Check to see whether the adapter supports Direct3D 12, but don't create the
+            // actual device yet.
+            if( SUCCEEDED( D3D12CreateDevice( adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof( ID3D12Device ), nullptr ) ) )
+            {
+                break;
+            }
+        }
+    }
+
+    if( adapter.Get() == nullptr )
+    {
+        for( UINT adapterIndex = 0; SUCCEEDED( pFactory->EnumAdapters1( adapterIndex, &adapter ) ); ++adapterIndex )
+        {
+            DXGI_ADAPTER_DESC1 desc;
+            adapter->GetDesc1( &desc );
+
+            if( desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE )
+            {
+                // Don't select the Basic Render Driver adapter.
+                // If you want a software adapter, pass in "/warp" on the command line.
+                continue;
+            }
+
+            // Check to see whether the adapter supports Direct3D 12, but don't create the
+            // actual device yet.
+            if( SUCCEEDED( D3D12CreateDevice( adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof( ID3D12Device ), nullptr ) ) )
+            {
+                break;
+            }
+        }
+    }
+
+    *ppAdapter = adapter.Detach();
 }
 
 void DeviceDX12::WaitForPreviousFrame()
@@ -307,6 +437,45 @@ void DeviceDX12::WaitForPreviousFrame()
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 }
 
+void DeviceDX12::update()
+{
+    ThrowIfFailed( m_commandListAllocator->Reset() );
+    ThrowIfFailed( m_commandList->Reset( m_commandListAllocator.Get(), m_pipelineState.Get() ) );
+
+    m_commandList->SetGraphicsRootSignature( m_rootSignature.Get() );
+    m_commandList->RSSetViewports( 1, &m_viewport );
+    m_commandList->RSSetScissorRects( 1, &m_scissorRect );
+
+    // Indicate that the back buffer will be used as a render target.
+    m_commandList->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET ) );
+
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle( m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize );
+    m_commandList->OMSetRenderTargets( 1, &rtvHandle, FALSE, nullptr );
+
+    // Record commands.
+    const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
+    m_commandList->ClearRenderTargetView( rtvHandle, clearColor, 0, nullptr );
+    m_commandList->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+    m_commandList->IASetVertexBuffers( 0, 1, &m_vertexBufferView );
+    m_commandList->DrawInstanced( 3, 1, 0, 0 );
+
+    // Indicate that the back buffer will now be used to present.
+    m_commandList->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT ) );
+
+    ThrowIfFailed( m_commandList->Close() );
+
+
+    // Execute the command list.
+    ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
+    m_commandQueue->ExecuteCommandLists( _countof( ppCommandLists ), ppCommandLists );
+
+
+
+    auto onFrame = [this] (){
+        update();
+    };
+    IGameEngine::getInstance()->pushPreRenderTask( onFrame );
+}
 
 Microsoft::WRL::ComPtr<ID3D12Device2> DeviceDX12::CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter )
 {
@@ -354,59 +523,14 @@ Microsoft::WRL::ComPtr<ID3D12Device2> DeviceDX12::CreateDevice( Microsoft::WRL::
     return d3d12Device2;
 }
 
-Microsoft::WRL::ComPtr<IDXGIAdapter4> DeviceDX12::GetAdapter( bool bUseWarp )
+void DeviceDX12::finishFrame()
 {
-    Microsoft::WRL::ComPtr<IDXGIFactory4> dxgiFactory;
-    UINT createFactoryFlags = 0;
-#if defined(_DEBUG)
-    createFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
-#endif
+    update();
 
-    WindowsUtils::ThrowIfFailed( CreateDXGIFactory2( createFactoryFlags, IID_PPV_ARGS( &dxgiFactory ) ) );
+    // Present the frame.
+    ThrowIfFailed( m_swapChain->Present( 1, 0 ) );
 
-    Microsoft::WRL::ComPtr<IDXGIAdapter1> dxgiAdapter1;
-    Microsoft::WRL::ComPtr<IDXGIAdapter4> dxgiAdapter4;
-
-    if( bUseWarp )
-    {
-        WindowsUtils::ThrowIfFailed( dxgiFactory->EnumWarpAdapter( IID_PPV_ARGS( &dxgiAdapter1 ) ) );
-        WindowsUtils::ThrowIfFailed( dxgiAdapter1.As( &dxgiAdapter4 ) );
-    }
-    else
-    {
-        SIZE_T maxDedicatedVideoMemory = 0;
-        for( UINT i = 0; dxgiFactory->EnumAdapters1( i, &dxgiAdapter1 ) != DXGI_ERROR_NOT_FOUND; ++i )
-        {
-            DXGI_ADAPTER_DESC1 dxgiAdapterDesc1;
-            dxgiAdapter1->GetDesc1( &dxgiAdapterDesc1 );
-
-            // Check to see if the adapter can create a D3D12 device without actually 
-            // creating it. The adapter with the largest dedicated video memory
-            // is favored.
-            if( ( dxgiAdapterDesc1.Flags & DXGI_ADAPTER_FLAG_SOFTWARE ) == 0 &&
-                SUCCEEDED( D3D12CreateDevice( dxgiAdapter1.Get(),
-                                              D3D_FEATURE_LEVEL_11_0, __uuidof( ID3D12Device ), nullptr ) ) &&
-                dxgiAdapterDesc1.DedicatedVideoMemory > maxDedicatedVideoMemory )
-            {
-                maxDedicatedVideoMemory = dxgiAdapterDesc1.DedicatedVideoMemory;
-                WindowsUtils::ThrowIfFailed( dxgiAdapter1.As( &dxgiAdapter4 ) );
-            }
-        }
-    }
-
-    return dxgiAdapter4;
-}
-
-void DeviceDX12::enableDebugLayers()
-{
-#if defined(_DEBUG)
-    // Always enable the debug layer before doing anything DX12 related
-    // so all possible errors generated while creating DX12 objects
-    // are caught by the debug layer.
-    Microsoft::WRL::ComPtr<ID3D12Debug> debugInterface;
-    WindowsUtils::ThrowIfFailed( D3D12GetDebugInterface( IID_PPV_ARGS( &debugInterface ) ) );
-    debugInterface->EnableDebugLayer();
-#endif
+    WaitForPreviousFrame();
 }
 
 void DeviceDX12::setAttribValue( int attributeLocation, float value )
