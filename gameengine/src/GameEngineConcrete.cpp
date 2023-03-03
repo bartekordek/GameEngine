@@ -342,6 +342,11 @@ void GameEngineConcrete::taskThread()
 
 void GameEngineConcrete::renderLoop()
 {
+    if( m_onInitializeCallback )
+    {
+        m_onInitializeCallback();
+    }
+
     while( m_runRenderLoop )
     {
         m_frameTimer->start();
@@ -444,36 +449,6 @@ void GameEngineConcrete::initialize()
     showExtensions();
 
     calculateFrameWait();
-    /*
-    m_projectionData.m_depthTest.setOnChange(
-        [this]()
-        {
-            m_projectionChanged = true;
-        } );
-
-    m_projectionData.setOnChange(
-        [this]()
-        {
-            m_projectionChanged = true;
-        } );
-
-    m_isPerspective.setOnChange(
-        [this]()
-        {
-            if( m_isPerspective )
-            {
-                m_projectionData.m_projectionType = ProjectionType::PERSPECTIVE;
-            }
-            else
-            {
-                m_projectionData.m_projectionType = ProjectionType::ORTO;
-            }
-
-            m_projectionChanged = true;
-        } );*/
-
-    // m_oglUtility->setBackfaceCUll(  );
-    // m_oglUtility->setDepthTest( true );
 
     getDevice()->toggleDebugOutput( true );
 
@@ -504,14 +479,7 @@ void GameEngineConcrete::setupProjectionData( uint16_t width, uint16_t height )
 
 void GameEngineConcrete::renderFrame()
 {
-    if( m_userInitialized == false )
-    {
-        if( m_onInitializeCallback )
-        {
-            m_onInitializeCallback();
-            m_userInitialized = true;
-        }
-    }
+    m_renderDevice->prepareFrame();
 
     if( m_clearEveryFrame )
     {
@@ -774,28 +742,8 @@ void GameEngineConcrete::renderInfo()
 #pragma warning( pop )
 #endif
 
-// void GameEngineConcrete::setProjectionType( const ProjectionType* type )
-//{
-//     m_projectionData.m_projectionType = *type;
-//     prepareProjection();
-//     m_projectionChanged = true;
-// }
-
 void GameEngineConcrete::prepareProjection()
 {
-    // if( ProjectionType::ORTO == m_projectionData.m_projectionType )
-    //{
-    //    auto eyeCopy = m_projectionData.getEye();
-    //    eyeCopy.z = std::max( eyeCopy.z, m_projectionData.getZnear() );
-    //    m_projectionData.setZNear( eyeCopy.z );
-    //    m_projectionData.setEyePos( eyeCopy );
-    //}
-    // else if( ProjectionType::PERSPECTIVE == m_projectionData.m_projectionType
-    // )
-    //{
-    //    m_projectionData.setZNear( std::min( m_projectionData.getEye().z,
-    //    m_projectionData.getZnear() ) );
-    //}
 }
 
 void GameEngineConcrete::changeProjectionType()

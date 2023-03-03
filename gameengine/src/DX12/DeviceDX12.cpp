@@ -437,7 +437,7 @@ void DeviceDX12::WaitForPreviousFrame()
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 }
 
-void DeviceDX12::update()
+void DeviceDX12::prepareFrame()
 {
     ThrowIfFailed( m_commandListAllocator->Reset() );
     ThrowIfFailed( m_commandList->Reset( m_commandListAllocator.Get(), m_pipelineState.Get() ) );
@@ -445,6 +445,11 @@ void DeviceDX12::update()
     m_commandList->SetGraphicsRootSignature( m_rootSignature.Get() );
     m_commandList->RSSetViewports( 1, &m_viewport );
     m_commandList->RSSetScissorRects( 1, &m_scissorRect );
+}
+
+void DeviceDX12::update()
+{
+
 
     // Indicate that the back buffer will be used as a render target.
     m_commandList->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET ) );
@@ -469,15 +474,9 @@ void DeviceDX12::update()
     ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
     m_commandQueue->ExecuteCommandLists( _countof( ppCommandLists ), ppCommandLists );
 
-
-
-    auto onFrame = [this] (){
-        update();
-    };
-    IGameEngine::getInstance()->pushPreRenderTask( onFrame );
 }
 
-Microsoft::WRL::ComPtr<ID3D12Device2> DeviceDX12::CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter )
+Microsoft::WRL::ComPtr<ID3D12Device2> DeviceDX12::CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4>& adapter )
 {
     Microsoft::WRL::ComPtr<ID3D12Device2> d3d12Device2;
     WindowsUtils::ThrowIfFailed( D3D12CreateDevice( adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS( &d3d12Device2 ) ) );

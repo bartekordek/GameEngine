@@ -189,6 +189,7 @@ private:
     bool isLegacy() override;
 
     void checkLastCommandForErrors() override;
+    void prepareFrame() override;
     void finishFrame() override;
 
     DeviceOpenGL( const DeviceOpenGL& arg ) = delete;

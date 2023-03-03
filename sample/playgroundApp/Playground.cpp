@@ -287,6 +287,11 @@ void Playground::onWindowEvent( const SDL2W::WindowEvent::Type type )
 
 void Playground::closeApp()
 {
+    delete m_quadModern;
+    m_quadModern = nullptr;
+    delete m_quadLegacy;
+    m_quadLegacy = nullptr;
+
     m_engine->stopRenderingLoop();
     m_engine->stopEventLoop();
 }

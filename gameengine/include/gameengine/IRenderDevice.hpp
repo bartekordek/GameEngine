@@ -223,6 +223,7 @@ public:
     virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) = 0;
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) = 0;
 
+    virtual void prepareFrame() = 0;
     virtual void finishFrame() = 0;
 
     virtual unsigned int createProgram() = 0;

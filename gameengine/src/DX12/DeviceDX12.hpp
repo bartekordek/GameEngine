@@ -158,8 +158,9 @@ private:
 	SDL2W::IWindow* m_window = nullptr;
 	static const UINT FrameCount = 2;
 
-	Microsoft::WRL::ComPtr<ID3D12Device2> CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4> adapter );
+	Microsoft::WRL::ComPtr<ID3D12Device2> CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4>& adapter );
 	void WaitForPreviousFrame();
+	void prepareFrame() override;
 	void finishFrame() override;
 
 	Microsoft::WRL::ComPtr<ID3D12Device2> m_device;
