@@ -186,6 +186,7 @@ private:
     unsigned getGPUTotalAvailableMemoryKb() override;
     unsigned getGPUCurrentAvailableMemoryKb() override;
 
+    void* getNativeDevice() override;
     bool isLegacy() override;
 
     void checkLastCommandForErrors() override;

@@ -401,15 +401,26 @@ void GameEngineConcrete::initDebugInfo()
         setGuiContext( imguiContext );
         ImGui::StyleColorsDark();
 
-        ImGui_ImplSDL2_InitForOpenGL( *m_activeWindow, getContext().glContext );
-
-        if( getDevice()->getIsEmbeddedSystems() )
+        if( m_activeWindow->getRenderName().toLowerR().contains( "opengl" ) )
         {
-            ImGui_ImplOpenGL3_Init();
+            ImGui_ImplSDL2_InitForOpenGL( *m_activeWindow, getContext().glContext );
+
+            if( getDevice()->getIsEmbeddedSystems() )
+            {
+                ImGui_ImplOpenGL3_Init();
+            }
+            else
+            {
+                ImGui_ImplOpenGL2_Init();
+            }
         }
         else
         {
-            ImGui_ImplOpenGL2_Init();
+            ImGui_ImplWin32_Init( m_activeWindow->getHWND() );
+            ImGui_ImplDX12_Init( g_pd3dDevice, NUM_FRAMES_IN_FLIGHT,
+                                 DXGI_FORMAT_R8G8B8A8_UNORM, g_pd3dSrvDescHeap,
+                                 g_pd3dSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
+                                 g_pd3dSrvDescHeap->GetGPUDescriptorHandleForHeapStart() );
         }
 
         m_debugDrawInitialized = true;

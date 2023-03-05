@@ -14,6 +14,11 @@ DeviceDX12::DeviceDX12( CUL::CULInterface* culInterface ): IRenderDevice( culInt
 {
 }
 
+void* DeviceDX12::getNativeDevice()
+{
+    return m_device.Get();
+}
+
 bool DeviceDX12::isLegacy()
 {
 	return false;

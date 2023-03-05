@@ -212,6 +212,7 @@ class GAME_ENGINE_API IRenderDevice
 public:
     IRenderDevice( CUL::CULInterface* culInterface, bool forceLegacy );
 
+    virtual void* getNativeDevice() = 0;
     virtual bool isLegacy() = 0;
 
     virtual void resetMatrixToIdentity( const MatrixTypes matrix ) = 0;

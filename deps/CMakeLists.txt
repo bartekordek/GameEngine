@@ -27,6 +27,8 @@ add_library(${EXEC} STATIC
 imgui/backends/imgui_impl_opengl2.cpp
 imgui/backends/imgui_impl_opengl3.cpp
 imgui/backends/imgui_impl_sdl.cpp
+imgui/backends/imgui_impl_dx12.cpp
+imgui/backends/imgui_impl_dx12.h
 #imgui/examples/imgui_impl_win32.cpp
 imgui/imgui.cpp
 imgui/imgui_demo.cpp

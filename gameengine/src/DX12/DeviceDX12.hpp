@@ -37,6 +37,8 @@ private:
 		Float4 color;
 	};
 
+	void* getNativeDevice() override;
+
 	bool isLegacy() override;
 
 	// Inherited via IRenderDevice

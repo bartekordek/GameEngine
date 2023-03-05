@@ -2066,6 +2066,11 @@ DeviceOpenGL::~DeviceOpenGL()
 
 
 
+void* DeviceOpenGL::getNativeDevice()
+{
+    return nullptr;
+}
+
 bool DeviceOpenGL::isLegacy()
 {
     if( m_forceLegacy )
