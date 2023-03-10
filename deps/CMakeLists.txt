@@ -23,13 +23,11 @@ set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OGLW_OUTPUT_DIR} )
 #add_compile_defifinitions( IMGUI_ENABLE_OPENGL_ES2=1 )
 add_compile_definitions( IMGUI_IMPL_OPENGL_ES2_ON_DESKTOP=1 )
 
-add_library(${EXEC} STATIC
+
+set( SOURCES_GENERAL
+imgui/backends/imgui_impl_sdl.cpp
 imgui/backends/imgui_impl_opengl2.cpp
 imgui/backends/imgui_impl_opengl3.cpp
-imgui/backends/imgui_impl_sdl.cpp
-imgui/backends/imgui_impl_dx12.cpp
-imgui/backends/imgui_impl_dx12.h
-#imgui/examples/imgui_impl_win32.cpp
 imgui/imgui.cpp
 imgui/imgui_demo.cpp
 imgui/imgui_draw.cpp
@@ -37,8 +35,19 @@ imgui/imgui_tables.cpp
 imgui/imgui_widgets.cpp
 imgui/misc/cpp/imgui_stdlib.cpp
 imgui/misc/fonts/binary_to_compressed_c.cpp
-#imgui/misc/freetype/imgui_freetype.cpp
 )
+
+set( SOURCES_WINDOWS
+imgui/backends/imgui_impl_dx12.cpp
+imgui/backends/imgui_impl_dx12.h
+imgui/backends/imgui_impl_win32.cpp
+)
+
+if( MSVC )
+add_library(${EXEC} STATIC ${SOURCES_GENERAL} ${SOURCES_WINDOWS})
+else()
+add_library(${EXEC} STATIC ${SOURCES_GENERAL})
+endif()
 
 set(HEADERS_PUBLIC
 imgui/imconfig.h
