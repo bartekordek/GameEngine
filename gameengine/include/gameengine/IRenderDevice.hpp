@@ -214,6 +214,8 @@ public:
 
     virtual void* getNativeDevice() = 0;
     virtual bool isLegacy() = 0;
+    virtual size_t getFrameBufferCount() const = 0;
+    virtual void initDebugUI() = 0;
 
     virtual void resetMatrixToIdentity( const MatrixTypes matrix ) = 0;
     virtual void setProjection( const Camera& rect ) = 0;

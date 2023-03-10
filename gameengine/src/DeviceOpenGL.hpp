@@ -27,6 +27,7 @@ public:
 protected:
 private:
     ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
+    void initDebugUI() override;
 
     void setOrthogonalPerspective( const Camera& vp );
     void setPerspectiveProjection( const Camera& vp );
@@ -163,6 +164,7 @@ private:
 
     void rotate( const CUL::MATH::Rotation& rotation ) override;
     void draw( const CUL::MATH::Primitives::Line& values, const ColorS& color ) override;
+
     void rotate( const float angleDeg, const float x, const float y, const float z ) override;
 
     // Texturing
@@ -197,6 +199,9 @@ private:
     DeviceOpenGL( DeviceOpenGL&& arg ) = delete;
     DeviceOpenGL& operator=( const DeviceOpenGL& rhv ) = delete;
     DeviceOpenGL& operator=( DeviceOpenGL&& rhv ) = delete;
+
+    size_t getFrameBufferCount() const override;
+
 };
 
 NAMESPACE_END( LOGLW )

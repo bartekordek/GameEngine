@@ -7,6 +7,8 @@
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IMPORT_Windows.hpp"
 
+struct ImGuiContext;
+
 NAMESPACE_BEGIN( LOGLW )
 
 class DeviceDX12 final: public IRenderDevice
@@ -151,6 +153,7 @@ private:
 
 
 private:
+	void initDebugUI() override;
 	void GetHardwareAdapter(
 		IDXGIFactory1* pFactory,
 		IDXGIAdapter1** ppAdapter,
@@ -164,6 +167,12 @@ private:
 	void WaitForPreviousFrame();
 	void prepareFrame() override;
 	void finishFrame() override;
+	size_t getFrameBufferCount() const override;
+
+	struct FrameContext
+	{
+
+	};
 
 	Microsoft::WRL::ComPtr<ID3D12Device2> m_device;
 	Microsoft::WRL::ComPtr<IDXGIAdapter1> m_dxgiAdapter;
@@ -172,12 +181,14 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandListAllocator;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandList;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandListMain;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandListUI;
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
 	UINT m_rtvDescriptorSize = 0u;
-
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, FrameCount>  m_renderTargets;
+
+	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_srvDescHeap;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
@@ -195,6 +206,8 @@ private:
 
 	CD3DX12_VIEWPORT m_viewport;
 	CD3DX12_RECT m_scissorRect;
+
+	ImGuiContext* m_imguiContext = nullptr;
 };
 
 NAMESPACE_END( LOGLW )

@@ -2149,3 +2149,13 @@ void DeviceOpenGL::toggleDebugOutput( bool enable )
         glDisable( GL_DEBUG_OUTPUT );
     }
 }
+
+size_t DeviceOpenGL::getFrameBufferCount() const
+{
+	throw std::logic_error( "The method or operation is not implemented." );
+}
+
+void DeviceOpenGL::initDebugUI()
+{
+	throw std::logic_error( "The method or operation is not implemented." );
+}

@@ -44,6 +44,7 @@ void Playground::run()
     m_engine->registerKeyboardEventCallback( [this] ( const SDL2W::KeyboardState& key ){onKeyBoardEvent( key ); } );
     m_engine->registerWindowEventCallback( [this] ( const SDL2W::WindowEvent::Type type ){onWindowEvent( type ); } );
     m_engine->drawOrigin( true );
+    m_engine->drawDebugInfo( true );
     m_engine->startRenderingLoop();
 
     m_timer.reset(CUL::TimerFactory::getChronoTimer( m_engine->getLoger() ) );

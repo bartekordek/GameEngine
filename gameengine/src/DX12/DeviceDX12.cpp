@@ -4,6 +4,7 @@
 #include "gameengine/IGameEngine.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
 #include "SDL2Wrapper/WinSize.hpp"
+#include "LOGLWAdditionalDeps/ImportImgui.hpp"
 
 using namespace LOGLW;
 
@@ -202,9 +203,17 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
         rtvHeapDesc.NumDescriptors = FrameCount;
         rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
         rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-        ThrowIfFailed( m_device->CreateDescriptorHeap( &rtvHeapDesc, IID_PPV_ARGS( &m_rtvHeap ) ) );
+        ThrowIfFailed( m_device->CreateDescriptorHeap( &rtvHeapDesc, IID_PPV_ARGS( m_rtvHeap.ReleaseAndGetAddressOf() ) ) );
 
         m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_RTV );
+    }
+
+    {
+        D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+        desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+        desc.NumDescriptors = 1;
+        desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+        ThrowIfFailed( m_device->CreateDescriptorHeap( &desc, IID_PPV_ARGS( m_srvDescHeap.ReleaseAndGetAddressOf() ) ) );
     }
 
     // Create frame resources.
@@ -274,12 +283,11 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
         ThrowIfFailed( m_device->CreateGraphicsPipelineState( &psoDesc, IID_PPV_ARGS( &m_pipelineState ) ) );
     }
 
-    // Create the command list.
-    ThrowIfFailed( m_device->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandListAllocator.Get(), m_pipelineState.Get(), IID_PPV_ARGS( &m_commandList ) ) );
+    ThrowIfFailed( m_device->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandListAllocator.Get(), m_pipelineState.Get(), IID_PPV_ARGS( &m_commandListMain ) ) );
+    ThrowIfFailed( m_commandListMain->Close() );
 
-    // Command lists are created in the recording state, but there is nothing
-    // to record yet. The main loop expects it to be closed, so close it now.
-    ThrowIfFailed( m_commandList->Close() );
+	ThrowIfFailed( m_device->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandListAllocator.Get(), m_pipelineState.Get(), IID_PPV_ARGS( &m_commandListUI ) ) );
+	ThrowIfFailed( m_commandListUI->Close() );
 
     // Create the vertex buffer.
     {
@@ -445,11 +453,11 @@ void DeviceDX12::WaitForPreviousFrame()
 void DeviceDX12::prepareFrame()
 {
     ThrowIfFailed( m_commandListAllocator->Reset() );
-    ThrowIfFailed( m_commandList->Reset( m_commandListAllocator.Get(), m_pipelineState.Get() ) );
+    ThrowIfFailed( m_commandListMain->Reset( m_commandListAllocator.Get(), m_pipelineState.Get() ) );
 
-    m_commandList->SetGraphicsRootSignature( m_rootSignature.Get() );
-    m_commandList->RSSetViewports( 1, &m_viewport );
-    m_commandList->RSSetScissorRects( 1, &m_scissorRect );
+    m_commandListMain->SetGraphicsRootSignature( m_rootSignature.Get() );
+    m_commandListMain->RSSetViewports( 1, &m_viewport );
+    m_commandListMain->RSSetScissorRects( 1, &m_scissorRect );
 }
 
 void DeviceDX12::update()
@@ -457,26 +465,26 @@ void DeviceDX12::update()
 
 
     // Indicate that the back buffer will be used as a render target.
-    m_commandList->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET ) );
+    m_commandListMain->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET ) );
 
     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle( m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize );
-    m_commandList->OMSetRenderTargets( 1, &rtvHandle, FALSE, nullptr );
+    m_commandListMain->OMSetRenderTargets( 1, &rtvHandle, FALSE, nullptr );
 
     // Record commands.
     const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-    m_commandList->ClearRenderTargetView( rtvHandle, clearColor, 0, nullptr );
-    m_commandList->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-    m_commandList->IASetVertexBuffers( 0, 1, &m_vertexBufferView );
-    m_commandList->DrawInstanced( 3, 1, 0, 0 );
+    m_commandListMain->ClearRenderTargetView( rtvHandle, clearColor, 0, nullptr );
+    m_commandListMain->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+    m_commandListMain->IASetVertexBuffers( 0, 1, &m_vertexBufferView );
+    m_commandListMain->DrawInstanced( 3, 1, 0, 0 );
 
     // Indicate that the back buffer will now be used to present.
-    m_commandList->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT ) );
+    m_commandListMain->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT ) );
 
-    ThrowIfFailed( m_commandList->Close() );
+    ThrowIfFailed( m_commandListMain->Close() );
 
 
     // Execute the command list.
-    ID3D12CommandList* ppCommandLists[] = { m_commandList.Get() };
+    ID3D12CommandList* ppCommandLists[] = { m_commandListMain.Get() };
     m_commandQueue->ExecuteCommandLists( _countof( ppCommandLists ), ppCommandLists );
 
 }
@@ -887,6 +895,24 @@ void DeviceDX12::checkLastCommandForErrors()
 {
 }
 
+size_t DeviceDX12::getFrameBufferCount() const
+{
+    return FrameCount;
+}
+
+void DeviceDX12::initDebugUI()
+{
+	IMGUI_CHECKVERSION();
+    m_imguiContext = ImGui::CreateContext();
+	ImGui::StyleColorsDark();
+
+    ImGui_ImplSDL2_InitForD3D( m_window->getSDLWindow() );
+	ImGui_ImplDX12_Init( m_device.Get(),
+                         FrameCount,
+						 DXGI_FORMAT_R8G8B8A8_UNORM, m_srvDescHeap.Get(),
+                         m_srvDescHeap->GetCPUDescriptorHandleForHeapStart(),
+                         m_srvDescHeap->GetGPUDescriptorHandleForHeapStart() );
+}
 
 void ThrowIfFailed( HRESULT hr )
 {

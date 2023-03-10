@@ -27,6 +27,7 @@
 #include "CUL/JSON/INode.hpp"
 #include "CUL/STL_IMPORTS/STD_iostream.hpp"
 #include "CUL/STL_IMPORTS/STD_condition_variable.hpp"
+#include "CUL/STL_IMPORTS/STD_exception.hpp"
 
 #undef LoadImage
 using namespace LOGLW;
@@ -65,7 +66,11 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
     }
     else if( rendererName == "DX12" )
     {
+#if defined(GAME_ENGINE_WINDOWS)
         m_renderDevice = new DeviceDX12( m_sdlW->getCul() );
+#else
+        CUL::Assert::simple( false, "NOTE IMPLEMENTED." );
+#endif
     }
     else
     {
@@ -396,13 +401,12 @@ void GameEngineConcrete::initDebugInfo()
 {
     if( !m_debugDrawInitialized )
     {
-        IMGUI_CHECKVERSION();
-        auto imguiContext = ImGui::CreateContext();
-        setGuiContext( imguiContext );
-        ImGui::StyleColorsDark();
-
         if( m_activeWindow->getRenderName().toLowerR().contains( "opengl" ) )
         {
+			IMGUI_CHECKVERSION();
+			auto imguiContext = ImGui::CreateContext();
+			setGuiContext( imguiContext );
+			ImGui::StyleColorsDark();
             ImGui_ImplSDL2_InitForOpenGL( *m_activeWindow, getContext().glContext );
 
             if( getDevice()->getIsEmbeddedSystems() )
@@ -416,11 +420,7 @@ void GameEngineConcrete::initDebugInfo()
         }
         else
         {
-            ImGui_ImplWin32_Init( m_activeWindow->getHWND() );
-            ImGui_ImplDX12_Init( g_pd3dDevice, NUM_FRAMES_IN_FLIGHT,
-                                 DXGI_FORMAT_R8G8B8A8_UNORM, g_pd3dSrvDescHeap,
-                                 g_pd3dSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
-                                 g_pd3dSrvDescHeap->GetGPUDescriptorHandleForHeapStart() );
+            m_renderDevice->initDebugUI();
         }
 
         m_debugDrawInitialized = true;
@@ -553,16 +553,23 @@ void GameEngineConcrete::renderInfo()
 {
     const auto& winSize = m_activeWindow->getSize();
 
-    if( m_renderDevice->getIsEmbeddedSystems() )
+    if ( m_activeWindow->getRenderName().toLowerR().contains("opengl") )
     {
-        ImGui_ImplOpenGL3_NewFrame();
+        if( m_renderDevice->getIsEmbeddedSystems() )
+        {
+            ImGui_ImplOpenGL3_NewFrame();
+        }
+        else
+        {
+            ImGui_ImplOpenGL2_NewFrame();
+        }
+        ImGui_ImplSDL2_NewFrame( *m_activeWindow );
     }
     else
     {
-        ImGui_ImplOpenGL2_NewFrame();
+        ImGui_ImplDX12_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
     }
-
-    ImGui_ImplSDL2_NewFrame( *m_activeWindow );
 
     ImGui::NewFrame();
 
@@ -740,13 +747,20 @@ void GameEngineConcrete::renderInfo()
 
     ImGui::Render();
 
-    if( m_renderDevice->getIsEmbeddedSystems() )
+    if( m_activeWindow->getRenderName().toLowerR().contains( "opengl" ) )
     {
-        ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+        if( m_renderDevice->getIsEmbeddedSystems() )
+        {
+            ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
+        }
+        else
+        {
+            ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData() );
+        }
     }
-    else
+    else if ( m_activeWindow->getRenderName().toLowerR().contains( "dx12" ) )
     {
-        ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData() );
+        //ImGui_ImplDX12_RenderDrawData();
     }
 }
 #if _MSC_VER
