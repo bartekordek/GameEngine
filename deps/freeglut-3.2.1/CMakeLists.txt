@@ -60,9 +60,6 @@ IF(MSVC)
 ELSE()
     SET(INSTALL_PDB OFF)
 ENDIF()
-
-message( "DEBUG: 0" )
-
 # OpenGL ES support
 OPTION(FREEGLUT_GLES "Use OpenGL ES (requires EGL)" OFF)
 
@@ -73,14 +70,10 @@ ELSE()
     OPTION(FREEGLUT_REPLACE_GLUT "Be a replacement for GLUT" ON)
 ENDIF()
 
-message( "DEBUG: 1" )
-
 IF(NOT WIN32)
     # Wayland support
     OPTION(FREEGLUT_WAYLAND "Use Wayland (no X11)" OFF)
 ENDIF()
-
-message( "DEBUG: 2" )
 
 SET(FREEGLUT_HEADERS
     include/GL/freeglut.h
@@ -134,8 +127,6 @@ ELSE()
         src/gles_stubs.c
     )
 ENDIF()
-
-message( "DEBUG: 3" )
 
 IF(WIN32)
     LIST(APPEND FREEGLUT_SRCS
@@ -251,8 +242,6 @@ ELSE()
     ENDIF()
 ENDIF()
 
-message( "DEBUG: 4" )
-
 # OpenGL ES requires EGL, and so does Wayland
 IF(FREEGLUT_GLES OR FREEGLUT_WAYLAND)
     LIST(APPEND FREEGLUT_SRCS
@@ -284,8 +273,6 @@ ELSE()
   INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
 ENDIF()
 
-message( "DEBUG: 5" )
-
 # For Wayland: compile with -DFREEGLUT_WAYLAND and pull EGL
 IF(FREEGLUT_WAYLAND)
   ADD_DEFINITIONS(-DFREEGLUT_WAYLAND)
@@ -299,8 +286,6 @@ IF (NOT WIN32)
     # For CHECK_FUNCTION_EXISTS:
     LIST(APPEND CMAKE_REQUIRED_LIBRARIES m)
 ENDIF()
-
-message( "DEBUG: 6" )
 
 IF(WIN32)
     # hide insecure CRT warnings, common practice
@@ -324,9 +309,6 @@ IF(WIN32)
     ENDIF()
 
 ENDIF()
-
-
-message( "DEBUG: 7" )
 
 IF(CMAKE_COMPILER_IS_GNUCC)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
@@ -428,9 +410,6 @@ IF(FREEGLUT_BUILD_STATIC_LIBS)
     ADD_LIBRARY(freeglut_static STATIC ${FREEGLUT_SRCS})
 ENDIF()
 
-message( "DEBUG: 8" )
-
-
 SET(LIBNAME freeglut)
 IF(WIN32)
     IF(FREEGLUT_REPLACE_GLUT)
@@ -507,8 +486,6 @@ IF(FREEGLUT_BUILD_STATIC_LIBS)
     TARGET_COMPILE_DEFINITIONS(freeglut_static PUBLIC ${PUBLIC_DEFINITIONS})
 ENDIF()
 
-message( "DEBUG: 9" )
-
 IF(FREEGLUT_BUILD_SHARED_LIBS)
     INSTALL(TARGETS freeglut EXPORT FreeGLUTTargets
             RUNTIME DESTINATION bin
@@ -550,8 +527,6 @@ SET(DEMO_LIBS ${OPENGL_glu_LIBRARY} ${LIBS})
 IF (NOT WIN32)
     LIST(APPEND DEMO_LIBS m)
 ENDIF()
-
-message( "DEBUG: 10" )
 
 MACRO(ADD_DEMO name)
     IF( FREEGLUT_BUILD_DEMOS )
@@ -596,8 +571,6 @@ ENDIF()
 ADD_DEMO(subwin          progs/demos/subwin/subwin.c)
 ADD_DEMO(timer           progs/demos/timer/timer.c)
 ADD_DEMO(timer_callback  progs/demos/timer_callback/timer.c)
-
-message( "DEBUG: 11" )
 
 # pkg-config support, to install at $(libdir)/pkgconfig
 # Define static build dependencies
@@ -668,5 +641,3 @@ INSTALL(
     DESTINATION ${ConfigPackageLocation}
     COMPONENT Devel
 )
-
-message( "DEBUG: 99" )
