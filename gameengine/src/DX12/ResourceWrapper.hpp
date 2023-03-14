@@ -4,16 +4,15 @@
 
 #if defined(GAME_ENGINE_WINDOWS)
 
-#include "gameengine/IMPORT_Windows.hpp"
+#include "DX12/ImportWindows.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
 
-struct CommandListParams
-{
-	CommandListParams();
 
-	ID3D12Device2* Device = nullptr;
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC Description;
+struct ResourceWrapper
+{
+	ComPtr<ID3D12Resource> Resource;
+	D3D12_RESOURCE_STATES State = D3D12_RESOURCE_STATE_COMMON;
 };
 
 NAMESPACE_END( LOGLW )

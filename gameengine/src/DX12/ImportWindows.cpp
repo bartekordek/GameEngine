@@ -1,9 +1,9 @@
 #include "DX12/ImportWindows.hpp"
 
-using namespace LOGLW;
+#if defined(GAME_ENGINE_WINDOWS)
 
 
-void ThrowIfFailed( HRESULT hr )
+void LOGLW::ThrowIfFailed( HRESULT hr )
 {
     if( FAILED( hr ) )
     {
@@ -13,3 +13,5 @@ void ThrowIfFailed( HRESULT hr )
         throw;
     }
 }
+
+#endif // GAME_ENGINE_WINDOWS

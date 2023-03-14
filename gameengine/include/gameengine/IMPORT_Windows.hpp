@@ -24,9 +24,5 @@
 #undef max
 #undef interface
 
-struct WindowsUtils
-{
-	static void ThrowIfFailed( HRESULT hr );
-};
 
 #endif // #if defined(GAME_ENGINE_WINDOWS)

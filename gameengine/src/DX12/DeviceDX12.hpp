@@ -5,11 +5,15 @@
 #if defined(GAME_ENGINE_WINDOWS)
 
 #include "gameengine/IRenderDevice.hpp"
+#include "DX12/CommandListWrapper.hpp"
+#include "DX12/ResourceWrapper.hpp"
 #include "gameengine/IMPORT_Windows.hpp"
 
 struct ImGuiContext;
 
 NAMESPACE_BEGIN( LOGLW )
+
+
 
 class DeviceDX12 final: public IRenderDevice
 {
@@ -163,37 +167,33 @@ private:
 	SDL2W::IWindow* m_window = nullptr;
 	static const UINT FrameCount = 2;
 
-	Microsoft::WRL::ComPtr<ID3D12Device2> CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4>& adapter );
+	ComPtr<ID3D12Device2> CreateDevice( ComPtr<IDXGIAdapter4>& adapter );
 	void WaitForPreviousFrame();
 	void prepareFrame() override;
 	void finishFrame() override;
 	size_t getFrameBufferCount() const override;
 
-	struct FrameContext
-	{
+	ComPtr<ID3D12Device2> m_device;
+	ComPtr<IDXGIAdapter1> m_dxgiAdapter;
+	ComPtr<IDXGISwapChain3> m_swapChain;
+	ComPtr<IDXGIFactory4> m_factory;
 
-	};
+	CommandListWrapper m_mainContext;
+	CommandListWrapper m_uiContext;
 
-	Microsoft::WRL::ComPtr<ID3D12Device2> m_device;
-	Microsoft::WRL::ComPtr<IDXGIAdapter1> m_dxgiAdapter;
-	Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapChain;
-	Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
+	ComPtr<ID3D12CommandQueue> m_commandQueue;
 
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandListAllocator;
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandListMain;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandListUI;
-
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
+	ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
 	UINT m_rtvDescriptorSize = 0u;
-	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, FrameCount>  m_renderTargets;
 
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_srvDescHeap;
+	std::array<ResourceWrapper, FrameCount> m_renderTargets;
 
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
+	ComPtr<ID3D12DescriptorHeap> m_srvDescHeap;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
+	ComPtr<ID3D12RootSignature> m_rootSignature;
+	ComPtr<ID3D12PipelineState> m_pipelineState;
+
+	ComPtr<ID3D12Resource> m_vertexBuffer;
 
 	D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
 
@@ -201,7 +201,7 @@ private:
 
 	UINT m_frameIndex = 0u;
 	UINT64 m_fenceValue = 0u;
-	Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
+	ComPtr<ID3D12Fence> m_fence;
 	HANDLE m_fenceEvent;
 
 	CD3DX12_VIEWPORT m_viewport;

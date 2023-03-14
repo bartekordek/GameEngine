@@ -8,12 +8,12 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
-struct CommandListParams
+struct FramePerapreParams
 {
-	CommandListParams();
-
-	ID3D12Device2* Device = nullptr;
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC Description;
+	ID3D12PipelineState* PipelineState = nullptr;
+	ID3D12RootSignature* RootSignature = nullptr;
+	D3D12_VIEWPORT* Viewport = nullptr;
+	D3D12_RECT* ScissorRect = nullptr;
 };
 
 NAMESPACE_END( LOGLW )
