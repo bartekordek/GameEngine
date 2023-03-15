@@ -105,116 +105,19 @@ void ThrowIfFailed( HRESULT hr );
 ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
 {
     m_window = window;
-
-    m_viewport.TopLeftX = 0;
-    m_viewport.TopLeftY = 0;
-    m_viewport.MinDepth = 0;
-    m_viewport.MaxDepth = 1;
-    m_viewport.Width = window->getSize().getWidth();
-    m_viewport.Height = window->getSize().getHeight();
-
-    m_scissorRect.bottom = m_viewport.Height;
-    m_scissorRect.left = 0;
-    m_scissorRect.right = m_viewport.Width;
-    m_scissorRect.top = 0;
-
+    setViewportSize();
+    setScissorRect();
     m_aspectRatio = static_cast<float>( m_viewport.Width ) / static_cast<float>( m_viewport.Height );
+    initInterfaces();
+    createDXDevice();
+
+    createCommandQueue();
 
 
-    UINT dxgiFactoryFlags = 0;
+    createSwapChain();
 
-#if defined(_DEBUG)
-    // Enable the debug layer (requires the Graphics Tools "optional feature").
-    // NOTE: Enabling the debug layer after device creation will invalidate the active device.
-    {
-        Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
-        if( SUCCEEDED( D3D12GetDebugInterface( IID_PPV_ARGS( &debugController ) ) ) )
-        {
-            debugController->EnableDebugLayer();
+    createDescriptorHeaps();
 
-            // Enable additional debug layers.
-            dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
-        }
-    }
-#endif
-    ThrowIfFailed( CreateDXGIFactory2( dxgiFactoryFlags, IID_PPV_ARGS( m_factory.ReleaseAndGetAddressOf() ) ) );
-
-    if( m_useWarpDevice )
-    {
-        Microsoft::WRL::ComPtr<IDXGIAdapter> warpAdapter;
-        ThrowIfFailed( m_factory->EnumWarpAdapter( IID_PPV_ARGS( &warpAdapter ) ) );
-
-        ThrowIfFailed( D3D12CreateDevice(
-            warpAdapter.Get(),
-            D3D_FEATURE_LEVEL_11_0,
-            IID_PPV_ARGS( &m_device )
-        ) );
-    }
-    else
-    {
-        Microsoft::WRL::ComPtr<IDXGIAdapter1> hardwareAdapter;
-        m_dxgiAdapter = hardwareAdapter;
-        GetHardwareAdapter( m_factory.Get(), &hardwareAdapter );
-
-        ThrowIfFailed( D3D12CreateDevice(
-            hardwareAdapter.Get(),
-            D3D_FEATURE_LEVEL_11_0,
-            IID_PPV_ARGS( &m_device )
-        ) );
-    }
-
-    // Describe and create the command queue.
-    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
-    ThrowIfFailed( m_device->CreateCommandQueue( &queueDesc, IID_PPV_ARGS( &m_commandQueue ) ) );
-
-    // Describe and create the swap chain.
-    DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-    swapChainDesc.BufferCount = FrameCount;
-    swapChainDesc.Width = m_window->getSize().getWidth();
-    swapChainDesc.Height = m_window->getSize().getHeight();
-    swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    swapChainDesc.SampleDesc.Count = 1;
-
-    ComPtr<IDXGISwapChain1> swapChain;
-    ThrowIfFailed( m_factory->CreateSwapChainForHwnd(
-        m_commandQueue.Get(),        // Swap chain needs the queue so that it can force a flush on it.
-        m_window->getHWND(),
-        &swapChainDesc,
-        nullptr,
-        nullptr,
-        &swapChain
-    ) );
-
-    // This sample does not support fullscreen transitions.
-    ThrowIfFailed( m_factory->MakeWindowAssociation( m_window->getHWND(), DXGI_MWA_NO_ALT_ENTER ) );
-
-    ThrowIfFailed( swapChain.As( &m_swapChain ) );
-    m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
-
-    // Create descriptor heaps.
-    {
-        // Describe and create a render target view (RTV) descriptor heap.
-        D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-        rtvHeapDesc.NumDescriptors = FrameCount;
-        rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-        rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-        ThrowIfFailed( m_device->CreateDescriptorHeap( &rtvHeapDesc, IID_PPV_ARGS( m_rtvHeap.ReleaseAndGetAddressOf() ) ) );
-
-        m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_RTV );
-    }
-
-    {
-        D3D12_DESCRIPTOR_HEAP_DESC desc = {};
-        desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-        desc.NumDescriptors = 1;
-        desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-        ThrowIfFailed( m_device->CreateDescriptorHeap( &desc, IID_PPV_ARGS( m_srvDescHeap.ReleaseAndGetAddressOf() ) ) );
-    }
 
     // Create frame resources.
     {
@@ -348,6 +251,110 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
 
 
     return result;
+}
+
+void DeviceDX12::setViewportSize()
+{
+    m_viewport.TopLeftX = 0;
+    m_viewport.TopLeftY = 0;
+    m_viewport.MinDepth = 0;
+    m_viewport.MaxDepth = 1;
+    m_viewport.Width = m_window->getSize().getWidth();
+    m_viewport.Height = m_window->getSize().getHeight();
+}
+
+void DeviceDX12::setScissorRect()
+{
+    m_scissorRect.bottom = m_viewport.Height;
+    m_scissorRect.left = 0;
+    m_scissorRect.right = m_viewport.Width;
+    m_scissorRect.top = 0;
+}
+
+void DeviceDX12::initInterfaces()
+{
+    UINT dxgiFactoryFlags = 0;
+#if defined(_DEBUG)
+    // Enable the debug layer (requires the Graphics Tools "optional feature").
+    // NOTE: Enabling the debug layer after device creation will invalidate the active device.
+    {
+        Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
+        if( SUCCEEDED( D3D12GetDebugInterface( IID_PPV_ARGS( &debugController ) ) ) )
+        {
+            debugController->EnableDebugLayer();
+
+            // Enable additional debug layers.
+            dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+        }
+    }
+#endif
+    ThrowIfFailed( CreateDXGIFactory2( dxgiFactoryFlags, IID_PPV_ARGS( m_factory.ReleaseAndGetAddressOf() ) ) );
+}
+
+void DeviceDX12::createDXDevice()
+{
+    if( m_useWarpDevice )
+    {
+        Microsoft::WRL::ComPtr<IDXGIAdapter> warpAdapter;
+        ThrowIfFailed( m_factory->EnumWarpAdapter( IID_PPV_ARGS( &warpAdapter ) ) );
+
+        ThrowIfFailed( D3D12CreateDevice(
+            warpAdapter.Get(),
+            D3D_FEATURE_LEVEL_11_0,
+            IID_PPV_ARGS( &m_device )
+        ) );
+    }
+    else
+    {
+        Microsoft::WRL::ComPtr<IDXGIAdapter1> hardwareAdapter;
+        m_dxgiAdapter = hardwareAdapter;
+        GetHardwareAdapter( m_factory.Get(), &hardwareAdapter );
+
+        ThrowIfFailed( D3D12CreateDevice(
+            hardwareAdapter.Get(),
+            D3D_FEATURE_LEVEL_11_0,
+            IID_PPV_ARGS( &m_device )
+        ) );
+    }
+}
+
+void DeviceDX12::createCommandQueue()
+{
+	// Describe and create the command queue.
+	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+	ThrowIfFailed( m_device->CreateCommandQueue( &queueDesc, IID_PPV_ARGS( &m_commandQueue ) ) );
+}
+
+void DeviceDX12::createSwapChain()
+{
+	// Describe and create the swap chain.
+	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+	swapChainDesc.BufferCount = FrameCount;
+	swapChainDesc.Width = m_window->getSize().getWidth();
+	swapChainDesc.Height = m_window->getSize().getHeight();
+	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.SampleDesc.Count = 1;
+
+	ComPtr<IDXGISwapChain1> swapChain;
+	ThrowIfFailed( m_factory->CreateSwapChainForHwnd(
+		m_commandQueue.Get(),        // Swap chain needs the queue so that it can force a flush on it.
+		m_window->getHWND(),
+		&swapChainDesc,
+		nullptr,
+		nullptr,
+		&swapChain
+	) );
+
+	// This sample does not support fullscreen transitions.
+	ThrowIfFailed( m_factory->MakeWindowAssociation( m_window->getHWND(), DXGI_MWA_NO_ALT_ENTER ) );
+
+	ThrowIfFailed( swapChain.As( &m_swapChain ) );
+	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 }
 
 
@@ -912,6 +919,29 @@ void DeviceDX12::initDebugUI()
 						 DXGI_FORMAT_R8G8B8A8_UNORM, m_srvDescHeap.Get(),
                          m_srvDescHeap->GetCPUDescriptorHandleForHeapStart(),
                          m_srvDescHeap->GetGPUDescriptorHandleForHeapStart() );
+}
+
+void DeviceDX12::createDescriptorHeaps()
+{
+	// Create descriptor heaps.
+	{
+		// Describe and create a render target view (RTV) descriptor heap.
+		D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+		rtvHeapDesc.NumDescriptors = FrameCount;
+		rtvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		rtvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		ThrowIfFailed( m_device->CreateDescriptorHeap( &rtvHeapDesc, IID_PPV_ARGS( m_rtvHeap.ReleaseAndGetAddressOf() ) ) );
+
+		m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize( D3D12_DESCRIPTOR_HEAP_TYPE_RTV );
+	}
+
+	{
+		D3D12_DESCRIPTOR_HEAP_DESC desc = {};
+		desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		desc.NumDescriptors = 1;
+		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		ThrowIfFailed( m_device->CreateDescriptorHeap( &desc, IID_PPV_ARGS( m_srvDescHeap.ReleaseAndGetAddressOf() ) ) );
+	}
 }
 
 void ThrowIfFailed( HRESULT hr )

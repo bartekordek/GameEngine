@@ -63,6 +63,17 @@ private:
 	void dettachShader( unsigned programId, unsigned shaderId ) override;
 	void removeShader( unsigned shaderId ) override;
 	ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
+
+	void createDescriptorHeaps();
+
+	void createSwapChain();
+
+	void createCommandQueue();
+
+	void setViewportSize();
+	void setScissorRect();
+	void initInterfaces();
+	void createDXDevice();
 	void setAttribValue( int attributeLocation, float value ) override;
 	void setAttribValue( int attributeLocation, int value ) override;
 	void setAttribValue( int attributeLocation, unsigned value ) override;
