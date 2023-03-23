@@ -567,7 +567,9 @@ void GameEngineConcrete::renderInfo()
     }
     else
     {
+#if defined(GAME_ENGINE_WINDOWS)
         ImGui_ImplDX12_NewFrame();
+#endif // #if defined(GAME_ENGINE_WINDOWS)
         ImGui_ImplSDL2_NewFrame();
     }
 
