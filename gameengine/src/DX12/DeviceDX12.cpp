@@ -110,27 +110,12 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
     m_aspectRatio = static_cast<float>( m_viewport.Width ) / static_cast<float>( m_viewport.Height );
     initInterfaces();
     createDXDevice();
-
     createCommandQueue();
-
-
     createSwapChain();
-
     createDescriptorHeaps();
+    createRenderTargetViews();
 
 
-    // Create frame resources.
-    {
-        CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle( m_rtvHeap->GetCPUDescriptorHandleForHeapStart() );
-
-        // Create a RTV for each frame.
-        for( UINT n = 0; n < FrameCount; n++ )
-        {
-            ThrowIfFailed( m_swapChain->GetBuffer( n, IID_PPV_ARGS( &m_renderTargets[n] ) ) );
-            m_device->CreateRenderTargetView( m_renderTargets[n].Get(), nullptr, rtvHandle );
-            rtvHandle.Offset( 1, m_rtvDescriptorSize );
-        }
-    }
 
     ThrowIfFailed( m_device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( m_commandListAllocator.ReleaseAndGetAddressOf() ) ) );
 
@@ -942,6 +927,19 @@ void DeviceDX12::createDescriptorHeaps()
 		desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 		ThrowIfFailed( m_device->CreateDescriptorHeap( &desc, IID_PPV_ARGS( m_srvDescHeap.ReleaseAndGetAddressOf() ) ) );
 	}
+}
+
+void DeviceDX12::createRenderTargetViews()
+{
+    CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle( m_rtvHeap->GetCPUDescriptorHandleForHeapStart() );
+
+    // Create a RTV for each frame.
+    for( UINT n = 0; n < FrameCount; n++ )
+    {
+        ThrowIfFailed( m_swapChain->GetBuffer( n, IID_PPV_ARGS( &m_renderTargets[n] ) ) );
+        m_device->CreateRenderTargetView( m_renderTargets[n].Get(), nullptr, rtvHandle );
+        rtvHandle.Offset( 1, m_rtvDescriptorSize );
+    }
 }
 
 void ThrowIfFailed( HRESULT hr )

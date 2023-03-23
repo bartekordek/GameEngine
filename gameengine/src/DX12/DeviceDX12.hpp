@@ -65,7 +65,7 @@ private:
 	ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
 
 	void createDescriptorHeaps();
-
+	void createRenderTargetViews();
 	void createSwapChain();
 
 	void createCommandQueue();
