@@ -115,11 +115,6 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
     createDescriptorHeaps();
     createRenderTargetViews();
 
-
-
-    ThrowIfFailed( m_device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( m_commandListAllocator.ReleaseAndGetAddressOf() ) ) );
-
-
     // Create an empty root signature.
     {
         CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
@@ -170,6 +165,8 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
         psoDesc.SampleDesc.Count = 1;
         ThrowIfFailed( m_device->CreateGraphicsPipelineState( &psoDesc, IID_PPV_ARGS( &m_pipelineState ) ) );
     }
+
+    ThrowIfFailed( m_device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( m_commandListAllocator.ReleaseAndGetAddressOf() ) ) );
 
     ThrowIfFailed( m_device->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandListAllocator.Get(), m_pipelineState.Get(), IID_PPV_ARGS( &m_commandListMain ) ) );
     ThrowIfFailed( m_commandListMain->Close() );
