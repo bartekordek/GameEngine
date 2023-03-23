@@ -66,6 +66,7 @@ private:
 
 	void createDescriptorHeaps();
 	void createRenderTargetViews();
+	void createRootSignature();
 	void createSwapChain();
 
 	void createCommandQueue();

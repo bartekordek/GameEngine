@@ -114,17 +114,7 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
     createSwapChain();
     createDescriptorHeaps();
     createRenderTargetViews();
-
-    // Create an empty root signature.
-    {
-        CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-        rootSignatureDesc.Init( 0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT );
-
-        ComPtr<ID3DBlob> signature;
-        ComPtr<ID3DBlob> error;
-        ThrowIfFailed( D3D12SerializeRootSignature( &rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error ) );
-        ThrowIfFailed( m_device->CreateRootSignature( 0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS( &m_rootSignature ) ) );
-    }
+    createRootSignature();
 
     // Create the pipeline state, which includes compiling and loading shaders.
     {
@@ -937,6 +927,17 @@ void DeviceDX12::createRenderTargetViews()
         m_device->CreateRenderTargetView( m_renderTargets[n].Get(), nullptr, rtvHandle );
         rtvHandle.Offset( 1, m_rtvDescriptorSize );
     }
+}
+
+void DeviceDX12::createRootSignature()
+{
+    CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
+    rootSignatureDesc.Init( 0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT );
+
+    ComPtr<ID3DBlob> signature;
+    ComPtr<ID3DBlob> error;
+    ThrowIfFailed( D3D12SerializeRootSignature( &rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error ) );
+    ThrowIfFailed( m_device->CreateRootSignature( 0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS( &m_rootSignature ) ) );
 }
 
 void ThrowIfFailed( HRESULT hr )
