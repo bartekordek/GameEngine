@@ -11,6 +11,14 @@ struct ImGuiContext;
 
 NAMESPACE_BEGIN( LOGLW )
 
+struct CommandWrapper
+{
+	void create( ID3D12Device2* device );
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> PipelineState;
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> Allocator;
+	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> CommandList;
+};
+
 class DeviceDX12 final: public IRenderDevice
 {
 public:
@@ -67,6 +75,7 @@ private:
 	void createDescriptorHeaps();
 	void createRenderTargetViews();
 	void createRootSignature();
+	void createShaders();
 	void createSwapChain();
 
 	void createCommandQueue();
@@ -181,19 +190,15 @@ private:
 	void finishFrame() override;
 	size_t getFrameBufferCount() const override;
 
-	struct FrameContext
-	{
-
-	};
 
 	Microsoft::WRL::ComPtr<ID3D12Device2> m_device;
 	Microsoft::WRL::ComPtr<IDXGIAdapter1> m_dxgiAdapter;
 	Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapChain;
 	Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
 
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> m_commandListAllocator;
+	CommandWrapper m_mainCommandWrapper;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandListMain;
+	
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandListUI;
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
@@ -203,7 +208,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_srvDescHeap;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipelineState;
+	
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
 

@@ -115,54 +115,11 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
     createDescriptorHeaps();
     createRenderTargetViews();
     createRootSignature();
+    createShaders();
 
-    // Create the pipeline state, which includes compiling and loading shaders.
-    {
-        ComPtr<ID3DBlob> vertexShader;
-        ComPtr<ID3DBlob> pixelShader;
+    m_mainCommandWrapper.create( m_device.Get() );
 
-#if defined(_DEBUG)
-        // Enable better shader debugging with the graphics debugging tools.
-        UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
-        UINT compileFlags = 0;
-#endif
-
-        ThrowIfFailed( D3DCompileFromFile( L"shaders.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr ) );
-        ThrowIfFailed( D3DCompileFromFile( L"shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr ) );
-
-        // Define the vertex input layout.
-        D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
-        {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-            { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-        };
-
-        // Describe and create the graphics pipeline state object (PSO).
-        D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-        psoDesc.InputLayout = { inputElementDescs, _countof( inputElementDescs ) };
-        psoDesc.pRootSignature = m_rootSignature.Get();
-        psoDesc.VS = CD3DX12_SHADER_BYTECODE( vertexShader.Get() );
-        psoDesc.PS = CD3DX12_SHADER_BYTECODE( pixelShader.Get() );
-        psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC( D3D12_DEFAULT );
-        psoDesc.BlendState = CD3DX12_BLEND_DESC( D3D12_DEFAULT );
-        psoDesc.DepthStencilState.DepthEnable = FALSE;
-        psoDesc.DepthStencilState.StencilEnable = FALSE;
-        psoDesc.SampleMask = UINT_MAX;
-        psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-        psoDesc.NumRenderTargets = 1;
-        psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-        psoDesc.SampleDesc.Count = 1;
-        ThrowIfFailed( m_device->CreateGraphicsPipelineState( &psoDesc, IID_PPV_ARGS( &m_pipelineState ) ) );
-    }
-
-    ThrowIfFailed( m_device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( m_commandListAllocator.ReleaseAndGetAddressOf() ) ) );
-
-    ThrowIfFailed( m_device->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandListAllocator.Get(), m_pipelineState.Get(), IID_PPV_ARGS( &m_commandListMain ) ) );
-    ThrowIfFailed( m_commandListMain->Close() );
-
-	ThrowIfFailed( m_device->CreateCommandList( 0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandListAllocator.Get(), m_pipelineState.Get(), IID_PPV_ARGS( &m_commandListUI ) ) );
-	ThrowIfFailed( m_commandListUI->Close() );
+	//ThrowIfFailed( m_commandListUI->Close() );
 
     // Create the vertex buffer.
     {
@@ -431,39 +388,41 @@ void DeviceDX12::WaitForPreviousFrame()
 
 void DeviceDX12::prepareFrame()
 {
-    ThrowIfFailed( m_commandListAllocator->Reset() );
-    ThrowIfFailed( m_commandListMain->Reset( m_commandListAllocator.Get(), m_pipelineState.Get() ) );
+    ThrowIfFailed( m_mainCommandWrapper.Allocator->Reset() );
 
-    m_commandListMain->SetGraphicsRootSignature( m_rootSignature.Get() );
-    m_commandListMain->RSSetViewports( 1, &m_viewport );
-    m_commandListMain->RSSetScissorRects( 1, &m_scissorRect );
+    ThrowIfFailed(
+        m_mainCommandWrapper.CommandList->Reset(
+            m_mainCommandWrapper.Allocator.Get(),
+            m_mainCommandWrapper.PipelineState.Get() ) );
+
+    m_mainCommandWrapper.CommandList->SetGraphicsRootSignature( m_rootSignature.Get() );
+    m_mainCommandWrapper.CommandList->RSSetViewports( 1, &m_viewport );
+    m_mainCommandWrapper.CommandList->RSSetScissorRects( 1, &m_scissorRect );
 }
 
 void DeviceDX12::update()
 {
-
-
     // Indicate that the back buffer will be used as a render target.
-    m_commandListMain->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET ) );
+    m_mainCommandWrapper.CommandList->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET ) );
 
     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle( m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize );
-    m_commandListMain->OMSetRenderTargets( 1, &rtvHandle, FALSE, nullptr );
+    m_mainCommandWrapper.CommandList->OMSetRenderTargets( 1, &rtvHandle, FALSE, nullptr );
 
     // Record commands.
     const float clearColor[] = { 0.0f, 0.2f, 0.4f, 1.0f };
-    m_commandListMain->ClearRenderTargetView( rtvHandle, clearColor, 0, nullptr );
-    m_commandListMain->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
-    m_commandListMain->IASetVertexBuffers( 0, 1, &m_vertexBufferView );
-    m_commandListMain->DrawInstanced( 3, 1, 0, 0 );
+    m_mainCommandWrapper.CommandList->ClearRenderTargetView( rtvHandle, clearColor, 0, nullptr );
+    m_mainCommandWrapper.CommandList->IASetPrimitiveTopology( D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST );
+    m_mainCommandWrapper.CommandList->IASetVertexBuffers( 0, 1, &m_vertexBufferView );
+    m_mainCommandWrapper.CommandList->DrawInstanced( 3, 1, 0, 0 );
 
     // Indicate that the back buffer will now be used to present.
-    m_commandListMain->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT ) );
+    m_mainCommandWrapper.CommandList->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT ) );
 
-    ThrowIfFailed( m_commandListMain->Close() );
+    ThrowIfFailed( m_mainCommandWrapper.CommandList->Close() );
 
 
     // Execute the command list.
-    ID3D12CommandList* ppCommandLists[] = { m_commandListMain.Get() };
+    ID3D12CommandList* ppCommandLists[] = { m_mainCommandWrapper.CommandList.Get() };
     m_commandQueue->ExecuteCommandLists( _countof( ppCommandLists ), ppCommandLists );
 
 }
@@ -940,6 +899,46 @@ void DeviceDX12::createRootSignature()
     ThrowIfFailed( m_device->CreateRootSignature( 0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS( &m_rootSignature ) ) );
 }
 
+void DeviceDX12::createShaders()
+{
+    ComPtr<ID3DBlob> vertexShader;
+    ComPtr<ID3DBlob> pixelShader;
+
+#if defined(_DEBUG)
+    // Enable better shader debugging with the graphics debugging tools.
+    UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#else
+    UINT compileFlags = 0;
+#endif
+
+    ThrowIfFailed( D3DCompileFromFile( L"shaders.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr ) );
+    ThrowIfFailed( D3DCompileFromFile( L"shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr ) );
+
+    // Define the vertex input layout.
+    D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
+    {
+        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
+    };
+
+    // Describe and create the graphics pipeline state object (PSO).
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+    psoDesc.InputLayout = { inputElementDescs, _countof( inputElementDescs ) };
+    psoDesc.pRootSignature = m_rootSignature.Get();
+    psoDesc.VS = CD3DX12_SHADER_BYTECODE( vertexShader.Get() );
+    psoDesc.PS = CD3DX12_SHADER_BYTECODE( pixelShader.Get() );
+    psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC( D3D12_DEFAULT );
+    psoDesc.BlendState = CD3DX12_BLEND_DESC( D3D12_DEFAULT );
+    psoDesc.DepthStencilState.DepthEnable = FALSE;
+    psoDesc.DepthStencilState.StencilEnable = FALSE;
+    psoDesc.SampleMask = UINT_MAX;
+    psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psoDesc.NumRenderTargets = 1;
+    psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+    psoDesc.SampleDesc.Count = 1;
+    ThrowIfFailed( m_device->CreateGraphicsPipelineState( &psoDesc, IID_PPV_ARGS( m_mainCommandWrapper.PipelineState.ReleaseAndGetAddressOf() ) ) );
+}
+
 void ThrowIfFailed( HRESULT hr )
 {
     if( FAILED( hr ) )
@@ -952,3 +951,17 @@ void ThrowIfFailed( HRESULT hr )
 }
 
 #endif // GAME_ENGINE_WINDOWS
+
+void CommandWrapper::create( ID3D12Device2* device )
+{
+    ThrowIfFailed( device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( Allocator.ReleaseAndGetAddressOf() ) ) );
+
+    ThrowIfFailed(
+        device->CreateCommandList(
+            0,
+            D3D12_COMMAND_LIST_TYPE_DIRECT,
+            Allocator.Get(),
+            PipelineState.Get(),
+            IID_PPV_ARGS( CommandList.ReleaseAndGetAddressOf() ) ) );
+    ThrowIfFailed( CommandList->Close() );
+}
