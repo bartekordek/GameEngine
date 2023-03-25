@@ -133,10 +133,10 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
             ThrowIfFailed( HRESULT_FROM_WIN32( GetLastError() ) );
         }
 
-        // Wait for the command list to execute; we are reusing the same command 
-        // list in our main loop but for now, we just want to wait for setup to 
+        // Wait for the command list to execute; we are reusing the same command
+        // list in our main loop but for now, we just want to wait for setup to
         // complete before continuing.
-        
+
     }
 
     WaitForPreviousFrame();
@@ -350,9 +350,9 @@ void DeviceDX12::createVertexBuffer()
 
     const UINT vertexBufferSize = sizeof( triangleVertices );
 
-    // Note: using upload heaps to transfer static data like vert buffers is not 
-    // recommended. Every time the GPU needs it, the upload heap will be marshalled 
-    // over. Please read up on Default Heap usage. An upload heap is used here for 
+    // Note: using upload heaps to transfer static data like vert buffers is not
+    // recommended. Every time the GPU needs it, the upload heap will be marshalled
+    // over. Please read up on Default Heap usage. An upload heap is used here for
     // code simplicity and because there are very few verts to actually transfer.
     ThrowIfFailed( m_device->CreateCommittedResource(
         &CD3DX12_HEAP_PROPERTIES( D3D12_HEAP_TYPE_UPLOAD ),
@@ -476,12 +476,7 @@ void DeviceDX12::WaitForPreviousFrame()
 
 void DeviceDX12::prepareFrame()
 {
-    ThrowIfFailed( m_mainCommandWrapper.Allocator->Reset() );
-
-    ThrowIfFailed(
-        m_mainCommandWrapper.CommandList->Reset(
-            m_mainCommandWrapper.Allocator.Get(),
-            m_mainCommandWrapper.PipelineState.Get() ) );
+    m_mainCommandWrapper.reset();
 
     m_mainCommandWrapper.CommandList->SetGraphicsRootSignature( m_rootSignature.Get() );
     m_mainCommandWrapper.CommandList->RSSetViewports( 1, &m_viewport );
@@ -952,17 +947,3 @@ void ThrowIfFailed( HRESULT hr )
 }
 
 #endif // GAME_ENGINE_WINDOWS
-
-void CommandWrapper::create( ID3D12Device2* device )
-{
-    ThrowIfFailed( device->CreateCommandAllocator( D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS( Allocator.ReleaseAndGetAddressOf() ) ) );
-
-    ThrowIfFailed(
-        device->CreateCommandList(
-            0,
-            D3D12_COMMAND_LIST_TYPE_DIRECT,
-            Allocator.Get(),
-            PipelineState.Get(),
-            IID_PPV_ARGS( CommandList.ReleaseAndGetAddressOf() ) ) );
-    ThrowIfFailed( CommandList->Close() );
-}

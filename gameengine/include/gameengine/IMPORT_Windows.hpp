@@ -24,6 +24,9 @@
 #undef max
 #undef interface
 
+template<typename T>
+using ComPtr = Microsoft::WRL::ComPtr<T>;
+
 struct WindowsUtils
 {
 	static void ThrowIfFailed( HRESULT hr );

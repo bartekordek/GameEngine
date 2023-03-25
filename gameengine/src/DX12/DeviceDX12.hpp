@@ -5,19 +5,13 @@
 #if defined(GAME_ENGINE_WINDOWS)
 
 #include "gameengine/IRenderDevice.hpp"
-#include "gameengine/IMPORT_Windows.hpp"
+#include "DX12/CommandWrapper.hpp"
 
 struct ImGuiContext;
 
 NAMESPACE_BEGIN( LOGLW )
 
-struct CommandWrapper
-{
-	void create( ID3D12Device2* device );
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> PipelineState;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> Allocator;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> CommandList;
-};
+
 
 class DeviceDX12 final: public IRenderDevice
 {
@@ -199,7 +193,7 @@ private:
 
 	CommandWrapper m_mainCommandWrapper;
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
-	
+
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandListUI;
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
@@ -209,7 +203,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_srvDescHeap;
 
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
-	
+
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
 
