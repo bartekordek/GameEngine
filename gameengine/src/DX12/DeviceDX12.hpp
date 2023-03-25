@@ -76,6 +76,7 @@ private:
 	void createRenderTargetViews();
 	void createRootSignature();
 	void createShaders();
+	void createVertexBuffer();
 	void createSwapChain();
 
 	void createCommandQueue();
