@@ -49,6 +49,16 @@ IGameEngine* IGameEngine::createGameEngine( const EngineParams& engineParam  )
 void IGameEngine::initialize()
 {
     m_camera = std::make_unique<Camera>();
+
+    {
+        std::lock_guard<std::mutex> lock( m_initTasksMtx );
+        while( !m_initTasks.empty() )
+        {
+            auto task = m_initTasks.top();
+            m_initTasks.pop();
+            task();
+        }
+    }
 }
 
 Camera& IGameEngine::getCamera()
@@ -180,7 +190,7 @@ void IGameEngine::pushPreRenderTask( IPreRenderTask* preRenderTask )
 
 void IGameEngine::pushPreRenderTask( std::function<void( void )> task )
 {
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         m_preRenderTasksFunction.push( task );
     }
@@ -191,10 +201,9 @@ void IGameEngine::pushPreRenderTask( std::function<void( void )> task )
     }
 }
 
-
 void IGameEngine::addObjectToRender( IRenderable* renderable )
 {
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
         CUL::Assert::simple( it == m_objectsToRender.end(), "Trying to add already added object." );
@@ -211,7 +220,7 @@ void IGameEngine::addObjectToRender( IRenderable* renderable )
 
 void IGameEngine::removeObjectToRender( IRenderable* renderable )
 {
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
         if( it != m_objectsToRender.end() )

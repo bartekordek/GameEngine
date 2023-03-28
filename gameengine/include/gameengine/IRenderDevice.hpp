@@ -210,7 +210,7 @@ class Viewport;
 class GAME_ENGINE_API IRenderDevice
 {
 public:
-    IRenderDevice( CUL::CULInterface* culInterface, bool forceLegacy );
+    IRenderDevice( bool forceLegacy );
 
     virtual void* getNativeDevice() = 0;
     virtual bool isLegacy() = 0;
@@ -359,8 +359,6 @@ public:
 
     CUL::GUTILS::Version getVersion() const;
 
-    CUL::CULInterface* getCUL() const;
-
     virtual unsigned getGPUTotalAvailableMemoryKb() = 0;
     virtual unsigned getGPUCurrentAvailableMemoryKb() = 0;
 
@@ -383,9 +381,7 @@ protected:
     String m_versionString;
 
 private:
-    CUL::CULInterface* m_culInterface = nullptr;
     CUL::LOG::ILogger* m_logger = nullptr;
-    
 
     mutable String m_lastLog;
     CUL::LOG::Severity m_lastLogSeverity;

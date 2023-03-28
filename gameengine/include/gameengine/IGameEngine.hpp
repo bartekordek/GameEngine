@@ -18,6 +18,7 @@
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
 #include "CUL/STL_IMPORTS/STD_queue.hpp"
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
+#include "CUL/STL_IMPORTS/STD_stack.hpp"
 
 NAMESPACE_BEGIN( CUL )
 NAMESPACE_BEGIN( GUTILS )
@@ -186,6 +187,10 @@ protected:
 
     std::mutex m_guiTasksMtx;
     std::queue<std::function<void( void )>> m_guiTasks;
+
+
+    std::mutex m_initTasksMtx;
+    std::stack< std::function<void( void )>> m_initTasks;
 
 private:
     Shader* findShader( const String& path ) const;

@@ -32,7 +32,7 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     m_shape.data[3] = { 0.f, size, 0.f };
 
 
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         init();
     }
@@ -160,7 +160,7 @@ void Quad::applyColor()
 
 Quad::~Quad()
 {
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         release();
     }

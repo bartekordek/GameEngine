@@ -22,7 +22,7 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool f
     m_triangleMath.vals[1] = { size / 2.f, size, 0.f };
     m_triangleMath.vals[2] = { size, 0.f, 0.f };
 
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         init();
     }
@@ -146,7 +146,7 @@ void Triangle::setColor( const ColorS& color )
 
 Triangle::~Triangle()
 {
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         release();
     }

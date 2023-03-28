@@ -14,7 +14,7 @@ Program::Program( IGameEngine& engine ) : m_engine( engine )
 {
     m_logger = m_engine.getLoger();
 
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         initialize();
     }
@@ -106,7 +106,7 @@ void Program::setUniform( const String& name, const glm::vec4& value )
 
 Shader* Program::loadShader( const char* path )
 {
-    auto fragmentShaderFile = getDevice()->getCUL()->getFF()->createRegularFileRawPtr( path );
+    auto fragmentShaderFile = CUL::CULInterface::getInstance()->getFF()->createRegularFileRawPtr( path );
     fragmentShaderFile->load( true );
     Shader* result = new Shader( m_engine, fragmentShaderFile );
     attachShader( result );
@@ -149,7 +149,7 @@ int Program::getAttributeI( const String& )
 
 void Program::reloadShader()
 {
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         reloadShaderImpl();
     }
@@ -176,7 +176,7 @@ void Program::reloadShaderImpl()
 
     for( auto shaderPath : shadersPaths )
     {
-        auto shaderFile = getDevice()->getCUL()->getFF()->createFileFromPath( shaderPath );
+        auto shaderFile = CUL::CULInterface::getInstance()->getFF()->createFileFromPath( shaderPath );
         shaderFile->load(true);
         auto shader = new Shader( m_engine, shaderFile );
         attachShader( shader );
@@ -195,7 +195,7 @@ void Program::attachShader( Shader* shader )
         getDevice()->attachShader( m_id, shaderId );
     };
 
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         attachTask();
     }
@@ -222,7 +222,7 @@ void Program::link()
         getDevice()->linkProgram( m_id );
     };
 
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         linkTask();
     }
@@ -250,7 +250,7 @@ void Program::validate()
         getDevice()->validateProgram( m_id );
     };
 
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         validateTask();
     }
@@ -358,7 +358,7 @@ void Program::release()
         releaseProgram();
     };
 
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         releaseTask();
     }
@@ -385,7 +385,7 @@ void Program::releaseProgram()
         m_id = 0;
     };
 
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         removeShaderTask();
     }

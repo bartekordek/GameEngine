@@ -25,7 +25,7 @@ Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
         m_recreateBuffers = true;
     } );
 
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         init();
     }
@@ -160,7 +160,7 @@ void Line::setLength( float length )
 
 Line::~Line()
 {
-    if( getDevice()->getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         release();
     }

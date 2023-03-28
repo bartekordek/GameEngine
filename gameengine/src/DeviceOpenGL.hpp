@@ -20,7 +20,7 @@ enum class ShaderTypes : int
 class DeviceOpenGL final: public IRenderDevice
 {
 public:
-    DeviceOpenGL( CUL::CULInterface* culInterface, bool forceLegacy );
+    DeviceOpenGL( bool forceLegacy );
 
     ~DeviceOpenGL();
 

@@ -11,7 +11,7 @@ using namespace LOGLW;
 template<typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-DeviceDX12::DeviceDX12( CUL::CULInterface* culInterface ): IRenderDevice( culInterface, false )
+DeviceDX12::DeviceDX12(): IRenderDevice( false )
 {
 }
 

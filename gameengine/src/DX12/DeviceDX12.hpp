@@ -16,7 +16,7 @@ NAMESPACE_BEGIN( LOGLW )
 class DeviceDX12 final: public IRenderDevice
 {
 public:
-	DeviceDX12( CUL::CULInterface* culInterface );
+	DeviceDX12();
 protected:
 private:
 

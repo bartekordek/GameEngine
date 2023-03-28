@@ -22,7 +22,6 @@
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
 #include "CUL/STL_IMPORTS/STD_variant.hpp"
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
-#include "CUL/STL_IMPORTS/STD_stack.hpp"
 
 union SDL_Event;
 
@@ -81,7 +80,7 @@ public:
 protected:
 private:
     void initialize() override;
-    void loadFromConfig();
+    void loadDebugDraw();
     void showExtensions();
     void setupProjectionData( uint16_t width, uint16_t height );
     CUL::CULInterface* getCul() override;

@@ -43,42 +43,49 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );
     CUL::Assert::simple( nullptr != m_logger, "NO LOGGER." );
 
-    //int firstTextureUnit = GL_TEXTURE0;
-    //CUL::Assert::simple( (int)ETextureUnitIndex::UNIT_0 == firstTextureUnit, "Wrong enum map." );
+    auto initTask = [this, sdl2w] (){
 
-    static_assert( (int)ETextureUnitIndex::UNIT_0 == GL_TEXTURE0, "Incorrect texture unit mapping." );
+        static_assert( (int) ETextureUnitIndex::UNIT_0 == GL_TEXTURE0, "Incorrect texture unit mapping." );
 
-    loadFromConfig();
-    m_imageLoader = m_cul->getImageLoader();
+        
+        m_imageLoader = m_cul->getImageLoader();
 
-    bool forceLegacy = false;
+        bool forceLegacy = false;
 
-    const auto config = m_sdlW->getConfig();
-    if( config )
-    {
-        forceLegacy = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool();
-    }
+        const auto config = m_sdlW->getConfig();
+        if( config )
+        {
+            forceLegacy = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool();
+        }
 
-    const auto rendererName = m_activeWindow->getRenderName();
+        const auto rendererName = m_activeWindow->getRenderName();
 
-    if( rendererName == "DX9" )
-    {
-    }
-    else if( rendererName == "DX12" )
-    {
+        if( rendererName == "DX9" )
+        {
+        }
+        else if( rendererName == "DX12" )
+        {
 #if defined(GAME_ENGINE_WINDOWS)
-        m_renderDevice = new DeviceDX12( m_sdlW->getCul() );
+            m_renderDevice = new DeviceDX12();
 #else
-        CUL::Assert::simple( false, "NOTE IMPLEMENTED." );
+            CUL::Assert::simple( false, "NOTE IMPLEMENTED." );
 #endif
-    }
-    else
+        }
+        else
+        {
+            m_renderDevice = new DeviceOpenGL( forceLegacy );
+            m_renderersVersions["OpenGL"] = m_renderDevice->getVersion();
+        }
+
+        loadDebugDraw();
+        registerObjectForUtility();
+    };
     {
-        m_renderDevice = new DeviceOpenGL( sdl2w->getCul(), forceLegacy );
-        m_renderersVersions["OpenGL"] = m_renderDevice->getVersion();
+        std::lock_guard<std::mutex> lock( m_initTasksMtx );
+        m_initTasks.push( initTask );
     }
     
-    registerObjectForUtility();
+   
 }
 
 void GameEngineConcrete::registerObjectForUtility()
@@ -86,7 +93,7 @@ void GameEngineConcrete::registerObjectForUtility()
     IUtilityUser::useUtility( m_renderDevice );
 }
 
-void GameEngineConcrete::loadFromConfig()
+void GameEngineConcrete::loadDebugDraw()
 {
     auto config = m_sdlW->getConfig();
     if( config )
@@ -443,8 +450,8 @@ void GameEngineConcrete::initialize()
 
     m_sdlW->registerSDLEventObserver( this );
 
-    m_renderDevice->setProjectionAndModelToIdentity();
-    m_renderDevice->setTexuring( true );
+    //m_renderDevice->setProjectionAndModelToIdentity();
+    //m_renderDevice->setTexuring( true );
 
     setupProjectionData( winSize.getWidth(), winSize.getHeight() );
 
