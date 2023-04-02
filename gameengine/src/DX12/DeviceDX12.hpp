@@ -11,8 +11,6 @@ struct ImGuiContext;
 
 NAMESPACE_BEGIN( LOGLW )
 
-
-
 class DeviceDX12 final: public IRenderDevice
 {
 public:
@@ -220,6 +218,12 @@ private:
 	CD3DX12_RECT m_scissorRect;
 
 	ImGuiContext* m_imguiContext = nullptr;
+
+
+
+	const String& getName() const override;
+
+    String m_name = "DirectX 12.";
 };
 
 NAMESPACE_END( LOGLW )

@@ -202,6 +202,12 @@ private:
 
     size_t getFrameBufferCount() const override;
 
+
+    const String& getName() const override;
+
+
+
+    String m_name = "OpenGL Modern.";
 };
 
 NAMESPACE_END( LOGLW )

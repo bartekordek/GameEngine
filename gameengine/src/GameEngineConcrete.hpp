@@ -33,6 +33,7 @@ NAMESPACE_END( SDL2W )
 NAMESPACE_BEGIN( LOGLW )
 
 class Camera;
+class DebugSystemBase;
 
 using SafeBool = CUL::GUTILS::LckPrim<bool>;
 template <typename Type>
@@ -124,7 +125,6 @@ private:
     void renderLoop();
     void taskThread();
     void calculateNextFrameLengths();
-    void initDebugInfo();
     void renderFrame() override;
     void renderInfo();
     void changeProjectionType();
@@ -177,10 +177,11 @@ private:
 
     void addRenderThreadTask( const std::function<void( void )>& task ) override;
 
+    std::unique_ptr<DebugSystemBase> m_debugSystem;
+
     std::map<unsigned, DebugValueRow> m_debugValues;
 
     std::atomic<bool> m_enableDebugDraw = false;
-    std::atomic<bool> m_debugDrawInitialized = false;
 
     ContextInfo m_glContext;
 

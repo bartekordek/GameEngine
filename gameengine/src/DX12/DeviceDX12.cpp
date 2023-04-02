@@ -921,6 +921,11 @@ size_t DeviceDX12::getFrameBufferCount() const
     return FrameCount;
 }
 
+const String& DeviceDX12::getName() const
+{
+    return m_name;
+}
+
 void DeviceDX12::initDebugUI()
 {
 	IMGUI_CHECKVERSION();

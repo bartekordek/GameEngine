@@ -37,7 +37,7 @@ IGameEngine* IGameEngine::createGameEngine( const EngineParams& engineParam  )
     windowData.name = engineParam.winName;
     windowData.pos = engineParam.windowPosition;
     windowData.currentRes = engineParam.winSize;
-    windowData.rendererName = engineParam.rendererName;
+    windowData.rendererType = engineParam.RendererType;
 
     auto sdlWrap = SDL2W::ISDL2Wrapper::createSDL2Wrapper();
     sdlWrap->init( windowData, engineParam.configPath );

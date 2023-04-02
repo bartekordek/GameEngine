@@ -3,11 +3,12 @@
 
 using namespace LOGLW;
 
+
 DebugSystemBase::DebugSystemBase()
 {
 }
 
-void DebugSystemBase::init()
+void DebugSystemBase::init( const DebugSystemParams& params )
 {
 }
 
@@ -19,10 +20,14 @@ DebugSystemBase::~DebugSystemBase()
 {
 }
 
-void DebugSystemDX12::init()
+void DebugSystemDX12::init( const DebugSystemParams& params )
 {
 }
 
 void DebugSystemDX12::frame()
+{
+}
+
+void DebugSystemDX12::addRenderCallback( const std::function<void( void )> renderDebugCallback )
 {
 }

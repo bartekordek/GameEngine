@@ -367,6 +367,8 @@ public:
     virtual void checkLastCommandForErrors() = 0;
     bool getIsEmbeddedSystems() const;
 
+    virtual const String& getName() const = 0;
+
     virtual ~IRenderDevice();
 
 protected:

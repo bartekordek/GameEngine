@@ -34,6 +34,14 @@ void APIENTRY glDebugOutput(
     const void* /*userParam*/
 )
 {
+    if( id == 131185 )
+    {
+        // Buffer detailed info: Buffer object [x] (bound to GL_ARRAY_BUFFER_ARB, usage hint is GL_STATIC_DRAW) will use VIDEO memory as the source for buffer object operations.
+        // https://stackoverflow.com/questions/62248552/opengl-debug-context-warning-will-use-video-memory-as-the-source-for-buffer-o
+        // can be safely ignored.
+        return;
+    }
+
     String messageString = "Severity: ";
 
     switch( severity )
@@ -185,7 +193,7 @@ ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
 
     ContextInfo result;
     window->setGLContextVersion( 4, 6 );
-    window->setProfileMask( SDL2W::GLProfileMask::COMPATIBILITY );
+    window->setProfileMask( SDL2W::GLProfileMask::CORE );
     window->setContextFlag( SDL2W::GLContextFlag::DEBUG_FLAG );
     window->toggleDoubleBuffer( true );
     window->setStencilSize( 8 );
@@ -245,7 +253,8 @@ ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
     //    GLX_CONTEXT_ES2_PROFILE_BIT_EXT */
     //} SDL_GLprofile;
     const auto glStringVersion = glGetString( GL_VERSION );
-    result.glVersion = glStringVersion;
+    std::string s( reinterpret_cast<char const*>( glStringVersion ) );
+    result.glVersion = s;
     checkLastCommandForErrors();
 
     m_versionString = (char*) glGetString( GL_VERSION );
@@ -2154,6 +2163,11 @@ void DeviceOpenGL::toggleDebugOutput( bool enable )
 size_t DeviceOpenGL::getFrameBufferCount() const
 {
 	throw std::logic_error( "The method or operation is not implemented." );
+}
+
+const String& DeviceOpenGL::getName() const
+{
+    return m_name;
 }
 
 void DeviceOpenGL::initDebugUI()

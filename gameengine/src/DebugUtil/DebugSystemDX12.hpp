@@ -11,8 +11,9 @@ protected:
 private:
 
 	// Inherited via DebugSystemBase
-	virtual void init() override;
+	virtual void init( const DebugSystemParams& params ) override;
 	virtual void frame() override;
+	void addRenderCallback( const std::function<void( void )> renderDebugCallback ) override;
 };
 
 NAMESPACE_END(END)
