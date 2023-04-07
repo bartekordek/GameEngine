@@ -47,7 +47,6 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
     CUL::Assert::simple( nullptr != m_logger, "NO LOGGER." );
 
     auto initTask = [this, sdl2w] (){
-        DebugSystem::RendererType renderType = DebugSystem::RendererType::NONE;
         DebugSystemParams params;
         static_assert( (int) ETextureUnitIndex::UNIT_0 == GL_TEXTURE0, "Incorrect texture unit mapping." );
 
@@ -78,15 +77,6 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
         {
             m_renderDevice = new DeviceOpenGL( forceLegacy );
             m_renderersVersions["OpenGL"] = m_renderDevice->getVersion();
-            if( forceLegacy )
-            {
-                renderType = DebugSystem::RendererType::OPENGL_LEGACY;
-            }
-            else
-            {
-                renderType = DebugSystem::RendererType::OPENGL_MODERN;
-            }
-
         }
 
         loadDebugDraw();
@@ -96,7 +86,7 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
         m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
         m_logger->log( m_glContext.glVersion );
 
-        m_debugSystem.reset( DebugSystemBase::create( renderType ) );
+        m_debugSystem.reset( DebugSystemBase::create( m_renderDevice->getType() ) );
 
         params.SDLWindow = m_activeWindow->getSDLWindow();
         params.SDL_GL_Context = m_glContext.glContext;

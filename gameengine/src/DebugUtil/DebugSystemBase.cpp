@@ -5,13 +5,13 @@
 
 using namespace LOGLW;
 
-DebugSystemBase* DebugSystemBase::create( DebugSystem::RendererType type )
+DebugSystemBase* DebugSystemBase::create( SDL2W::RenderTypes::RendererType type )
 {
-	if( type == DebugSystem::RendererType::DIRECTX_12 )
+    if( type == SDL2W::RenderTypes::RendererType::DIRECTX_12 )
 	{
 		return new DebugSystemDX12();
 	}
-	else if( type == DebugSystem::RendererType::OPENGL_MODERN )
+    else if( type == SDL2W::RenderTypes::RendererType::OPENGL_MODERN )
 	{
 		return new DebugSystemOpenGLModern();
 	}

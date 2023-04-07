@@ -1,3 +1,5 @@
+#pragma once
+
 #include "DebugUtil/DebugSystemBase.hpp"
 #include "CUL/STL_IMPORTS/STD_memory.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"

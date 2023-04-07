@@ -2174,3 +2174,8 @@ void DeviceOpenGL::initDebugUI()
 {
 	throw std::logic_error( "The method or operation is not implemented." );
 }
+
+SDL2W::RenderTypes::RendererType DeviceOpenGL::getType() const
+{
+    return SDL2W::RenderTypes::RendererType::OPENGL_MODERN;
+}

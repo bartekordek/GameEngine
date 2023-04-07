@@ -1,26 +1,17 @@
 #pragma once
 
 #include "gameengine/Import.hpp"
+#include "SDL2Wrapper/RendererTypes.hpp"
 #include "CUL/STL_IMPORTS/STD_functional.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
 
 struct DebugSystemParams;
 
-NAMESPACE_BEGIN(DebugSystem)
-enum class RendererType: short
-{
-    NONE = 0,
-    OPENGL_LEGACY,
-    OPENGL_MODERN,
-    DIRECTX_12
-};
-NAMESPACE_END(DebugSystem)
-
 class DebugSystemBase
 {
 public:
-    static DebugSystemBase* create( DebugSystem::RendererType type );
+    static DebugSystemBase* create( SDL2W::RenderTypes::RendererType type );
 
     DebugSystemBase();
     virtual void init( const DebugSystemParams& params ) = 0;
@@ -30,6 +21,7 @@ public:
 
 protected:
 private:
+    std::unique_ptr<DebugSystemParams> m_params;
 };
 
 NAMESPACE_END( LOGLW )

@@ -204,7 +204,7 @@ private:
 
 
     const String& getName() const override;
-
+    SDL2W::RenderTypes::RendererType getType() const override;
 
 
     String m_name = "OpenGL Modern.";

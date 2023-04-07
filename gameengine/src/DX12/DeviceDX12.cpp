@@ -928,16 +928,22 @@ const String& DeviceDX12::getName() const
 
 void DeviceDX12::initDebugUI()
 {
-	IMGUI_CHECKVERSION();
+    IMGUI_CHECKVERSION();
     m_imguiContext = ImGui::CreateContext();
-	ImGui::StyleColorsDark();
+    ImGui::StyleColorsDark();
 
     ImGui_ImplSDL2_InitForD3D( m_window->getSDLWindow() );
-	ImGui_ImplDX12_Init( m_device.Get(),
+    ImGui_ImplDX12_Init( m_device.Get(),
                          FrameCount,
-						 DXGI_FORMAT_R8G8B8A8_UNORM, m_srvDescHeap.Get(),
+                         DXGI_FORMAT_R8G8B8A8_UNORM,
+                         m_srvDescHeap.Get(),
                          m_srvDescHeap->GetCPUDescriptorHandleForHeapStart(),
                          m_srvDescHeap->GetGPUDescriptorHandleForHeapStart() );
+}
+
+SDL2W::RenderTypes::RendererType DeviceDX12::getType() const
+{
+    return SDL2W::RenderTypes::RendererType::DIRECTX_12;
 }
 
 void ThrowIfFailed( HRESULT hr )

@@ -463,3 +463,8 @@ const String& DeviceOpenGL_Legacy::getName() const
 {
     return m_name;
 }
+
+SDL2W::RenderTypes::RendererType DeviceOpenGL_Legacy::getType() const
+{
+    return SDL2W::RenderTypes::RendererType::OPENGL_LEGACY;
+}

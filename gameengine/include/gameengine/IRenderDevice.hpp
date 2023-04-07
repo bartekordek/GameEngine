@@ -2,6 +2,8 @@
 
 #include "gameengine/Import.hpp"
 
+#include "SDL2Wrapper/RendererTypes.hpp"
+
 #include "CUL/Filesystem/IFile.hpp"
 #include "CUL/Graphics/Color.hpp"
 #include "CUL/Graphics/Rect2D.hpp"
@@ -368,6 +370,7 @@ public:
     bool getIsEmbeddedSystems() const;
 
     virtual const String& getName() const = 0;
+    virtual SDL2W::RenderTypes::RendererType getType() const = 0;
 
     virtual ~IRenderDevice();
 

@@ -114,16 +114,17 @@ private:
     virtual void setActiveTextureUnit( ETextureUnitIndex textureUnitIndex ) override;
     virtual void bindTexture( const unsigned int textureId ) override;
     virtual void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) override;
-    virtual void setTextureData( uint8_t textureId, const TextureInfo& ti ) override;
-    virtual void freeTexture( unsigned int& textureId ) override;
-    virtual void matrixStackPush() override;
-    virtual void matrixStackPop() override;
-    virtual unsigned getGPUTotalAvailableMemoryKb() override;
-    virtual unsigned getGPUCurrentAvailableMemoryKb() override;
-    virtual void toggleDebugOutput( bool enable ) override;
-    virtual void checkLastCommandForErrors() override;
+    void setTextureData( uint8_t textureId, const TextureInfo& ti ) override;
+    void freeTexture( unsigned int& textureId ) override;
+    void matrixStackPush() override;
+    void matrixStackPop() override;
+    unsigned getGPUTotalAvailableMemoryKb() override;
+    unsigned getGPUCurrentAvailableMemoryKb() override;
+    void toggleDebugOutput( bool enable ) override;
+    void checkLastCommandForErrors() override;
 
     const String& getName() const override;
+    SDL2W::RenderTypes::RendererType getType() const override;
 
     String m_name = "OpenGL Legacy.";
 };
