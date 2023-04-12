@@ -21,6 +21,14 @@ void DeviceOpenGL_Legacy::initDebugUI()
 {
 }
 
+#if defined(_MSC_VER)
+#pragma warning( push, 0 )
+#pragma warning( disable : 4100 )
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-unused-parameter"
+#endif
+
 void DeviceOpenGL_Legacy::resetMatrixToIdentity( const MatrixTypes matrix )
 {
 }
@@ -468,3 +476,9 @@ SDL2W::RenderTypes::RendererType DeviceOpenGL_Legacy::getType() const
 {
     return SDL2W::RenderTypes::RendererType::OPENGL_LEGACY;
 }
+
+#if defined(_MSC_VER)
+#pragma warning( pop )
+#else
+#pragma GCC diagnostic pop
+#endif
