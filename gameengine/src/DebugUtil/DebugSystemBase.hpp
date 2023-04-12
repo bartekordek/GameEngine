@@ -3,6 +3,7 @@
 #include "gameengine/Import.hpp"
 #include "SDL2Wrapper/RendererTypes.hpp"
 #include "CUL/STL_IMPORTS/STD_functional.hpp"
+#include "CUL/STL_IMPORTS/STD_memory.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
 

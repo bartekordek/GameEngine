@@ -4,6 +4,7 @@
 #include "CUL/STL_IMPORTS/STD_memory.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
 #include "CUL/STL_IMPORTS/STD_mutex.hpp"
+#include "CUL/STL_IMPORTS/STD_atomic.hpp"
 
 struct ImGuiContext;
 
