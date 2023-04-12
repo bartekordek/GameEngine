@@ -873,7 +873,7 @@ unsigned GameEngineConcrete::addSliderValue( const CUL::String& text, float* val
 
 unsigned GameEngineConcrete::addText( const CUL::String& text, float* val )
 {
-    const unsigned size = (unsigned)m_debugValues.size();
+    const auto size = (unsigned)m_debugValues.size();
     const auto newId = size + 1u;
 
     DebugValueRow row;

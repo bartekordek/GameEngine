@@ -9,7 +9,8 @@ DebugSystemBase* DebugSystemBase::create( SDL2W::RenderTypes::RendererType type 
 {
     if( type == SDL2W::RenderTypes::RendererType::DIRECTX_12 )
 	{
-		return new DebugSystemDX12();
+		//return new DebugSystemDX12();
+        return nullptr;
 	}
     else if( type == SDL2W::RenderTypes::RendererType::OPENGL_MODERN )
 	{

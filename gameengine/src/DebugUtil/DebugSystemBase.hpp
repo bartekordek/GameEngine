@@ -13,11 +13,11 @@ class DebugSystemBase
 public:
     static DebugSystemBase* create( SDL2W::RenderTypes::RendererType type );
 
-    DebugSystemBase();
+    DebugSystemBase() = default;
     virtual void init( const DebugSystemParams& params ) = 0;
     virtual void frame() = 0;
     virtual void addRenderCallback( const std::function<void( void )> renderDebugCallback ) = 0;
-    virtual ~DebugSystemBase();
+    virtual ~DebugSystemBase() = default;
 
 protected:
 private:
