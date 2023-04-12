@@ -17,7 +17,6 @@ private:
     virtual size_t getFrameBufferCount() const override;
     virtual void initDebugUI() override;
     virtual void resetMatrixToIdentity( const MatrixTypes matrix ) override;
-    virtual void setProjection( const Camera& rect ) override;
     virtual void setViewport( const Viewport& viewport ) override;
     virtual void setOrthogonalPerspective( const Camera& vp ) override;
     virtual void setPerspectiveProjection( const Camera& vp ) override;

@@ -21,43 +21,31 @@ void DeviceOpenGL_Legacy::initDebugUI()
 {
 }
 
-#if defined(_MSC_VER)
-#pragma warning( push, 0 )
-#pragma warning( disable : 4100 )
-#else
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-unused-parameter"
-#endif
-
-void DeviceOpenGL_Legacy::resetMatrixToIdentity( const MatrixTypes matrix )
+void DeviceOpenGL_Legacy::resetMatrixToIdentity( const MatrixTypes )
 {
 }
 
-void DeviceOpenGL_Legacy::setProjection( const Camera& rect )
+void DeviceOpenGL_Legacy::setViewport( const Viewport& )
 {
 }
 
-void DeviceOpenGL_Legacy::setViewport( const Viewport& viewport )
+void DeviceOpenGL_Legacy::setOrthogonalPerspective( const Camera& )
 {
 }
 
-void DeviceOpenGL_Legacy::setOrthogonalPerspective( const Camera& vp )
+void DeviceOpenGL_Legacy::setPerspectiveProjection( const Camera& )
 {
 }
 
-void DeviceOpenGL_Legacy::setPerspectiveProjection( const Camera& vp )
+void DeviceOpenGL_Legacy::lookAt( const Camera& )
 {
 }
 
-void DeviceOpenGL_Legacy::lookAt( const Camera& vp )
+void DeviceOpenGL_Legacy::lookAt( const std::array<Pos3Dd, 3>& )
 {
 }
 
-void DeviceOpenGL_Legacy::lookAt( const std::array<Pos3Dd, 3>& lookAtVec )
-{
-}
-
-void DeviceOpenGL_Legacy::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up )
+void DeviceOpenGL_Legacy::lookAt( const Pos3Dd&, const Pos3Dd&, const Pos3Dd& )
 {
 }
 
@@ -74,19 +62,19 @@ unsigned int DeviceOpenGL_Legacy::createProgram()
     return 0;
 }
 
-void DeviceOpenGL_Legacy::removeProgram( unsigned programId )
+void DeviceOpenGL_Legacy::removeProgram( unsigned )
 {
 }
 
-void DeviceOpenGL_Legacy::useProgram( int programId )
+void DeviceOpenGL_Legacy::useProgram( int )
 {
 }
 
-void DeviceOpenGL_Legacy::linkProgram( unsigned programId )
+void DeviceOpenGL_Legacy::linkProgram( unsigned )
 {
 }
 
-void DeviceOpenGL_Legacy::validateProgram( unsigned programId )
+void DeviceOpenGL_Legacy::validateProgram( unsigned )
 {
 }
 
@@ -95,45 +83,45 @@ int DeviceOpenGL_Legacy::getCurrentProgram() const
     return 0;
 }
 
-unsigned int DeviceOpenGL_Legacy::createShader( const IFile& shaderCode )
+unsigned int DeviceOpenGL_Legacy::createShader( const IFile& )
 {
     return 0;
 }
 
-void DeviceOpenGL_Legacy::attachShader( unsigned programId, unsigned shaderId )
+void DeviceOpenGL_Legacy::attachShader( unsigned, unsigned )
 {
 }
 
-void DeviceOpenGL_Legacy::dettachShader( unsigned programId, unsigned shaderId )
+void DeviceOpenGL_Legacy::dettachShader( unsigned, unsigned )
 {
 }
 
-void DeviceOpenGL_Legacy::removeShader( unsigned shaderId )
+void DeviceOpenGL_Legacy::removeShader( unsigned )
 {
 }
 
-ContextInfo DeviceOpenGL_Legacy::initContextVersion( SDL2W::IWindow* window )
+ContextInfo DeviceOpenGL_Legacy::initContextVersion( SDL2W::IWindow* )
 {
     return ContextInfo();
 }
 
-void DeviceOpenGL_Legacy::setAttribValue( int attributeLocation, float value )
+void DeviceOpenGL_Legacy::setAttribValue( int, float )
 {
 }
 
-void DeviceOpenGL_Legacy::setAttribValue( int attributeLocation, int value )
+void DeviceOpenGL_Legacy::setAttribValue( int, int )
 {
 }
 
-void DeviceOpenGL_Legacy::setAttribValue( int attributeLocation, unsigned value )
+void DeviceOpenGL_Legacy::setAttribValue( int, unsigned )
 {
 }
 
-void DeviceOpenGL_Legacy::setAttribValue( int attributeLocation, bool value )
+void DeviceOpenGL_Legacy::setAttribValue( int, bool )
 {
 }
 
-void DeviceOpenGL_Legacy::setAttribValue( int attributeLocation, const CUL::String& value )
+void DeviceOpenGL_Legacy::setAttribValue( int , const CUL::String&  )
 {
 }
 
@@ -476,9 +464,3 @@ SDL2W::RenderTypes::RendererType DeviceOpenGL_Legacy::getType() const
 {
     return SDL2W::RenderTypes::RendererType::OPENGL_LEGACY;
 }
-
-#if defined(_MSC_VER)
-#pragma warning( pop )
-#else
-#pragma GCC diagnostic pop
-#endif

@@ -45,7 +45,6 @@ private:
 
     // Inherited via IRenderDevice
     void resetMatrixToIdentity( const MatrixTypes matrixIn ) override;
-    void setProjection( const Camera& rect ) override;
     void setViewport( const Viewport& viewport ) override;
     void setOrthogonalPerspective( const Camera& vp ) override;
     void setPerspectiveProjection( const Camera& vp ) override;

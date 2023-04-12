@@ -355,9 +355,7 @@ void DeviceOpenGL::setPerspectiveProjection( const Camera& projectionData )
 #pragma warning( push )
 #pragma warning( disable : 4100 )
 #endif
-void DeviceOpenGL::setProjection( const Camera& )
-{
-}
+
 void DeviceOpenGL::setViewport( const Viewport& viewport )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )

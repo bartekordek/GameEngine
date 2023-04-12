@@ -87,7 +87,6 @@ private:
     CUL::CULInterface* getCul() override;
 
     void finishFrame();
-    void setProjection( const Camera& rect ) override;
     void setViewport( const Viewport& viewport, const bool instant = false ) override;
 
     IObject* createFromFile( const String& path ) override;

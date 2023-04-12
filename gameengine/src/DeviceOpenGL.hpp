@@ -32,7 +32,6 @@ private:
     void setOrthogonalPerspective( const Camera& vp );
     void setPerspectiveProjection( const Camera& vp );
 
-    void setProjection( const Camera& rect ) override;
     void setViewport( const Viewport& viewport ) override;
     void lookAt( const Camera& vp ) override;
     void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;

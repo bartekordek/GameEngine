@@ -29,10 +29,6 @@ void DeviceDX12::resetMatrixToIdentity( const MatrixTypes matrix )
 {
 }
 
-void DeviceDX12::setProjection( const Camera& rect )
-{
-}
-
 void DeviceDX12::setViewport( const Viewport& viewport )
 {
 }

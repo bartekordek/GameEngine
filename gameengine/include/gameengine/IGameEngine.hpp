@@ -95,7 +95,6 @@ public:
     GAME_ENGINE_API Camera& getCamera();
 
     GAME_ENGINE_API virtual void beforeFrame( const EmptyFunctionCallback& callback ) = 0;
-    GAME_ENGINE_API virtual void setProjection( const Camera& rect ) = 0;
     GAME_ENGINE_API virtual void setEyePos( const glm::vec3& pos ) = 0;
     GAME_ENGINE_API virtual void setViewport( const Viewport& viewport, const bool instant = false ) = 0;
 

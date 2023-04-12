@@ -462,7 +462,6 @@ void GameEngineConcrete::setupProjectionData( uint16_t width, uint16_t height )
     projectionData.setEyePos( glm::vec3( 0.0f, 0.0f, 220.0f ) );
     projectionData.setCenter( glm::vec3( 0.f, 0.f, 0.0f ) );
     projectionData.setUp( glm::vec3( 0.0f, 1.0f, 0.0f ) );
-    setProjection( projectionData );
 }
 
 void GameEngineConcrete::renderFrame()
@@ -724,7 +723,6 @@ void GameEngineConcrete::changeProjectionType()
     }
     m_renderDevice->resetMatrixToIdentity( MatrixTypes::MODELVIEW );
     m_renderDevice->lookAt( getCamera() );
-    setProjection( getCamera() );
     m_renderDevice->setDepthTest( getCamera().getDepthTestIsEnabled() );
 }
 
@@ -770,11 +768,6 @@ void GameEngineConcrete::finishFrame()
     {
         m_activeWindow->updateScreenBuffers();
     }
-}
-
-void GameEngineConcrete::setProjection( const Camera& rect )
-{
-    m_renderDevice->setProjection( rect );
 }
 
 void GameEngineConcrete::setViewport( const Viewport& viewport, const bool instant )
