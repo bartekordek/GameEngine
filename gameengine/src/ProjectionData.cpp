@@ -1,5 +1,4 @@
 #include "gameengine/ProjectionData.hpp"
-#include "CUL/STL_IMPORTS/STD_utility.hpp"
 
 using namespace LOGLW;
 
@@ -24,7 +23,7 @@ ProjectionData::ProjectionData( const ProjectionData& val ):
 
 float ProjectionData::getAspectRatio() const
 {
-    return static_cast<float>(m_size.getWidth()) / static_cast<float>(m_size.getHeight());
+    return static_cast< float >( m_size.getWidth() ) / static_cast< float >( m_size.getHeight() );
 }
 
 ProjectionData& ProjectionData::operator=( const ProjectionData& rhv )

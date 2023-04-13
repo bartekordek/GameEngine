@@ -7,11 +7,7 @@
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Program.hpp"
 
-#include "IMPORT_glew.hpp"
-
 #include "CUL/IMPORT_GLM.hpp"
-
-#include "CUL/Filesystem/FileFactory.hpp"
 
 #include "CUL/Threading/ThreadUtils.hpp"
 
@@ -23,7 +19,7 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     setParent( parent );
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    const float size = 2.f;
+    constexpr float size = 2.f;
     m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
 
     m_shape.data[0] = { size, size, 0.f };
@@ -74,7 +70,7 @@ void Quad::init()
 
 void Quad::createBuffers()
 {
-    LOGLW::VertexBufferData vboData;
+    VertexBufferData vboData;
     vboData.indices = {
         // note that we start from 0!
         0, 1, 3,  // first Triangle
@@ -104,8 +100,8 @@ void Quad::createShaders()
 #include "embedded_shaders/basic_color.frag"
         ;
 
-    auto fragmentShader = getEngine().createShader( "embedded_shaders/basic_color.frag", fragmentShaderSource );
-    auto vertexShader = getEngine().createShader( "embedded_shaders/basic_pos.vert", vertexShaderSource );
+    const auto fragmentShader = getEngine().createShader( "embedded_shaders/basic_color.frag", fragmentShaderSource );
+    const auto vertexShader = getEngine().createShader( "embedded_shaders/basic_pos.vert", vertexShaderSource );
 
     m_shaderProgram->attachShader( vertexShader );
     m_shaderProgram->attachShader( fragmentShader );
@@ -146,7 +142,7 @@ void Quad::setTransformation()
     const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     const glm::mat4 viewMatrix = camera.getViewMatrix();
 
-    glm::mat4 model = m_transformComponent->getModel();
+    const glm::mat4 model = m_transformComponent->getModel();
 
     m_shaderProgram->setUniform( "projection", projectionMatrix );
     m_shaderProgram->setUniform( "view", viewMatrix );
