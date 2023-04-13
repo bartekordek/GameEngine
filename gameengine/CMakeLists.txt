@@ -23,7 +23,7 @@ if( MSVC )
     add_compile_options( /W4 )
     add_compile_options( /MP )
 else()
-    add_compile_options( -Wall -Wextra -pedantic -Werror )
+    add_compile_options(-Wall -Wextra -pedantic)
     add_definitions( -Wfatal-errors )
 endif()
 

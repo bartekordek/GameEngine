@@ -18,6 +18,7 @@
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
 #include "CUL/STL_IMPORTS/STD_queue.hpp"
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
+#include "CUL/STL_IMPORTS/STD_stack.hpp"
 
 NAMESPACE_BEGIN( CUL )
 NAMESPACE_BEGIN( GUTILS )
@@ -94,7 +95,6 @@ public:
     GAME_ENGINE_API Camera& getCamera();
 
     GAME_ENGINE_API virtual void beforeFrame( const EmptyFunctionCallback& callback ) = 0;
-    GAME_ENGINE_API virtual void setProjection( const Camera& rect ) = 0;
     GAME_ENGINE_API virtual void setEyePos( const glm::vec3& pos ) = 0;
     GAME_ENGINE_API virtual void setViewport( const Viewport& viewport, const bool instant = false ) = 0;
 
@@ -186,6 +186,10 @@ protected:
 
     std::mutex m_guiTasksMtx;
     std::queue<std::function<void( void )>> m_guiTasks;
+
+
+    std::mutex m_initTasksMtx;
+    std::stack< std::function<void( void )>> m_initTasks;
 
 private:
     Shader* findShader( const String& path ) const;

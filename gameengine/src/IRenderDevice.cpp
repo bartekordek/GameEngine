@@ -32,15 +32,15 @@ const String TextureInfo::toString() const
 #pragma warning( pop )
 #endif // #if _MSC_VER
 
-IRenderDevice::IRenderDevice( CUL::CULInterface* culInterface, bool forceLegacy )
-    : m_forceLegacy( forceLegacy ), m_culInterface( culInterface ), m_logger( m_culInterface->getLogger() )
+IRenderDevice::IRenderDevice( bool forceLegacy )
+    : m_forceLegacy( forceLegacy ), m_logger( CUL::CULInterface::getInstance()->getLogger() )
 {
-    if( !getCUL()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         //CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    g_logger = culInterface->getLogger();
+    g_logger = m_logger;
 }
 
 bool IRenderDevice::getIsEmbeddedSystems() const
@@ -68,11 +68,6 @@ void IRenderDevice::customAssert( const bool value, const CUL::String& message )
 CUL::GUTILS::Version IRenderDevice::getVersion() const
 {
     return m_supportedVersion;
-}
-
-CUL::CULInterface* IRenderDevice::getCUL() const
-{
-    return m_culInterface;
 }
 
 IRenderDevice::~IRenderDevice()

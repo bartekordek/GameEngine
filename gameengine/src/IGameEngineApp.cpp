@@ -15,7 +15,6 @@ IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width,
     windowData.name = "Test";
     windowData.pos = { x, y };
     windowData.currentRes.setSize( width, height );
-    windowData.rendererName = "opengl";
     windowData.name = winName;
 
     init( windowData, fullscreen, configPath, legacy );
@@ -75,8 +74,6 @@ void IGameEngineApp::init( const SDL2W::WindowData& windowData,
     //g_projectionData.setCenter( { 0.f, 0.f } );
     //g_projectionData.setEyePos( { 0.f, 0.f, 128.f } );
     //g_projectionData.m_projectionType = LOGLW::ProjectionType::PERSPECTIVE;
-    //m_oglw->setProjection( g_projectionData );
-
 
     m_logicTimer.reset( CUL::TimerFactory::getChronoTimer( m_logger ) );
     m_logicThread = std::thread( &IGameEngineApp::logicThread, this );

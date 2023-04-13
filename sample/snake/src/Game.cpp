@@ -23,7 +23,7 @@ Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SD
     windowData.name = "Snake!";
     windowData.pos = m_windowPos;
     windowData.currentRes = m_windowSize;
-    windowData.rendererName = "opengl";
+    windowData.rendererType = SDL2W::RenderTypes::RendererType::OPENGL_MODERN;
 
     m_sdlw.reset( SDL2W::ISDL2Wrapper::createSDL2Wrapper() );
     m_sdlw->init( windowData, "Config.txt" );

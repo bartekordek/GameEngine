@@ -38,7 +38,7 @@ void QuadImpl::init()
     const std::string fragmentShaderSource =
 #include "embedded_shaders/camera.frag"
         ;
-    auto cul = getDevice()->getCUL();
+    auto cul = CUL::CULInterface::getInstance();
     auto fragmentShaderFile = cul->getFF()->createRegularFileRawPtr( "embedded_shaders/camera.frag" );
     fragmentShaderFile->loadFromString( fragmentShaderSource );
     auto fragmentShader = new Shader( m_engine, fragmentShaderFile );

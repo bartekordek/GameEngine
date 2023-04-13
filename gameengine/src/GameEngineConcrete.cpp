@@ -13,6 +13,10 @@
 #include "gameengine/Sprite.hpp"
 #include "TextureConcrete.hpp"
 #include "DeviceOpenGL.hpp"
+#include "DX12/DeviceDX12.hpp"
+
+#include "DebugUtil/DebugSystemBase.hpp"
+#include "DebugUtil/DebugSystemParams.hpp"
 
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 #include "SDL2Wrapper/IWindow.hpp"
@@ -26,6 +30,7 @@
 #include "CUL/JSON/INode.hpp"
 #include "CUL/STL_IMPORTS/STD_iostream.hpp"
 #include "CUL/STL_IMPORTS/STD_condition_variable.hpp"
+#include "CUL/STL_IMPORTS/STD_exception.hpp"
 
 #undef LoadImage
 using namespace LOGLW;
@@ -41,35 +46,65 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );
     CUL::Assert::simple( nullptr != m_logger, "NO LOGGER." );
 
-    //int firstTextureUnit = GL_TEXTURE0;
-    //CUL::Assert::simple( (int)ETextureUnitIndex::UNIT_0 == firstTextureUnit, "Wrong enum map." );
+    auto initTask = [this, sdl2w] (){
+        DebugSystemParams params;
+        static_assert( (int) ETextureUnitIndex::UNIT_0 == GL_TEXTURE0, "Incorrect texture unit mapping." );
 
-    static_assert( (int)ETextureUnitIndex::UNIT_0 == GL_TEXTURE0, "Incorrect texture unit mapping." );
+        m_imageLoader = m_cul->getImageLoader();
 
-    loadFromConfig();
-    m_imageLoader = m_cul->getImageLoader();
+        bool forceLegacy = false;
 
-    bool forceLegacy = false;
+        const auto config = m_sdlW->getConfig();
+        if( config )
+        {
+            forceLegacy = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool();
+        }
 
-    const auto config = m_sdlW->getConfig();
-    if( config )
+        const auto rendererType = m_activeWindow->getCurrentRendererType();
+
+        if( rendererType == SDL2W::RenderTypes::RendererType::DIRECTX_9 )
+        {
+        }
+        else if( rendererType == SDL2W::RenderTypes::RendererType::DIRECTX_12 )
+        {
+#if defined(GAME_ENGINE_WINDOWS)
+            m_renderDevice = new DeviceDX12();
+#else
+            CUL::Assert::simple( false, "NOTE IMPLEMENTED." );
+#endif
+        }
+        else
+        {
+            m_renderDevice = new DeviceOpenGL( forceLegacy );
+            m_renderersVersions["OpenGL"] = m_renderDevice->getVersion();
+        }
+
+        loadDebugDraw();
+        registerObjectForUtility();
+
+        m_glContext = m_renderDevice->initContextVersion( m_activeWindow );
+        m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
+        m_logger->log( m_glContext.glVersion );
+
+        m_debugSystem.reset( DebugSystemBase::create( m_renderDevice->getType() ) );
+
+        params.SDLWindow = m_activeWindow->getSDLWindow();
+        params.SDL_GL_Context = m_glContext.glContext;
+
+
+        if( m_debugSystem )
+        {
+            m_debugSystem->init( params );
+            m_debugSystem->addRenderCallback( [this]() {
+                renderInfo();
+            } );
+        }
+
+    };
     {
-        forceLegacy = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool();
+        std::lock_guard<std::mutex> lock( m_initTasksMtx );
+        m_initTasks.push( initTask );
     }
-
-    const auto rendererName = m_activeWindow->getRenderName();
-
-    if( rendererName == "DX9" )
-    {
-    }
-    else
-    {
-        m_renderDevice = new DeviceOpenGL( sdl2w->getCul(), forceLegacy );
-    }
-    
-    registerObjectForUtility();
-
-    m_renderersVersions["OpenGL"] = m_renderDevice->getVersion();
 }
 
 void GameEngineConcrete::registerObjectForUtility()
@@ -77,7 +112,7 @@ void GameEngineConcrete::registerObjectForUtility()
     IUtilityUser::useUtility( m_renderDevice );
 }
 
-void GameEngineConcrete::loadFromConfig()
+void GameEngineConcrete::loadDebugDraw()
 {
     auto config = m_sdlW->getConfig();
     if( config )
@@ -305,19 +340,7 @@ void GameEngineConcrete::mainThread()
 
     renderLoop();
 
-    if( m_debugDrawInitialized )
-    {
-        if( m_renderDevice->getIsEmbeddedSystems() )
-        {
-            ImGui_ImplOpenGL3_Shutdown();
-        }
-        else
-        {
-            ImGui_ImplOpenGL2_Shutdown();
-        }
-        ImGui_ImplSDL2_Shutdown();
-        ImGui::DestroyContext();
-    }
+    m_debugSystem.reset();
 
     release();
 }
@@ -338,6 +361,11 @@ void GameEngineConcrete::taskThread()
 
 void GameEngineConcrete::renderLoop()
 {
+    if( m_onInitializeCallback )
+    {
+        m_onInitializeCallback();
+    }
+
     while( m_runRenderLoop )
     {
         m_frameTimer->start();
@@ -383,48 +411,17 @@ void GameEngineConcrete::renderLoop()
     releaseResources();
 }
 
-void GameEngineConcrete::initDebugInfo()
-{
-    if( !m_debugDrawInitialized )
-    {
-        IMGUI_CHECKVERSION();
-        auto imguiContext = ImGui::CreateContext();
-        setGuiContext( imguiContext );
-        ImGui::StyleColorsDark();
-
-        ImGui_ImplSDL2_InitForOpenGL( *m_activeWindow, getContext().glContext );
-
-        if( getDevice()->getIsEmbeddedSystems() )
-        {
-            ImGui_ImplOpenGL3_Init();
-        }
-        else
-        {
-            ImGui_ImplOpenGL2_Init();
-        }
-
-        m_debugDrawInitialized = true;
-    }
-}
-
 void GameEngineConcrete::initialize()
 {
     IGameEngine::initialize();
 
     m_logger->log( "GameEngineConcrete::initialize()..." );
 
-    m_glContext = m_renderDevice->initContextVersion( m_activeWindow );
-    m_logger->log( "GameEngineConcrete::initialize(), OpenGL version:" );
-    m_logger->log( m_glContext.glVersion );
-
     const auto& winSize = m_activeWindow->getSize();
     const float aspectRatio = 1.f * winSize.w / winSize.h;
     getCamera().setAspectRatio( aspectRatio );
 
     m_sdlW->registerSDLEventObserver( this );
-
-    m_renderDevice->setProjectionAndModelToIdentity();
-    m_renderDevice->setTexuring( true );
 
     setupProjectionData( winSize.getWidth(), winSize.getHeight() );
 
@@ -440,36 +437,6 @@ void GameEngineConcrete::initialize()
     showExtensions();
 
     calculateFrameWait();
-    /*
-    m_projectionData.m_depthTest.setOnChange(
-        [this]()
-        {
-            m_projectionChanged = true;
-        } );
-
-    m_projectionData.setOnChange(
-        [this]()
-        {
-            m_projectionChanged = true;
-        } );
-
-    m_isPerspective.setOnChange(
-        [this]()
-        {
-            if( m_isPerspective )
-            {
-                m_projectionData.m_projectionType = ProjectionType::PERSPECTIVE;
-            }
-            else
-            {
-                m_projectionData.m_projectionType = ProjectionType::ORTO;
-            }
-
-            m_projectionChanged = true;
-        } );*/
-
-    // m_oglUtility->setBackfaceCUll(  );
-    // m_oglUtility->setDepthTest( true );
 
     getDevice()->toggleDebugOutput( true );
 
@@ -495,19 +462,11 @@ void GameEngineConcrete::setupProjectionData( uint16_t width, uint16_t height )
     projectionData.setEyePos( glm::vec3( 0.0f, 0.0f, 220.0f ) );
     projectionData.setCenter( glm::vec3( 0.f, 0.f, 0.0f ) );
     projectionData.setUp( glm::vec3( 0.0f, 1.0f, 0.0f ) );
-    setProjection( projectionData );
 }
 
 void GameEngineConcrete::renderFrame()
 {
-    if( m_userInitialized == false )
-    {
-        if( m_onInitializeCallback )
-        {
-            m_onInitializeCallback();
-            m_userInitialized = true;
-        }
-    }
+    m_renderDevice->prepareFrame();
 
     if( m_clearEveryFrame )
     {
@@ -518,8 +477,8 @@ void GameEngineConcrete::renderFrame()
 
     if( getCamera().getProjectionChanged() )
     {
-        changeProjectionType();
-        getCamera().toggleProjectionChanged( false );
+        //changeProjectionType();
+        //getCamera().toggleProjectionChanged( false );
     }
 
     if( m_onBeforeFrame )
@@ -542,12 +501,12 @@ void GameEngineConcrete::renderFrame()
         m_renderDevice->bindBuffer( BufferTypes::VERTEX_ARRAY, 0u );
     }
 
-    if( m_debugDrawInitialized && m_enableDebugDraw )
+    if( m_debugSystem.get() && m_enableDebugDraw )
     {
-        renderInfo();
+        m_debugSystem->frame();
     }
 
-    refreshBuffers();
+    finishFrame();
 }
 
 void GameEngineConcrete::calculateNextFrameLengths()
@@ -570,19 +529,6 @@ void GameEngineConcrete::renderInfo()
 {
     const auto& winSize = m_activeWindow->getSize();
 
-    if( m_renderDevice->getIsEmbeddedSystems() )
-    {
-        ImGui_ImplOpenGL3_NewFrame();
-    }
-    else
-    {
-        ImGui_ImplOpenGL2_NewFrame();
-    }
-
-    ImGui_ImplSDL2_NewFrame( *m_activeWindow );
-
-    ImGui::NewFrame();
-
     String name = "INFO LOG";
     ImGui::Begin( name.cStr(), nullptr,
                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
@@ -590,7 +536,7 @@ void GameEngineConcrete::renderInfo()
     ImGui::SetWindowSize( { (float)winSize.getWidth() * 0.2f, (float)winSize.getHeight() * 1.f } );
 
     ImGui::Text( "Legacy: %s", getDevice()->isLegacy() ? "true" : "false" );
-    ImGui::Text( "Renderer: %s", m_activeWindow->getRenderName().cStr() );
+    ImGui::Text( "Renderer: %s", getDevice()->getName().cStr() );
 
     float gputTotal = getGPUTotalAvailableMemoryKb();
     gputTotal /= 1024;
@@ -754,44 +700,13 @@ void GameEngineConcrete::renderInfo()
     }
 
     guiFrameDelegate.execute();
-
-    ImGui::Render();
-
-    if( m_renderDevice->getIsEmbeddedSystems() )
-    {
-        ImGui_ImplOpenGL3_RenderDrawData( ImGui::GetDrawData() );
-    }
-    else
-    {
-        ImGui_ImplOpenGL2_RenderDrawData( ImGui::GetDrawData() );
-    }
 }
 #if _MSC_VER
 #pragma warning( pop )
 #endif
 
-// void GameEngineConcrete::setProjectionType( const ProjectionType* type )
-//{
-//     m_projectionData.m_projectionType = *type;
-//     prepareProjection();
-//     m_projectionChanged = true;
-// }
-
 void GameEngineConcrete::prepareProjection()
 {
-    // if( ProjectionType::ORTO == m_projectionData.m_projectionType )
-    //{
-    //    auto eyeCopy = m_projectionData.getEye();
-    //    eyeCopy.z = std::max( eyeCopy.z, m_projectionData.getZnear() );
-    //    m_projectionData.setZNear( eyeCopy.z );
-    //    m_projectionData.setEyePos( eyeCopy );
-    //}
-    // else if( ProjectionType::PERSPECTIVE == m_projectionData.m_projectionType
-    // )
-    //{
-    //    m_projectionData.setZNear( std::min( m_projectionData.getEye().z,
-    //    m_projectionData.getZnear() ) );
-    //}
 }
 
 void GameEngineConcrete::changeProjectionType()
@@ -808,7 +723,6 @@ void GameEngineConcrete::changeProjectionType()
     }
     m_renderDevice->resetMatrixToIdentity( MatrixTypes::MODELVIEW );
     m_renderDevice->lookAt( getCamera() );
-    setProjection( getCamera() );
     m_renderDevice->setDepthTest( getCamera().getDepthTestIsEnabled() );
 }
 
@@ -846,17 +760,14 @@ void GameEngineConcrete::renderObjects()
     }
 }
 
-void GameEngineConcrete::refreshBuffers()
+void GameEngineConcrete::finishFrame()
 {
+    m_renderDevice->finishFrame();
+
     if( m_updateBuffers )
     {
         m_activeWindow->updateScreenBuffers();
     }
-}
-
-void GameEngineConcrete::setProjection( const Camera& rect )
-{
-    m_renderDevice->setProjection( rect );
 }
 
 void GameEngineConcrete::setViewport( const Viewport& viewport, const bool instant )
@@ -917,21 +828,6 @@ void GameEngineConcrete::drawDebugInfo( const bool enable )
 {
     m_enableDebugDraw = enable;
 
-    auto currentThreadName = getCul()->getThreadUtils().getCurrentThreadName();
-
-    if( getCul()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
-    {
-        initDebugInfo();
-    }
-    else
-    {
-        addRenderThreadTask(
-            [this]()
-            {
-                initDebugInfo();
-            } );
-    }
-
     m_sdlW->getMainWindow()->toggleFpsCounter( enable );
 }
 
@@ -942,7 +838,7 @@ IDebugOverlay* GameEngineConcrete::getDebugOverlay()
 
 void GameEngineConcrete::handleEvent( const SDL_Event& event )
 {
-    if( m_debugDrawInitialized )
+    if( m_debugSystem.get() )
     {
         ImGui_ImplSDL2_ProcessEvent( &event );
     }
@@ -970,7 +866,7 @@ unsigned GameEngineConcrete::addSliderValue( const CUL::String& text, float* val
 
 unsigned GameEngineConcrete::addText( const CUL::String& text, float* val )
 {
-    const unsigned size = (unsigned)m_debugValues.size();
+    const auto size = (unsigned)m_debugValues.size();
     const auto newId = size + 1u;
 
     DebugValueRow row;

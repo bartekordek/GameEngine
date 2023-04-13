@@ -22,7 +22,6 @@
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
 #include "CUL/STL_IMPORTS/STD_variant.hpp"
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
-#include "CUL/STL_IMPORTS/STD_stack.hpp"
 
 union SDL_Event;
 
@@ -34,6 +33,7 @@ NAMESPACE_END( SDL2W )
 NAMESPACE_BEGIN( LOGLW )
 
 class Camera;
+class DebugSystemBase;
 
 using SafeBool = CUL::GUTILS::LckPrim<bool>;
 template <typename Type>
@@ -81,13 +81,12 @@ public:
 protected:
 private:
     void initialize() override;
-    void loadFromConfig();
+    void loadDebugDraw();
     void showExtensions();
     void setupProjectionData( uint16_t width, uint16_t height );
     CUL::CULInterface* getCul() override;
 
-    void refreshBuffers();
-    void setProjection( const Camera& rect ) override;
+    void finishFrame();
     void setViewport( const Viewport& viewport, const bool instant = false ) override;
 
     IObject* createFromFile( const String& path ) override;
@@ -125,7 +124,6 @@ private:
     void renderLoop();
     void taskThread();
     void calculateNextFrameLengths();
-    void initDebugInfo();
     void renderFrame() override;
     void renderInfo();
     void changeProjectionType();
@@ -178,10 +176,11 @@ private:
 
     void addRenderThreadTask( const std::function<void( void )>& task ) override;
 
+    std::unique_ptr<DebugSystemBase> m_debugSystem;
+
     std::map<unsigned, DebugValueRow> m_debugValues;
 
     std::atomic<bool> m_enableDebugDraw = false;
-    std::atomic<bool> m_debugDrawInitialized = false;
 
     ContextInfo m_glContext;
 

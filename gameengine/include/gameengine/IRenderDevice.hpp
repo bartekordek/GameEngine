@@ -2,6 +2,8 @@
 
 #include "gameengine/Import.hpp"
 
+#include "SDL2Wrapper/RendererTypes.hpp"
+
 #include "CUL/Filesystem/IFile.hpp"
 #include "CUL/Graphics/Color.hpp"
 #include "CUL/Graphics/Rect2D.hpp"
@@ -210,18 +212,23 @@ class Viewport;
 class GAME_ENGINE_API IRenderDevice
 {
 public:
-    IRenderDevice( CUL::CULInterface* culInterface, bool forceLegacy );
+    IRenderDevice( bool forceLegacy );
 
+    virtual void* getNativeDevice() = 0;
     virtual bool isLegacy() = 0;
+    virtual size_t getFrameBufferCount() const = 0;
+    virtual void initDebugUI() = 0;
 
     virtual void resetMatrixToIdentity( const MatrixTypes matrix ) = 0;
-    virtual void setProjection( const Camera& rect ) = 0;
     virtual void setViewport( const Viewport& viewport ) = 0;
     virtual void setOrthogonalPerspective( const Camera& vp ) = 0;
     virtual void setPerspectiveProjection( const Camera& vp ) = 0;
     virtual void lookAt( const Camera& vp ) = 0;
     virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) = 0;
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) = 0;
+
+    virtual void prepareFrame() = 0;
+    virtual void finishFrame() = 0;
 
     virtual unsigned int createProgram() = 0;
     virtual void removeProgram( unsigned programId ) = 0;
@@ -353,8 +360,6 @@ public:
 
     CUL::GUTILS::Version getVersion() const;
 
-    CUL::CULInterface* getCUL() const;
-
     virtual unsigned getGPUTotalAvailableMemoryKb() = 0;
     virtual unsigned getGPUCurrentAvailableMemoryKb() = 0;
 
@@ -362,6 +367,9 @@ public:
 
     virtual void checkLastCommandForErrors() = 0;
     bool getIsEmbeddedSystems() const;
+
+    virtual const String& getName() const = 0;
+    virtual SDL2W::RenderTypes::RendererType getType() const = 0;
 
     virtual ~IRenderDevice();
 
@@ -377,9 +385,7 @@ protected:
     String m_versionString;
 
 private:
-    CUL::CULInterface* m_culInterface = nullptr;
     CUL::LOG::ILogger* m_logger = nullptr;
-    
 
     mutable String m_lastLog;
     CUL::LOG::Severity m_lastLogSeverity;

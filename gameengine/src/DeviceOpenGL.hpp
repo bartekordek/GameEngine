@@ -20,18 +20,18 @@ enum class ShaderTypes : int
 class DeviceOpenGL final: public IRenderDevice
 {
 public:
-    DeviceOpenGL( CUL::CULInterface* culInterface, bool forceLegacy );
+    DeviceOpenGL( bool forceLegacy );
 
     ~DeviceOpenGL();
 
 protected:
 private:
     ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
+    void initDebugUI() override;
 
     void setOrthogonalPerspective( const Camera& vp );
     void setPerspectiveProjection( const Camera& vp );
 
-    void setProjection( const Camera& rect ) override;
     void setViewport( const Viewport& viewport ) override;
     void lookAt( const Camera& vp ) override;
     void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;
@@ -163,6 +163,7 @@ private:
 
     void rotate( const CUL::MATH::Rotation& rotation ) override;
     void draw( const CUL::MATH::Primitives::Line& values, const ColorS& color ) override;
+
     void rotate( const float angleDeg, const float x, const float y, const float z ) override;
 
     // Texturing
@@ -186,14 +187,26 @@ private:
     unsigned getGPUTotalAvailableMemoryKb() override;
     unsigned getGPUCurrentAvailableMemoryKb() override;
 
+    void* getNativeDevice() override;
     bool isLegacy() override;
 
     void checkLastCommandForErrors() override;
+    void prepareFrame() override;
+    void finishFrame() override;
 
     DeviceOpenGL( const DeviceOpenGL& arg ) = delete;
     DeviceOpenGL( DeviceOpenGL&& arg ) = delete;
     DeviceOpenGL& operator=( const DeviceOpenGL& rhv ) = delete;
     DeviceOpenGL& operator=( DeviceOpenGL&& rhv ) = delete;
+
+    size_t getFrameBufferCount() const override;
+
+
+    const String& getName() const override;
+    SDL2W::RenderTypes::RendererType getType() const override;
+
+
+    String m_name = "OpenGL Modern.";
 };
 
 NAMESPACE_END( LOGLW )
