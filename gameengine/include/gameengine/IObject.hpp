@@ -45,6 +45,7 @@ protected:
     bool getForceLegacy() const;
 
 private:
+    void addParent( IObject* parent );
     void removeChild( IObject* child );
 
     CUL::String m_name;

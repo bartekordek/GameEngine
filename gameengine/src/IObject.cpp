@@ -31,10 +31,12 @@ const std::set<IObject*>& IObject::getChildren() const
     return m_children;
 }
 
-void IObject::addChild(IObject* child)
+void IObject::addChild( IObject* child )
 {
     std::lock_guard<std::mutex> locker( m_childrenMtx );
-    m_children.insert(child);
+    m_children.insert( child );
+    child->addParent( this );
+    child->setDisableRenderOnMyOwn( true );
 }
 
 IComponent* IObject::getComponent( const String& name )
@@ -77,6 +79,11 @@ IObject::~IObject()
         delete child;
     }
     m_children.clear();
+}
+
+void IObject::addParent( IObject* parent )
+{
+    m_parent = parent;
 }
 
 void IObject::removeChild( IObject* child )
