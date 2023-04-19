@@ -9,7 +9,7 @@
 
 using namespace LOGLW;
 
-Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
+Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( "Triangle", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
     m_transformComponent = getTransform();
     setParent( parent );

@@ -5,7 +5,6 @@
 #include "gameengine/Primitives/Triangle.hpp"
 
 #include "Primitives/LineImpl.hpp"
-#include "Primitives/PointImpl.hpp"
 #include "Primitives/QuadImpl.hpp"
 #include "Primitives/QuadImplLegacy.hpp"
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
@@ -273,16 +272,6 @@ IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS&
     quad->setColor( color );
 
     return quad;
-}
-
-IPoint* GameEngineConcrete::createPoint( const Point& position, const ColorS& color )
-{
-    auto result = new PointImpl( this, false );
-    result->setColor( color );
-    result->getTransform()->setPositionAbsolute( position.toGlmVec() );
-    addObjectToRender( result );
-
-    return result;
 }
 
 Sprite* GameEngineConcrete::createSprite( const String& path, bool )

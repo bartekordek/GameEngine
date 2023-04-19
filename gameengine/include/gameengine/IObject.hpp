@@ -18,7 +18,7 @@ class Name;
 class IObject: public IRenderable
 {
 public:
-    GAME_ENGINE_API IObject( IGameEngine* engine, bool forceLegacy );
+    GAME_ENGINE_API IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy );
 
     GAME_ENGINE_API virtual const std::vector<float> getVertices() const;
 
@@ -46,7 +46,7 @@ protected:
 
 private:
     void addParent( IObject* parent );
-    void removeChild( IObject* child );
+    void removeChild( IObject* child, bool lock );
 
     CUL::String m_name;
     IGameEngine& m_engine;

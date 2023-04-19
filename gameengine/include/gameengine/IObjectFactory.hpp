@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gameengine/Primitives/IQuad.hpp"
-#include "gameengine/Primitives/IPoint.hpp"
 
 #include "CUL/Filesystem/IFile.hpp"
 
@@ -24,8 +23,6 @@ public:
     virtual Triangle* createTriangle( const TriangleData& data, const ColorS& color, bool forceLegacy = false ) = 0;
 
     virtual IQuad* createQuad( const QuadData& data, bool legacy = false, const ColorS& color = ColorE::WHITE ) = 0;
-
-    virtual IPoint* createPoint(const Point& position, const ColorS& color = ColorE::WHITE) = 0;
 
     virtual Sprite* createSprite( const String& path, bool withVBO = false ) = 0;
     virtual Sprite* createSprite( unsigned* data, unsigned width,

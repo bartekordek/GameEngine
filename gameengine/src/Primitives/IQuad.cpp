@@ -2,7 +2,7 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
-IQuad::IQuad( IGameEngine* engine, bool forceLegacy ): IObject( engine, forceLegacy )
+IQuad::IQuad( IGameEngine* engine, bool forceLegacy ): IObject( "IQuad", engine, forceLegacy )
 {
 
 }

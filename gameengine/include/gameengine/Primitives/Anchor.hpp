@@ -18,6 +18,8 @@ private:
 
     Camera& m_camera;
     IGameEngine& m_engine;
+
+    TransformComponent* m_transformComponent = nullptr;
 };
 
 NAMESPACE_END( LOGLW )

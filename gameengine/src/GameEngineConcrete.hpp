@@ -96,8 +96,6 @@ private:
     Triangle* createTriangle( const TriangleData& data, const ColorS& color, bool forceLegacy = false ) override;
     IQuad* createQuad( const QuadData& data, bool legacy = false, const ColorS& color = ColorE::WHITE ) override;
 
-    IPoint* createPoint( const Point& position, const ColorS& color = ColorE::WHITE ) override;
-
     Sprite* createSprite( const String& path, bool withVBO = false ) override;
     Sprite* createSprite( unsigned* data, unsigned width, unsigned height, bool withVBO = false ) override;
 

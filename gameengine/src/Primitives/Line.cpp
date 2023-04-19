@@ -9,7 +9,7 @@
 
 using namespace LOGLW;
 
-Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
+Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( "Line", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
     m_transformComponent = getTransform();
     setParent( parent );

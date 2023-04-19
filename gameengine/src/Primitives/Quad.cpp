@@ -13,7 +13,7 @@
 
 using namespace LOGLW;
 
-Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
+Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( "Quad", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
     m_transformComponent = getTransform();
     setParent( parent );

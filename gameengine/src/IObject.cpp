@@ -1,10 +1,12 @@
 #include "gameengine/IObject.hpp"
 
 #include "gameengine/Components/TransformComponent.hpp"
+#include "CUL/Log/ILogger.hpp"
 
 using namespace LOGLW;
 
-IObject::IObject( IGameEngine* engine, bool forceLegacy ) : IRenderable( engine ), m_engine( *engine ), m_forceLegacy( forceLegacy )
+IObject::IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy )
+    : IRenderable( engine ), m_engine( *engine ), m_forceLegacy( forceLegacy )
 {
     m_transform = new TransformComponent( *this );
     addComponent( "TransformComponent", m_transform );
@@ -61,6 +63,8 @@ TransformComponent* IObject::getTransform()
 
 IObject::~IObject()
 {
+    CUL::LOG::ILogger::getInstance()->log( "IObject::~IObject(): " + m_name );
+
     for( const auto& componentPair: m_components)
     {
         delete componentPair.second;
@@ -71,7 +75,7 @@ IObject::~IObject()
     std::lock_guard<std::mutex> locker( m_childrenMtx );
     if( m_parent )
     {
-        m_parent->removeChild(this);
+        m_parent->removeChild( this, false );
     }
 
     for( const IObject* child: m_children )
@@ -86,17 +90,28 @@ void IObject::addParent( IObject* parent )
     m_parent = parent;
 }
 
-void IObject::removeChild( IObject* child )
+void IObject::removeChild( IObject* child, bool lock )
 {
-    std::lock_guard<std::mutex> locker( m_childrenMtx );
-    auto it = m_children.find( child );
-    if( it == m_children.end() )
+    auto removeChildImpl = [this, child]() {
+        auto it = m_children.find( child );
+        if( it == m_children.end() )
+        {
+            CUL::Assert::simple( false, "Trying to remove already removed child." );
+        }
+        else
+        {
+            m_children.erase( it );
+        }
+    };
+
+    if( lock )
     {
-        CUL::Assert::simple( false, "Trying to remove already removed child." );
+        std::lock_guard<std::mutex> locker( m_childrenMtx );
+        removeChildImpl();
     }
     else
     {
-        m_children.erase( it );
+        removeChildImpl();
     }
 }
 
