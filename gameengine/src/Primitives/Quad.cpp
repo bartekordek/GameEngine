@@ -54,6 +54,11 @@ void Quad::setColor( const CUL::Graphics::ColorS& color )
     colorVec.w = m_color.getAF();
 }
 
+GAME_ENGINE_API Program* Quad::getProgram() const
+{
+    return m_shaderProgram;
+}
+
 void Quad::init()
 {
     if( getDevice()->isLegacy() )

@@ -13,6 +13,8 @@ NAMESPACE_BEGIN( LOGLW )
 class Camera;
 class IGameEngine;
 class TransformComponent;
+class Program;
+class VertexArray;
 
 class Quad final: public IUtilityUser, public IObject
 {
@@ -20,6 +22,7 @@ public:
     GAME_ENGINE_API Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
+    GAME_ENGINE_API Program* getProgram() const;
 
     GAME_ENGINE_API ~Quad();
 
@@ -39,8 +42,8 @@ private:
 
     TransformComponent* m_transformComponent = nullptr;
     std::atomic<bool> m_recreateBuffers = false;
-    class Program* m_shaderProgram = nullptr;
-    class VertexArray* m_vao = nullptr;
+    Program* m_shaderProgram = nullptr;
+    VertexArray* m_vao = nullptr;
 
     Camera& m_camera;
     IGameEngine& m_engine;
