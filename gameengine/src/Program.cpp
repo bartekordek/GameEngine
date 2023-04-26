@@ -166,9 +166,9 @@ void Program::reloadShader()
 void Program::reloadShaderImpl()
 {
     std::vector<String> shadersPaths;
-    for( const auto shader : m_attachedShaders )
+    for( const auto [type, shader] : m_attachedShaders )
     {
-        shadersPaths.push_back(shader.first);
+        shadersPaths.push_back( shader );
     }
 
     release();
@@ -188,10 +188,36 @@ void Program::reloadShaderImpl()
 
 void Program::attachShader( Shader* shader )
 {
-    auto shaderId = shader->getId();
-    shader->addUsedFrom( this );
+    auto it = m_attachedShaders.find( shader->getType() );
+    Shader* oldSHader = nullptr; 
+    if( it != m_attachedShaders.end() )
+    {
+        oldSHader = it->second;
+    }
 
-    auto attachTask = [this, shaderId]() {
+    if( oldSHader )
+    {
+        auto removeOldShader = [oldSHader, this]() {
+            oldSHader->addUsedFrom( nullptr );
+            getDevice()->dettachShader( m_id, oldSHader->getId() );
+        };
+
+        if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+        {
+            removeOldShader();
+        }
+        else
+        {
+            m_engine.addRenderThreadTask( [removeOldShader]() {
+                removeOldShader();
+            } );
+        }
+    }
+
+
+    auto attachTask = [this, shader]() {
+        auto shaderId = shader->getId();
+        shader->addUsedFrom( this );
         getDevice()->attachShader( m_id, shaderId );
     };
 
@@ -207,13 +233,12 @@ void Program::attachShader( Shader* shader )
     }
 
 
-    m_attachedShaders[shader->getPath()] = shader;
+    m_attachedShaders[shader->getType()] = shader;
 }
 
 void Program::dettachShader( Shader* shader )
 {
-    auto it = m_attachedShaders.find( shader->getPath() );
-    m_attachedShaders.erase( it );
+    m_attachedShaders[shader->getType()] = nullptr;
 }
 
 void Program::link()
@@ -312,11 +337,6 @@ void Program::processTask( const ValueToSet& task )
             getDevice()->setAttribValue( location, *intValue );
         }
     }
-}
-
-const ShaderList& Program::getShaderList() const
-{
-    return m_attachedShaders;
 }
 
 // TODO

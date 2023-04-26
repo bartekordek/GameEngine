@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gameengine/IUtilityUser.hpp"
+#include "gameengine/ShaderTypes.hpp"
 
 #include "CUL/Filesystem/Path.hpp"
 #include "CUL/Filesystem/IFile.hpp"
@@ -16,6 +17,8 @@ class GAME_ENGINE_API Shader final:
     private IUtilityUser
 {
 public:
+
+
     Shader( IGameEngine& engine, CUL::FS::IFile* file );
 
     unsigned int getId() const;
@@ -27,6 +30,8 @@ public:
     void removeUsedFrom( Program* inProgram );
     size_t getUsedFromCount() const;
 
+    ShaderTypes::ShaderType getType() const;
+
     ~Shader();
 
 protected:
@@ -34,6 +39,7 @@ private:
     void create();
     void release();
 
+    ShaderTypes::ShaderType m_type{ ShaderTypes::ShaderType::Unkown };
     std::vector<Program*> m_usedFromList;
 
     IGameEngine& m_engine;

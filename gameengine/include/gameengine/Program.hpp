@@ -24,7 +24,6 @@ NAMESPACE_END( CUL )
 NAMESPACE_BEGIN( LOGLW )
 
 using String = CUL::String;
-using ShaderList = std::map<String, Shader*>;
 
 class VertexArray;
 class IGameEngine;
@@ -72,7 +71,6 @@ public:
         const BufferTypes type );
 
     unsigned int getProgramId();
-    const ShaderList& getShaderList() const;
 
     bool initialized() const;
     void initialize();
@@ -98,7 +96,7 @@ private:
     unsigned int m_dataBufferId = 0u;
     unsigned int m_id = 0u;
 
-    ShaderList m_attachedShaders;
+    std::map<ShaderTypes::ShaderType, Shader*> m_attachedShaders;
 
     std::map<String, unsigned> m_uniformMap;
 

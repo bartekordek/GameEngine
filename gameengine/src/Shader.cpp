@@ -35,6 +35,7 @@ void Shader::create()
 {
     auto createTask = [this]() {
         m_id = getDevice()->createShader( *m_shaderCode );
+        m_type = ShaderTypes::getShaderType( m_shaderCode->getPath().getExtension() );
     };
 
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
@@ -71,6 +72,11 @@ void Shader::removeUsedFrom( Program* inProgram )
 size_t Shader::getUsedFromCount() const
 {
     return m_usedFromList.size();
+}
+
+ShaderTypes::ShaderType Shader::getType() const
+{
+    return m_type;
 }
 
 Shader::~Shader()
