@@ -112,8 +112,8 @@ private:
     void deleteBuffer( BufferTypes bufferType, unsigned& id ) override;
     void enableVertexAttribiute( unsigned programId, const String& attribName ) override;
     void disableVertexAttribiute( unsigned programId, const String& attribName ) override;
-    unsigned int getAttribLocation( unsigned programId, const String& attribName ) override;
-    unsigned int getUniformLocation( unsigned programId, const String& attribName ) override;
+    int getAttribLocation( unsigned programId, const String& attribName ) override;
+    int getUniformLocation( unsigned programId, const String& attribName ) override;
     void unbindBuffer( const BufferTypes bufferType ) override;
     void bindBuffer( const BufferTypes bufferType, unsigned bufferId ) override;
     unsigned int generateBuffer( const BufferTypes type, const int size = 1 ) override;

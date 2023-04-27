@@ -709,12 +709,12 @@ void DeviceDX12::disableVertexAttribiute( unsigned programId, const String& attr
 {
 }
 
-unsigned int DeviceDX12::getAttribLocation( unsigned programId, const String& attribName )
+int DeviceDX12::getAttribLocation( unsigned programId, const String& attribName )
 {
 	return 0;
 }
 
-unsigned int DeviceDX12::getUniformLocation( unsigned programId, const String& attribName )
+int DeviceDX12::getUniformLocation( unsigned programId, const String& attribName )
 {
 	return 0;
 }

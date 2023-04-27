@@ -97,11 +97,21 @@ void Program::setUniform( const String& name, const glm::mat4& val )
     getDevice()->setUniformValue( location, val );
 }
 
-void Program::setUniform( const String& name, const glm::vec4& value )
+void Program::setUniform( const String& name, const glm::vec3& value )
 {
     getDevice()->useProgram( m_id );
     auto location = getUniformLocation( name );
     getDevice()->setUniformValue( location, value );
+}
+
+void Program::setUniform( const String& name, const glm::vec4& value )
+{
+    getDevice()->useProgram( m_id );
+    auto location = getUniformLocation( name );
+    if( location != -1 )
+    {
+        getDevice()->setUniformValue( location, value );
+    }
 }
 
 Shader* Program::loadShader( const char* path )
@@ -115,12 +125,17 @@ Shader* Program::loadShader( const char* path )
     return result;
 }
 
-unsigned Program::getUniformLocation( const String& name )
+int Program::getUniformLocation( const String& name )
 {
     auto it = m_uniformMap.find( name );
     if( it == m_uniformMap.end() )
     {
         auto location = getDevice()->getUniformLocation( m_id, name );
+        if( location == -1 )
+        {
+            return location;
+        }
+
         m_uniformMap[name] = location;
         return location;
     }
@@ -166,13 +181,12 @@ void Program::reloadShader()
 void Program::reloadShaderImpl()
 {
     std::vector<String> shadersPaths;
-    for( const auto [type, shader] : m_attachedShaders )
+    for( const auto [_, shader] : m_attachedShaders )
     {
-        shadersPaths.push_back( shader );
+        shadersPaths.push_back( shader->getPath() );
+        dettachShader( shader );
     }
 
-    release();
-    initialize();
 
     for( auto shaderPath : shadersPaths )
     {
@@ -197,48 +211,48 @@ void Program::attachShader( Shader* shader )
 
     if( oldSHader )
     {
-        auto removeOldShader = [oldSHader, this]() {
-            oldSHader->addUsedFrom( nullptr );
-            getDevice()->dettachShader( m_id, oldSHader->getId() );
-        };
-
-        if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
-        {
-            removeOldShader();
-        }
-        else
-        {
-            m_engine.addRenderThreadTask( [removeOldShader]() {
-                removeOldShader();
-            } );
-        }
+        dettachShader( oldSHader );
     }
-
-
-    auto attachTask = [this, shader]() {
-        auto shaderId = shader->getId();
-        shader->addUsedFrom( this );
-        getDevice()->attachShader( m_id, shaderId );
-    };
 
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
-        attachTask();
+        attachShaderImpl( shader );
     }
     else
     {
-        m_engine.addRenderThreadTask( [attachTask]() {
-            attachTask();
+        m_engine.addRenderThreadTask( [this, shader]() {
+            attachShaderImpl( shader );
         } );
     }
+}
 
-
+void Program::attachShaderImpl( Shader* shader )
+{
+    auto shaderId = shader->getId();
     m_attachedShaders[shader->getType()] = shader;
+    shader->addUsedFrom( this );
+    getDevice()->attachShader( m_id, shaderId );
 }
 
 void Program::dettachShader( Shader* shader )
 {
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        dettachShaderImpl( shader );
+    }
+    else
+    {
+        m_engine.addRenderThreadTask( [this, shader]() {
+            dettachShaderImpl( shader );
+        } );
+    }
+}
+
+void Program::dettachShaderImpl( Shader* shader )
+{
     m_attachedShaders[shader->getType()] = nullptr;
+    shader->removeUsedFrom( this );
+    getDevice()->dettachShader( m_id, shader->getId() );
 }
 
 void Program::link()

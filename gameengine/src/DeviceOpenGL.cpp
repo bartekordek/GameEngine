@@ -686,7 +686,7 @@ void DeviceOpenGL::setActiveTextureUnit( ETextureUnitIndex textureUnitIndex )
     glActiveTexture( textureId );
 }
 
-unsigned int DeviceOpenGL::getUniformLocation( unsigned programId, const String& attribName )
+int DeviceOpenGL::getUniformLocation( unsigned programId, const String& attribName )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -718,7 +718,7 @@ unsigned int DeviceOpenGL::getUniformLocation( unsigned programId, const String&
         }
     }
 
-    return static_cast<unsigned int>( attribLocation );
+    return attribLocation;
 }
 
 void DeviceOpenGL::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count )
@@ -1704,7 +1704,7 @@ void DeviceOpenGL::deleteBuffer( BufferTypes bufferType, unsigned& id )
     }
 }
 
-unsigned int DeviceOpenGL::getAttribLocation( unsigned programId, const String& attribName )
+int DeviceOpenGL::getAttribLocation( unsigned programId, const String& attribName )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {

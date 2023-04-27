@@ -48,6 +48,7 @@ public:
     void setUniform( const String& name, const glm::mat2& mat );
     void setUniform( const String& name, const glm::mat3& mat );
     void setUniform( const String& name, const glm::mat4& mat );
+    void setUniform( const String& name, const glm::vec3& value );
     void setUniform( const String& name, const glm::vec4& value );
 
     Shader* loadShader( const char* path );
@@ -58,7 +59,7 @@ public:
     int getAttributeI( const String& name );
 
     void attachShader( Shader* shader );
-    void dettachShader( Shader* shader = nullptr );
+    void dettachShader( Shader* shader );
     void link();
     void enable();
     void disable();
@@ -82,6 +83,8 @@ protected:
 
 private:
     void reloadShaderImpl();
+    void attachShaderImpl( Shader* shader );
+    void dettachShaderImpl( Shader* shader );
     void release();
     void releaseProgram();
 
@@ -89,7 +92,7 @@ private:
     void goThroughTasks();
     void processTask( const ValueToSet& task );
 
-    unsigned getUniformLocation( const String& name );
+    int getUniformLocation( const String& name );
 
     IGameEngine& m_engine;
 

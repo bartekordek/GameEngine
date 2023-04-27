@@ -72,8 +72,8 @@ private:
     virtual void deleteBuffer( BufferTypes bufferType, unsigned& id ) override;
     virtual void enableVertexAttribiute( unsigned programId, const String& attribName ) override;
     virtual void disableVertexAttribiute( unsigned programId, const String& attribName ) override;
-    virtual unsigned int getAttribLocation( unsigned programId, const String& attribName ) override;
-    virtual unsigned int getUniformLocation( unsigned programId, const String& attribName ) override;
+    virtual int getAttribLocation( unsigned programId, const String& attribName ) override;
+    virtual int getUniformLocation( unsigned programId, const String& attribName ) override;
     virtual void unbindBuffer( const BufferTypes bufferType ) override;
     virtual void bindBuffer( const BufferTypes bufferType, unsigned bufferId ) override;
     virtual unsigned int generateBuffer( const BufferTypes type, const int size = 1 ) override;

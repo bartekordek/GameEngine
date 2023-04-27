@@ -252,12 +252,12 @@ void DeviceOpenGL_Legacy::disableVertexAttribiute( unsigned programId, const Str
 {
 }
 
-unsigned int DeviceOpenGL_Legacy::getAttribLocation( unsigned programId, const String& attribName )
+int DeviceOpenGL_Legacy::getAttribLocation( unsigned programId, const String& attribName )
 {
     return 0;
 }
 
-unsigned int DeviceOpenGL_Legacy::getUniformLocation( unsigned programId, const String& attribName )
+int DeviceOpenGL_Legacy::getUniformLocation( unsigned programId, const String& attribName )
 {
     return 0;
 }

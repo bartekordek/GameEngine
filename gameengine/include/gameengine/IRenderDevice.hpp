@@ -297,8 +297,8 @@ public:
 
     virtual void enableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
     virtual void disableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
-    virtual unsigned int getAttribLocation( unsigned programId, const String& attribName ) = 0;
-    virtual unsigned int getUniformLocation( unsigned programId, const String& attribName ) = 0;
+    virtual int getAttribLocation( unsigned programId, const String& attribName ) = 0;
+    virtual int getUniformLocation( unsigned programId, const String& attribName ) = 0;
     virtual void unbindBuffer( const BufferTypes bufferType ) = 0;
     virtual void bindBuffer( const BufferTypes bufferType, unsigned bufferId ) = 0;
     // virtual void bindBuffer( VertexArray* vao )  = 0;
