@@ -217,11 +217,11 @@ void Sprite::renderLegacy()
         init();
     }
 
-    std::array<std::array<float, 3>, 4> values;
-    values[3] = { 0.f, 0.f, 0.f };
-    values[2] = { 1.f, 0.f, 0.f };
-    values[1] = { 1.f, 1.f, 0.f };
-    values[0] = { 0.f, 1.f, 0.f };
+    QuadData values;
+    values[3] = { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f };
+    values[2] = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
+    values[1] = { 1.f, 1.f, 0.f, 0.f, 0.f, 1.f };
+    values[0] = { 0.f, 1.f, 0.f, 0.f, 0.f, 1.f };
     QuadCUL colors = values;
 
     const CUL::MATH::Point& size = m_transformComponent->getSize();
@@ -234,10 +234,10 @@ void Sprite::renderLegacy()
     float z0 = -size.z() / 2.f;
     //float z1 = size.z() / 2.f;
 
-    values[0] = { x0, y0, z0 };
-    values[1] = { x1, y0, z0 };
-    values[2] = { x1, y1, z0 };
-    values[3] = { x0, y1, z0 };
+    values[0] = { x0, y0, z0, 0.f, 0.f, 1.f };
+    values[1] = { x1, y0, z0, 0.f, 0.f, 1.f };
+    values[2] = { x1, y1, z0, 0.f, 0.f, 1.f };
+    values[3] = { x0, y1, z0, 0.f, 0.f, 1.f };
     QuadCUL positions = values;
 
     getDevice()->bindTexture( m_textureId );
