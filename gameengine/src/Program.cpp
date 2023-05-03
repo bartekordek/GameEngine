@@ -122,6 +122,10 @@ Shader* Program::loadShader( const char* path )
     attachShader( result );
     link();
     validate();
+
+    m_uniformMap.clear();
+
+
     return result;
 }
 
@@ -185,8 +189,8 @@ void Program::reloadShaderImpl()
     {
         shadersPaths.push_back( shader->getPath() );
         dettachShader( shader );
+        m_uniformMap.clear();
     }
-
 
     for( auto shaderPath : shadersPaths )
     {
