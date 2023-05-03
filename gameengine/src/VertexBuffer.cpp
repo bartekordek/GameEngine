@@ -24,7 +24,7 @@ void VertexBuffer::loadData()
 
     unsigned attribIndex = 0;
     unsigned numberOfComponents = 3;
-    //int stride = 0;  // 3 * sizeof( m_vertices.at( 0 ) );
+    // TODO: refactor
 
     VertexAttributePtrMeta meta;
     if( m_vertexData.containsColorData )
@@ -87,7 +87,27 @@ void VertexBuffer::loadData()
                 getDevice()->vertexAttribPointer( meta );
                 getDevice()->enableVertexAttribArray( attribIndex++ );
             }
+        }
+    }
+    else if( m_vertexData.ContainsNormals )
+    {
+        if( m_vertexData.vao )
+        {
+            meta.componentsPerVertexAttribute = numberOfComponents;
+            meta.dataType = DataType::FLOAT;
+            meta.normalized = false;
+            meta.stride = 6 * sizeof( float );
+            meta.vao = m_vertexData.vao->getId();
+            meta.vbo = m_vboId;
+            meta.vertexAttributeId = attribIndex;
 
+            getDevice()->vertexAttribPointer( meta );
+            getDevice()->enableVertexAttribArray( attribIndex++ );
+
+            meta.vertexAttributeId = attribIndex;
+            meta.offset = (void*)( 3 * sizeof( float ) );
+            getDevice()->vertexAttribPointer( meta );
+            getDevice()->enableVertexAttribArray( attribIndex++ );
         }
     }
     else

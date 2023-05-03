@@ -693,13 +693,13 @@ int DeviceOpenGL::getUniformLocation( unsigned programId, const String& attribNa
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    log( "glGetUniformLocation( " + String( programId ) + ", " + attribName + " );" );
+   // log( "glGetUniformLocation( " + String( programId ) + ", " + attribName + " );" );
 
     auto attribLocation = glGetUniformLocation( programId, attribName.cStr() );
 
     if( attribLocation == -1 )
     {
-        log( "DID NOT FOUND!" );
+        //log( "DID NOT FOUND!" );
     }
 
     const GLenum err = glGetError();

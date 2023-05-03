@@ -51,6 +51,7 @@ struct GAME_ENGINE_API VertexBufferData
     bool containsColorData = false;
     LOGLW::PrimitiveType primitiveType = LOGLW::PrimitiveType::NONE;
     bool containsTextureCoords = false;
+    bool ContainsNormals = false;
 };
 
 class GAME_ENGINE_API VertexBuffer final : public IUtilityUser,
