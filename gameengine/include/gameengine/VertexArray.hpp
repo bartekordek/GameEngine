@@ -3,6 +3,7 @@
 #include "gameengine/IRenderable.hpp"
 #include "gameengine/VertexBuffer.hpp"
 #include "gameengine/Shader.hpp"
+#include "gameengine/AttributeMeta.hpp"
 
 #include "CUL/STL_IMPORTS/STD_cstdint.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -47,7 +48,7 @@ public:
     BuffIDType getId() const;
     void addVBO( VertexBuffer* vbo );
 
-    void addVertexBuffer( VertexBufferData& data );
+    void addVertexBuffer( VertexData& data );
 
     void createShader( const CUL::FS::Path& path );
 
@@ -95,7 +96,7 @@ private:
     std::mutex m_shadersMtx;
     std::queue<CUL::FS::Path> m_shadersPaths;
 
-    std::vector<VertexBufferData> m_vboDataToPrepare;
+    std::vector<VertexData> m_vboDataToPrepare;
     std::vector<Ptr<VertexBuffer>> m_vbos;
     size_t m_vbosCount = 0;
 

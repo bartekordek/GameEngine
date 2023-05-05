@@ -113,9 +113,6 @@ private:
     const Viewport& getViewport() const override;
     // ProjectionData& getProjectionData() override;
 
-    // VBO HANDLE:
-    VertexBuffer* createVBO( std::vector<float>& data ) override;
-
     const ContextInfo& getContext() const override;
 
     void mainThread();

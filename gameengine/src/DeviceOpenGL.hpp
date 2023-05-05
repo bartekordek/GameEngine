@@ -157,7 +157,7 @@ private:
 
     void drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count ) override;
 
-    void vertexAttribPointer( const VertexAttributePtrMeta& meta ) override;
+    void vertexAttribPointer( const VertexData& meta ) override;
 
     void setTextureData( uint8_t textureId, const TextureInfo& ti ) override;
 

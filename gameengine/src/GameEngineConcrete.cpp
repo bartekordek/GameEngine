@@ -177,12 +177,6 @@ const Viewport& GameEngineConcrete::getViewport() const
     return m_viewport;
 }
 
-VertexBuffer* GameEngineConcrete::createVBO( std::vector<float>& )
-{
-    VertexBuffer* result = nullptr;
-    return result;
-}
-
 const ContextInfo& GameEngineConcrete::getContext() const
 {
     return m_glContext;

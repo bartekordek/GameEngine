@@ -4,6 +4,7 @@
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/IUtilityUser.hpp"
+#include "gameengine/AttributeMeta.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/CULInterface.hpp"
@@ -89,24 +90,24 @@ void QuadImpl::init()
 
     getDevice()->bufferData( m_vbo, dataVec, BufferTypes::ARRAY_BUFFER );
 
-    VertexAttributePtrMeta meta;
-    meta.vertexAttributeId = 0;
-    meta.componentsPerVertexAttribute = 3;
-    meta.vao = m_vao;
-    meta.vbo = m_vbo;
-    meta.dataType = DataType::FLOAT;
-    meta.normalized = false;
-    meta.stride = 5 * sizeof( float );
+    //VertexAttributePtrMeta meta;
+    //meta.vertexAttributeId = 0;
+    //meta.componentsPerVertexAttribute = 3;
+    //meta.vao = m_vao;
+    //meta.vbo = m_vbo;
+    //meta.dataType = DataType::FLOAT;
+    //meta.normalized = false;
+    //meta.stride = 5 * sizeof( float );
 
-    getDevice()->vertexAttribPointer( meta );
+    //getDevice()->vertexAttribPointer( meta );
 
-    meta.vertexAttributeId = 1;
-    meta.componentsPerVertexAttribute = 2;
-    meta.offset = (void*)( 3 * sizeof( float ) );
-    getDevice()->vertexAttribPointer( meta );
+    //meta.vertexAttributeId = 1;
+    //meta.componentsPerVertexAttribute = 2;
+    //meta.offset = (void*)( 3 * sizeof( float ) );
+    //getDevice()->vertexAttribPointer( meta );
 
-    getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
-    getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
+    //getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
+    //getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
 
     m_initialized = true;
 }

@@ -4,6 +4,8 @@
 #include "gameengine/IUtilityUser.hpp"
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IndexBuffer.hpp"
+#include "gameengine/AttributeMeta.hpp"
+
 #include "CUL/GenericUtils/DumbPtr.hpp"
 
 #include "CUL/STL_IMPORTS/STD_cstdint.hpp"
@@ -43,22 +45,11 @@ using BuffIDType = uint8_t;
 template<typename Type>
 using Ptr = CUL::GUTILS::DumbPtr<Type>;
 
-struct GAME_ENGINE_API VertexBufferData
-{
-    class VertexArray* vao = nullptr;
-    std::vector<float> vertices;
-    std::vector<unsigned> indices;
-    bool containsColorData = false;
-    LOGLW::PrimitiveType primitiveType = LOGLW::PrimitiveType::NONE;
-    bool containsTextureCoords = false;
-    bool ContainsNormals = false;
-};
-
 class GAME_ENGINE_API VertexBuffer final : public IUtilityUser,
                                                 public IRenderable
 {
 public:
-    VertexBuffer( VertexBufferData& VertexData, IGameEngine* engine );
+    VertexBuffer( const VertexData& vertexData, IGameEngine* engine );
     void render() override;
     unsigned getId()const;
     int getSize() const;
@@ -70,8 +61,7 @@ private:
     void loadData();
     void release();
 
-    unsigned m_vboId = 0;
-    VertexBufferData m_vertexData;
+    VertexData m_vertexData;
     Ptr<IndexBuffer> m_indexBuffer;
     std::atomic<bool> m_load = true;
 

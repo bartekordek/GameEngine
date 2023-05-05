@@ -51,6 +51,7 @@ class Triangle;
 class Viewport;
 class IRenderDevice;
 class Shader;
+class VertexBuffer;
 struct EngineParams;
 
 using String = CUL::String;
@@ -115,7 +116,7 @@ public:
     GAME_ENGINE_API virtual ITextureFactory* getTextureFactory() = 0;
 
     // VBO HANDLE:
-    GAME_ENGINE_API virtual class VertexBuffer* createVBO( std::vector<float>& data ) = 0;
+    GAME_ENGINE_API VertexBuffer* createVBO( const VertexData& vertexData );
 
     GAME_ENGINE_API static IGameEngine* createGameEngine( SDL2W::ISDL2Wrapper* sdl2w, bool legacy = false );
     GAME_ENGINE_API static IGameEngine* createGameEngine( const EngineParams& engineParam );

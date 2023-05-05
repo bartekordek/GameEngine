@@ -125,11 +125,11 @@ void DeviceOpenGL_Legacy::setAttribValue( int , const CUL::String&  )
 {
 }
 
-void DeviceOpenGL_Legacy::setUniformValue( int uniformLocation, float value )
+void DeviceOpenGL_Legacy::setUniformValue( int, float )
 {
 }
 
-void DeviceOpenGL_Legacy::setUniformValue( int uniformLocation, int value )
+void DeviceOpenGL_Legacy::setUniformValue( int, int )
 {
 }
 
@@ -291,7 +291,7 @@ void DeviceOpenGL_Legacy::drawArrays( unsigned vaoId, const PrimitiveType primit
 {
 }
 
-void DeviceOpenGL_Legacy::vertexAttribPointer( const VertexAttributePtrMeta& meta )
+void DeviceOpenGL_Legacy::vertexAttribPointer( const VertexData& )
 {
 }
 

@@ -121,7 +121,7 @@ private:
     void drawElements( const PrimitiveType type, const std::vector<float>& data ) override;
     void drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count ) override;
     void drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count ) override;
-    void vertexAttribPointer( const VertexAttributePtrMeta& meta ) override;
+    void vertexAttribPointer( const VertexData& meta ) override;
     void enableVertexAttribArray( unsigned attributeId ) override;
     void setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data ) override;
     std::vector<std::string> listExtensions() override;

@@ -2,6 +2,7 @@
 
 #include "gameengine/Camera.hpp"
 #include "gameengine/Viewport.hpp"
+#include "gameengine/AttributeMeta.hpp"
 
 #include "SDL2Wrapper/IWindow.hpp"
 
@@ -743,15 +744,15 @@ void DeviceOpenGL::drawArrays( unsigned vaoId, const PrimitiveType primitiveType
     glDrawArrays( static_cast<GLenum>( primitiveType ), static_cast<GLint>( first ), static_cast<GLsizei>( count ) );
 }
 
-void DeviceOpenGL::vertexAttribPointer( const VertexAttributePtrMeta& meta )
+void DeviceOpenGL::vertexAttribPointer( const VertexData& meta )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    bindBuffer( BufferTypes::VERTEX_ARRAY, meta.vao );
-    bindBuffer( BufferTypes::ARRAY_BUFFER, meta.vbo );
+    bindBuffer( BufferTypes::VERTEX_ARRAY, meta.VAO );
+    bindBuffer( BufferTypes::ARRAY_BUFFER, meta.VBO );
 
     // Define an array of generic vertex attribute data
     /*
@@ -779,10 +780,20 @@ void DeviceOpenGL::vertexAttribPointer( const VertexAttributePtrMeta& meta )
     attribute in the array in the data store of the buffer currently bound to
     the GL_ARRAY_BUFFER target. The initial value is 0.
     */
-    log( "glVertexAttribPointer" );
-    glVertexAttribPointer( static_cast<GLuint>( meta.vertexAttributeId ), static_cast<GLint>( meta.componentsPerVertexAttribute ),
-                           static_cast<GLenum>( meta.dataType ), static_cast<GLboolean>( meta.normalized ),
-                           static_cast<GLsizei>( meta.stride ), meta.offset );
+
+    auto& attributes = meta.Attributes;
+    for( const auto& attribute : attributes )
+    {
+        const auto index = static_cast<GLuint>( attribute.Index );
+        const auto size = static_cast<GLint>( attribute.Size );
+        const auto type = static_cast<GLenum>( attribute.Type );
+        const auto normalized = static_cast<GLboolean>( attribute.Normalized );
+        const auto stride = static_cast<GLsizei>( attribute.Stride );
+        const auto ptr = attribute.Pointer;
+        const auto sizeOfFloat = 6 * sizeof( float );
+        glVertexAttribPointer( index, size, type, normalized, stride, ptr );
+        glEnableVertexAttribArray( index );
+    }
 }
 
 void DeviceOpenGL::setTextureData( uint8_t textureId, const TextureInfo& ti )

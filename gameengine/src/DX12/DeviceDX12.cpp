@@ -748,11 +748,11 @@ void DeviceDX12::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, 
 {
 }
 
-void DeviceDX12::vertexAttribPointer( const VertexAttributePtrMeta& meta )
+void DeviceDX12::vertexAttribPointer( const VertexData& )
 {
 }
 
-void DeviceDX12::enableVertexAttribArray( unsigned attributeId )
+void DeviceDX12::enableVertexAttribArray( unsigned )
 {
 }
 

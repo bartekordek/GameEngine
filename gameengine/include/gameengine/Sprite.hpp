@@ -19,6 +19,9 @@ NAMESPACE_BEGIN( LOGLW )
 
 class Camera;
 class TransformComponent;
+class VertexArray;
+class VertexBuffer;
+struct VertexData;
 
 class Sprite final: public IObject, public IUtilityUser
 {
@@ -54,6 +57,7 @@ private:
     void release();
 
     unsigned m_textureId = 0u;
+    std::unique_ptr<VertexData> m_vertexData;
 
     TransformComponent* m_transformComponent = nullptr;
 
@@ -67,8 +71,8 @@ private:
     TextureInfo m_textureInfo;
 
     unsigned m_elementBufferId = 0u;
-    unsigned m_vao = 0u;
-    unsigned m_vbo = 0u;
+    VertexArray* m_vao = nullptr;
+    VertexBuffer* m_vbo = nullptr;
 
     // Deleted:
     Sprite( const Sprite& arg ) = delete;

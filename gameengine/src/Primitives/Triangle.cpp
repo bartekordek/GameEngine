@@ -52,15 +52,15 @@ void Triangle::init()
 
 void Triangle::createBuffers()
 {
-    LOGLW::VertexBufferData vboData;
-    vboData.vertices = m_triangleMath.toVectorOfFloat();
-    vboData.containsColorData = false;
-    vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
+    //LOGLW::VertexBufferData vboData;
+    //vboData.vertices = m_triangleMath.toVectorOfFloat();
+    //vboData.containsColorData = false;
+    //vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
 
-    m_vao = m_engine.createVAO();
-    m_vao->setDisableRenderOnMyOwn( true );
+    //m_vao = m_engine.createVAO();
+    //m_vao->setDisableRenderOnMyOwn( true );
 
-    m_vao->addVertexBuffer( vboData );
+    //m_vao->addVertexBuffer( vboData );
 }
 
 void Triangle::createShaders()

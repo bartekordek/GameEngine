@@ -12,6 +12,7 @@
 #include "gameengine/Program.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/EngineParams.hpp"
+#include "gameengine/VertexBuffer.hpp"
 
 #include "SDL2Wrapper/WindowData.hpp"
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
@@ -83,6 +84,12 @@ Sprite* IGameEngine::createSprite()
     return sprite;
 }
 
+VertexBuffer* IGameEngine::createVBO( const VertexData& vertexData )
+{
+    VertexBuffer* result = new VertexBuffer( vertexData, this );
+
+    return result;
+}
 
 Line* IGameEngine::createLine( IObject* parent, bool forceLegacy )
 {

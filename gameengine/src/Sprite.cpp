@@ -6,6 +6,7 @@
 #include "gameengine/Camera.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/IGameEngine.hpp"
+#include "gameengine/AttributeMeta.hpp"
 
 #include "CUL/Graphics/IImageLoader.hpp"
 #include "CUL/Math/Algorithms.hpp"
@@ -20,6 +21,8 @@ Sprite::Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, boo
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );
+
+    m_vertexData = std::make_unique<VertexData>();
 }
 
 void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader )
@@ -115,12 +118,12 @@ void Sprite::init()
 
     if( !getDevice()->isLegacy() )
     {
-        m_vao = getDevice()->generateBuffer( LOGLW::BufferTypes::VERTEX_ARRAY );
-        getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao );
+        m_vao = getEngine().createVAO();
+        m_vertexData->VAO = m_vao->getId();
+        getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
         getDevice()->enableVertexAttribArray( 0 );
         getDevice()->enableVertexAttribArray( 1 );
 
-        m_vbo = getDevice()->generateBuffer( BufferTypes::ARRAY_BUFFER );
 
         const CUL::MATH::Point& size = m_transformComponent->getSize();
         float x0 = -size.x() / 2.f;
@@ -139,34 +142,22 @@ void Sprite::init()
         data[3] = { x1, y0, z0, 1.0f, 1.0f };
         data[4] = { x0, y0, z0, 0.0f, 1.0f };
         data[5] = { x0, y1, z0, 0.0f, 0.0f };
-
-        std::vector<float> dataVec;
-
         for( size_t i = 0; i < data.size(); ++i )
         {
             for( size_t j = 0; j < data[i].size(); ++j )
             {
-                dataVec.push_back(data[i][j]);
+                m_vertexData->vertices.push_back( data[i][j] );
             }
         }
 
-        getDevice()->bufferData( m_vbo, dataVec, BufferTypes::ARRAY_BUFFER );
+        m_vbo = getEngine().createVBO( *m_vertexData.get() );
+        m_vertexData->VBO = m_vbo->getId();
+        getDevice()->bufferData( m_vbo->getId(), m_vertexData->vertices, BufferTypes::ARRAY_BUFFER );
 
-        VertexAttributePtrMeta meta;
-        meta.vertexAttributeId = 0;
-        meta.componentsPerVertexAttribute = 3;
-        meta.vao = m_vao;
-        meta.vbo = m_vbo;
-        meta.dataType = DataType::FLOAT;
-        meta.normalized = false;
-        meta.stride = 5 * sizeof( float );
+        m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 5 * sizeof( float ), nullptr ) );
+        m_vertexData->Attributes.push_back( AttributeMeta( "uvs", 1, 2, DataType::FLOAT, false, 5 * sizeof( float ), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
 
-        getDevice()->vertexAttribPointer( meta );
-
-        meta.vertexAttributeId = 1;
-        meta.componentsPerVertexAttribute = 2;
-        meta.offset = (void*)( 3 * sizeof( float ) );
-        getDevice()->vertexAttribPointer( meta );
+        getDevice()->vertexAttribPointer( *m_vertexData.get() );
 
         getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
         getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
@@ -199,9 +190,10 @@ void Sprite::renderModern()
     m_shaderProgram->setUniform( "view", viewMatrix );
     m_shaderProgram->setUniform( "model", model );
 
-    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo );
+    getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
+    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo->getId() );
 
-    getDevice()->drawArrays( m_vao, PrimitiveType::TRIANGLES, 0, 6 );
+    getDevice()->drawArrays( m_vao->getId(), PrimitiveType::TRIANGLES, 0, 6 );
 
     m_shaderProgram->disable();
 

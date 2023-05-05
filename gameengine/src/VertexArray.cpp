@@ -59,11 +59,9 @@ void VertexArray::createShader( const CUL::FS::Path& path )
         m_shadersPaths.push( path );
         registerTask( TaskType::ADD_SHADER );
     }
-
-
 }
 
-void VertexArray::addVertexBuffer( VertexBufferData& data )
+void VertexArray::addVertexBuffer( VertexData& data )
 {
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
     {
@@ -182,7 +180,7 @@ void VertexArray::createVBOs()
     while( !m_vboDataToPrepare.empty() )
     {
         auto vboData = m_vboDataToPrepare.back();
-        vboData.vao = this;
+        vboData.VAO = getId();
         auto vbo = new VertexBuffer( vboData, getEngine() );
         vbo->setDisableRenderOnMyOwn( true );
         m_vbos.emplace_back( vbo );

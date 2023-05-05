@@ -55,15 +55,15 @@ void Line::init()
 
 void Line::createBuffers()
 {
-    LOGLW::VertexBufferData vboData;
-    vboData.vertices = m_line.toVectorOfFloat();
-    vboData.containsColorData = false;
-    vboData.primitiveType = LOGLW::PrimitiveType::LINE_STRIP;
+    //LOGLW::VertexBufferData vboData;
+    //vboData.vertices = m_line.toVectorOfFloat();
+    //vboData.containsColorData = false;
+    //vboData.primitiveType = LOGLW::PrimitiveType::LINE_STRIP;
 
-    m_vao = m_engine.createVAO();
-    m_vao->setDisableRenderOnMyOwn( true );
+    //m_vao = m_engine.createVAO();
+    //m_vao->setDisableRenderOnMyOwn( true );
 
-    m_vao->addVertexBuffer( vboData );
+    //m_vao->addVertexBuffer( vboData );
 }
 
 void Line::createShaders()
