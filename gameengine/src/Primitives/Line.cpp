@@ -11,6 +11,8 @@ using namespace LOGLW;
 
 Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( "Line", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
+    m_vertexData = std::make_unique<VertexData>();
+
     m_transformComponent = getTransform();
     setParent( parent );
 
@@ -55,15 +57,15 @@ void Line::init()
 
 void Line::createBuffers()
 {
-    //LOGLW::VertexBufferData vboData;
-    //vboData.vertices = m_line.toVectorOfFloat();
-    //vboData.containsColorData = false;
-    //vboData.primitiveType = LOGLW::PrimitiveType::LINE_STRIP;
+    m_vertexData->vertices = m_line.toVectorOfFloat();
+    m_vertexData->primitiveType = LOGLW::PrimitiveType::LINE_STRIP;
+    m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 3 * sizeof( float ), nullptr ) );
 
-    //m_vao = m_engine.createVAO();
-    //m_vao->setDisableRenderOnMyOwn( true );
+    m_vao = m_engine.createVAO();
+    m_vertexData->VAO = m_vao->getId();
+    m_vao->setDisableRenderOnMyOwn( true );
 
-    //m_vao->addVertexBuffer( vboData );
+    m_vao->addVertexBuffer( *m_vertexData.get() );
 }
 
 void Line::createShaders()
