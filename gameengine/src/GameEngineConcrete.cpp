@@ -5,8 +5,6 @@
 #include "gameengine/Primitives/Triangle.hpp"
 
 #include "Primitives/LineImpl.hpp"
-#include "Primitives/QuadImpl.hpp"
-#include "Primitives/QuadImplLegacy.hpp"
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 #include "ObjLoader.hpp"
 #include "gameengine/Sprite.hpp"
@@ -247,25 +245,6 @@ Triangle* GameEngineConcrete::createTriangle( const TriangleData& data, const Co
     triangle->setValues( data );
     triangle->setColor( color );
     return triangle;
-}
-
-IQuad* GameEngineConcrete::createQuad( const QuadData& data, bool, const ColorS& color )
-{
-    IQuad* quad = nullptr;
-    if( m_renderDevice->isLegacy() )
-    {
-        m_logger->log( "GameEngineConcrete::createQuad - legacy." );
-        quad = new QuadImplLegacy( this, false );
-    }
-    else
-    {
-        m_logger->log( "GameEngineConcrete::createQuad - modern." );
-        quad = new QuadImpl( this );
-    }
-    quad->setValues( data );
-    quad->setColor( color );
-
-    return quad;
 }
 
 Sprite* GameEngineConcrete::createSprite( const String& path, bool )

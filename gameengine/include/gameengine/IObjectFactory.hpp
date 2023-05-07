@@ -22,8 +22,6 @@ public:
 
     virtual Triangle* createTriangle( const TriangleData& data, const ColorS& color, bool forceLegacy = false ) = 0;
 
-    virtual IQuad* createQuad( const QuadData& data, bool legacy = false, const ColorS& color = ColorE::WHITE ) = 0;
-
     virtual Sprite* createSprite( const String& path, bool withVBO = false ) = 0;
     virtual Sprite* createSprite( unsigned* data, unsigned width,
                                   unsigned height, bool withVBO = false ) = 0;
