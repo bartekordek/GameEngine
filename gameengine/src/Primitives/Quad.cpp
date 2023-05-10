@@ -20,13 +20,13 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     setParent( parent );
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    constexpr float size = 2.f;
+    constexpr float size = 4.f;
     m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
     // TODO: add normals
-    m_shape.data[0] = { size, size, 0.f, 0.f, 0.f, 0.f };
-    m_shape.data[1] = { size,  0.f, 0.f, 0.f, 0.f, 0.f };
-    m_shape.data[2] = {  0.f,  0.f, 0.f, 0.f, 0.f, 0.f };
-    m_shape.data[3] = {  0.f, size, 0.f, 0.f, 0.f, 0.f };
+    m_shape.data[0] = { size, size, 0.f, 0.f, 0.f, 1.f };
+    m_shape.data[1] = { size,  0.f, 0.f, 0.f, 0.f, 1.f };
+    m_shape.data[2] = {  0.f,  0.f, 0.f, 0.f, 0.f, 1.f };
+    m_shape.data[3] = {  0.f, size, 0.f, 0.f, 0.f, 1.f };
 
 
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
