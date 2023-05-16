@@ -1394,7 +1394,7 @@ unsigned int DeviceOpenGL::generateVertexArray( const int size )
     }
 
     GLuint vao = 0;
-    log( "glGenVertexArrays( size, &vao )" );
+    //log( "glGenVertexArrays( size, &vao )" );
     glGenVertexArrays( size, &vao );
     return vao;
 }
@@ -1808,12 +1808,12 @@ unsigned int DeviceOpenGL::generateBuffer( const BufferTypes bufferType, const i
     GLuint bufferId = 0;
     if( BufferTypes::VERTEX_ARRAY == bufferType )
     {
-        log( "glGenVertexArrays" );
+        //log( "glGenVertexArrays" );
         glGenVertexArrays( size, &bufferId );
     }
     else
     {
-        log( "glGenBuffers" );
+        //log( "glGenBuffers" );
         glGenBuffers( size, &bufferId );
     }
 

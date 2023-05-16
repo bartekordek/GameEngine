@@ -64,7 +64,8 @@ protected:
 private:
     glm::mat4 getTranslation() const;
     glm::mat4 getRotation() const;
-    
+    void printCurrentState() const;
+
     IObject& m_owner;
 
     Pos m_size;

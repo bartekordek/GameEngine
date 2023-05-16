@@ -36,7 +36,7 @@ private:
 
     TriangleCUL m_triangleMath;
     TransformComponent* m_transformComponent = nullptr;
-    std::atomic<bool> m_recreateBuffers = false;
+    std::atomic<bool> m_recreateBuffers = true;
     class Program* m_shaderProgram = nullptr;
     class VertexArray* m_vao = nullptr;
 

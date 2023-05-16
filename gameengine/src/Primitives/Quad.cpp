@@ -23,10 +23,7 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     constexpr float size = 4.f;
     m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
     // TODO: add normals
-    m_shape.data[0] = { size, size, 0.f, 0.f, 0.f, 1.f };
-    m_shape.data[1] = { size,  0.f, 0.f, 0.f, 0.f, 1.f };
-    m_shape.data[2] = {  0.f,  0.f, 0.f, 0.f, 0.f, 1.f };
-    m_shape.data[3] = {  0.f, size, 0.f, 0.f, 0.f, 1.f };
+    setSize( { size, size, 0 } );
 
 
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
@@ -76,6 +73,10 @@ void Quad::init()
 
 void Quad::createBuffers()
 {
+    const auto size = m_transformComponent->getSize();
+
+    setSize( size.toGlmVec() );
+
     VertexData vboData;
     vboData.indices = {
         // note that we start from 0!
@@ -95,6 +96,14 @@ void Quad::createBuffers()
     vboData.VAO = m_vao->getId();
 
     m_vao->addVertexBuffer( vboData );
+}
+
+void Quad::setSize( const glm::vec3& size )
+{
+    m_shape.data[0] = { size.x, size.y, 0.f, 0.f, 0.f, 1.f };
+    m_shape.data[1] = { size.x, 0.f,    0.f, 0.f, 0.f, 1.f };
+    m_shape.data[2] = { 0.f,    0.f,    0.f, 0.f, 0.f, 1.f };
+    m_shape.data[3] = { 0.f,    size.y, 0.f, 0.f, 0.f, 1.f };
 }
 
 void Quad::createShaders()

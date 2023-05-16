@@ -36,6 +36,7 @@ private:
     void applyColor();
     void release();
     void deleteBuffers();
+    void setSize( const glm::vec3& size );
 
     CUL::MATH::Primitives::Quad m_shape;
     glm::mat4 m_model;

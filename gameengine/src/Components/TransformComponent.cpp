@@ -9,6 +9,9 @@ using namespace LOGLW;
 
 TransformComponent::TransformComponent( IObject& owner ):m_owner( owner )
 {
+    changeSizeDelegate.addDelegate( [this]() {
+        printCurrentState();
+    } );
 }
 
 void TransformComponent::setPositionToParent( const glm::vec3& position )
@@ -37,7 +40,8 @@ void TransformComponent::setPositionAbsolute( const glm::vec3& position )
 
 const glm::vec3 TransformComponent::getPositionAbsolut() const
 {
-    return m_pos - m_pivotReal.toGlmVec();
+    //return m_pos - m_pivotReal.toGlmVec();
+    return m_pos;
 }
 
 void TransformComponent::setRotationToParent( const CUL::MATH::Rotation& rotation )
@@ -153,6 +157,8 @@ void TransformComponent::setPivot( const TransformComponent::Pos& pivot )
 {
     m_pivot = pivot;
     m_pivotReal = m_size.toGlmVec() * m_pivot.toGlmVec();
+
+    changeSizeDelegate.execute();
 }
 
 void TransformComponent::addOnChangeCallback(const String& callbackName, const std::function<void( const glm::mat4& model )> callback)
@@ -215,4 +221,23 @@ void TransformComponent::setScale( const glm::vec3& scale )
 
 TransformComponent::~TransformComponent()
 {
+}
+
+const CUL::String ToString( const glm::vec3& val )
+{
+    CUL::String result;
+
+    result = "( " + std::to_string( val.x ) + ", " + std::to_string( val.y ) + ", " + std::to_string( val.z ) + " )";
+
+    return result;
+}
+
+void TransformComponent::printCurrentState() const
+{
+    CUL::LOG::LOG_CONTAINER::getLogger()->log( m_owner.getName() + ": " );
+    CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Size: " + ToString( m_size.toGlmVec() ) );
+    CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Position: " + ToString( m_pos ) );
+    CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Scale: " + ToString( m_scale ) );
+    CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Pivot Normalized: " + ToString( m_pivot.toGlmVec() ) );
+    CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Pivot Real: " + ToString( m_pivotReal.toGlmVec() ) );
 }
