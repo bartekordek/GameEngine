@@ -89,12 +89,6 @@ private:
     void finishFrame();
     void setViewport( const Viewport& viewport, const bool instant = false ) override;
 
-    IObject* createFromFile( const String& path ) override;
-    IObject* createFromFile( CUL::JSON::IJSONFile* file );
-    IObject* createFromFile( IFile* file ) override;
-    IObject* createTriangle( CUL::JSON::INode* jNode );
-    Triangle* createTriangle( const TriangleData& data, const ColorS& color, bool forceLegacy = false ) override;
-
     Sprite* createSprite( const String& path, bool withVBO = false ) override;
     Sprite* createSprite( unsigned* data, unsigned width, unsigned height, bool withVBO = false ) override;
 

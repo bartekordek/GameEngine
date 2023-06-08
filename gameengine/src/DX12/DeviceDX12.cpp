@@ -762,7 +762,7 @@ void DeviceDX12::setVertexPointer( int coordinatesPerVertex, DataType dataType, 
 
 std::vector<std::string> DeviceDX12::listExtensions()
 {
-	return std::vector<std::string>();
+	return {};
 }
 
 void DeviceDX12::draw( const QuadCUL& quad, const QuadCUL& texQuad )
@@ -874,15 +874,15 @@ void DeviceDX12::bindTexture( const unsigned int textureId )
 {
 }
 
-void DeviceDX12::setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val )
+void DeviceDX12::setTextureParameter( uint8_t, const TextureParameters type, const TextureFilterType )
 {
 }
 
-void DeviceDX12::setTextureData( uint8_t textureId, const TextureInfo& ti )
+void DeviceDX12::setTextureData( uint8_t, const TextureInfo& )
 {
 }
 
-void DeviceDX12::freeTexture( unsigned int& textureId )
+void DeviceDX12::freeTexture( unsigned int& )
 {
 }
 
@@ -904,7 +904,7 @@ unsigned DeviceDX12::getGPUCurrentAvailableMemoryKb()
 	return 0;
 }
 
-void DeviceDX12::toggleDebugOutput( bool enable )
+void DeviceDX12::toggleDebugOutput( bool )
 {
 }
 

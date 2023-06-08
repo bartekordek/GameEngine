@@ -86,8 +86,8 @@ void Quad::createBuffers()
 
     vboData.vertices = m_shape.toVectorOfFloat();
     const auto stride = sizeof( CUL::MATH::Primitives::Quad::PointType );
-    vboData.Attributes.emplace_back( AttributeMeta( "pos", 0, 3, LOGLW::DataType::FLOAT, false, CUL::MATH::Primitives::Quad::getStride(), nullptr ) );
-    vboData.Attributes.emplace_back( AttributeMeta( "nor", 1, 3, LOGLW::DataType::FLOAT, false, CUL::MATH::Primitives::Quad::getStride(), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
+    vboData.Attributes.emplace_back( AttributeMeta( "pos", 0, 3, LOGLW::DataType::FLOAT, false, (int)CUL::MATH::Primitives::Quad::getStride(), nullptr ) );
+    vboData.Attributes.emplace_back( AttributeMeta( "nor", 1, 3, LOGLW::DataType::FLOAT, false, (int)CUL::MATH::Primitives::Quad::getStride(), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
 
     vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
 

@@ -1,26 +1,34 @@
 #include "gameengine/Primitives/Triangle.hpp"
 #include "gameengine/Camera.hpp"
-#include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/IGameEngine.hpp"
+#include "gameengine/IRenderDevice.hpp"
+#include "gameengine/IObject.hpp"
 #include "gameengine/VertexArray.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Program.hpp"
+#include "gameengine/AttributeMeta.hpp"
+
+#include "CUL/IMPORT_GLM.hpp"
 
 #include "CUL/Threading/ThreadUtils.hpp"
 
 using namespace LOGLW;
 
-Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( "Triangle", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
+Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy )
+    : IObject( "Triangle", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
     m_transformComponent = getTransform();
     setParent( parent );
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    const float size = 2.f;
-    m_transformComponent->setSize( CUL::MATH::Point( size, size, size ) );
+    constexpr float size = 4.f;
+    m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
+    // TODO: add normals
+    setSize( { size, size, 0 } );
 
-    m_triangleMath.vals[0] = { 0.0f, 0.0f, 0.0f };
-    m_triangleMath.vals[1] = { size / 2.f, size, 0.f };
-    m_triangleMath.vals[2] = { size, 0.f, 0.f };
+    m_shape.data[0] = { 0.0f, 0.0f, 0.0f };
+    m_shape.data[1] = { size / 2.f, size, 0.f };
+    m_shape.data[2] = { size, 0.f, 0.f };
 
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -34,11 +42,32 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool f
                 init();
             } );
     }
+
+    m_transformComponent->changeSizeDelegate.addDelegate(
+        [this]()
+        {
+            m_recreateBuffers = true;
+        } );
+}
+
+void Triangle::setColor( const CUL::Graphics::ColorS& color )
+{
+    m_color = color;
+    glm::vec4 colorVec;
+    colorVec.x = m_color.getRF();
+    colorVec.y = m_color.getGF();
+    colorVec.z = m_color.getBF();
+    colorVec.w = m_color.getAF();
+}
+
+GAME_ENGINE_API Program* Triangle::getProgram() const
+{
+    return m_shaderProgram;
 }
 
 void Triangle::init()
 {
-    if( getDevice()->isLegacy() || getForceLegacy() )
+    if( getDevice()->isLegacy() )
     {
     }
     else
@@ -52,15 +81,36 @@ void Triangle::init()
 
 void Triangle::createBuffers()
 {
-    //LOGLW::VertexBufferData vboData;
-    //vboData.vertices = m_triangleMath.toVectorOfFloat();
-    //vboData.containsColorData = false;
-    //vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
+    const auto size = m_transformComponent->getSize();
 
-    //m_vao = m_engine.createVAO();
-    //m_vao->setDisableRenderOnMyOwn( true );
+    setSize( size.toGlmVec() );
 
-    //m_vao->addVertexBuffer( vboData );
+    VertexData vboData;
+    vboData.indices = {
+        // note that we start from 0!
+        0, 1, 3,  // first Triangle
+        1, 2, 3   // second Triangle
+    };
+
+    vboData.vertices = m_shape.toVectorOfFloat();
+    const auto stride = sizeof( CUL::MATH::Primitives::Triangle::PointType );
+    vboData.Attributes.emplace_back(
+        AttributeMeta( "pos", 0, 3, LOGLW::DataType::FLOAT, false, (int)CUL::MATH::Primitives::Triangle::getStride(), nullptr ) );
+    vboData.Attributes.emplace_back(
+        AttributeMeta( "nor", 1, 3, LOGLW::DataType::FLOAT, false, (int)CUL::MATH::Primitives::Triangle::getStride(), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
+
+    vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
+
+    m_vao = m_engine.createVAO();
+    m_vao->setDisableRenderOnMyOwn( true );
+    vboData.VAO = m_vao->getId();
+
+    m_vao->addVertexBuffer( vboData );
+}
+
+void Triangle::setSize( const glm::vec3& size )
+{
+
 }
 
 void Triangle::createShaders()
@@ -75,8 +125,8 @@ void Triangle::createShaders()
 #include "embedded_shaders/basic_color.frag"
         ;
 
-    auto fragmentShader = getEngine().createShader( "embedded_shaders/basic_color.frag", fragmentShaderSource );
-    auto vertexShader = getEngine().createShader( "embedded_shaders/basic_pos.vert", vertexShaderSource );
+    const auto fragmentShader = getEngine().createShader( "embedded_shaders/basic_color.frag", fragmentShaderSource );
+    const auto vertexShader = getEngine().createShader( "embedded_shaders/basic_pos.vert", vertexShaderSource );
 
     m_shaderProgram->attachShader( vertexShader );
     m_shaderProgram->attachShader( fragmentShader );
@@ -90,7 +140,7 @@ void Triangle::render()
 {
     if( getDevice()->isLegacy() || getForceLegacy() )
     {
-        getDevice()->draw( m_triangleMath, m_transformComponent->getModel(), m_color );
+        getDevice()->draw( m_shape, m_transformComponent->getModel(), m_color );
     }
     else
     {
@@ -113,11 +163,11 @@ void Triangle::render()
 
 void Triangle::setTransformation()
 {
-    Camera& camera = m_engine.getCamera();
-    auto projectionMatrix = camera.getProjectionMatrix();
-    auto viewMatrix = camera.getViewMatrix();
+    const Camera& camera = m_engine.getCamera();
+    const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
+    const glm::mat4 viewMatrix = camera.getViewMatrix();
 
-    glm::mat4 model = m_transformComponent->getModel();
+    const glm::mat4 model = m_transformComponent->getModel();
 
     m_shaderProgram->setUniform( "projection", projectionMatrix );
     m_shaderProgram->setUniform( "view", viewMatrix );
@@ -127,21 +177,6 @@ void Triangle::setTransformation()
 void Triangle::applyColor()
 {
     m_shaderProgram->setUniform( "color", m_color.getVec4() );
-}
-
-void Triangle::setValues( const TriangleData& values )
-{
-    m_data = values;
-}
-
-void Triangle::setColor( const TriangleColors& colors )
-{
-    m_triangleColors = colors;
-}
-
-void Triangle::setColor( const ColorS& color )
-{
-    m_color = color;
 }
 
 Triangle::~Triangle()

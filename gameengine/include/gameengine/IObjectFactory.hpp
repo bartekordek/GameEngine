@@ -17,11 +17,6 @@ public:
     IObjectFactory() = default;
     virtual ~IObjectFactory() = default;
 
-    virtual IObject* createFromFile( IFile* file ) = 0;
-    virtual IObject* createFromFile( const String& path ) = 0;
-
-    virtual Triangle* createTriangle( const TriangleData& data, const ColorS& color, bool forceLegacy = false ) = 0;
-
     virtual Sprite* createSprite( const String& path, bool withVBO = false ) = 0;
     virtual Sprite* createSprite( unsigned* data, unsigned width,
                                   unsigned height, bool withVBO = false ) = 0;
