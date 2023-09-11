@@ -874,7 +874,7 @@ void DeviceDX12::bindTexture( const unsigned int textureId )
 {
 }
 
-void DeviceDX12::setTextureParameter( uint8_t, const TextureParameters type, const TextureFilterType )
+void DeviceDX12::setTextureParameter( uint8_t, const TextureParameters, const TextureFilterType )
 {
 }
 
@@ -940,6 +940,10 @@ void DeviceDX12::initDebugUI()
 SDL2W::RenderTypes::RendererType DeviceDX12::getType() const
 {
     return SDL2W::RenderTypes::RendererType::DIRECTX_12;
+}
+
+void DeviceDX12::updateTextureData( const TextureInfo&, void* )
+{
 }
 
 void ThrowIfFailed( HRESULT hr )

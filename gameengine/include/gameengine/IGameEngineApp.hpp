@@ -55,9 +55,9 @@ private:
     void logicThread();
 
     // Override these to add own events handling.
-    virtual void onWindowEvent(const SDL2W::WindowEvent::Type e) override;
-    virtual void onKeyBoardEvent(const SDL2W::KeyboardState& key) override;
-    virtual void onMouseEvent(const SDL2W::MouseData& md) override;
+    void onWindowEvent(const SDL2W::WindowEvent::Type e) override;
+    void onKeyBoardEvent(const SDL2W::KeyboardState& key) override;
+    void onMouseEvent(const SDL2W::MouseData& md) override;
     virtual void onInit() {};
     virtual void customFrame() {};
     virtual void customLogicThreadFrame( DurationType ){};

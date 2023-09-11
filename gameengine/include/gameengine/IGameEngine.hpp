@@ -40,6 +40,7 @@ struct ImGuiContext;
 NAMESPACE_BEGIN( LOGLW )
 
 class Anchor;
+class EditableTexture;
 class IDebugOverlay;
 class ProjectionData;
 class ITextureFactory;
@@ -128,6 +129,7 @@ public:
 
     // Object Factory
     GAME_ENGINE_API Sprite* createSprite();
+    GAME_ENGINE_API EditableTexture* createEditableTexture( uint16_t width, uint16_t height );
     GAME_ENGINE_API Line* createLine( IObject* parent, bool forceLegacy );
     GAME_ENGINE_API Triangle* createTriangle( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API Quad* createQuad( IObject* parent, bool forceLegacy = false );

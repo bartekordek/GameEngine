@@ -29,8 +29,8 @@ private:
     ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
     void initDebugUI() override;
 
-    void setOrthogonalPerspective( const Camera& vp );
-    void setPerspectiveProjection( const Camera& vp );
+    void setOrthogonalPerspective( const Camera& vp ) override;
+    void setPerspectiveProjection( const Camera& vp ) override;
 
     void setViewport( const Viewport& viewport ) override;
     void lookAt( const Camera& vp ) override;
@@ -86,6 +86,7 @@ private:
 
     void bufferDataImpl( const void* data, const GLenum target, const GLsizeiptr dataSize );
     void bufferSubdata( uint8_t bufferId, const BufferTypes type, std::vector<TextureData2D>& data ) override;
+    void updateTextureData( const TextureInfo& ti, void* data ) override;
 
     void setUniformValue( int uniformLocation, float value ) override;
     void setUniformValue( int uniformLocation, int value ) override;

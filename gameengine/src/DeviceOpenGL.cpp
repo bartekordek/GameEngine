@@ -2188,3 +2188,8 @@ SDL2W::RenderTypes::RendererType DeviceOpenGL::getType() const
 {
     return SDL2W::RenderTypes::RendererType::OPENGL_MODERN;
 }
+
+void DeviceOpenGL::updateTextureData( const TextureInfo& ti, void* data )
+{
+    glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, ti.size.width, ti.size.height, GL_RGBA, GL_UNSIGNED_BYTE, data );
+}

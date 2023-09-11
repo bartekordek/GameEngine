@@ -153,6 +153,7 @@ private:
     void setActiveTextureUnit( ETextureUnitIndex textureUnitIndex ) override;
     void bindTexture( const unsigned int textureId ) override;
     void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) override;
+    void updateTextureData( const TextureInfo& ti, void* data ) override;
     void setTextureData( uint8_t textureId, const TextureInfo& ti ) override;
     void freeTexture( unsigned int& textureId ) override;
     void matrixStackPush() override;
