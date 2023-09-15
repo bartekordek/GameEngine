@@ -5,7 +5,7 @@
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Program.hpp"
 
-#include "CUL/Threading/ThreadUtils.hpp"
+#include "CUL/Threading/ThreadUtil.hpp"
 
 using namespace LOGLW;
 

@@ -10,7 +10,7 @@
 #include "SDL2Wrapper/ISDLEventObserver.hpp"
 
 #include "CUL/GenericUtils/LckPrim.hpp"
-#include "CUL/Threading/ThreadUtils.hpp"
+#include "CUL/Threading/ThreadUtil.hpp"
 #include "CUL/GenericUtils/DumbPtr.hpp"
 #include "CUL/JSON/IJSONFile.hpp"
 #include "CUL/ITimer.hpp"

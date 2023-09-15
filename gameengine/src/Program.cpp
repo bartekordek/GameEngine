@@ -2,7 +2,7 @@
 #include "gameengine/IGameEngine.hpp"
 
 #include "CUL/CULInterface.hpp"
-#include "CUL/Threading/ThreadUtils.hpp"
+#include "CUL/Threading/ThreadUtil.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 #include "CUL/Filesystem/FileFactory.hpp"
 

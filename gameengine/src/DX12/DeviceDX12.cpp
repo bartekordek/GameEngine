@@ -25,31 +25,31 @@ bool DeviceDX12::isLegacy()
 	return false;
 }
 
-void DeviceDX12::resetMatrixToIdentity( const MatrixTypes matrix )
+void DeviceDX12::resetMatrixToIdentity( const MatrixTypes )
 {
 }
 
-void DeviceDX12::setViewport( const Viewport& viewport )
+void DeviceDX12::setViewport( const Viewport& )
 {
 }
 
-void DeviceDX12::setOrthogonalPerspective( const Camera& vp )
+void DeviceDX12::setOrthogonalPerspective( const Camera& )
 {
 }
 
-void DeviceDX12::setPerspectiveProjection( const Camera& vp )
+void DeviceDX12::setPerspectiveProjection( const Camera& )
 {
 }
 
-void DeviceDX12::lookAt( const Camera& vp )
+void DeviceDX12::lookAt( const Camera& )
 {
 }
 
-void DeviceDX12::lookAt( const std::array<Pos3Dd, 3>& lookAtVec )
+void DeviceDX12::lookAt( const std::array<Pos3Dd, 3>& )
 {
 }
 
-void DeviceDX12::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up )
+void DeviceDX12::lookAt( const Pos3Dd&, const Pos3Dd&, const Pos3Dd& )
 {
 }
 
@@ -58,19 +58,19 @@ unsigned int DeviceDX12::createProgram()
 	return 0;
 }
 
-void DeviceDX12::removeProgram( unsigned programId )
+void DeviceDX12::removeProgram( unsigned )
 {
 }
 
-void DeviceDX12::useProgram( int programId )
+void DeviceDX12::useProgram( int )
 {
 }
 
-void DeviceDX12::linkProgram( unsigned programId )
+void DeviceDX12::linkProgram( unsigned )
 {
 }
 
-void DeviceDX12::validateProgram( unsigned programId )
+void DeviceDX12::validateProgram( unsigned )
 {
 }
 
@@ -829,35 +829,35 @@ void DeviceDX12::translate( const Point& point )
 {
 }
 
-void DeviceDX12::translate( const float x, const float y, const float z )
+void DeviceDX12::translate( const float, const float, const float )
 {
 }
 
-void DeviceDX12::rotate( const CUL::MATH::Rotation& rotation )
+void DeviceDX12::rotate( const CUL::MATH::Rotation& )
 {
 }
 
-void DeviceDX12::rotate( const float angleDeg, const float x, const float y, const float z )
+void DeviceDX12::rotate( const float, const float, const float, const float )
 {
 }
 
-void DeviceDX12::scale( const CUL::MATH::Vector3Df& scale )
+void DeviceDX12::scale( const CUL::MATH::Vector3Df& )
 {
 }
 
-void DeviceDX12::scale( const float scale )
+void DeviceDX12::scale( const float )
 {
 }
 
-void DeviceDX12::setDepthTest( const bool enabled )
+void DeviceDX12::setDepthTest( const bool )
 {
 }
 
-void DeviceDX12::setBackfaceCUll( const bool enabled )
+void DeviceDX12::setBackfaceCUll( const bool  )
 {
 }
 
-void DeviceDX12::setTexuring( const bool enabled )
+void DeviceDX12::setTexuring( const bool  )
 {
 }
 
@@ -866,15 +866,15 @@ unsigned DeviceDX12::generateTexture()
 	return 0;
 }
 
-void DeviceDX12::setActiveTextureUnit( ETextureUnitIndex textureUnitIndex )
+void DeviceDX12::setActiveTextureUnit( ETextureUnitIndex )
 {
 }
 
-void DeviceDX12::bindTexture( const unsigned int textureId )
+void DeviceDX12::bindTexture( const unsigned int )
 {
 }
 
-void DeviceDX12::setTextureParameter( uint8_t, const TextureParameters type, const TextureFilterType )
+void DeviceDX12::setTextureParameter( uint8_t, const TextureParameters, const TextureFilterType )
 {
 }
 

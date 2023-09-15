@@ -3,7 +3,7 @@
 #include "gameengine/IGameEngine.hpp"
 
 #include "CUL/CULInterface.hpp"
-#include "CUL/Threading/ThreadUtils.hpp"
+#include "CUL/Threading/ThreadUtil.hpp"
 
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
 

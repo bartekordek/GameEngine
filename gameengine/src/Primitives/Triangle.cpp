@@ -10,7 +10,7 @@
 
 #include "CUL/IMPORT_GLM.hpp"
 
-#include "CUL/Threading/ThreadUtils.hpp"
+#include "CUL/Threading/ThreadUtil.hpp"
 
 using namespace LOGLW;
 
@@ -108,7 +108,7 @@ void Triangle::createBuffers()
     m_vao->addVertexBuffer( vboData );
 }
 
-void Triangle::setSize( const glm::vec3& size )
+void Triangle::setSize( const glm::vec3& )
 {
 
 }

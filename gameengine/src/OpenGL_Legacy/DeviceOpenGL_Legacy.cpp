@@ -356,51 +356,51 @@ void DeviceOpenGL_Legacy::draw( const QuadData& quad, const ColorS& color )
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const Point& position, const ColorS& color )
+void DeviceOpenGL_Legacy::draw( const Point& , const ColorS& )
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const QuadCUL& quad, const glm::mat4& model, const ColorS& color )
+void DeviceOpenGL_Legacy::draw( const QuadCUL& , const glm::mat4& , const ColorS& )
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const TriangleCUL& triangle, const glm::mat4& model, const ColorS& color )
+void DeviceOpenGL_Legacy::draw( const TriangleCUL& , const glm::mat4& , const ColorS& )
 {
 }
 
-void DeviceOpenGL_Legacy::translate( const Point& point )
+void DeviceOpenGL_Legacy::translate( const Point& )
 {
 }
 
-void DeviceOpenGL_Legacy::translate( const float x, const float y, const float z )
+void DeviceOpenGL_Legacy::translate( const float , const float , const float )
 {
 }
 
-void DeviceOpenGL_Legacy::rotate( const CUL::MATH::Rotation& rotation )
+void DeviceOpenGL_Legacy::rotate( const CUL::MATH::Rotation& )
 {
 }
 
-void DeviceOpenGL_Legacy::rotate( const float angleDeg, const float x, const float y, const float z )
+void DeviceOpenGL_Legacy::rotate( const float , const float , const float , const float )
 {
 }
 
-void DeviceOpenGL_Legacy::scale( const CUL::MATH::Vector3Df& scale )
+void DeviceOpenGL_Legacy::scale( const CUL::MATH::Vector3Df& )
 {
 }
 
-void DeviceOpenGL_Legacy::scale( const float scale )
+void DeviceOpenGL_Legacy::scale( const float )
 {
 }
 
-void DeviceOpenGL_Legacy::setDepthTest( const bool enabled )
+void DeviceOpenGL_Legacy::setDepthTest( const bool )
 {
 }
 
-void DeviceOpenGL_Legacy::setBackfaceCUll( const bool enabled )
+void DeviceOpenGL_Legacy::setBackfaceCUll( const bool )
 {
 }
 
-void DeviceOpenGL_Legacy::setTexuring( const bool enabled )
+void DeviceOpenGL_Legacy::setTexuring( const bool )
 {
 }
 
@@ -409,23 +409,23 @@ unsigned DeviceOpenGL_Legacy::generateTexture()
     return 0;
 }
 
-void DeviceOpenGL_Legacy::setActiveTextureUnit( ETextureUnitIndex textureUnitIndex )
+void DeviceOpenGL_Legacy::setActiveTextureUnit( ETextureUnitIndex )
 {
 }
 
-void DeviceOpenGL_Legacy::bindTexture( const unsigned int textureId )
+void DeviceOpenGL_Legacy::bindTexture( const unsigned int )
 {
 }
 
-void DeviceOpenGL_Legacy::setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val )
+void DeviceOpenGL_Legacy::setTextureParameter( uint8_t, const TextureParameters, const TextureFilterType )
 {
 }
 
-void DeviceOpenGL_Legacy::setTextureData( uint8_t textureId, const TextureInfo& ti )
+void DeviceOpenGL_Legacy::setTextureData( uint8_t, const TextureInfo& )
 {
 }
 
-void DeviceOpenGL_Legacy::freeTexture( unsigned int& textureId )
+void DeviceOpenGL_Legacy::freeTexture( unsigned int& )
 {
 }
 
@@ -447,7 +447,7 @@ unsigned DeviceOpenGL_Legacy::getGPUCurrentAvailableMemoryKb()
     return 0;
 }
 
-void DeviceOpenGL_Legacy::toggleDebugOutput( bool enable )
+void DeviceOpenGL_Legacy::toggleDebugOutput( bool )
 {
 }
 

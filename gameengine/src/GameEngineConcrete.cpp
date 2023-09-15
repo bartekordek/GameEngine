@@ -225,7 +225,7 @@ void GameEngineConcrete::removeObject( IObject* object )
 
 void GameEngineConcrete::mainThread()
 {
-    getCul()->getThreadUtils().setCurrentThreadName( "RenderThread" );
+    getCul()->getThreadUtils().setThreadName( "RenderThread" );
 
     initialize();
 

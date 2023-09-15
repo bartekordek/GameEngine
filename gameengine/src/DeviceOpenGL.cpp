@@ -8,7 +8,7 @@
 
 #include "CUL/CULInterface.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
-#include "CUL/Threading/ThreadUtils.hpp"
+#include "CUL/Threading/ThreadUtil.hpp"
 
 #include "CUL/STL_IMPORTS/STD_iostream.hpp"
 #include "CUL/STL_IMPORTS/STD_sstream.hpp"
@@ -184,7 +184,7 @@ ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
-        CUL::CULInterface::getInstance()->getThreadUtils().setCurrentThreadName( "RenderThread" );
+        CUL::CULInterface::getInstance()->getThreadUtils().setThreadName( "RenderThread" );
         if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
         {
             CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
