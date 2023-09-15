@@ -942,6 +942,10 @@ SDL2W::RenderTypes::RendererType DeviceDX12::getType() const
     return SDL2W::RenderTypes::RendererType::DIRECTX_12;
 }
 
+void DeviceDX12::updateTextureData( const TextureInfo&, void* )
+{
+}
+
 void ThrowIfFailed( HRESULT hr )
 {
     if( FAILED( hr ) )

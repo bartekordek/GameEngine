@@ -13,6 +13,7 @@
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/EngineParams.hpp"
 #include "gameengine/VertexBuffer.hpp"
+#include "gameengine/EditableTexture.h"
 
 #include "SDL2Wrapper/WindowData.hpp"
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
@@ -82,6 +83,14 @@ Sprite* IGameEngine::createSprite()
     addObjectToRender( sprite );
 
     return sprite;
+}
+
+EditableTexture* IGameEngine::createEditableTexture( uint16_t width, uint16_t height )
+{
+    auto et = new EditableTexture( &getCamera(), getCul(), this, false );
+    et->create( width, height );
+
+    return et;
 }
 
 VertexBuffer* IGameEngine::createVBO( const VertexData& vertexData )
