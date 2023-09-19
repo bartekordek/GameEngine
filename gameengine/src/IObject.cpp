@@ -10,6 +10,7 @@ IObject::IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy
 {
     m_transform = new TransformComponent( *this );
     addComponent( "TransformComponent", m_transform );
+    setName( name );
 }
 
 // Dummy
