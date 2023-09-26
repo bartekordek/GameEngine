@@ -145,7 +145,7 @@ void Quad::render()
         }
 
         m_shaderProgram->enable();
-
+        m_shaderProgram->goThroughTasks();
         setTransformation();
         applyColor();
         m_vao->render();
