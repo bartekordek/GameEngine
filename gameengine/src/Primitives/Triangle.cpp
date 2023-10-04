@@ -93,7 +93,6 @@ void Triangle::createBuffers()
     };
 
     vboData.vertices = m_shape.toVectorOfFloat();
-    const auto stride = sizeof( CUL::MATH::Primitives::Triangle::PointType );
     vboData.Attributes.emplace_back(
         AttributeMeta( "pos", 0, 3, LOGLW::DataType::FLOAT, false, (int)CUL::MATH::Primitives::Triangle::getStride(), nullptr ) );
     vboData.Attributes.emplace_back(
