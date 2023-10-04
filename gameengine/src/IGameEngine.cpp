@@ -1,6 +1,5 @@
 #include "gameengine/IGameEngine.hpp"
 #include "GameEngineConcrete.hpp"
-#include "gameengine/Primitives/Anchor.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 
@@ -119,11 +118,6 @@ Quad* IGameEngine::createQuad( IObject* parent, bool forceLegacy )
     Quad* result = new Quad( getCamera(), *this, parent, forceLegacy );
 
     return result;
-}
-
-GAME_ENGINE_API Anchor* IGameEngine::createAnchor( IObject* parent, bool forceLegacy )
-{
-    return new Anchor( getCamera(), *this, parent, forceLegacy );
 }
 
 void IGameEngine::addGuiTask( std::function<void(void)> task )
