@@ -282,7 +282,7 @@ public:
 
     virtual void toggleDebugOutput( bool enable ) = 0;
 
-    virtual void checkLastCommandForErrors() = 0;
+    virtual void checkLastCommandForErrors();
     bool getIsEmbeddedSystems() const;
 
     virtual const String& getName() const = 0;

@@ -51,7 +51,7 @@ bool IRenderDevice::getIsEmbeddedSystems() const
 
 void IRenderDevice::log( const String& text, const CUL::LOG::Severity severity ) const
 {
-    customAssert( m_logger != nullptr, "Logger utility is unninitialized inside of DeviceOpenGL." );
+    customAssert( m_logger != nullptr, "Logger utility is uninitialized inside of DeviceOpenGL." );
 
     if( m_lastLog != text )
     {
@@ -68,6 +68,11 @@ void IRenderDevice::customAssert( const bool value, const CUL::String& message )
 CUL::GUTILS::Version IRenderDevice::getVersion() const
 {
     return m_supportedVersion;
+}
+
+void IRenderDevice::checkLastCommandForErrors()
+{
+    throw std::logic_error( "Method not yet implemented" );
 }
 
 IRenderDevice::~IRenderDevice()

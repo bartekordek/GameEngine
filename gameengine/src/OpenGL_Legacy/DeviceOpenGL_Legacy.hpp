@@ -120,7 +120,6 @@ private:
     unsigned getGPUTotalAvailableMemoryKb() override;
     unsigned getGPUCurrentAvailableMemoryKb() override;
     void toggleDebugOutput( bool enable ) override;
-    void checkLastCommandForErrors() override;
 
     const String& getName() const override;
     SDL2W::RenderTypes::RendererType getType() const override;

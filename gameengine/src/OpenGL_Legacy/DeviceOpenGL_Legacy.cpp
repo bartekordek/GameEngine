@@ -344,15 +344,15 @@ void DeviceOpenGL_Legacy::draw( const TriangleData& values, const std::array<Col
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const TriangleCUL& quad, const std::array<ColorS, 4>& color )
+void DeviceOpenGL_Legacy::draw( const TriangleCUL& /*quad*/, const std::array<ColorS, 4>& /*color*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const TriangleCUL& triangle, const ColorS& color )
+void DeviceOpenGL_Legacy::draw( const TriangleCUL& /*triangle*/, const ColorS& /*color*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const QuadData& quad, const ColorS& color )
+void DeviceOpenGL_Legacy::draw( const QuadData& /*quad*/, const ColorS& /*color*/ )
 {
 }
 
@@ -448,10 +448,6 @@ unsigned DeviceOpenGL_Legacy::getGPUCurrentAvailableMemoryKb()
 }
 
 void DeviceOpenGL_Legacy::toggleDebugOutput( bool )
-{
-}
-
-void DeviceOpenGL_Legacy::checkLastCommandForErrors()
 {
 }
 
