@@ -77,6 +77,7 @@ public:
     void initialize();
 
     void render();
+    void goThroughTasks();
 
     ~Program();
 protected:
@@ -89,7 +90,7 @@ private:
     void releaseProgram();
 
     void pushTask( ValueToSet& task );
-    void goThroughTasks();
+    
     void processTask( const ValueToSet& task );
 
     int getUniformLocation( const String& name );
