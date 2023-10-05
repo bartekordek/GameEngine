@@ -280,7 +280,7 @@ public:
     virtual unsigned getGPUTotalAvailableMemoryKb() = 0;
     virtual unsigned getGPUCurrentAvailableMemoryKb() = 0;
 
-    virtual void toggleDebugOutput( bool enable ) = 0;
+    virtual void toggleDebugOutput( bool enable );
 
     virtual void checkLastCommandForErrors();
     bool getIsEmbeddedSystems() const;

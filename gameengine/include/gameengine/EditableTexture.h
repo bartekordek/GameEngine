@@ -23,6 +23,11 @@ struct TexPixel
 class EditableTexture final: public IUtilityUser, public IObject{
 public:
     EditableTexture() = delete;
+    EditableTexture( const EditableTexture& ) = delete;
+    EditableTexture( EditableTexture&& ) = delete;
+    EditableTexture& operator=( const EditableTexture&) = delete;
+    EditableTexture& operator=( EditableTexture&& ) = delete;
+
     GAME_ENGINE_API EditableTexture( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy );
     GAME_ENGINE_API void create( uint16_t width, uint16_t height );
 

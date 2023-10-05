@@ -447,10 +447,6 @@ unsigned DeviceOpenGL_Legacy::getGPUCurrentAvailableMemoryKb()
     return 0;
 }
 
-void DeviceOpenGL_Legacy::toggleDebugOutput( bool )
-{
-}
-
 const String& DeviceOpenGL_Legacy::getName() const
 {
     return m_name;

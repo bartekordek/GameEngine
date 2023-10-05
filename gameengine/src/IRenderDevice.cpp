@@ -70,6 +70,11 @@ CUL::GUTILS::Version IRenderDevice::getVersion() const
     return m_supportedVersion;
 }
 
+void IRenderDevice::toggleDebugOutput( bool enable )
+{
+    throw std::logic_error( "Method not yet implemented" );
+}
+
 void IRenderDevice::checkLastCommandForErrors()
 {
     throw std::logic_error( "Method not yet implemented" );
