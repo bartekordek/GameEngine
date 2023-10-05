@@ -6,7 +6,6 @@
 
 #include "Primitives/LineImpl.hpp"
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
-#include "ObjLoader.hpp"
 #include "gameengine/Sprite.hpp"
 #include "TextureConcrete.hpp"
 #include "DeviceOpenGL.hpp"
