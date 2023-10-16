@@ -4,11 +4,15 @@
 #include "gameengine/Program.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/VertexArray.hpp"
+#include "gameengine/IGameEngine.hpp"
 
 LOGLW::EditableTexture::EditableTexture( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy )
     : IObject( "EditableTexture", engine, forceLegacy ), m_camera( camera ), m_cul( cul )
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
+    m_vertexData = std::make_unique<VertexData>();
+
+    m_ti = std::make_unique<TextureInfo>();
 }
 
 void LOGLW::EditableTexture::create( uint16_t width, uint16_t height )
@@ -18,13 +22,28 @@ void LOGLW::EditableTexture::create( uint16_t width, uint16_t height )
 
     m_create = true;
     m_pixelData.resize( width * height );
+
+    for(auto& color: m_pixelData)
+    {
+        color.Alpha = 0u;
+        color.Red = 255u;
+        color.Green = 255u;
+        color.Blue = 255u;
+    }
+
+    m_imageInfo = std::make_unique<CUL::Graphics::ImageInfo>();
+    m_imageInfo->size = { width, height };
+    m_ti->data = m_pixelData.data();
+    m_ti->initialized = true;
+    m_ti->size = { width, height};
 }
 
 void LOGLW::EditableTexture::setPixelValue( uint16_t x, uint16_t y, const TexPixel& color )
 {
     const size_t offset = m_height * y + x;
-    TexPixel* targetValue = (TexPixel*)( (size_t)m_ti->data + offset );
-    *targetValue = color;
+    //TexPixel* targetValue = (TexPixel*)( (size_t)m_ti->data + offset );
+    //*targetValue = color;
+    m_pixelData[offset] = color;
     m_needToApply = true;
 }
 
@@ -54,20 +73,113 @@ void LOGLW::EditableTexture::render()
 
 void LOGLW::EditableTexture::createImpl()
 {
+    if( !getDevice()->isLegacy() )
+    {
+        m_shaderProgram = getEngine().createProgram();
+
+        const std::string vertexShaderSource =
+#include "embedded_shaders/camera.vert"
+            ;
+
+        const std::string fragmentShaderSource =
+#include "embedded_shaders/camera.frag"
+            ;
+
+        auto fragmentShader = getEngine().createShader( "embedded_shaders/camera.frag", fragmentShaderSource );
+        auto vertexShader = getEngine().createShader( "embedded_shaders/camera.vert", vertexShaderSource );
+
+        m_shaderProgram->attachShader( vertexShader );
+        m_shaderProgram->attachShader( fragmentShader );
+        m_shaderProgram->link();
+        m_shaderProgram->validate();
+    }
+
     m_textureId = getDevice()->generateTexture();
-    m_ti = std::make_unique<TextureInfo>();
-    m_ti->textureId = m_textureId;
-    m_ti->pixelFormat = CUL::Graphics::PixelFormat::RGBA;
-    m_ti->dataType = DataType::UNSIGNED_BYTE;
-    m_ti->data = m_pixelData.data();
-    getDevice()->setTextureData( m_textureId, *m_ti );
-    // getDevice()->setTextureParameter( m_texId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
-    // getDevice()->setTextureParameter( m_texId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
+
+    if( !m_textureInfo.initialized )
+    {
+        m_textureInfo.pixelFormat = CUL::Graphics::PixelFormat::RGBA;
+        m_textureInfo.size.width = m_width;
+        m_textureInfo.size.height = m_height;
+        m_textureInfo.data = getData();
+        m_textureInfo.textureId = m_textureId;
+        m_textureInfo.initialized = true;
+
+        getDevice()->setTextureData( m_textureId, m_textureInfo );
+        m_ti->data = getData();
+        m_ti->size = { m_width, m_height};
+        m_ti->textureId = m_textureId;
+        m_ti->initialized = true;
+    }
+
+    getDevice()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
+    getDevice()->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
+
+    if( !getDevice()->isLegacy() )
+    {
+        m_vao = getEngine().createVAO();
+        m_vertexData->VAO = m_vao->getId();
+        getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
+        getDevice()->enableVertexAttribArray( 0 );
+        getDevice()->enableVertexAttribArray( 1 );
+
+        const CUL::MATH::Point& size = m_transformComponent->getSize();
+        float x0 = -size.x() / 2.f;
+        float x1 = size.x() / 2.f;
+
+        float y0 = -size.y() / 2.f;
+        float y1 = size.y() / 2.f;
+
+        float z0 = -size.z() / 2.f;
+        // float z1 = size.z() / 2.f;
+
+        std::array<std::array<float, 5>, 6> data;
+        data[0] = { x0, y1, z0, 0.0f, 0.0f };
+        data[1] = { x1, y1, z0, 1.0f, 0.0f };
+        data[2] = { x1, y0, z0, 1.0f, 1.0f };
+        data[3] = { x1, y0, z0, 1.0f, 1.0f };
+        data[4] = { x0, y0, z0, 0.0f, 1.0f };
+        data[5] = { x0, y1, z0, 0.0f, 0.0f };
+        for( size_t i = 0; i < data.size(); ++i )
+        {
+            for( size_t j = 0; j < data[i].size(); ++j )
+            {
+                m_vertexData->vertices.push_back( data[i][j] );
+            }
+        }
+
+        m_vbo = getEngine().createVBO( *m_vertexData.get() );
+        m_vertexData->VBO = m_vbo->getId();
+        getDevice()->bufferData( m_vbo->getId(), m_vertexData->vertices, BufferTypes::ARRAY_BUFFER );
+
+        m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 5 * sizeof( float ), nullptr ) );
+        m_vertexData->Attributes.push_back( AttributeMeta( "uvs", 1, 2, DataType::FLOAT, false, 5 * sizeof( float ), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
+
+        getDevice()->vertexAttribPointer( *m_vertexData.get() );
+
+        getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
+        getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
+
+        m_shaderProgram->enable();
+        m_shaderProgram->setUniform( "texture1", 0 );
+        m_shaderProgram->disable();
+    }
+    m_initialized = true;
+}
+
+CUL::Graphics::DataType* LOGLW::EditableTexture::getData() const
+{
+    return (CUL::Graphics::DataType*)m_pixelData.data();
+}
+
+const CUL::Graphics::ImageInfo& LOGLW::EditableTexture::getImageInfo() const
+{
+    return *m_imageInfo;
 }
 
 void LOGLW::EditableTexture::updateTextureImpl()
 {
-    getDevice()->updateTextureData( *m_ti, m_ti->data );
+    getDevice()->updateTextureData( *m_ti, m_pixelData.data() );
 }
 
 void LOGLW::EditableTexture::renderModern()
