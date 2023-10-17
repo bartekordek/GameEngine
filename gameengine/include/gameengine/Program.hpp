@@ -4,6 +4,7 @@
 #include "gameengine/Shader.hpp"
 
 #include "CUL/Filesystem/Path.hpp"
+#include "CUL/IName.hpp"
 
 #include "CUL/STL_IMPORTS/STD_map.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -28,7 +29,7 @@ using String = CUL::String;
 class VertexArray;
 class IGameEngine;
 
-class GAME_ENGINE_API Program final: private IUtilityUser
+class GAME_ENGINE_API Program final: private IUtilityUser, public CUL::IName
 {
 public:
     struct Pair

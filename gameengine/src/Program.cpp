@@ -33,10 +33,14 @@ bool Program::initialized() const
 
 void Program::initialize()
 {
-    m_id = getDevice()->createProgram();
+    if( getName().empty() )
+    {
+        setName( "Shader Program" );
+    }
+
+    m_id = getDevice()->createProgram( getName() );
     m_initialized = true;
 }
-
 
 void Program::setUniform( const String&, const char* )
 {

@@ -13,20 +13,25 @@ NAMESPACE_BEGIN( LOGLW )
 class DebugSystemOpenGLModern final: public DebugSystemBase
 {
 public:
-	DebugSystemOpenGLModern();
+    DebugSystemOpenGLModern();
+    DebugSystemOpenGLModern( const DebugSystemOpenGLModern& ) = delete;
+    DebugSystemOpenGLModern( DebugSystemOpenGLModern&& ) = delete;
+    DebugSystemOpenGLModern& operator=( const DebugSystemOpenGLModern& ) = delete;
+    DebugSystemOpenGLModern& operator=( DebugSystemOpenGLModern&& ) = delete;
 
-	void init( const DebugSystemParams& params ) override;
-	void frame() override;
-	void addRenderCallback( const std::function<void( void )> renderDebugCallback ) override;
+    void init( const DebugSystemParams& params ) override;
+    void frame() override;
+    void addRenderCallback( const std::function<void( void )> renderDebugCallback ) override;
 
-	~DebugSystemOpenGLModern();
+    ~DebugSystemOpenGLModern();
+
 protected:
-private:	
-	std::atomic_bool m_initialized{ false };
-	ImGuiContext* m_imguiContext = nullptr;
-	std::unique_ptr<DebugSystemParams> m_params;
-	std::mutex m_callbacksMtx;
-	std::vector<std::function<void( void )>> m_callbacks;
+private:
+    std::atomic_bool m_initialized{ false };
+    ImGuiContext* m_imguiContext = nullptr;
+    std::unique_ptr<DebugSystemParams> m_params;
+    std::mutex m_callbacksMtx;
+    std::vector<std::function<void( void )>> m_callbacks;
 };
 
 NAMESPACE_END( LOGLW )

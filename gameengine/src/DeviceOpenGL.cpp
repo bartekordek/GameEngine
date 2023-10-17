@@ -398,7 +398,7 @@ void DeviceOpenGL::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd
     gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z );
 }
 
-unsigned int DeviceOpenGL::createProgram()
+std::uint32_t DeviceOpenGL::createProgram( const CUL::String& name )
 {
     const auto programId = static_cast<unsigned int>( glCreateProgram() );
     log( "[DeviceOpenGL] glCreateProgram: " + String( programId ) );

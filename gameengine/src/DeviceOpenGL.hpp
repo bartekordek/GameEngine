@@ -39,7 +39,7 @@ private:
 
     ShaderTypes getShaderType( const CUL::String& fileExtension );
 
-    unsigned int createProgram() override;
+    std::uint32_t createProgram( const CUL::String& name ) override;
     void removeProgram( unsigned programId ) override;
     void linkProgram( unsigned programId ) override;
     void validateProgram( unsigned programId ) override;

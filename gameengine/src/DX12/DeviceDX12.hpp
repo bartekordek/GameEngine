@@ -51,7 +51,7 @@ private:
     void lookAt( const Camera& vp ) override;
     void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;
     void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) override;
-    unsigned int createProgram() override;
+    std::uint32_t createProgram( const CUL::String& name ) override;
     void removeProgram( unsigned programId ) override;
     void useProgram( int programId ) override;
     void linkProgram( unsigned programId ) override;

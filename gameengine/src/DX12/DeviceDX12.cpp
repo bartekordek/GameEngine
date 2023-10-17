@@ -53,7 +53,7 @@ void DeviceDX12::lookAt( const Pos3Dd&, const Pos3Dd&, const Pos3Dd& )
 {
 }
 
-unsigned int DeviceDX12::createProgram()
+std::uint32_t DeviceDX12::createProgram( const CUL::String& name )
 {
 	return 0;
 }

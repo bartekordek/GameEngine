@@ -146,7 +146,7 @@ public:
     virtual void prepareFrame() = 0;
     virtual void finishFrame() = 0;
 
-    virtual unsigned int createProgram() = 0;
+    virtual std::uint32_t createProgram( const CUL::String& name ) = 0;
     virtual void removeProgram( unsigned programId ) = 0;
     virtual void useProgram( int programId ) = 0;
     virtual void linkProgram( unsigned programId ) = 0;

@@ -25,7 +25,7 @@ private:
     void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) override;
     void prepareFrame() override;
     void finishFrame() override;
-    unsigned int createProgram() override;
+    std::uint32_t createProgram( const CUL::String& name ) override;
     void removeProgram( unsigned programId ) override;
     void useProgram( int programId ) override;
     void linkProgram( unsigned programId ) override;
