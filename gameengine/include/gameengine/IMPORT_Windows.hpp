@@ -12,7 +12,11 @@
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 
+#include "CUL/GenericUtils/DisableErros.hpp"
 #include "gameengine/DX12/d3dx12.h"
+#ifdef _MSC_VER
+#pragma warning( pop )
+#endif
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
