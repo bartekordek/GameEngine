@@ -3,6 +3,8 @@
 #include "gameengine/IRenderable.hpp"
 
 #include "CUL/Filesystem/IFile.hpp"
+#include "CUL/IName.hpp"
+#include "CUL/IRegisteredObject.hpp"
 
 #include "CUL/STL_IMPORTS/STD_map.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -15,7 +17,7 @@ class IComponent;
 class TransformComponent;
 class Name;
 
-class IObject: public IRenderable
+class IObject: public IRenderable, public CUL::IName
 {
 public:
     GAME_ENGINE_API IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy );
@@ -33,9 +35,6 @@ public:
 
     GAME_ENGINE_API TransformComponent* getTransform();
 
-    GAME_ENGINE_API void setName( const CUL::String& name );
-    GAME_ENGINE_API const CUL::String& getName() const;
-
 
     GAME_ENGINE_API virtual ~IObject();
 
@@ -48,7 +47,6 @@ private:
     void addParent( IObject* parent );
     void removeChild( IObject* child, bool lock );
 
-    CUL::String m_name;
     IGameEngine& m_engine;
     bool m_forceLegacy = false;
 

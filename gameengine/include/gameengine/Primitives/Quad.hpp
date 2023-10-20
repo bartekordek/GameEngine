@@ -4,6 +4,7 @@
 #include "gameengine/IUtilityUser.hpp"
 
 #include "CUL/Graphics/Color.hpp"
+#include "CUL/IRegisteredObject.hpp"
 #include "CUL/Math/Primitives/Quad.hpp"
 
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
@@ -16,7 +17,7 @@ class TransformComponent;
 class Program;
 class VertexArray;
 
-class Quad final: public IUtilityUser, public IObject
+class Quad final: public IUtilityUser, public IObject, public CUL::IRegisterdObject
 {
 public:
     GAME_ENGINE_API Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );

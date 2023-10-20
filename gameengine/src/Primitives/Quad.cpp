@@ -7,6 +7,7 @@
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Program.hpp"
 #include "gameengine/AttributeMeta.hpp"
+#include "RunOnRenderThread.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
 
@@ -14,7 +15,8 @@
 
 using namespace LOGLW;
 
-Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( "Quad", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
+Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy )
+    : IObject( "Quad", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
     m_transformComponent = getTransform();
     setParent( parent );
@@ -25,21 +27,36 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     // TODO: add normals
     setSize( { size, size, 0 } );
 
+    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
+    {
+        RunOnRenderThread::getInstance().Run(
+            [this, newName]()
+            {
+                m_vao->setName( getName() + "::vao" );
+            } );
+    };
 
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
-    {
-        init();
-    }
-    else
-    {
-        engine.pushPreRenderTask( [this]() {
+    RunOnRenderThread::getInstance().Run(
+        [this]()
+        {
             init();
         } );
-    }
+    m_transformComponent->changeSizeDelegate.addDelegate(
+        [this]()
+        {
+            m_recreateBuffers = true;
+        } );
 
-    m_transformComponent->changeSizeDelegate.addDelegate( [this]() {
-        m_recreateBuffers = true;
-    } );
+
+    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
+    {
+        RunOnRenderThread::getInstance().Run(
+            [this, newName]()
+            {
+                m_shaderProgram->setName( getName() + "::shader_program" );
+                m_vao->setName( getName() + "::vao" );
+            } );
+    };
 }
 
 void Quad::setColor( const CUL::Graphics::ColorS& color )
@@ -91,6 +108,7 @@ void Quad::createBuffers()
     vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
 
     m_vao = m_engine.createVAO();
+    setName( "quad_" + CUL::String( getId() ) );
     m_vao->setDisableRenderOnMyOwn( true );
     vboData.VAO = m_vao->getId();
 
@@ -108,6 +126,7 @@ void Quad::setSize( const glm::vec3& size )
 void Quad::createShaders()
 {
     m_shaderProgram = getEngine().createProgram();
+    m_shaderProgram->setName( getName() + "::program" );
 
     const std::string vertexShaderSource =
 #include "embedded_shaders/basic_pos.vert"
@@ -179,7 +198,9 @@ Quad::~Quad()
     }
     else
     {
-        m_engine.pushPreRenderTask( [this]() {
+        m_engine.addPreRenderTask(
+            [this]()
+            {
             release();
         } );
     }

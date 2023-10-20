@@ -1,5 +1,6 @@
 #include "gameengine/Program.hpp"
 #include "gameengine/IGameEngine.hpp"
+#include "RunOnRenderThread.hpp"
 
 #include "CUL/CULInterface.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
@@ -13,17 +14,22 @@ using namespace LOGLW;
 Program::Program( IGameEngine& engine ) : m_engine( engine )
 {
     m_logger = m_engine.getLoger();
-
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
-    {
-        initialize();
-    }
-    else
-    {
-        m_engine.addRenderThreadTask( [this]() {
+    RunOnRenderThread::getInstance().Run(
+        [this]()
+        {
             initialize();
         } );
-    }
+
+    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
+    {
+        RunOnRenderThread::getInstance().Run(
+            [this, newName]()
+            {
+                getDevice()->setObjectName( EObjectType::PROGRAM, m_id, newName );
+            } );
+    };
+
+    setName( "program_" + CUL::String( getId() ) );
 }
 
 bool Program::initialized() const
@@ -178,7 +184,7 @@ void Program::reloadShader()
     }
     else
     {
-        m_engine.addRenderThreadTask(
+        m_engine.addPreRenderTask(
             [this]()
             {
                 reloadShaderImpl();
@@ -228,7 +234,7 @@ void Program::attachShader( Shader* shader )
     }
     else
     {
-        m_engine.addRenderThreadTask( [this, shader]() {
+        m_engine.addPreRenderTask( [this, shader]() {
             attachShaderImpl( shader );
         } );
     }
@@ -250,7 +256,7 @@ void Program::dettachShader( Shader* shader )
     }
     else
     {
-        m_engine.addRenderThreadTask( [this, shader]() {
+        m_engine.addPreRenderTask( [this, shader]() {
             dettachShaderImpl( shader );
         } );
     }
@@ -275,7 +281,7 @@ void Program::link()
     }
     else
     {
-        m_engine.addRenderThreadTask( [linkTask]() {
+        m_engine.addPreRenderTask( [linkTask]() {
             linkTask();
         } );
     }
@@ -303,7 +309,7 @@ void Program::validate()
     }
     else
     {
-        m_engine.addRenderThreadTask( [validateTask]() {
+        m_engine.addPreRenderTask( [validateTask]() {
             validateTask();
         } );
     }
@@ -317,16 +323,16 @@ void Program::render()
 
 void Program::goThroughTasks()
 {
-    while( !m_tasks.empty() )
+    while( !m_preRenderTasks.empty() )
     {
-        processTask( m_tasks.front() );
-        m_tasks.pop_front();
+        processTask( m_preRenderTasks.front() );
+        m_preRenderTasks.pop_front();
     }
 }
 
 void Program::pushTask( ValueToSet& task )
 {
-    m_tasks.push_back( task );
+    m_preRenderTasks.push_back( task );
 }
 
 void Program::processTask( const ValueToSet& task )
@@ -407,7 +413,7 @@ void Program::release()
     else
     {
         std::atomic_bool released = false;
-        m_engine.addRenderThreadTask( [releaseTask, &released]() {
+        m_engine.addPreRenderTask( [releaseTask, &released]() {
             releaseTask();
             released = true;
         } );
@@ -434,7 +440,7 @@ void Program::releaseProgram()
     else
     {
         std::atomic_bool shaderRemoved = false;
-        m_engine.addRenderThreadTask( [removeShaderTask, &shaderRemoved]() {
+        m_engine.addPreRenderTask( [removeShaderTask, &shaderRemoved]() {
             removeShaderTask();
             shaderRemoved = true;
         } );

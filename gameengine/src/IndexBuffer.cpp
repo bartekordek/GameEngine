@@ -1,12 +1,20 @@
 #include "gameengine/IndexBuffer.hpp"
 #include "gameengine/IRenderDevice.hpp"
+#include "RunOnRenderThread.hpp"
 
 using namespace LOGLW;
 
-
 IndexBuffer::IndexBuffer()
 {
-
+    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
+    {
+        RunOnRenderThread::getInstance().Run(
+            [this, newName]()
+            {
+                getDevice()->setObjectName( EObjectType::BUFFER, m_id, newName );
+            } );
+    };
+   
 }
 
 void IndexBuffer::bind()
@@ -19,6 +27,7 @@ void IndexBuffer::loadData( std::vector<unsigned>& data )
     m_data = std::move( data );
 
     m_id = getDevice()->generateAndBindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
+    setName( "index_buffer_" + CUL::String( getId() ) );
 
     //TODO: find if size is matching.
     //auto indicesSize = sizeof( m_data[0] ) * m_data.size();

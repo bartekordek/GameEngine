@@ -70,7 +70,7 @@ CUL::GUTILS::Version IRenderDevice::getVersion() const
     return m_supportedVersion;
 }
 
-void IRenderDevice::toggleDebugOutput( bool enable )
+void IRenderDevice::toggleDebugOutput( bool )
 {
     throw std::logic_error( "Method not yet implemented" );
 }
@@ -81,5 +81,9 @@ void IRenderDevice::checkLastCommandForErrors()
 }
 
 IRenderDevice::~IRenderDevice()
+{
+}
+
+void IRenderDevice::setObjectName( EObjectType, std::uint32_t, const CUL::String& )
 {
 }

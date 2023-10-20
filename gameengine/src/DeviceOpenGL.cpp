@@ -410,6 +410,9 @@ std::uint32_t DeviceOpenGL::createProgram( const CUL::String& name )
         return 0;
     }
 
+    glObjectLabel( GL_PROGRAM, programId, -1, name.cStr() );
+
+
     return programId;
 }
 
@@ -2192,4 +2195,49 @@ SDL2W::RenderTypes::RendererType DeviceOpenGL::getType() const
 void DeviceOpenGL::updateTextureData( const TextureInfo& ti, void* data )
 {
     glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, ti.size.width, ti.size.height, GL_RGBA, GL_UNSIGNED_BYTE, data );
+}
+
+void DeviceOpenGL::setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::String& name )
+{
+    GLenum oglType = 0;
+    switch( objectType )
+    {
+        case EObjectType::BUFFER:
+            oglType = GL_BUFFER;
+            break;
+        case EObjectType::SHADER:
+            oglType = GL_SHADER;
+            break;
+        case EObjectType::PROGRAM:
+            oglType = GL_PROGRAM;
+            break;
+        case EObjectType::VERTEX_ARRAY:
+            oglType = GL_VERTEX_ARRAY;
+            break;
+        case EObjectType::QUERY:
+            oglType = GL_QUERY;
+            break;
+        case EObjectType::PROGRAM_PIPELINE:
+            oglType = GL_PROGRAM_PIPELINE;
+            break;
+        case EObjectType::TRANSFORM_FEEDBACK:
+            oglType = GL_TRANSFORM_FEEDBACK;
+            break;
+        case EObjectType::SAMPLER:
+            oglType = GL_SAMPLER;
+            break;
+        case EObjectType::TEXTURE:
+            oglType = GL_TEXTURE;
+            break;
+        case EObjectType::RENDERBUFFER:
+            oglType = GL_RENDERBUFFER;
+            break;
+        case EObjectType::FRAMEBUFFER:
+            oglType = GL_FRAMEBUFFER;
+            break;
+        default:
+            oglType = 0;
+    }
+
+    glObjectLabel( oglType, objectId, -1, name.cStr() );
 }

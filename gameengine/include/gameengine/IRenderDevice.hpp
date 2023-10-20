@@ -125,6 +125,21 @@ enum class ETextureUnitIndex: int
 
 class Viewport;
 
+enum class EObjectType : uint8_t
+{
+    BUFFER = 0,
+    SHADER,
+    PROGRAM,
+    VERTEX_ARRAY,
+    QUERY,
+    PROGRAM_PIPELINE,
+    TRANSFORM_FEEDBACK,
+    SAMPLER,
+    TEXTURE,
+    RENDERBUFFER,
+    FRAMEBUFFER
+};
+
 class GAME_ENGINE_API IRenderDevice
 {
 public:
@@ -142,6 +157,10 @@ public:
     virtual void lookAt( const Camera& vp ) = 0;
     virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) = 0;
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) = 0;
+
+    // General
+    virtual void setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::String& name );
+
 
     virtual void prepareFrame() = 0;
     virtual void finishFrame() = 0;

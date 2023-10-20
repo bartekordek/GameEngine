@@ -1,9 +1,11 @@
 #include "gameengine/Shader.hpp"
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IGameEngine.hpp"
+#include "RunOnRenderThread.hpp"
 
 #include "CUL/CULInterface.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
+#include "CUL/ObjectRegistry.hpp"
 
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
 
@@ -12,6 +14,16 @@ using namespace LOGLW;
 Shader::Shader( IGameEngine& engine, CUL::FS::IFile* file ) : m_engine( engine ), m_shaderCode( file )
 {
     create();
+
+    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
+    {
+        RunOnRenderThread::getInstance().Run(
+            [this, newName]()
+            {
+                getDevice()->setObjectName( EObjectType::SHADER, m_id, newName );
+            } );
+    };
+    setName( "Shader " + CUL::String( getId() ) );
 }
 
 unsigned int Shader::getId() const
@@ -44,7 +56,7 @@ void Shader::create()
     }
     else
     {
-        m_engine.addRenderThreadTask( [createTask]() {
+        m_engine.addPreRenderTask( [createTask]() {
             createTask();
         } );
     }
@@ -99,7 +111,7 @@ void Shader::release()
         else
         {
             std::atomic_bool shaderRemoved = false;
-            m_engine.addRenderThreadTask( [removeShaderTask, &shaderRemoved]() {
+            m_engine.addPreRenderTask( [removeShaderTask, &shaderRemoved]() {
                 removeShaderTask();
                 shaderRemoved = true;
             } );

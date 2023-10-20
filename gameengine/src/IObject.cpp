@@ -64,7 +64,7 @@ TransformComponent* IObject::getTransform()
 
 IObject::~IObject()
 {
-    CUL::LOG::ILogger::getInstance()->log( "IObject::~IObject(): " + m_name );
+    CUL::LOG::ILogger::getInstance()->log( "IObject::~IObject(): " + getName() );
 
     for( const auto& componentPair: m_components)
     {
@@ -124,14 +124,4 @@ IGameEngine& IObject::getEngine()
 bool IObject::getForceLegacy() const
 {
     return m_forceLegacy;
-}
-
-void IObject::setName( const CUL::String& name )
-{
-    m_name = name;
-}
-
-const CUL::String& IObject::getName() const
-{
-    return m_name;
 }

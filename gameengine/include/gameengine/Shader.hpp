@@ -3,6 +3,8 @@
 #include "gameengine/IUtilityUser.hpp"
 #include "gameengine/ShaderTypes.hpp"
 
+#include "CUL/IName.hpp"
+#include "CUL/IRegisteredObject.hpp"
 #include "CUL/Filesystem/Path.hpp"
 #include "CUL/Filesystem/IFile.hpp"
 
@@ -13,12 +15,9 @@ NAMESPACE_BEGIN( LOGLW )
 class IGameEngine;
 class Program;
 
-class GAME_ENGINE_API Shader final:
-    private IUtilityUser
+class GAME_ENGINE_API Shader final: private IUtilityUser, public CUL::IName, public CUL::IRegisterdObject
 {
 public:
-
-
     Shader( IGameEngine& engine, CUL::FS::IFile* file );
 
     unsigned int getId() const;
@@ -44,7 +43,7 @@ private:
 
     IGameEngine& m_engine;
     CUL::GUTILS::DumbPtr<CUL::FS::IFile> m_shaderCode;
-    unsigned int m_id = 0;
+    std::uint32_t m_id = 0;
 
     Shader( const Shader& arg ) = delete;
     Shader( Shader&& arg ) = delete;

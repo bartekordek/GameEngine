@@ -19,7 +19,7 @@ Cube::Cube( Camera* camera, IGameEngine* engine, bool forceLegacy ) : IObject( "
     }
     else
     {
-        m_engine->pushPreRenderTask(
+        m_engine->addPreRenderTask(
             [this]()
             {
                 createPlaceHolders();

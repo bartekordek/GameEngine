@@ -198,25 +198,6 @@ void IGameEngine::removeProgram( Program* program )
     }
 }
 
-void IGameEngine::pushPreRenderTask( IPreRenderTask* preRenderTask )
-{
-    std::lock_guard<std::mutex> locker( m_preRenderTasksMtx );
-    m_preRenderTasks.push(preRenderTask);
-}
-
-void IGameEngine::pushPreRenderTask( std::function<void( void )> task )
-{
-    if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
-    {
-        m_preRenderTasksFunction.push( task );
-    }
-    else
-    {
-        std::lock_guard<std::mutex> locker( m_preRenderTasksMtx );
-        m_preRenderTasksFunction.push( task );
-    }
-}
-
 void IGameEngine::addObjectToRender( IRenderable* renderable )
 {
     if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
@@ -331,6 +312,18 @@ IObjectFactory* IGameEngine::getObjectFactory()
     return this;
 }
 
+void IGameEngine::addPreRenderTask( const std::function<void( void )>& task )
+{
+    std::lock_guard<std::mutex> lock( m_preRenderTasksMtx );
+    m_preRenderTasks.push( task );
+}
+
+void IGameEngine::addPostRenderTask( const std::function<void( void )>& task )
+{
+    std::lock_guard<std::mutex> lock( m_postRenderTasksMtx );
+    m_postRenderTasks.push( task );
+}
+
 IGameEngine::~IGameEngine()
 {
     releaseResources();
@@ -338,7 +331,6 @@ IGameEngine::~IGameEngine()
     delete m_renderDevice;
     m_renderDevice = nullptr;
 }
-
 
 void IGameEngine::releaseResources()
 {

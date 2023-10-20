@@ -5,6 +5,7 @@
 
 #include "CUL/Filesystem/Path.hpp"
 #include "CUL/IName.hpp"
+#include "CUL/IRegisteredObject.hpp"
 
 #include "CUL/STL_IMPORTS/STD_map.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -29,7 +30,7 @@ using String = CUL::String;
 class VertexArray;
 class IGameEngine;
 
-class GAME_ENGINE_API Program final: private IUtilityUser, public CUL::IName
+class GAME_ENGINE_API Program final: private IUtilityUser, public CUL::IName, public CUL::IRegisterdObject
 {
 public:
     struct Pair
@@ -99,13 +100,13 @@ private:
     IGameEngine& m_engine;
 
     unsigned int m_dataBufferId = 0u;
-    unsigned int m_id = 0u;
+    std::uint32_t m_id = 0u;
 
     std::map<ShaderTypes::ShaderType, Shader*> m_attachedShaders;
 
     std::map<String, unsigned> m_uniformMap;
 
-    std::deque<ValueToSet> m_tasks;
+    std::deque<ValueToSet> m_preRenderTasks;
 
     CUL::LOG::ILogger* m_logger = nullptr;
 

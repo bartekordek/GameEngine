@@ -239,12 +239,6 @@ void GameEngineConcrete::mainThread()
     release();
 }
 
-void GameEngineConcrete::addRenderThreadTask( const std::function<void( void )>& task )
-{
-    std::lock_guard<std::mutex> lock( m_taskMutex );
-    m_tasks.push( task );
-}
-
 void GameEngineConcrete::taskThread()
 {
     while( m_runRenderLoop )
@@ -264,17 +258,9 @@ void GameEngineConcrete::renderLoop()
     {
         m_frameTimer->start();
 
-        {
-            std::lock_guard<std::mutex> lock( m_taskMutex );
-            while( !m_tasks.empty() )
-            {
-                auto task = m_tasks.top();
-                m_tasks.pop();
-                task();
-            }
-        }
-
+        runPreRenderTasks();
         renderFrame();
+        runPostRenderTasks();
 
         CUL::ITimer::sleepMicroSeconds( m_frameSleepUs );
         m_frameTimer->stop();
@@ -385,8 +371,6 @@ void GameEngineConcrete::renderFrame()
         m_renderDevice->setViewport( m_viewport );
         m_viewportChanged = false;
     }
-
-    executeTasks();
     renderObjects();
 
     if( !m_renderDevice->isLegacy() )
@@ -625,25 +609,6 @@ void GameEngineConcrete::setEyePos( const glm::vec3& pos )
     getCamera().setEyePos( pos );
 }
 
-void GameEngineConcrete::executeTasks()
-{
-    std::lock_guard<std::mutex> locker( m_preRenderTasksMtx );
-
-    while( false == m_preRenderTasks.empty() )
-    {
-        auto task = m_preRenderTasks.front();
-        task->execute();
-        m_preRenderTasks.pop();
-    }
-
-    while( false == m_preRenderTasksFunction.empty() )
-    {
-        auto task = m_preRenderTasksFunction.front();
-        task();
-        m_preRenderTasksFunction.pop();
-    }
-}
-
 void GameEngineConcrete::renderObjects()
 {
     std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
@@ -861,6 +826,28 @@ void GameEngineConcrete::setFpsLimit( float maxFps )
 float GameEngineConcrete::getFpsLimit() const
 {
     return m_fpsLimit.getVal();
+}
+
+void GameEngineConcrete::runPreRenderTasks()
+{
+    std::lock_guard<std::mutex> lock( m_preRenderTasksMtx );
+    while( !m_preRenderTasks.empty() )
+    {
+        auto task = m_preRenderTasks.top();
+        m_preRenderTasks.pop();
+        task();
+    }
+}
+
+void GameEngineConcrete::runPostRenderTasks()
+{
+    std::lock_guard<std::mutex> lock( m_postRenderTasksMtx );
+    while( !m_postRenderTasks.empty() )
+    {
+        auto task = m_postRenderTasks.top();
+        m_postRenderTasks.pop();
+        task();
+    }
 }
 
 GameEngineConcrete::~GameEngineConcrete()

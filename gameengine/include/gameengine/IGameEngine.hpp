@@ -135,9 +135,6 @@ public:
     GAME_ENGINE_API class VertexArray* createVAO();
     GAME_ENGINE_API Cube* createCube( bool forceLegacy = false );
 
-    GAME_ENGINE_API void pushPreRenderTask( IPreRenderTask* preRenderTask );
-    GAME_ENGINE_API void pushPreRenderTask( std::function<void( void )> task );
-
     GAME_ENGINE_API void addObjectToRender( IRenderable* renderable );
     GAME_ENGINE_API void removeObjectToRender( IRenderable* renderable );
 
@@ -146,7 +143,8 @@ public:
     GAME_ENGINE_API unsigned getGPUTotalAvailableMemoryKb();
     GAME_ENGINE_API unsigned getGPUCurrentAvailableMemoryKb();
 
-    GAME_ENGINE_API virtual void addRenderThreadTask( const std::function<void( void )>& task ) = 0;
+    GAME_ENGINE_API void addPreRenderTask( const std::function<void( void )>& task );
+    GAME_ENGINE_API void addPostRenderTask( const std::function<void( void )>& task );
 
     GAME_ENGINE_API ImGuiContext* getGuiContext() const;
     GAME_ENGINE_API void setGuiContext( ImGuiContext* const inContext );
@@ -179,9 +177,6 @@ protected:
     GUIParams m_guiParams;
 
     IRenderDevice* m_renderDevice = nullptr;
-    std::mutex m_preRenderTasksMtx;
-    std::queue<IPreRenderTask*> m_preRenderTasks;
-    std::queue<std::function<void( void )>> m_preRenderTasksFunction;
 
     std::mutex m_objectsToRenderMtx;
     std::set<IRenderable*> m_objectsToRender;
@@ -193,6 +188,12 @@ protected:
 
     std::mutex m_initTasksMtx;
     std::stack< std::function<void( void )>> m_initTasks;
+
+    std::mutex m_preRenderTasksMtx;
+    std::stack<std::function<void( void )>> m_preRenderTasks;
+
+    std::mutex m_postRenderTasksMtx;
+    std::stack<std::function<void( void )>> m_postRenderTasks;
 
 private:
     Shader* findShader( const String& path ) const;

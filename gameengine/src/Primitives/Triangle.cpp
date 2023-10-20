@@ -36,7 +36,7 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool f
     }
     else
     {
-        engine.pushPreRenderTask(
+        engine.addPreRenderTask(
             [this]()
             {
                 init();
@@ -186,7 +186,7 @@ Triangle::~Triangle()
     }
     else
     {
-        m_engine.pushPreRenderTask(
+        m_engine.addPreRenderTask(
             [this]()
             {
                 release();

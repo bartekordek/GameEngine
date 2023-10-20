@@ -195,6 +195,8 @@ private:
     void prepareFrame() override;
     void finishFrame() override;
 
+    void setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::String& name ) override;
+
     DeviceOpenGL( const DeviceOpenGL& arg ) = delete;
     DeviceOpenGL( DeviceOpenGL&& arg ) = delete;
     DeviceOpenGL& operator=( const DeviceOpenGL& rhv ) = delete;

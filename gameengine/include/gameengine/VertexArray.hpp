@@ -5,6 +5,9 @@
 #include "gameengine/Shader.hpp"
 #include "gameengine/AttributeMeta.hpp"
 
+#include "CUL/IName.hpp"
+#include "CUL/IRegisteredObject.hpp"
+
 #include "CUL/STL_IMPORTS/STD_cstdint.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
 #include "CUL/STL_IMPORTS/STD_mutex.hpp"
@@ -38,9 +41,7 @@ class Program;
 
 using BuffIDType = uint8_t;
 
-class GAME_ENGINE_API VertexArray final:
-    public IUtilityUser,
-    public IRenderable
+class GAME_ENGINE_API VertexArray final: public IUtilityUser, public IRenderable, public CUL::IName, public CUL::IRegisterdObject
 {
 public:
     explicit VertexArray( IGameEngine& engine );
@@ -86,10 +87,10 @@ private:
     void createVAO();
     void createVBOs();
 
-    unsigned m_vaoId = 0;
+    std::uint32_t m_vaoId = 0;
 
     std::mutex m_tasksMtx;
-    std::deque<TaskType> m_tasks;
+    std::deque<TaskType> m_preRenderTasks;
 
     Program* m_shaderProgram = nullptr;
     std::vector<Ptr<Shader>> m_shaders;

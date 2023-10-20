@@ -110,6 +110,10 @@ private:
 
     void mainThread();
     void renderLoop();
+
+    void runPreRenderTasks();
+    void runPostRenderTasks();
+
     void taskThread();
     void calculateNextFrameLengths();
     void renderFrame() override;
@@ -118,8 +122,6 @@ private:
     void prepareProjection();
     void setEyePos( const glm::vec3& pos ) override;
     void renderObjects();
-
-    void executeTasks();
 
     void release();
 
@@ -162,8 +164,6 @@ private:
 
     void registerWindowEventCallback( const SDL2W::WindowCallback& callback ) override;
 
-    void addRenderThreadTask( const std::function<void( void )>& task ) override;
-
     std::unique_ptr<DebugSystemBase> m_debugSystem;
 
     std::map<unsigned, DebugValueRow> m_debugValues;
@@ -193,8 +193,7 @@ private:
 
     ColorS m_backgroundColor = ColorS( ColorE::BLACK );
 
-    std::mutex m_taskMutex;
-    std::stack<std::function<void( void )>> m_tasks;
+
 
     EmptyFunctionCallback m_onInitializeCallback;
     EmptyFunctionCallback m_onBeforeFrame;

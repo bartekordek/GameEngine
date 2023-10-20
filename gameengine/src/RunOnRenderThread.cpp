@@ -20,7 +20,7 @@ void LOGLW::RunOnRenderThread::Run( const std::function<void( void )> inFunction
     }
     else
     {
-        m_gameEngine->addRenderThreadTask(
+        m_gameEngine->addPreRenderTask(
             [this, inFunction]()
             {
                 inFunction();

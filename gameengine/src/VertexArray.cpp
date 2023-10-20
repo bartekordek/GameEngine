@@ -1,8 +1,8 @@
 #include "gameengine/VertexArray.hpp"
-#include "gameengine/IndexBuffer.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/Program.hpp"
+#include "RunOnRenderThread.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
@@ -11,14 +11,27 @@ using namespace LOGLW;
 
 VertexArray::VertexArray( IGameEngine& engine ) : IRenderable( &engine )
 {
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    RunOnRenderThread::getInstance().Run(
+        [this]()
+        {
+            createVAO();
+        } );
+
+    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
     {
-        createVAO();
-    }
-    else
-    {
-        registerTask( TaskType::CREATE_VAO );
-    }
+        RunOnRenderThread::getInstance().Run(
+            [this, newName]()
+            {
+                getDevice()->setObjectName( EObjectType::VERTEX_ARRAY, m_vaoId, newName );
+                std::uint8_t index = 0u;
+                for( auto& vbo : m_vbos )
+                {
+                    vbo->setName( getName() + "::vertex_buffer" + CUL::String(index) );
+                    ++index;
+                }
+            } );
+    };
+    setName( "vertex_array_" + CUL::String( getId() ) );
 }
 
 BuffIDType VertexArray::getId() const
@@ -59,6 +72,15 @@ void VertexArray::createShader( const CUL::FS::Path& path )
         m_shadersPaths.push( path );
         registerTask( TaskType::ADD_SHADER );
     }
+
+    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
+    {
+        RunOnRenderThread::getInstance().Run(
+            [this, newName]()
+            {
+                getDevice()->setObjectName( EObjectType::BUFFER, m_vaoId, newName );
+            } );
+    };
 }
 
 void VertexArray::addVertexBuffer( VertexData& data )
@@ -105,15 +127,15 @@ VertexBuffer* VertexArray::getVertexBuffer()
 
 bool VertexArray::taskIsAlreadyPlaced( TaskType tt ) const
 {
-    return std::find( m_tasks.begin(), m_tasks.end(), tt ) != m_tasks.end();
+    return std::find( m_preRenderTasks.begin(), m_preRenderTasks.end(), tt ) != m_preRenderTasks.end();
 }
 
 void VertexArray::runTasks()
 {
     std::lock_guard<std::mutex> tasksGuard( m_tasksMtx );
-    while( !m_tasks.empty() )
+    while( !m_preRenderTasks.empty() )
     {
-        auto task = m_tasks.front();
+        auto task = m_preRenderTasks.front();
         if( task == TaskType::CREATE_VAO )
         {
             createVAO();
@@ -135,9 +157,9 @@ void VertexArray::runTasks()
             {
                 if( !taskIsAlreadyPlaced( TaskType::CREATE_PROGRAM ) )
                 {
-                    m_tasks.push_back( TaskType::CREATE_PROGRAM );
+                    m_preRenderTasks.push_back( TaskType::CREATE_PROGRAM );
                 }
-                m_tasks.push_back( TaskType::ADD_SHADER );
+                m_preRenderTasks.push_back( TaskType::ADD_SHADER );
             }
             else
             {
@@ -157,7 +179,7 @@ void VertexArray::runTasks()
             }
         }
 
-        m_tasks.pop_front();
+        m_preRenderTasks.pop_front();
     }
 }
 
@@ -171,7 +193,7 @@ void VertexArray::registerTask( TaskType taskType )
             return;
         }
     }
-    m_tasks.push_back( taskType );
+    m_preRenderTasks.push_back( taskType );
 }
 
 void VertexArray::createVBOs()
@@ -213,7 +235,9 @@ VertexArray::~VertexArray()
     }
     else
     {
-        getEngine()->pushPreRenderTask( [this]() {
+        getEngine()->addPreRenderTask(
+            [this]()
+            {
             release();
         } );
     }

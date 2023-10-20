@@ -52,13 +52,15 @@ public:
 
 protected:
 private:
-    void createImpl();
+    void init();
     void render() override;
     void updateTextureImpl();
     void renderModern();
     void renderLegacy();
     unsigned char* getData() const;
     Program* m_shaderProgram = nullptr;
+    VertexArray* m_vao = nullptr;
+    VertexBuffer* m_vbo = nullptr;
     std::unique_ptr<TextureInfo> m_ti;
     Camera* m_camera = nullptr;
     CUL::CULInterface* m_cul = nullptr;
@@ -69,11 +71,9 @@ private:
     unsigned int m_textureId = 0u;
     bool m_create = false;
     bool m_needToApply = false;
-    VertexArray* m_vao = nullptr;
-    VertexBuffer* m_vbo = nullptr;
+
     std::unique_ptr<VertexData> m_vertexData;
     bool m_initialized = false;
-    TextureInfo m_textureInfo;
     std::unique_ptr<CUL::Graphics::ImageInfo> m_imageInfo;
 };
 

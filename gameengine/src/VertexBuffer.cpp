@@ -1,15 +1,25 @@
 #include "gameengine/VertexBuffer.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/AttributeMeta.hpp"
-
-using namespace LOGLW;
+#include "RunOnRenderThread.hpp"
 #include "gameengine/IRenderDevice.hpp"
 
-VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* engine )
-    : IRenderable( engine )
+using namespace LOGLW;
+
+VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* engine ) : IRenderable( engine )
 {
     m_vertexData = vertexData;
     loadData();
+
+    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
+    {
+        RunOnRenderThread::getInstance().Run(
+            [this, newName]()
+            {
+                getDevice()->setObjectName( EObjectType::BUFFER, m_vertexData.VBO, newName );
+            } );
+    };
+    setName( "vertex_buffer_" + CUL::String( getId() ) );
 }
 
 void VertexBuffer::loadData()

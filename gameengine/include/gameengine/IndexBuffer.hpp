@@ -1,11 +1,13 @@
 #pragma once
 
-#include "CUL/STL_IMPORTS/STD_vector.hpp"
 #include "gameengine/IUtilityUser.hpp"
+#include "CUL/IName.hpp"
+#include "CUL/IRegisteredObject.hpp"
+#include "CUL/STL_IMPORTS/STD_vector.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
 
-class IndexBuffer final : private IUtilityUser
+class IndexBuffer final : private IUtilityUser, public CUL::IName, public CUL::IRegisterdObject
 {
 public:
     GAME_ENGINE_API IndexBuffer();
@@ -17,7 +19,7 @@ public:
     GAME_ENGINE_API ~IndexBuffer();
 
 private:
-    unsigned m_id = 0;
+    std::uint32_t m_id = 0u;
 
     std::vector<unsigned> m_data;
 

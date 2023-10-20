@@ -7,6 +7,8 @@
 #include "gameengine/AttributeMeta.hpp"
 
 #include "CUL/GenericUtils/DumbPtr.hpp"
+#include "CUL/IName.hpp"
+#include "CUL/IRegisteredObject.hpp"
 
 #include "CUL/STL_IMPORTS/STD_cstdint.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -45,16 +47,20 @@ using BuffIDType = uint8_t;
 template<typename Type>
 using Ptr = CUL::GUTILS::DumbPtr<Type>;
 
-class GAME_ENGINE_API VertexBuffer final : public IUtilityUser,
-                                                public IRenderable
+class GAME_ENGINE_API VertexBuffer final: public IUtilityUser, public IRenderable, public CUL::IName
 {
 public:
     VertexBuffer( const VertexData& vertexData, IGameEngine* engine );
     void render() override;
-    unsigned getId()const;
+    unsigned getId() const;
     int getSize() const;
     void bind();
     ~VertexBuffer();
+
+    VertexBuffer( const VertexBuffer& value ) = delete;
+    VertexBuffer( VertexBuffer&& value ) = delete;
+    VertexBuffer& operator=( const VertexBuffer& value ) = delete;
+    VertexBuffer& operator=( VertexBuffer&& value ) = delete;
 
 protected:
 private:
@@ -64,11 +70,6 @@ private:
     VertexData m_vertexData;
     Ptr<IndexBuffer> m_indexBuffer;
     std::atomic<bool> m_load = true;
-
-    VertexBuffer( const VertexBuffer& value ) = delete;
-    VertexBuffer( VertexBuffer&& value ) = delete;
-    VertexBuffer& operator=( const VertexBuffer& value ) = delete;
-    VertexBuffer& operator=( VertexBuffer&& value ) = delete;
 };
 
 NAMESPACE_END( LOGLW )

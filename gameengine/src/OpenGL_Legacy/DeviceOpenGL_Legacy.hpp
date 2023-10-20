@@ -9,6 +9,11 @@ NAMESPACE_BEGIN( LOGLW )
 class DeviceOpenGL_Legacy final: public IRenderDevice
 {
 public:
+    DeviceOpenGL_Legacy( const DeviceOpenGL_Legacy& ) = delete;
+    DeviceOpenGL_Legacy( DeviceOpenGL_Legacy&& ) = delete;
+    DeviceOpenGL_Legacy& operator=( const DeviceOpenGL_Legacy& ) = delete;
+    DeviceOpenGL_Legacy& operator=( DeviceOpenGL_Legacy&& ) = delete;
+
 protected:
 private:
     // Inherited via IRenderDevice
