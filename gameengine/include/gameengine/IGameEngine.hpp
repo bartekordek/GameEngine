@@ -39,6 +39,7 @@ struct ImGuiContext;
 
 NAMESPACE_BEGIN( LOGLW )
 
+class Anchor;
 class EditableTexture;
 class IDebugOverlay;
 class ProjectionData;
@@ -132,6 +133,7 @@ public:
     GAME_ENGINE_API Line* createLine( IObject* parent, bool forceLegacy );
     GAME_ENGINE_API Triangle* createTriangle( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API Quad* createQuad( IObject* parent, bool forceLegacy = false );
+    GAME_ENGINE_API Anchor* createAnchor( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API class VertexArray* createVAO();
     GAME_ENGINE_API Cube* createCube( bool forceLegacy = false );
 
