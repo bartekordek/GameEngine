@@ -35,7 +35,7 @@ public:
 
     GAME_ENGINE_API TransformComponent* getTransform();
 
-
+    GAME_ENGINE_API void removeByParent( bool enable );
     GAME_ENGINE_API virtual ~IObject();
 
 protected:
@@ -47,6 +47,7 @@ private:
     void addParent( IObject* parent );
     void removeChild( IObject* child, bool lock );
 
+    bool m_removeByParent = false;
     IGameEngine& m_engine;
     bool m_forceLegacy = false;
 

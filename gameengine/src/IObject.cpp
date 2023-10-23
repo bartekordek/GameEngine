@@ -62,6 +62,11 @@ TransformComponent* IObject::getTransform()
     return m_transform;
 }
 
+void IObject::removeByParent( bool enable )
+{
+    m_removeByParent = enable;
+}
+
 IObject::~IObject()
 {
     CUL::LOG::ILogger::getInstance()->log( "IObject::~IObject(): " + getName() );
@@ -73,14 +78,19 @@ IObject::~IObject()
 
     m_components.clear();
 
-    std::lock_guard<std::mutex> locker( m_childrenMtx );
-    if( m_parent )
+    if( m_parent && m_removeByParent == false)
     {
-        m_parent->removeChild( this, false );
+        if( m_parent )
+        {
+            m_parent->removeChild( this, false );
+        }
     }
 
-    for( const IObject* child: m_children )
+    std::lock_guard<std::mutex> locker( m_childrenMtx );
+
+    for( IObject* child: m_children )
     {
+        child->removeByParent( true );
         delete child;
     }
     m_children.clear();
@@ -93,8 +103,9 @@ void IObject::addParent( IObject* parent )
 
 void IObject::removeChild( IObject* child, bool lock )
 {
-    auto removeChildImpl = [this, child]() {
-        auto it = m_children.find( child );
+    auto removeChildImpl = [this]( IObject* child )
+    {
+        const auto it = m_children.find( child );
         if( it == m_children.end() )
         {
             CUL::Assert::simple( false, "Trying to remove already removed child." );
@@ -108,11 +119,11 @@ void IObject::removeChild( IObject* child, bool lock )
     if( lock )
     {
         std::lock_guard<std::mutex> locker( m_childrenMtx );
-        removeChildImpl();
+        removeChildImpl( child );
     }
     else
     {
-        removeChildImpl();
+        removeChildImpl( child );
     }
 }
 
