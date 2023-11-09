@@ -63,7 +63,7 @@ void Program::setUniform( const String& name, float value )
 
 void Program::setUniform( const String& name, unsigned value )
 {
-    getDevice()->useProgram( static_cast<int>( m_id ) );
+    getDevice()->useProgram( m_id );
 
     auto location = getUniformLocation( name );
     getDevice()->setUniformValue( location, value );
