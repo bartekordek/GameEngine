@@ -53,7 +53,7 @@ D3D12_CPU_DESCRIPTOR_HANDLE LOGLW::DescriptorHeap::hCPU( UINT index )
 
 D3D12_GPU_DESCRIPTOR_HANDLE LOGLW::DescriptorHeap::hGPU( UINT index )
 {
-	CUL::Assert::simple( Desc.Flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, "ERROR!" );
+	CUL::Assert::simple( Desc.Flags != D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, "ERROR!" );
 	D3D12_GPU_DESCRIPTOR_HANDLE handle;
 	handle.ptr = MakeOffsetted( hGPUHeapStart.ptr, index );
 	return handle;

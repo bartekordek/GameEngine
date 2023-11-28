@@ -313,11 +313,6 @@ Shader* IGameEngine::findShader( const String& path ) const
     return nullptr;
 }
 
-IObjectFactory* IGameEngine::getObjectFactory()
-{
-    return this;
-}
-
 void IGameEngine::addPreRenderTask( const std::function<void( void )>& task )
 {
     std::lock_guard<std::mutex> lock( m_preRenderTasksMtx );

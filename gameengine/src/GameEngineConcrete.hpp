@@ -3,7 +3,6 @@
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IDebugOverlay.hpp"
 #include "gameengine/ITextureFactory.hpp"
-#include "gameengine/IObjectFactory.hpp"
 #include "gameengine/Sprite.hpp"
 #include "gameengine/Viewport.hpp"
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gameengine/IObjectFactory.hpp"
+#include "gameengine/Import.hpp"
 
 #include "SDL2Wrapper/Input/IKeyboardObservable.hpp"
 #include "SDL2Wrapper/IWindowEventObservable.hpp"
@@ -19,6 +19,7 @@
 #include "CUL/STL_IMPORTS/STD_queue.hpp"
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
 #include "CUL/STL_IMPORTS/STD_stack.hpp"
+#include "CUL/STL_IMPORTS/STD_mutex.hpp"
 
 NAMESPACE_BEGIN( CUL )
 NAMESPACE_BEGIN( GUTILS )
@@ -40,20 +41,25 @@ struct ImGuiContext;
 NAMESPACE_BEGIN( LOGLW )
 
 class Anchor;
-class EditableTexture;
-class IDebugOverlay;
-class ProjectionData;
-class ITextureFactory;
 class Camera;
 class Cube;
-class Sprite;
-class Quad;
-class Triangle;
-class Viewport;
+class EditableTexture;
+class IDebugOverlay;
+class IObject;
+class IRenderable;
 class IRenderDevice;
+class ITextureFactory;
+class Line;
+class ProjectionData;
+class Quad;
 class Shader;
+class Sprite;
+class Triangle;
 class VertexBuffer;
+class Viewport;
+struct ContextInfo;
 struct EngineParams;
+struct VertexData;
 
 using String = CUL::String;
 
@@ -65,12 +71,10 @@ using CMString = const String;
 using IImageLoader = CUL::Graphics::IImageLoader;
 using EmptyFunctionCallback = std::function<void()>;
 using IPreRenderTask = CUL::GUTILS::ITask;
-using Pos3Df = CUL::Graphics::Pos3Dd;
 
 class IGameEngine: public SDL2W::IMouseObservable,
                    public SDL2W::IKeyboardObservable,
-                   public SDL2W::IWindowEventObservable,
-                   private IObjectFactory
+                   public SDL2W::IWindowEventObservable
 {
 public:
     IGameEngine();
@@ -87,7 +91,6 @@ public:
     GAME_ENGINE_API virtual void stopRenderingLoop() = 0;
     GAME_ENGINE_API virtual void onInitialize( const EmptyFunctionCallback& callback ) = 0;
 
-    GAME_ENGINE_API IObjectFactory* getObjectFactory();
     GAME_ENGINE_API virtual IImageLoader* getImageLoader() = 0;
     GAME_ENGINE_API virtual IRenderDevice* getDevice() = 0;
     GAME_ENGINE_API virtual const Viewport& getViewport() const = 0;
@@ -129,6 +132,9 @@ public:
 
     // Object Factory
     GAME_ENGINE_API Sprite* createSprite();
+    GAME_ENGINE_API virtual Sprite* createSprite( const String& path, bool withVBO = false ) = 0;
+    GAME_ENGINE_API virtual Sprite* createSprite( unsigned* data, unsigned width, unsigned height, bool withVBO = false ) = 0;
+    GAME_ENGINE_API virtual void removeObject( IObject* object ) = 0;
     GAME_ENGINE_API EditableTexture* createEditableTexture( uint16_t width, uint16_t height );
     GAME_ENGINE_API Line* createLine( IObject* parent, bool forceLegacy );
     GAME_ENGINE_API Triangle* createTriangle( IObject* parent, bool forceLegacy = false );

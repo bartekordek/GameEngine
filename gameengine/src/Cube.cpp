@@ -1,6 +1,5 @@
 #include "gameengine/Cube.hpp"
 #include "gameengine/IGameEngine.hpp"
-#include "gameengine/IObjectFactory.hpp"
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 

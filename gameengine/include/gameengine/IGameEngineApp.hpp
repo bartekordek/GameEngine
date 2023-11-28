@@ -41,7 +41,6 @@ public:
 
     virtual ~IGameEngineApp();
 protected:
-    class IObjectFactory* m_objFactory = nullptr;
     class CUL::LOG::ILogger* m_logger = nullptr;
     class IRenderDevice* m_device = nullptr;
 

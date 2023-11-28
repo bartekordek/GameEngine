@@ -29,7 +29,6 @@ class IGameEngine;
 class Quad;
 class IObject;
 class IRenderDevice;
-class IObjectFactory;
 NAMESPACE_END( LOGLW )
 
 NAMESPACE_BEGIN( SDL2W )
@@ -81,7 +80,6 @@ private:
 
     LOGLW::IRenderDevice* m_utility = nullptr;
     CUL::LOG::ILogger* m_logger = nullptr;
-    LOGLW::IObjectFactory* m_objectFactory = nullptr;
 
     std::unique_ptr<CUL::GUTILS::IConfigFile> m_configFile;
     CUL::Graphics::Pos2Di m_windowPos;
@@ -103,7 +101,6 @@ private:
     CUL::Graphics::ColorS blue = CUL::Graphics::ColorE::BLUE;
     CUL::Graphics::ColorS white = CUL::Graphics::ColorE::WHITE;
     CUL::MATH::Angle m_angle;
-    LOGLW::IObjectFactory* of = nullptr;
     LOGLW::Program* program = nullptr;
     float blueTriangleZ = -1.0f;
     float redTriangleZ = 1.0f;

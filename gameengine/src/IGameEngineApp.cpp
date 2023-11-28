@@ -57,7 +57,6 @@ void IGameEngineApp::init( const SDL2W::WindowData& windowData,
     m_device = m_oglw->getDevice();
 
     m_oglw->onInitialize( [this]() {
-        m_objFactory = m_oglw->getObjectFactory();
         onInit();
     } );
     m_oglw->beforeFrame( [this]() {

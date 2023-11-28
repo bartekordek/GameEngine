@@ -113,7 +113,7 @@ void Playground::afterInit()
     m_quadLegacy->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
     m_quadLegacy->getTransform()->setScale( { 1.f, 1.f, 0.f } );
 
-    g_sprite = m_engine->getObjectFactory()->createSprite( "../../media/texture.png" );
+    g_sprite = m_engine->createSprite( "../../media/texture.png" );
     g_sprite->setName( "g_sprite" );
     g_sprite->getTransform()->setPositionToParent( { -0.2f, 0.f, 4.f } );
 

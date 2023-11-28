@@ -223,8 +223,8 @@ void DeviceDX12::createSwapChain()
 	// Describe and create the swap chain.
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
 	swapChainDesc.BufferCount = FrameCount;
-	swapChainDesc.Width = m_window->getSize().getWidth();
-	swapChainDesc.Height = m_window->getSize().getHeight();
+	swapChainDesc.Width = static_cast<UINT>(m_window->getSize().getWidth());
+	swapChainDesc.Height = static_cast<UINT>(m_window->getSize().getHeight());
 	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
@@ -350,8 +350,8 @@ void DeviceDX12::createVertexBuffer()
     // recommended. Every time the GPU needs it, the upload heap will be marshalled
     // over. Please read up on Default Heap usage. An upload heap is used here for
     // code simplicity and because there are very few verts to actually transfer.
-    ThrowIfFailed( m_device->CreateCommittedResource(
-        &CD3DX12_HEAP_PROPERTIES( D3D12_HEAP_TYPE_UPLOAD ),
+    CD3DX12_HEAP_PROPERTIES heapProps( D3D12_HEAP_TYPE_UPLOAD );
+    ThrowIfFailed( m_device->CreateCommittedResource( &heapProps,
         D3D12_HEAP_FLAG_NONE,
         &CD3DX12_RESOURCE_DESC::Buffer( vertexBufferSize ),
         D3D12_RESOURCE_STATE_GENERIC_READ,

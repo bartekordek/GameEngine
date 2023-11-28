@@ -4,6 +4,7 @@
 
 #if defined(GAME_ENGINE_WINDOWS)
 
+#include "CUL/GenericUtils/DisableErros.hpp"
 #include <windows.h>
 #include <windowsx.h>
 #include <wrl/client.h>
@@ -12,7 +13,6 @@
 #include <DirectXMath.h>
 #include <d3dcompiler.h>
 
-#include "CUL/GenericUtils/DisableErros.hpp"
 #include "gameengine/DX12/d3dx12.h"
 #ifdef _MSC_VER
 #pragma warning( pop )
