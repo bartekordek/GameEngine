@@ -11,6 +11,10 @@ class Anchor final: public IUtilityUser, public IObject
 {
 public:
     GAME_ENGINE_API Anchor( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
+    GAME_ENGINE_API Anchor( const Anchor& ) = delete;
+    GAME_ENGINE_API Anchor( Anchor&& ) = delete;
+    GAME_ENGINE_API Anchor& operator=( const Anchor& ) = delete;
+    GAME_ENGINE_API Anchor& operator=( Anchor&& ) = delete;
 
 protected:
 private:
