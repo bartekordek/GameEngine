@@ -215,7 +215,7 @@ void Sprite::init()
         getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
         getDevice()->enableVertexAttribArray( 0 );
         getDevice()->enableVertexAttribArray( 1 );
-
+        fixAspectRatio();
         const CUL::MATH::Point& size = m_transformComponent->getSize();
         float x0 = 0.f;
         float x1 = size.x();
@@ -259,6 +259,34 @@ void Sprite::init()
         m_shaderProgram->disable();
     }
     m_initialized = true;
+}
+
+void Sprite::fixAspectRatio()
+{
+    const auto size = m_transformComponent->getSize();
+    const auto maximumValue = std::max( size.x(), size.y() );
+
+    const auto imageSize = m_image->getImageInfo().size;
+    const auto imageRatio = static_cast<float>(imageSize.width) / static_cast<float>(imageSize.height);
+
+    LOGLW::TransformComponent::Pos newSize;
+    if( imageSize.width == imageSize.height )
+    {
+        newSize.x() = maximumValue;
+        newSize.y() = maximumValue;
+    }
+    else if( imageRatio > 1.f )
+    {
+        newSize.x() = maximumValue;
+        newSize.y() = maximumValue / imageRatio;
+    }
+    else
+    {
+        newSize.x() = maximumValue / imageRatio;
+        newSize.y() = maximumValue;
+    }
+
+    m_transformComponent->setSize( newSize );
 }
 
 Sprite::~Sprite()

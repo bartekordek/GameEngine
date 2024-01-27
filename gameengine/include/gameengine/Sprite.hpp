@@ -55,6 +55,7 @@ private:
     void renderModern();
     void renderLegacy();
     void release();
+    void fixAspectRatio();
 
     unsigned m_textureId = 0u;
     std::unique_ptr<VertexData> m_vertexData;
