@@ -31,8 +31,13 @@ public:
         CENTER = 0
     };
 
+    IGameEngineApp() = delete;
     IGameEngineApp( bool fullscreen, unsigned width, unsigned height, int x, int y, const char* winName, const char* configPath, bool legacy );
     IGameEngineApp( bool fullscreen, unsigned width, unsigned height, WinPos pos, const char* winName, const char* configPath, bool legacy );
+    IGameEngineApp( const IGameEngineApp& ) = delete;
+    IGameEngineApp( IGameEngineApp&& ) = delete;
+    IGameEngineApp& operator=( const IGameEngineApp& ) = delete;
+    IGameEngineApp& operator=( IGameEngineApp&& ) = delete;
 
     void run();
     void close();
@@ -64,13 +69,6 @@ private:
     std::atomic<bool> m_runLogicThread = true;
     std::thread m_logicThread;
     std::unique_ptr<CUL::ITimer> m_logicTimer;
-
-// Deleted
-private:
-    IGameEngineApp( IGameEngineApp& ) = delete;
-    IGameEngineApp( IGameEngineApp&& ) = delete;
-    IGameEngineApp& operator=( const IGameEngineApp& ) = delete;
-    IGameEngineApp& operator=( const IGameEngineApp&& ) = delete;
 };
 
 NAMESPACE_END( LOGLW )
