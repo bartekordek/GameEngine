@@ -52,7 +52,7 @@ void LOGLW::EditableTexture::create( uint16_t width, uint16_t height )
 
 void LOGLW::EditableTexture::setPixelValue( uint16_t x, uint16_t y, const TexPixel& color )
 {
-    const size_t offset = m_height * y + x;
+    const size_t offset = x + y * m_width;
     //TexPixel* targetValue = (TexPixel*)( (size_t)m_ti->data + offset );
     //*targetValue = color;
     m_pixelData[offset] = color;
@@ -264,7 +264,8 @@ void LOGLW::EditableTexture::renderModern()
 
 void LOGLW::EditableTexture::updateTextureImpl()
 {
-    getDevice()->updateTextureData( *m_ti, m_pixelData.data() );
+    getDevice()->setTextureData( m_textureId, *m_ti );
+    //getDevice()->updateTextureData( *m_ti, m_pixelData.data() );
 }
 
 LOGLW::EditableTexture::~EditableTexture()
