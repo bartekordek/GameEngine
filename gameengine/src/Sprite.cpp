@@ -1,8 +1,7 @@
 #include "gameengine/Sprite.hpp"
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/VertexArray.hpp"
-#include "gameengine/Program.hpp"
-#include "gameengine/Shader.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/IGameEngine.hpp"
@@ -169,21 +168,8 @@ void Sprite::init()
     {
         m_shaderProgram = getEngine().createProgram();
 
-        const std::string vertexShaderSource =
-#include "embedded_shaders/camera.vert"
-            ;
-
-        const std::string fragmentShaderSource =
-#include "embedded_shaders/camera.frag"
-            ;
-
-        auto fragmentShader = getEngine().createShader( "embedded_shaders/camera.frag", fragmentShaderSource );
-        auto vertexShader = getEngine().createShader( "embedded_shaders/camera.vert", vertexShaderSource );
-
-        m_shaderProgram->attachShader( vertexShader );
-        m_shaderProgram->attachShader( fragmentShader );
-        m_shaderProgram->link();
-        m_shaderProgram->validate();
+        m_shaderProgram->loadShader( "embedded_shaders/camera.frag" );
+        m_shaderProgram->loadShader( "embedded_shaders/camera.vert" );
     }
 
     if( m_textureId == 0u )
@@ -241,7 +227,7 @@ void Sprite::init()
             }
         }
 
-        m_vbo = getEngine().createVBO( *m_vertexData.get() );
+        m_vbo = getEngine().createVBO( *m_vertexData );
         m_vbo->setDisableRenderOnMyOwn( true );
         m_vertexData->VBO = m_vbo->getId();
         getDevice()->bufferData( m_vbo->getId(), m_vertexData->vertices, BufferTypes::ARRAY_BUFFER );
@@ -249,7 +235,7 @@ void Sprite::init()
         m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 5 * sizeof( float ), nullptr ) );
         m_vertexData->Attributes.push_back( AttributeMeta( "uvs", 1, 2, DataType::FLOAT, false, 5 * sizeof( float ), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
 
-        getDevice()->vertexAttribPointer( *m_vertexData.get() );
+        getDevice()->vertexAttribPointer( *m_vertexData );
 
         getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
         getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );

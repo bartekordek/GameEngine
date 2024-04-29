@@ -13,6 +13,7 @@ NAMESPACE_BEGIN( LOGLW )
 class Camera;
 class IGameEngine;
 class TransformComponent;
+class ShaderProgram;
 struct VertexData;
 
 class Line final: public IObject, public IUtilityUser
@@ -40,7 +41,7 @@ private:
     CUL::MATH::Primitives::Line m_line;
     TransformComponent* m_transformComponent = nullptr;
     std::atomic<bool> m_recreateBuffers = false;
-    class Program* m_shaderProgram = nullptr;
+    ShaderProgram* m_shaderProgram = nullptr;
     class VertexArray* m_vao = nullptr;
     std::unique_ptr<VertexData> m_vertexData;
 

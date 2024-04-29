@@ -10,6 +10,7 @@
 #include "TextureConcrete.hpp"
 #include "DeviceOpenGL.hpp"
 #include "DX12/DeviceDX12.hpp"
+#include "DX09/DeviceDX09.hpp"
 
 #include "DebugUtil/DebugSystemBase.hpp"
 #include "DebugUtil/DebugSystemParams.hpp"
@@ -60,6 +61,7 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
 
         if( rendererType == SDL2W::RenderTypes::RendererType::DIRECTX_9 )
         {
+            m_renderDevice = new DeviceDX09();
         }
         else if( rendererType == SDL2W::RenderTypes::RendererType::DIRECTX_12 )
         {
@@ -256,27 +258,9 @@ void GameEngineConcrete::renderLoop()
 
     while( m_runRenderLoop )
     {
-        m_frameTimer->start();
-
         runPreRenderTasks();
         renderFrame();
         runPostRenderTasks();
-
-        CUL::ITimer::sleepMicroSeconds( m_frameSleepUs );
-        m_frameTimer->stop();
-
-        m_currentFrameLengthUs = (int)m_frameTimer->getElapsed().getUs();
-
-        if( m_everyX == m_everyXMax )
-        {
-            calculateNextFrameLengths();
-            calculateFrameWait();
-            m_everyX = 0;
-        }
-        else
-        {
-            ++m_everyX;
-        }
     }
 
     size_t objectToRenderLeft = m_objectsToRender.size();
@@ -298,7 +282,7 @@ void GameEngineConcrete::initialize()
     m_logger->log( "GameEngineConcrete::initialize()..." );
 
     const auto& winSize = m_activeWindow->getSize();
-    const float aspectRatio = 1.f * winSize.w / winSize.h;
+    const float aspectRatio = static_cast<float>( winSize.w / winSize.h );
     getCamera().setAspectRatio( aspectRatio );
 
     m_sdlW->registerSDLEventObserver( this );
@@ -384,14 +368,27 @@ void GameEngineConcrete::renderFrame()
         m_debugSystem->frame();
     }
 
+    if( m_frameTimer->getIsStarted())
+    {
+        m_frameTimer->stop();
+        m_currentFrameLengthUs = (std::int32_t)m_frameTimer->getElapsedNs();
+
+        const std::int64_t diff = m_targetFrameLengthUs - m_currentFrameLengthUs;
+        if( diff > 0 )
+        {
+            CUL::ITimer::sleepNanoSeconds( diff );
+        }
+    }
+
     finishFrame();
+    m_frameTimer->start();
 }
 
 void GameEngineConcrete::calculateNextFrameLengths()
 {
     m_usDelta = ( m_targetFrameLengthUs - m_currentFrameLengthUs ) / 200;
     m_frameSleepUs += m_usDelta;
-    m_frameSleepUs = std::max( m_frameSleepUs.getVal(), 0 );
+    m_frameSleepUs = std::max( m_frameSleepUs, 0 );
 
     if( m_usDelta < 0 )
     {
@@ -560,9 +557,9 @@ void GameEngineConcrete::renderInfo()
     ImGui::Text( "FrameTime: %4.2f ms", 1000.f / ImGui::GetIO().Framerate );
     ImGui::Text( "FPS: %4.2f", m_activeWindow->getFpsCounter()->getCurrentFps() );
 
-    ImGui::Text( "m_currentFrameLengthUs: %d", m_currentFrameLengthUs.getValCopy() );
-    ImGui::Text( "m_targetFrameLengthUs: %d", m_targetFrameLengthUs.getValCopy() );
-    ImGui::Text( "m_frameSleepUs: %d", m_frameSleepUs.getValCopy() );
+    ImGui::Text( "m_currentFrameLengthUs: %d", m_currentFrameLengthUs );
+    ImGui::Text( "m_targetFrameLengthUs: %d", m_targetFrameLengthUs );
+    ImGui::Text( "m_frameSleepUs: %d", m_frameSleepUs );
     ImGui::Text( "m_usDelta: %d", m_usDelta );
 
     ImGui::End();
@@ -825,7 +822,7 @@ void GameEngineConcrete::setFpsLimit( float maxFps )
 
 float GameEngineConcrete::getFpsLimit() const
 {
-    return m_fpsLimit.getVal();
+    return m_fpsLimit;
 }
 
 void GameEngineConcrete::runPreRenderTasks()

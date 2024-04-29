@@ -52,7 +52,7 @@ class ITextureFactory;
 class Line;
 class ProjectionData;
 class Quad;
-class Shader;
+class ShaderProgram;
 class Sprite;
 class Triangle;
 class VertexBuffer;
@@ -161,11 +161,11 @@ public:
 
 
     // Shaders
-    GAME_ENGINE_API class Program* createProgram();
-    GAME_ENGINE_API void removeProgram(Program* program);
+    GAME_ENGINE_API class ShaderProgram* createProgram();
+    GAME_ENGINE_API void removeProgram(ShaderProgram* program);
 
-    GAME_ENGINE_API Shader* createShader( const String& path, const String& source = "" );
-    GAME_ENGINE_API void removeShader( Shader* shader );
+    GAME_ENGINE_API ShaderProgram* createShader( const String& path, const String& source = "" );
+    GAME_ENGINE_API void removeShader( ShaderProgram* shader );
     GAME_ENGINE_API void removeShader( const String& path );
 
     GAME_ENGINE_API void releaseResources();
@@ -204,7 +204,7 @@ protected:
     std::stack<std::function<void( void )>> m_postRenderTasks;
 
 private:
-    Shader* findShader( const String& path ) const;
+    ShaderProgram* findShader( const String& path ) const;
 
     std::unique_ptr<Camera> m_camera;
     bool m_forceLegacy = false;
@@ -216,8 +216,8 @@ private:
 
     static IGameEngine* s_instance;
 
-    std::map<Program*, std::unique_ptr<Program>> m_shadersPrograms;
-    std::map<String, Shader*> m_shaders;
+    std::map<ShaderProgram*, std::unique_ptr<ShaderProgram>> m_shadersPrograms;
+    std::map<String, ShaderProgram*> m_shaders;
 
     ImGuiContext* m_ImGuiContext = nullptr;
 };

@@ -1,7 +1,7 @@
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IRenderDevice.hpp"
-#include "gameengine/Program.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "RunOnRenderThread.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
@@ -43,7 +43,7 @@ void VertexArray::addVBO( VertexBuffer* )
 {
 }
 
-Program* VertexArray::getProgram()
+ShaderProgram* VertexArray::getProgram()
 {
     return m_shaderProgram;
 }
@@ -105,17 +105,19 @@ void VertexArray::render()
     bind();
     if( m_shaderProgram )
     {
-        m_shaderProgram->render();
+        throw std::logic_error( "Method not implemented" );
+        //m_shaderProgram->render();
     }
 
-    size_t vbosCount = (size_t)m_vbosCount;
+    const size_t vbosCount = (size_t)m_vbosCount;
     for( size_t i = 0; i < vbosCount; ++i )
     {
         m_vbos[i]->render();
     }
     if( m_shaderProgram )
     {
-        m_shaderProgram->disable();
+        throw std::logic_error( "Method not implemented" );
+        //m_shaderProgram->disable();
     }
     unbind();
 }
@@ -170,12 +172,14 @@ void VertexArray::runTasks()
 
                     auto shaderFile = CUL::CULInterface::getInstance()->getFF()->createFileFromPath( shaderPath );
                     shaderFile->load(true);
-                    auto shader = new Shader( *getEngine(), shaderFile );
-                    m_shaderProgram->attachShader( shader );
+                    //auto shader = new Shader( *getEngine(), shaderFile );
+                    throw std::logic_error( "Method not implemented" );
+                    //m_shaderProgram->attachShader( shader );
 
                     m_shadersPaths.pop();
                 }
-                m_shaderProgram->link();
+                //m_shaderProgram->link();
+                throw std::logic_error( "Method not implemented" );
             }
         }
 

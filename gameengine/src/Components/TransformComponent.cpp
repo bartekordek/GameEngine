@@ -10,7 +10,7 @@ using namespace LOGLW;
 TransformComponent::TransformComponent( IObject& owner ):m_owner( owner )
 {
     changeSizeDelegate.addDelegate( [this]() {
-        printCurrentState();
+        //printCurrentState();
     } );
 }
 

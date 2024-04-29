@@ -5,7 +5,7 @@
 #include "gameengine/IObject.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
-#include "gameengine/Program.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/AttributeMeta.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
@@ -60,7 +60,7 @@ void Triangle::setColor( const CUL::Graphics::ColorS& color )
     colorVec.w = m_color.getAF();
 }
 
-GAME_ENGINE_API Program* Triangle::getProgram() const
+GAME_ENGINE_API ShaderProgram* Triangle::getProgram() const
 {
     return m_shaderProgram;
 }
@@ -115,24 +115,10 @@ void Triangle::setSize( const glm::vec3& )
 void Triangle::createShaders()
 {
     m_shaderProgram = getEngine().createProgram();
+    m_shaderProgram->setName( getName() + "::program" );
 
-    const std::string vertexShaderSource =
-#include "embedded_shaders/basic_pos.vert"
-        ;
-
-    const std::string fragmentShaderSource =
-#include "embedded_shaders/basic_color.frag"
-        ;
-
-    const auto fragmentShader = getEngine().createShader( "embedded_shaders/basic_color.frag", fragmentShaderSource );
-    const auto vertexShader = getEngine().createShader( "embedded_shaders/basic_pos.vert", vertexShaderSource );
-
-    m_shaderProgram->attachShader( vertexShader );
-    m_shaderProgram->attachShader( fragmentShader );
-    m_shaderProgram->link();
-    m_shaderProgram->validate();
-
-    m_shaderProgram->enable();
+    m_shaderProgram->loadShader( "embedded_shaders/basic_color.frag" );
+    m_shaderProgram->loadShader( "embedded_shaders/basic_pos.vert" );
 }
 
 void Triangle::render()

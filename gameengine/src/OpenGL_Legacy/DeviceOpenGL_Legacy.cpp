@@ -83,11 +83,6 @@ int DeviceOpenGL_Legacy::getCurrentProgram() const
     return 0;
 }
 
-unsigned int DeviceOpenGL_Legacy::createShader( const IFile& )
-{
-    return 0;
-}
-
 void DeviceOpenGL_Legacy::attachShader( unsigned, unsigned )
 {
 }
@@ -186,30 +181,6 @@ unsigned int DeviceOpenGL_Legacy::generateVertexArray( const int size )
     return 0;
 }
 
-void DeviceOpenGL_Legacy::bufferData( uint8_t bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type )
-{
-}
-
-void DeviceOpenGL_Legacy::bufferData( uint8_t bufferId, const std::vector<unsigned int>& data, const BufferTypes type )
-{
-}
-
-void DeviceOpenGL_Legacy::bufferData( uint8_t bufferId, const std::vector<float>& data, const BufferTypes type )
-{
-}
-
-void DeviceOpenGL_Legacy::bufferData( uint8_t bufferId, const float vertices[], BufferTypes type )
-{
-}
-
-void DeviceOpenGL_Legacy::bufferData( uint8_t bufferId, const std::vector<TextureData2D>& data, const BufferTypes type )
-{
-}
-
-void DeviceOpenGL_Legacy::bufferSubdata( uint8_t bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
-{
-}
-
 void DeviceOpenGL_Legacy::setClientState( ClientStateTypes cs, bool enabled )
 {
 }
@@ -228,16 +199,6 @@ void DeviceOpenGL_Legacy::setVertexArrayClientState( const bool enable )
 
 void DeviceOpenGL_Legacy::setColorClientState( bool enable )
 {
-}
-
-unsigned int DeviceOpenGL_Legacy::generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size )
-{
-    return 0;
-}
-
-unsigned int DeviceOpenGL_Legacy::generateAndBindBuffer( const BufferTypes bufferType, const int size )
-{
-    return 0;
 }
 
 void DeviceOpenGL_Legacy::deleteBuffer( BufferTypes bufferType, unsigned& id )
@@ -301,11 +262,6 @@ void DeviceOpenGL_Legacy::enableVertexAttribArray( unsigned attributeId )
 
 void DeviceOpenGL_Legacy::setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data )
 {
-}
-
-std::vector<std::string> DeviceOpenGL_Legacy::listExtensions()
-{
-    return std::vector<std::string>();
 }
 
 void DeviceOpenGL_Legacy::draw( const QuadCUL& quad, const QuadCUL& texQuad )
@@ -425,10 +381,6 @@ void DeviceOpenGL_Legacy::setTextureData( uint8_t, const TextureInfo& )
 {
 }
 
-void DeviceOpenGL_Legacy::freeTexture( unsigned int& )
-{
-}
-
 void DeviceOpenGL_Legacy::matrixStackPush()
 {
 }
@@ -438,11 +390,6 @@ void DeviceOpenGL_Legacy::matrixStackPop()
 }
 
 unsigned DeviceOpenGL_Legacy::getGPUTotalAvailableMemoryKb()
-{
-    return 0;
-}
-
-unsigned DeviceOpenGL_Legacy::getGPUCurrentAvailableMemoryKb()
 {
     return 0;
 }

@@ -57,7 +57,6 @@ private:
     void linkProgram( unsigned programId ) override;
     void validateProgram( unsigned programId ) override;
     int getCurrentProgram() const override;
-    unsigned int createShader( const IFile& shaderCode ) override;
     void attachShader( unsigned programId, unsigned shaderId ) override;
     void dettachShader( unsigned programId, unsigned shaderId ) override;
     void removeShader( unsigned shaderId ) override;
@@ -96,19 +95,11 @@ private:
     void clearColorTo( const ColorS color ) override;
     void clearBuffer( const ClearMasks mask ) override;
     unsigned int generateVertexArray( const int size = 1 ) override;
-    void bufferData( uint8_t bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type ) override;
-    void bufferData( uint8_t bufferId, const std::vector<unsigned int>& data, const BufferTypes type ) override;
-    void bufferData( uint8_t bufferId, const std::vector<float>& data, const BufferTypes type ) override;
-    void bufferData( uint8_t bufferId, const float vertices[], BufferTypes type ) override;
-    void bufferData( uint8_t bufferId, const std::vector<TextureData2D>& data, const BufferTypes type ) override;
-    void bufferSubdata( uint8_t bufferId, const BufferTypes type, std::vector<TextureData2D>& data ) override;
     void setClientState( ClientStateTypes cs, bool enabled ) override;
     void texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer ) override;
     void vertexPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer ) override;
     void setVertexArrayClientState( const bool enable ) override;
     void setColorClientState( bool enable ) override;
-    unsigned int generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size = 1 ) override;
-    unsigned int generateAndBindBuffer( const BufferTypes bufferType, const int size = 1 ) override;
     void deleteBuffer( BufferTypes bufferType, unsigned& id ) override;
     void enableVertexAttribiute( unsigned programId, const String& attribName ) override;
     void disableVertexAttribiute( unsigned programId, const String& attribName ) override;
@@ -124,7 +115,6 @@ private:
     void vertexAttribPointer( const VertexData& meta ) override;
     void enableVertexAttribArray( unsigned attributeId ) override;
     void setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data ) override;
-    std::vector<std::string> listExtensions() override;
     void draw( const QuadCUL& quad, const QuadCUL& texQuad ) override;
     void draw( const QuadCUL& quad, const ColorS& color ) override;
     void draw( const QuadCUL& quad, const Point& translation, const CUL::MATH::Rotation& rotation, const ColorS& color ) override;
@@ -155,7 +145,6 @@ private:
     void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) override;
     void updateTextureData( const TextureInfo& ti, void* data ) override;
     void setTextureData( uint8_t textureId, const TextureInfo& ti ) override;
-    void freeTexture( unsigned int& textureId ) override;
     void matrixStackPush() override;
     void matrixStackPop() override;
     unsigned getGPUTotalAvailableMemoryKb() override;

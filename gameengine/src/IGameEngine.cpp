@@ -9,7 +9,7 @@
 #include "gameengine/Primitives/Quad.hpp"
 
 #include "gameengine/Cube.hpp"
-#include "gameengine/Program.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/EngineParams.hpp"
 #include "gameengine/VertexBuffer.hpp"
@@ -188,14 +188,14 @@ void IGameEngine::drawOrigin( bool enable )
     }
 }
 
-Program* IGameEngine::createProgram()
+ShaderProgram* IGameEngine::createProgram()
 {
-    Program* result = new Program( *this );
-    m_shadersPrograms.insert( std::make_pair(result, std::unique_ptr<Program>(result)) );
+    ShaderProgram* result = new ShaderProgram();
+    m_shadersPrograms.insert( std::make_pair(result, std::unique_ptr<ShaderProgram>(result)) );
     return result;
 }
 
-void IGameEngine::removeProgram( Program* program )
+void IGameEngine::removeProgram( ShaderProgram* program )
 {
     auto it = m_shadersPrograms.find( program );
     if( it != m_shadersPrograms.end() )
@@ -265,9 +265,9 @@ void IGameEngine::setGuiContext( ImGuiContext* const inContext )
     m_ImGuiContext = inContext;
 }
 
-Shader* IGameEngine::createShader( const String& path, const String& source )
+ShaderProgram* IGameEngine::createShader( const String& path, const String& source )
 {
-    Shader* result = findShader( path );
+    ShaderProgram* result = findShader( path );
 
     if( result )
     {
@@ -280,14 +280,16 @@ Shader* IGameEngine::createShader( const String& path, const String& source )
         shaderFile->loadFromString( source );
     }
 
-    result = new Shader( *this, shaderFile );
+    throw std::logic_error( "Method not implemented" );
+    //result = new ShaderProgram( *this, shaderFile );
     m_shaders[path] = result;
     return result;
 }
 
-void IGameEngine::removeShader( Shader* shader )
+void IGameEngine::removeShader( ShaderProgram* shader )
 {
-    removeShader( shader->getPath() );
+    //removeShader( shader->getPath() );
+    throw std::logic_error( "Method not implemented" );
 }
 
 void IGameEngine::removeShader( const String& path )
@@ -295,13 +297,13 @@ void IGameEngine::removeShader( const String& path )
     auto shaderIt = m_shaders.find( path );
     if( shaderIt != m_shaders.end() )
     {
-        Shader* shader = shaderIt->second;
+        ShaderProgram* shader = shaderIt->second;
         delete shader;
         m_shaders.erase( shaderIt );
     }
 }
 
-Shader* IGameEngine::findShader( const String& path ) const
+ShaderProgram* IGameEngine::findShader( const String& path ) const
 {
     auto shaderIt = m_shaders.find( path );
 

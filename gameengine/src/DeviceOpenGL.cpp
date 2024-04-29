@@ -1,14 +1,18 @@
 #include "DeviceOpenGL.hpp"
 
+#include "gameengine/IGameEngine.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/Viewport.hpp"
 #include "gameengine/AttributeMeta.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
+#include "gameengine/Shaders/ShaderUnit.hpp"
 
 #include "SDL2Wrapper/IWindow.hpp"
 
 #include "CUL/CULInterface.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
+#include "CUL/Filesystem/FileFactory.hpp"
 
 #include "CUL/STL_IMPORTS/STD_iostream.hpp"
 #include "CUL/STL_IMPORTS/STD_sstream.hpp"
@@ -410,8 +414,8 @@ std::uint32_t DeviceOpenGL::createProgram( const CUL::String& name )
         return 0;
     }
 
-    glObjectLabel( GL_PROGRAM, programId, -1, name.cStr() );
 
+    glObjectLabel( GL_PROGRAM, programId, -1, name.cStr() );
 
     return programId;
 }
@@ -459,37 +463,6 @@ void DeviceOpenGL::validateProgram( unsigned programId )
     log( "[DeviceOpenGL] glValidateProgram( " + String( programId ) + ");" );
     glValidateProgram( programId );
     assertOnProgramError( programId, GL_VALIDATE_STATUS );
-}
-
-unsigned int DeviceOpenGL::createShader( const IFile& shaderCode )
-{
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
-    {
-        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
-    }
-
-    const auto shaderType = DeviceOpenGL::getShaderType( shaderCode.getPath().getExtension() );
-    log( "[DeviceOpenGL] glCreateShader( " + String( static_cast<GLenum>( shaderType ) ) + ");" );
-    const auto id = static_cast<unsigned int>( glCreateShader( static_cast<GLenum>( shaderType ) ) );
-
-    auto codeLength = static_cast<GLint>( shaderCode.getLinesCount() );
-    log( "[DeviceOpenGL] glCreateShader( " + String( static_cast<GLenum>( shaderType ) ) + ");" );
-    glShaderSource( id, codeLength, shaderCode.getContent(), nullptr );
-    glCompileShader( id );
-
-    GLint compilationResult = 0;
-    glGetShaderiv( id, GL_COMPILE_STATUS, &compilationResult );
-    if( GL_FALSE == compilationResult )
-    {
-        GLchar eLog[1024] = { 0 };
-        glGetShaderInfoLog( id, sizeof( eLog ), nullptr, eLog );
-        auto errorAsString = std::string( eLog );
-        CUL::String shaderCompilationErrorMessage = "Error compiling shader: " + errorAsString + "\n";
-        shaderCompilationErrorMessage += "Shader Path: " + shaderCode.getPath().getPath() + "\n";
-        customAssert( false, shaderCompilationErrorMessage );
-    }
-
-    return id;
 }
 
 void DeviceOpenGL::assertOnProgramError( unsigned programId, unsigned val )
@@ -707,10 +680,10 @@ int DeviceOpenGL::getUniformLocation( unsigned programId, const String& attribNa
     }
 
     const GLenum err = glGetError();
-    const GLubyte* errorAsString = gluErrorString( err );
 
     if( err != GL_NO_ERROR )
     {
+        const GLubyte* errorAsString = gluErrorString( err );
         std::string errorAsSTDString = (char*)errorAsString;
         switch( err )
         {
@@ -943,6 +916,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, float value )
     log( "glUniform1f( " + String( uniformLocation ) + ", " + String( value ) + " );" );
     glUniform1f( static_cast<GLfloat>( uniformLocation ), value );
 }
+
 void DeviceOpenGL::setUniformValue( int uniformLocation, int value )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
@@ -1402,26 +1376,26 @@ unsigned int DeviceOpenGL::generateVertexArray( const int size )
     return vao;
 }
 
-void DeviceOpenGL::bufferData( uint8_t bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( BufferDataId bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type )
 {
     bindBuffer( type, bufferId );
     auto dataVal = (void*)( &data.data );
     bufferDataImpl( dataVal, static_cast<GLenum>( type ), static_cast<GLsizeiptr>( 4 * sizeof( QuadCUL::PointType ) ) );
 }
 
-void DeviceOpenGL::bufferData( uint8_t bufferId, const std::vector<unsigned int>& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( BufferDataId bufferId, const std::vector<unsigned int>& data, const BufferTypes type )
 {
     bindBuffer( type, bufferId );
     bufferDataImpl( data.data(), static_cast<GLenum>( type ), static_cast<GLsizeiptr>( data.size() * sizeof( unsigned int ) ) );
 }
 
-void DeviceOpenGL::bufferData( uint8_t bufferId, const std::vector<float>& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( BufferDataId bufferId, const std::vector<float>& data, const BufferTypes type )
 {
     bindBuffer( type, bufferId );
     bufferDataImpl( data.data(), static_cast<GLenum>( type ), static_cast<GLsizeiptr>( data.size() * sizeof( float ) ) );
 }
 
-void DeviceOpenGL::bufferData( uint8_t bufferId, const std::vector<TextureData2D>& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( BufferDataId bufferId, const std::vector<TextureData2D>& data, const BufferTypes type )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1556,7 +1530,7 @@ void DeviceOpenGL::bufferDataImpl( const void* data, const GLenum target, const 
     */
 }
 
-void DeviceOpenGL::bufferSubdata( uint8_t bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
+void DeviceOpenGL::bufferSubdata( BufferDataId bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1622,7 +1596,7 @@ GL_ARRAY_BUFFER target. The initial value is 0.
     return ebo;
 }
 
-void DeviceOpenGL::bufferData( uint8_t bufferId, const float vertices[], BufferTypes bufferType )
+void DeviceOpenGL::bufferData( BufferDataId bufferId, const float vertices[], BufferTypes bufferType )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1703,12 +1677,16 @@ void DeviceOpenGL::deleteBuffer( BufferTypes bufferType, unsigned& id )
     {
         if( bufferType == BufferTypes::ARRAY_BUFFER )
         {
+            log( "DeviceOpenGL::deleteBuffer BufferTypes::ARRAY_BUFFER: " + String( id ) );
             glDeleteBuffers( 1, &id );
+            m_currentBufferId[bufferType] = -1;
             id = 0;
         }
         else if( bufferType == BufferTypes::VERTEX_ARRAY )
         {
+            log( "DeviceOpenGL::deleteBuffer BufferTypes::VERTEX_ARRAY: " + String( id ) );
             glDeleteVertexArrays( 1, &id );
+            m_currentBufferId[bufferType] = -1;
             id = 0;
         }
         else
@@ -1811,13 +1789,13 @@ unsigned int DeviceOpenGL::generateBuffer( const BufferTypes bufferType, const i
     GLuint bufferId = 0;
     if( BufferTypes::VERTEX_ARRAY == bufferType )
     {
-        //log( "glGenVertexArrays" );
         glGenVertexArrays( size, &bufferId );
+        log( "glGenVertexArrays id: " + String(bufferId) );
     }
     else
     {
-        //log( "glGenBuffers" );
         glGenBuffers( size, &bufferId );
+        log( "glGenBuffers id: " + String( bufferId ) );
     }
 
     return bufferId;
@@ -2042,7 +2020,7 @@ void DeviceOpenGL::setTextureParameter( uint8_t textureId, const TextureParamete
     glTexParameteri( GL_TEXTURE_2D, (GLenum)type, (GLint)val );
 }
 
-void DeviceOpenGL::freeTexture( unsigned int& textureId )
+void DeviceOpenGL::freeTexture( std::uint32_t textureId )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -2053,7 +2031,6 @@ void DeviceOpenGL::freeTexture( unsigned int& textureId )
     {
         log( "glDeleteTextures();" );
         glDeleteTextures( 1, &textureId );
-        textureId = 0;
     }
 }
 
@@ -2187,6 +2164,94 @@ void DeviceOpenGL::initDebugUI()
 	throw std::logic_error( "The method or operation is not implemented." );
 }
 
+ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath )
+{
+    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+
+    ShaderUnit* result = findShader( shaderPath );
+    if( result != nullptr )
+    {
+        return result;
+    }
+
+    std::unique_ptr<ShaderUnit> newShader = std::make_unique<ShaderUnit>();
+    newShader->File.reset( CUL::CULInterface::getInstance()->getFF()->createRegularFileRawPtr( shaderPath ) );
+
+    if( shaderPath == "embedded_shaders/basic_color.frag" )
+    {
+        const std::string fragmentShaderSource =
+#include "embedded_shaders/basic_color.frag"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( fragmentShaderSource, true );
+    }
+    else if( shaderPath == "embedded_shaders/basic_pos.vert" )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/basic_pos.vert"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
+    else if( shaderPath == "embedded_shaders/camera.frag" )
+    {
+        const std::string fragmentShaderSource =
+#include "embedded_shaders/camera.frag"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( fragmentShaderSource, true );
+    }
+    else if( shaderPath == "embedded_shaders/camera.vert" )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/camera.vert"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
+
+    const auto extension = newShader->File->getPath().getExtension();
+    newShader->Type = CShaderTypes::getShaderType( extension );
+
+    const auto oglShaderType = getShaderType( extension );
+    const auto id = static_cast<unsigned int>( glCreateShader( static_cast<GLenum>( oglShaderType ) ) );
+
+    auto& shaderCode = *newShader->File;
+    const auto codeLength = static_cast<GLint>( shaderCode.getLinesCount() );
+    log( "[DeviceOpenGL] glCreateShader( " + String( static_cast<GLenum>( oglShaderType ) ) + ");" );
+    glShaderSource( id, codeLength, shaderCode.getContent(), nullptr );
+    glCompileShader( id );
+
+    GLint compilationResult = 0;
+    glGetShaderiv( id, GL_COMPILE_STATUS, &compilationResult );
+    if( GL_FALSE == compilationResult )
+    {
+        GLchar eLog[1024] = { 0 };
+        glGetShaderInfoLog( id, sizeof( eLog ), nullptr, eLog );
+        auto errorAsString = std::string( eLog );
+        CUL::String shaderCompilationErrorMessage = "Error compiling shader: " + errorAsString + "\n";
+        shaderCompilationErrorMessage += "Shader Path: " + shaderCode.getPath().getPath() + "\n";
+        customAssert( false, shaderCompilationErrorMessage );
+    }
+
+    newShader->ID = id;
+
+    m_shadersUnits[shaderPath.getPath()] = std::move(newShader);
+    return m_shadersUnits[shaderPath.getPath()].get();
+}
+
+ShaderUnit* DeviceOpenGL::findShader( const CUL::FS::Path& shaderPath ) const
+{
+    std::lock_guard<std::mutex> locker(m_shadersMtx);
+    const auto it = m_shadersUnits.find( shaderPath );
+    if( it == m_shadersUnits.end() )
+    {
+        return nullptr;
+    }
+
+    return it->second.get();
+}
+
 SDL2W::RenderTypes::RendererType DeviceOpenGL::getType() const
 {
     return SDL2W::RenderTypes::RendererType::OPENGL_MODERN;
@@ -2204,36 +2269,48 @@ void DeviceOpenGL::setObjectName( EObjectType objectType, std::uint32_t objectId
     {
         case EObjectType::BUFFER:
             oglType = GL_BUFFER;
+            log( "glObjectLabel GL_BUFFER id: " + String( objectId ) + ", name: " + name );
             break;
         case EObjectType::SHADER:
             oglType = GL_SHADER;
+            log( "glObjectLabel GL_SHADER id: " + String( objectId ) + ", name: " + name );
             break;
         case EObjectType::PROGRAM:
             oglType = GL_PROGRAM;
+            log( "glObjectLabel GL_PROGRAM id: " + String( objectId ) + ", name: " + name );
             break;
         case EObjectType::VERTEX_ARRAY:
             oglType = GL_VERTEX_ARRAY;
+            bindBuffer( BufferTypes::VERTEX_ARRAY, objectId );
+            log( "glObjectLabel VERTEX_ARRAY id: " + String( objectId ) + ", name: " + name );
             break;
         case EObjectType::QUERY:
             oglType = GL_QUERY;
+            log( "glObjectLabel GL_QUERY id: " + String( objectId ) + ", name: " + name );
             break;
         case EObjectType::PROGRAM_PIPELINE:
             oglType = GL_PROGRAM_PIPELINE;
+            log( "glObjectLabel GL_PROGRAM_PIPELINE id: " + String( objectId ) + ", name: " + name );
             break;
         case EObjectType::TRANSFORM_FEEDBACK:
             oglType = GL_TRANSFORM_FEEDBACK;
+            log( "glObjectLabel GL_TRANSFORM_FEEDBACK id: " + String( objectId ) + ", name: " + name );
             break;
         case EObjectType::SAMPLER:
             oglType = GL_SAMPLER;
+            log( "glObjectLabel GL_SAMPLER id: " + String( objectId ) + ", name: " + name );
             break;
         case EObjectType::TEXTURE:
             oglType = GL_TEXTURE;
+            log( "glObjectLabel GL_TEXTURE id: " + String( objectId ) + ", name: " + name );
             break;
         case EObjectType::RENDERBUFFER:
             oglType = GL_RENDERBUFFER;
+            log( "glObjectLabel GL_RENDERBUFFER id: " + String( objectId ) + ", name: " + name );
             break;
         case EObjectType::FRAMEBUFFER:
             oglType = GL_FRAMEBUFFER;
+            log( "glObjectLabel GL_FRAMEBUFFER id: " + String( objectId ) + ", name: " + name );
             break;
         default:
             oglType = 0;

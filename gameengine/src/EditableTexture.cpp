@@ -1,7 +1,7 @@
 #include "gameengine/EditableTexture.h"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/IRenderDevice.hpp"
-#include "gameengine/Program.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/IGameEngine.hpp"
@@ -35,7 +35,7 @@ void LOGLW::EditableTexture::create( uint16_t width, uint16_t height )
     m_height = height;
 
     m_create = true;
-    m_pixelData.resize( width * height );
+    m_pixelData.resize( static_cast<size_t>( width * height ) );
     m_transformComponent->setSize( CUL::MATH::Point( m_width, m_height, 2.f ) );
 
     for(auto& color: m_pixelData)
@@ -100,10 +100,11 @@ void LOGLW::EditableTexture::init()
         auto fragmentShader = getEngine().createShader( "embedded_shaders/camera.frag", fragmentShaderSource );
         auto vertexShader = getEngine().createShader( "embedded_shaders/camera.vert", vertexShaderSource );
 
-        m_shaderProgram->attachShader( vertexShader );
+        throw std::logic_error( "Method not implemented" );
+        /*m_shaderProgram->attachShader( vertexShader );
         m_shaderProgram->attachShader( fragmentShader );
         m_shaderProgram->link();
-        m_shaderProgram->validate();
+        m_shaderProgram->validate();*/
     }
 
     if( m_textureId == 0u )
@@ -172,9 +173,10 @@ void LOGLW::EditableTexture::init()
         getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
         getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
 
-        m_shaderProgram->enable();
-        m_shaderProgram->setUniform( "texture1", 0 );
-        m_shaderProgram->disable();
+        throw std::logic_error( "Method not implemented" );
+        //m_shaderProgram->enable();
+        //m_shaderProgram->setUniform( "texture1", 0 );
+        //m_shaderProgram->disable();
     }
     m_initialized = true;
 }
@@ -239,7 +241,8 @@ void LOGLW::EditableTexture::renderModern()
     getDevice()->setActiveTextureUnit( ETextureUnitIndex::UNIT_0 );
     getDevice()->bindTexture( m_textureId );
 
-    m_shaderProgram->enable();
+    throw std::logic_error( "Method not implemented" );
+    //m_shaderProgram->enable();
 
     const glm::mat4 model = m_transformComponent->getModel();
 
@@ -255,7 +258,8 @@ void LOGLW::EditableTexture::renderModern()
 
     getDevice()->drawArrays( m_vao->getId(), PrimitiveType::TRIANGLES, 0, 6 );
 
-    m_shaderProgram->disable();
+    throw std::logic_error( "Method not implemented" );
+    //m_shaderProgram->disable();
 
     getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, 0 );
     getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, 0 );

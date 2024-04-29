@@ -101,7 +101,7 @@ private:
     CUL::Graphics::ColorS blue = CUL::Graphics::ColorE::BLUE;
     CUL::Graphics::ColorS white = CUL::Graphics::ColorE::WHITE;
     CUL::MATH::Angle m_angle;
-    LOGLW::Program* program = nullptr;
+    LOGLW::ShaderProgram* program = nullptr;
     float blueTriangleZ = -1.0f;
     float redTriangleZ = 1.0f;
     LOGLW::Camera* m_projectionData = nullptr;

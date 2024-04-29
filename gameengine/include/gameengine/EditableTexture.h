@@ -20,6 +20,7 @@ NAMESPACE_BEGIN( LOGLW )
 class Camera;
 class Program;
 class TransformComponent;
+class ShaderProgram;
 class VertexArray;
 class VertexBuffer;
 struct TextureInfo;
@@ -58,7 +59,7 @@ private:
     void renderModern();
     void renderLegacy();
     unsigned char* getData() const;
-    Program* m_shaderProgram = nullptr;
+    ShaderProgram* m_shaderProgram = nullptr;
     VertexArray* m_vao = nullptr;
     VertexBuffer* m_vbo = nullptr;
     std::unique_ptr<TextureInfo> m_ti;

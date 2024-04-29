@@ -2,7 +2,6 @@
 
 #include "gameengine/IRenderable.hpp"
 #include "gameengine/VertexBuffer.hpp"
-#include "gameengine/Shader.hpp"
 #include "gameengine/AttributeMeta.hpp"
 
 #include "CUL/IName.hpp"
@@ -38,8 +37,9 @@ NAMESPACE_BEGIN( LOGLW )
 
 class IGameEngine;
 class Program;
+class ShaderProgram;
 
-using BuffIDType = uint8_t;
+using BuffIDType = std::uint32_t;
 
 class GAME_ENGINE_API VertexArray final: public IUtilityUser, public IRenderable, public CUL::IName, public CUL::IRegisterdObject
 {
@@ -53,7 +53,7 @@ public:
 
     void createShader( const CUL::FS::Path& path );
 
-    Program* getProgram();
+    ShaderProgram* getProgram();
 
     void render() override;
 
@@ -92,8 +92,8 @@ private:
     std::mutex m_tasksMtx;
     std::deque<TaskType> m_preRenderTasks;
 
-    Program* m_shaderProgram = nullptr;
-    std::vector<Ptr<Shader>> m_shaders;
+    ShaderProgram* m_shaderProgram = nullptr;
+    std::vector<std::unique_ptr<ShaderProgram>> m_shaders;
     std::mutex m_shadersMtx;
     std::queue<CUL::FS::Path> m_shadersPaths;
 

@@ -14,6 +14,7 @@ class Camera;
 class IGameEngine;
 class TransformComponent;
 class Program;
+class ShaderProgram;
 class VertexArray;
 
 class Triangle final: public IUtilityUser, public IObject
@@ -22,7 +23,7 @@ public:
     GAME_ENGINE_API Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
-    GAME_ENGINE_API Program* getProgram() const;
+    GAME_ENGINE_API ShaderProgram* getProgram() const;
 
     GAME_ENGINE_API ~Triangle();
 
@@ -43,7 +44,7 @@ private:
 
     TransformComponent* m_transformComponent = nullptr;
     std::atomic<bool> m_recreateBuffers = false;
-    Program* m_shaderProgram = nullptr;
+    ShaderProgram* m_shaderProgram = nullptr;
     VertexArray* m_vao = nullptr;
 
     Camera& m_camera;

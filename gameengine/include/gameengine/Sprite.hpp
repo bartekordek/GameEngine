@@ -67,7 +67,7 @@ private:
 
     CUL::Graphics::IImage* m_image = nullptr;
 
-    class Program* m_shaderProgram = nullptr;
+    class ShaderProgram* m_shaderProgram = nullptr;
 
     TextureInfo m_textureInfo;
 

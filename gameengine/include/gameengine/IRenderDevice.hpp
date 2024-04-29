@@ -45,6 +45,7 @@ NAMESPACE_END( SDL2W )
 NAMESPACE_BEGIN( LOGLW )
 
 class Camera;
+struct ShaderUnit;
 struct VertexData;
 
 using Angle = CUL::MATH::Angle;
@@ -69,7 +70,7 @@ using LineData = CUL::MATH::Primitives::Line::LineData;
 using LineColors = std::array<ColorS, 2>;
 
 using Point = CUL::MATH::Point;
-
+using BufferDataId = std::uint32_t;
 
 
 struct GAME_ENGINE_API ContextInfo
@@ -150,13 +151,15 @@ public:
     virtual size_t getFrameBufferCount() const = 0;
     virtual void initDebugUI() = 0;
 
-    virtual void resetMatrixToIdentity( const MatrixTypes matrix ) = 0;
+    virtual void resetMatrixToIdentity( const MatrixTypes matrix );
     virtual void setViewport( const Viewport& viewport ) = 0;
     virtual void setOrthogonalPerspective( const Camera& vp ) = 0;
     virtual void setPerspectiveProjection( const Camera& vp ) = 0;
-    virtual void lookAt( const Camera& vp ) = 0;
-    virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) = 0;
-    virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) = 0;
+    virtual void lookAt( const Camera& vp );
+    virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec );
+    virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up );
+
+    virtual ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPathe );
 
     // General
     virtual void setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::String& name );
@@ -173,7 +176,6 @@ public:
 
     virtual int getCurrentProgram() const = 0;
 
-    virtual unsigned int createShader( const IFile& shaderCode ) = 0;
     virtual void attachShader( unsigned programId, unsigned shaderId ) = 0;
     virtual void dettachShader( unsigned programId, unsigned shaderId ) = 0;
     virtual void removeShader( unsigned shaderId ) = 0;
@@ -207,17 +209,12 @@ public:
 
     virtual unsigned int generateVertexArray( const int size = 1 ) = 0;
 
-    virtual void bufferData( uint8_t bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type ) = 0;
-
-    virtual void bufferData( uint8_t bufferId, const std::vector<unsigned int>& data, const BufferTypes type ) = 0;
-
-    virtual void bufferData( uint8_t bufferId, const std::vector<float>& data, const BufferTypes type ) = 0;
-
-    virtual void bufferData( uint8_t bufferId, const float vertices[], BufferTypes type ) = 0;
-
-    virtual void bufferData( uint8_t bufferId, const std::vector<TextureData2D>& data, const BufferTypes type ) = 0;
-
-    virtual void bufferSubdata( uint8_t bufferId, const BufferTypes type, std::vector<TextureData2D>& data ) = 0;
+    virtual void bufferData( BufferDataId bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type );
+    virtual void bufferData( BufferDataId bufferId, const std::vector<unsigned int>& data, const BufferTypes type );
+    virtual void bufferData( BufferDataId bufferId, const std::vector<float>& data, const BufferTypes type );
+    virtual void bufferData( BufferDataId bufferId, const float vertices[], BufferTypes type );
+    virtual void bufferData( BufferDataId bufferId, const std::vector<TextureData2D>& data, const BufferTypes type );
+    virtual void bufferSubdata( BufferDataId bufferId, const BufferTypes type, std::vector<TextureData2D>& data );
 
     virtual void setClientState( ClientStateTypes cs, bool enabled ) = 0;
     virtual void texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer ) = 0;
@@ -226,8 +223,8 @@ public:
     // VAO, VBO
     virtual void setVertexArrayClientState( const bool enable ) = 0;
     virtual void setColorClientState( bool enable ) = 0;
-    virtual unsigned int generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size = 1 ) = 0;
-    virtual unsigned int generateAndBindBuffer( const BufferTypes bufferType, const int size = 1 ) = 0;
+    virtual unsigned int generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size = 1 );
+    virtual unsigned int generateAndBindBuffer( const BufferTypes bufferType, const int size = 1 );
     virtual void deleteBuffer( BufferTypes bufferType, unsigned& id ) = 0;
 
     virtual void enableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
@@ -247,7 +244,7 @@ public:
     virtual void enableVertexAttribArray( unsigned attributeId ) = 0;
     virtual void setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data ) = 0;
 
-    virtual std::vector<std::string> listExtensions() = 0;
+    virtual std::vector<std::string> listExtensions();
 
     virtual void draw( const QuadCUL& quad, const QuadCUL& texQuad ) = 0;
 
@@ -283,21 +280,21 @@ public:
 
     // Texturing
     virtual void setTexuring( const bool enabled ) = 0;
-    virtual unsigned generateTexture() = 0;
+    virtual unsigned generateTexture();
     virtual void setActiveTextureUnit( ETextureUnitIndex textureUnitIndex ) = 0;
     virtual void bindTexture( const unsigned int textureId ) = 0;
     virtual void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) = 0;
     virtual void setTextureData( uint8_t textureId, const TextureInfo& ti ) = 0;
     virtual void updateTextureData( const TextureInfo& ti, void* data ) = 0;
-    virtual void freeTexture( unsigned int& textureId ) = 0;
+    virtual void freeTexture( std::uint32_t textureId );
 
     virtual void matrixStackPush() = 0;
     virtual void matrixStackPop() = 0;
 
     CUL::GUTILS::Version getVersion() const;
 
-    virtual unsigned getGPUTotalAvailableMemoryKb() = 0;
-    virtual unsigned getGPUCurrentAvailableMemoryKb() = 0;
+    virtual unsigned getGPUTotalAvailableMemoryKb();
+    virtual unsigned getGPUCurrentAvailableMemoryKb();
 
     virtual void toggleDebugOutput( bool enable );
 
@@ -316,7 +313,7 @@ protected:
     bool m_forceLegacy = false;
     bool m_isEmbeddedSystems = false;
 
-    std::map<BufferTypes, uint8_t> m_currentBufferId;
+    std::map<BufferTypes, std::int32_t> m_currentBufferId;
     CUL::GUTILS::Version m_supportedVersion;
     String m_versionString;
 

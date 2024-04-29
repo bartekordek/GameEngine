@@ -14,6 +14,11 @@ class LineImpl final:
 public:
     LineData m_data;
 
+    LineImpl() = delete;
+    LineImpl( const LineImpl &) = delete;
+    LineImpl( LineImpl&& ) = delete;
+    LineImpl& operator=( const LineImpl& ) = delete;
+    LineImpl& operator=( LineImpl&& ) = delete;
     LineImpl( IGameEngine* engine );
 
     void setColor( const LineColors& colors ) override;

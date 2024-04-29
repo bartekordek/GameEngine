@@ -5,7 +5,7 @@
 #include "gameengine/IObject.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
-#include "gameengine/Program.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/AttributeMeta.hpp"
 #include "RunOnRenderThread.hpp"
 
@@ -44,7 +44,7 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     m_transformComponent->changeSizeDelegate.addDelegate(
         [this]()
         {
-            m_recreateBuffers = true;
+            //m_recreateBuffers = true;
         } );
 
 
@@ -69,7 +69,7 @@ void Quad::setColor( const CUL::Graphics::ColorS& color )
     colorVec.w = m_color.getAF();
 }
 
-GAME_ENGINE_API Program* Quad::getProgram() const
+ShaderProgram* Quad::getProgram() const
 {
     return m_shaderProgram;
 }
@@ -128,23 +128,8 @@ void Quad::createShaders()
     m_shaderProgram = getEngine().createProgram();
     m_shaderProgram->setName( getName() + "::program" );
 
-    const std::string vertexShaderSource =
-#include "embedded_shaders/basic_pos.vert"
-        ;
-
-    const std::string fragmentShaderSource =
-#include "embedded_shaders/basic_color.frag"
-        ;
-
-    const auto fragmentShader = getEngine().createShader( "embedded_shaders/basic_color.frag", fragmentShaderSource );
-    const auto vertexShader = getEngine().createShader( "embedded_shaders/basic_pos.vert", vertexShaderSource );
-
-    m_shaderProgram->attachShader( vertexShader );
-    m_shaderProgram->attachShader( fragmentShader );
-    m_shaderProgram->link();
-    m_shaderProgram->validate();
-
-    m_shaderProgram->enable();
+    m_shaderProgram->loadShader( "embedded_shaders/basic_color.frag" );
+    m_shaderProgram->loadShader( "embedded_shaders/basic_pos.vert" );
 }
 
 void Quad::render()
@@ -163,7 +148,6 @@ void Quad::render()
         }
 
         m_shaderProgram->enable();
-        m_shaderProgram->goThroughTasks();
         setTransformation();
         applyColor();
         m_vao->render();

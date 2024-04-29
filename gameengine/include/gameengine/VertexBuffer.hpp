@@ -33,7 +33,7 @@ describes the coordinates of our vertices and
 another that describes the color
 associated with each vertex.
 VBOs can also store information such as normals,
-texcoords, indicies, etc.
+texcoords, indices, etc.
 */
 
 // Vertex Buffer Objects (VBOs) store actual data.
@@ -43,7 +43,7 @@ texcoords, indicies, etc.
 NAMESPACE_BEGIN( LOGLW )
 
 using FloatData = std::vector<float>;
-using BuffIDType = uint8_t;
+using BuffIDType = std::uint32_t;
 template<typename Type>
 using Ptr = CUL::GUTILS::DumbPtr<Type>;
 

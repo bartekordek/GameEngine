@@ -201,12 +201,12 @@ private:
     float getFpsLimit() const override;
 
     DumbPtr<CUL::ITimer> m_frameTimer;
-    Safe<float> m_fpsLimit = 60.f;
-    Safe<int> m_targetFrameLengthUs = 0u;
-    Safe<int> m_currentFrameLengthUs = 0u;
-    Safe<int> m_frameSleepUs = 64;
-    int m_usRes = 0;
-    int m_usDelta = 8;
+    float m_fpsLimit = 60.f;
+    std::int32_t m_targetFrameLengthUs = 0u;
+    std::int32_t m_currentFrameLengthUs = 0u;
+    std::int32_t m_frameSleepUs = 64;
+    std::int32_t m_usRes = 0;
+    std::int32_t m_usDelta = 8;
 
     DumbPtr<CUL::ITimer> m_customTimer;
 

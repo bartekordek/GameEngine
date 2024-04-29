@@ -200,8 +200,6 @@ void Playground::timer()
         m_cubeLegacy->getTransform()->setRotationToParent( rotation );
     }
 
-    m_engine->getLoger()->log( "Tick!" );
-
     m_angle += 0.01f;
     m_time += 0.01f;
 }

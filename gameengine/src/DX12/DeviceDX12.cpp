@@ -79,11 +79,6 @@ int DeviceDX12::getCurrentProgram() const
 	return 0;
 }
 
-unsigned int DeviceDX12::createShader( const IFile& shaderCode )
-{
-	return 0;
-}
-
 void DeviceDX12::attachShader( unsigned programId, unsigned shaderId )
 {
 }
@@ -643,30 +638,6 @@ unsigned int DeviceDX12::generateVertexArray( const int size )
 	return 0;
 }
 
-void DeviceDX12::bufferData( uint8_t bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type )
-{
-}
-
-void DeviceDX12::bufferData( uint8_t bufferId, const std::vector<unsigned int>& data, const BufferTypes type )
-{
-}
-
-void DeviceDX12::bufferData( uint8_t bufferId, const std::vector<float>& data, const BufferTypes type )
-{
-}
-
-void DeviceDX12::bufferData( uint8_t bufferId, const float vertices[], BufferTypes type )
-{
-}
-
-void DeviceDX12::bufferData( uint8_t bufferId, const std::vector<TextureData2D>& data, const BufferTypes type )
-{
-}
-
-void DeviceDX12::bufferSubdata( uint8_t bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
-{
-}
-
 void DeviceDX12::setClientState( ClientStateTypes cs, bool enabled )
 {
 }
@@ -685,16 +656,6 @@ void DeviceDX12::setVertexArrayClientState( const bool enable )
 
 void DeviceDX12::setColorClientState( bool enable )
 {
-}
-
-unsigned int DeviceDX12::generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size )
-{
-	return 0;
-}
-
-unsigned int DeviceDX12::generateAndBindBuffer( const BufferTypes bufferType, const int size )
-{
-	return 0;
 }
 
 void DeviceDX12::deleteBuffer( BufferTypes bufferType, unsigned& id )
@@ -758,11 +719,6 @@ void DeviceDX12::enableVertexAttribArray( unsigned )
 
 void DeviceDX12::setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data )
 {
-}
-
-std::vector<std::string> DeviceDX12::listExtensions()
-{
-	return {};
 }
 
 void DeviceDX12::draw( const QuadCUL& quad, const QuadCUL& texQuad )
@@ -879,10 +835,6 @@ void DeviceDX12::setTextureParameter( uint8_t, const TextureParameters, const Te
 }
 
 void DeviceDX12::setTextureData( uint8_t, const TextureInfo& )
-{
-}
-
-void DeviceDX12::freeTexture( unsigned int& )
 {
 }
 
