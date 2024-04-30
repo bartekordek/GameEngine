@@ -284,7 +284,7 @@ public:
     virtual void setActiveTextureUnit( ETextureUnitIndex textureUnitIndex ) = 0;
     virtual void bindTexture( const unsigned int textureId ) = 0;
     virtual void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) = 0;
-    virtual void setTextureData( uint8_t textureId, const TextureInfo& ti ) = 0;
+    virtual void setTextureData( std::uint32_t textureId, const TextureInfo& ti );
     virtual void updateTextureData( const TextureInfo& ti, void* data ) = 0;
     virtual void freeTexture( std::uint32_t textureId );
 

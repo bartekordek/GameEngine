@@ -694,7 +694,7 @@ IDebugOverlay* GameEngineConcrete::getDebugOverlay()
 
 void GameEngineConcrete::handleEvent( const SDL_Event& event )
 {
-    if( m_debugSystem.get() )
+    if( m_debugSystem )
     {
         ImGui_ImplSDL2_ProcessEvent( &event );
     }

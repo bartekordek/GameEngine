@@ -834,10 +834,6 @@ void DeviceDX12::setTextureParameter( uint8_t, const TextureParameters, const Te
 {
 }
 
-void DeviceDX12::setTextureData( uint8_t, const TextureInfo& )
-{
-}
-
 void DeviceDX12::matrixStackPush()
 {
 }

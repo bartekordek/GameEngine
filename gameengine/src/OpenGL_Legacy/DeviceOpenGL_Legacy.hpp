@@ -108,7 +108,6 @@ private:
     void setActiveTextureUnit( ETextureUnitIndex textureUnitIndex ) override;
     void bindTexture( const unsigned int textureId ) override;
     void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) override;
-    void setTextureData( uint8_t textureId, const TextureInfo& ti ) override;
     void matrixStackPush() override;
     void matrixStackPop() override;
     unsigned getGPUTotalAvailableMemoryKb() override;

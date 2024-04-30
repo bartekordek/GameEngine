@@ -167,7 +167,7 @@ private:
 
     void vertexAttribPointer( const VertexData& meta ) override;
 
-    void setTextureData( uint8_t textureId, const TextureInfo& ti ) override;
+    void setTextureData( std::uint32_t textureId, const TextureInfo& ti ) override;
 
     void rotate( const CUL::MATH::Rotation& rotation ) override;
     void draw( const CUL::MATH::Primitives::Line& values, const ColorS& color ) override;

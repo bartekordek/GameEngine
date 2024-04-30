@@ -377,10 +377,6 @@ void DeviceOpenGL_Legacy::setTextureParameter( uint8_t, const TextureParameters,
 {
 }
 
-void DeviceOpenGL_Legacy::setTextureData( uint8_t, const TextureInfo& )
-{
-}
-
 void DeviceOpenGL_Legacy::matrixStackPush()
 {
 }

@@ -178,6 +178,11 @@ void IRenderDevice::lookAt(const Camera& vp)
     throw std::logic_error("Method not implemented");
 }
 
+void IRenderDevice::setTextureData(std::uint32_t, const TextureInfo& )
+{
+    throw std::logic_error("Method not implemented");
+}
+
 void IRenderDevice::freeTexture(std::uint32_t textureId)
 {
     throw std::logic_error("Method not implemented");

@@ -21,8 +21,8 @@ TextureConcrete::TextureConcrete(
     m_texInfo.pixelFormat = info.pixelFormat;
 
     m_textureId = utility->generateTexture();
-    utility->bindTexture( m_textureId );
-    utility->setTextureData( m_textureId, m_texInfo );
+    utility->bindTexture(static_cast<const unsigned int>(m_textureId));
+    utility->setTextureData(static_cast<std::uint8_t>(m_textureId), m_texInfo );
     utility->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
     utility->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
     utility->bindTexture( 0 );
@@ -97,5 +97,5 @@ void TextureConcrete::render()
 
 TextureConcrete::~TextureConcrete()
 {
-    m_utility->freeTexture( m_textureId );
+    m_utility->freeTexture(static_cast<unsigned int>(m_textureId));
 }

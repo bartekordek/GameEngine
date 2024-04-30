@@ -40,7 +40,7 @@ private:
     CUL::Graphics::IImageLoader* m_il = nullptr;
 
     TextureInfo m_texInfo;
-    unsigned int m_textureId = 0;
+    std::int32_t m_textureId = 0;
     CUL::GUTILS::DumbPtr<CUL::Graphics::IImage> m_image;
     CUL::Graphics::SSize2Di m_size;
     CUL::MATH::Primitives::Quad m_objectQuad;

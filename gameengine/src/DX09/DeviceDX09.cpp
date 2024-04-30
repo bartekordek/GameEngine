@@ -402,10 +402,6 @@ void DeviceDX09::updateTextureData( const TextureInfo& ti, void* data )
 {
 }
 
-void DeviceDX09::setTextureData( uint8_t textureId, const TextureInfo& ti )
-{
-}
-
 void DeviceDX09::matrixStackPush()
 {
 }

@@ -248,7 +248,7 @@ ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
 
 
     // Set debug otuput.
-    
+
     // Possible values:
     // typedef enum
     //{
@@ -772,7 +772,7 @@ void DeviceOpenGL::vertexAttribPointer( const VertexData& meta )
     }
 }
 
-void DeviceOpenGL::setTextureData( uint8_t textureId, const TextureInfo& ti )
+void DeviceOpenGL::setTextureData( std::uint32_t textureId, const TextureInfo& ti )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
