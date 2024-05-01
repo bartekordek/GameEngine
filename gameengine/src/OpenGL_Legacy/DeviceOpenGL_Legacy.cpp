@@ -292,11 +292,11 @@ void DeviceOpenGL_Legacy::draw( const LineData& values, const LineColors& color 
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const LineData& values, const ColorS& color )
+void DeviceOpenGL_Legacy::draw( const LineData& /*values*/, const ColorS& /*color*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const TriangleData& values, const std::array<ColorS, 3>& color )
+void DeviceOpenGL_Legacy::draw( const TriangleData& /*values*/, const std::array<ColorS, 3>& /*color*/ )
 {
 }
 

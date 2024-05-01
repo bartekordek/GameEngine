@@ -6,7 +6,7 @@
         {
             "label": "[WINDOWS][CMAKE][CREATE][DEBUG]",
             "type": "shell",
-            "command": "CreateProjects.bat Debug",
+            "command": "${workspaceFolder}/CreateProjects.bat Debug",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -18,6 +18,9 @@
                 "panel": "dedicated",
                 "showReuseMessage": false,
                 "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
             }
         },
         {

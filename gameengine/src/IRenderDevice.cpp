@@ -127,7 +127,6 @@ unsigned IRenderDevice::getGPUCurrentAvailableMemoryKb()
 ShaderUnit* IRenderDevice::createShaderUnit( const CUL::FS::Path& )
 {
     throw std::logic_error( "Method not implemented" );
-    return nullptr;
 }
 
 void IRenderDevice::bufferSubdata( BufferDataId, const BufferTypes, std::vector<TextureData2D>& )

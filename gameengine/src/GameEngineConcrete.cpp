@@ -61,7 +61,11 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
 
         if( rendererType == SDL2W::RenderTypes::RendererType::DIRECTX_9 )
         {
+#if defined( GAME_ENGINE_WINDOWS )
             m_renderDevice = new DeviceDX09();
+#else
+            CUL::Assert::simple( false, "NOTE IMPLEMENTED." );
+#endif
         }
         else if( rendererType == SDL2W::RenderTypes::RendererType::DIRECTX_12 )
         {

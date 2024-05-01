@@ -29,6 +29,7 @@ class IGameEngine;
 class Quad;
 class IObject;
 class IRenderDevice;
+class ShaderProgram;
 NAMESPACE_END( LOGLW )
 
 NAMESPACE_BEGIN( SDL2W )

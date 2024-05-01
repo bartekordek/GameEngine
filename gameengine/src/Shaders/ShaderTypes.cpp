@@ -1,4 +1,4 @@
-#include "gameengine/ShaderTypes.hpp"
+#include "gameengine/Shaders/ShaderTypes.hpp"
 
 using namespace LOGLW;
 
