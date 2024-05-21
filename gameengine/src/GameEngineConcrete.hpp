@@ -114,7 +114,6 @@ private:
     void runPostRenderTasks();
 
     void taskThread();
-    void calculateNextFrameLengths();
     void renderFrame() override;
     void renderInfo();
     void changeProjectionType();
@@ -202,9 +201,9 @@ private:
 
     DumbPtr<CUL::ITimer> m_frameTimer;
     float m_fpsLimit = 60.f;
-    std::int32_t m_targetFrameLengthUs = 0u;
-    std::int32_t m_currentFrameLengthUs = 0u;
-    std::int32_t m_frameSleepUs = 64;
+    std::int32_t m_targetFrameLengthNs = 0u;
+    std::int32_t m_currentFrameLengthNs = 0u;
+    std::int32_t m_frameSleepNs = 64;
     std::int32_t m_usRes = 0;
     std::int32_t m_usDelta = 8;
 

@@ -375,9 +375,9 @@ void GameEngineConcrete::renderFrame()
     if( m_frameTimer->getIsStarted())
     {
         m_frameTimer->stop();
-        m_currentFrameLengthUs = (std::int32_t)m_frameTimer->getElapsedNs();
+        m_currentFrameLengthNs = m_frameTimer->getElapsedNs();
 
-        const std::int64_t diff = m_targetFrameLengthUs - m_currentFrameLengthUs;
+        const std::int64_t diff = m_targetFrameLengthNs - m_currentFrameLengthNs;
         if( diff > 0 )
         {
             CUL::ITimer::sleepNanoSeconds( diff );
@@ -386,18 +386,6 @@ void GameEngineConcrete::renderFrame()
 
     finishFrame();
     m_frameTimer->start();
-}
-
-void GameEngineConcrete::calculateNextFrameLengths()
-{
-    m_usDelta = ( m_targetFrameLengthUs - m_currentFrameLengthUs ) / 200;
-    m_frameSleepUs += m_usDelta;
-    m_frameSleepUs = std::max( m_frameSleepUs, 0 );
-
-    if( m_usDelta < 0 )
-    {
-        m_usDelta = 0;
-    }
 }
 
 #if _MSC_VER
@@ -561,9 +549,9 @@ void GameEngineConcrete::renderInfo()
     ImGui::Text( "FrameTime: %4.2f ms", 1000.f / ImGui::GetIO().Framerate );
     ImGui::Text( "FPS: %4.2f", m_activeWindow->getFpsCounter()->getCurrentFps() );
 
-    ImGui::Text( "m_currentFrameLengthUs: %d", m_currentFrameLengthUs );
-    ImGui::Text( "m_targetFrameLengthUs: %d", m_targetFrameLengthUs );
-    ImGui::Text( "m_frameSleepUs: %d", m_frameSleepUs );
+    ImGui::Text( "m_currentFrameLengthNs: %d", m_currentFrameLengthNs );
+    ImGui::Text( "m_targetFrameLengthNs: %d", m_targetFrameLengthNs );
+    ImGui::Text( "m_frameSleepNs: %d", m_frameSleepNs );
     ImGui::Text( "m_usDelta: %d", m_usDelta );
 
     ImGui::End();
@@ -675,7 +663,7 @@ void GameEngineConcrete::clearModelViewEveryFrame( const bool enable )
 
 void GameEngineConcrete::calculateFrameWait()
 {
-    m_targetFrameLengthUs = 1000000.0f / m_fpsLimit;
+    m_targetFrameLengthNs = 1000000000.0f / m_fpsLimit;
 }
 
 CUL::GUTILS::IConfigFile* GameEngineConcrete::getConfig()
