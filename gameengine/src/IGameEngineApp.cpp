@@ -4,6 +4,8 @@
 #include "SDL2Wrapper/IWindow.hpp"
 #include "SDL2Wrapper/WindowData.hpp"
 
+#include "CUL/Time.hpp"
+
 using namespace LOGLW;
 
 IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width,

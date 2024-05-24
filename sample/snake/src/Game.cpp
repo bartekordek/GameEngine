@@ -73,7 +73,7 @@ void Game::afterInit()
     m_oglw->getCamera().setZNear( 1.f );
 
     reloadConfig();
-    configModificationTime = m_configFile->getModificationTime();
+    m_configFile->getModificationTime( configModificationTime );
 
     m_mainWindow->toggleFpsCounter( true, 8u );
 
@@ -259,14 +259,15 @@ void Game::renderScene()
 {
     if( m_configFile )
     {
-        auto newTime = m_configFile->getModificationTime();
+        CUL::Time newTime;
+        m_configFile->getModificationTime( newTime );
         if( newTime > configModificationTime )
         {
             m_logger->log( "Reloading..." );
             reloadConfig();
             m_logger->log( "Reloading... done." );
 
-            configModificationTime = m_configFile->getModificationTime();
+            m_configFile->getModificationTime( configModificationTime );
         }
     }
 
