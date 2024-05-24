@@ -66,7 +66,6 @@ else()
 endif()
 
 if( MSVC )
-
 #copy glew
     if( ${CMAKE_BUILD_TYPE} MATCHES "Debug" )
         set( GLEW_BIN glew32d.dll )

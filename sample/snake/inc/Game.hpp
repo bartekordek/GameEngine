@@ -10,8 +10,8 @@
 #include "SDL2Wrapper/WindowData.hpp"
 #include "SDL2Wrapper/Input/MouseData.hpp"
 
+#include "CUL/Time.hpp"
 #include "CUL/Graphics/Pos2D.hpp"
-#include "CUL/TimeConcrete.hpp"
 #include "CUL/Graphics/Color.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
@@ -87,7 +87,7 @@ private:
     SDL2W::WinSize m_windowSize;
 
     LOGLW::IObject* m_triangle0 = nullptr;
-    CUL::TimeConcrete configModificationTime;
+    CUL::Time configModificationTime;
     SDL2W::IWindow* m_mainWindow = nullptr;
 
     int m_mouseX = 0.0f;

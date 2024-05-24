@@ -25,6 +25,8 @@
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 #include "CUL/ITimer.hpp"
 #include "CUL/JSON/INode.hpp"
+#include "CUL/IMPORT_tracy.hpp"
+
 #include "CUL/STL_IMPORTS/STD_iostream.hpp"
 #include "CUL/STL_IMPORTS/STD_condition_variable.hpp"
 #include "CUL/STL_IMPORTS/STD_exception.hpp"
@@ -262,9 +264,11 @@ void GameEngineConcrete::renderLoop()
 
     while( m_runRenderLoop )
     {
+        ZoneScoped; 
         runPreRenderTasks();
         renderFrame();
         runPostRenderTasks();
+        FrameMark;
     }
 
     size_t objectToRenderLeft = m_objectsToRender.size();
