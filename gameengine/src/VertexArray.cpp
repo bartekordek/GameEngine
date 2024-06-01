@@ -206,13 +206,18 @@ void VertexArray::createVBOs()
     while( !m_vboDataToPrepare.empty() )
     {
         auto vboData = m_vboDataToPrepare.back();
-        vboData.VAO = getId();
+        vboData.VAO = this;
         auto vbo = new VertexBuffer( vboData, getEngine() );
         vbo->setDisableRenderOnMyOwn( true );
         m_vbos.emplace_back( vbo );
         m_vboDataToPrepare.pop_back();
         ++m_vbosCount;
     }
+}
+
+void VertexArray::enableVertexAttributeArray( uint32_t id )
+{
+    getDevice()->enableVertexAttribArray( id );
 }
 
 void VertexArray::createVAO()

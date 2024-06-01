@@ -138,9 +138,9 @@ VertexArray* IGameEngine::createVAO()
     return result;
 }
 
-Cube* IGameEngine::createCube( bool forceLegacy )
+Cube* IGameEngine::createCube( IObject* parent, bool forceLegacy )
 {
-    return new Cube( &getCamera(), this, forceLegacy );
+    return new Cube( &getCamera(), this, parent, forceLegacy );
 }
 
 void IGameEngine::drawOrigin( bool enable )

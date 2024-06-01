@@ -9,6 +9,7 @@ using namespace LOGLW;
 VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* engine ) : IRenderable( engine )
 {
     m_vertexData = vertexData;
+    m_vertexData.VBO = this;
     loadData();
 
     IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
@@ -16,18 +17,25 @@ VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* engine ) 
         RunOnRenderThread::getInstance().Run(
             [this, newName]()
             {
-                getDevice()->setObjectName( EObjectType::BUFFER, m_vertexData.VBO, newName );
+                getDevice()->setObjectName( EObjectType::BUFFER, m_vertexData.VBO->getId(), newName );
             } );
     };
-    setName( "vertex_buffer_" + CUL::String( getId() ) );
+    if( m_vertexData.VAO )
+    {
+        setName( m_vertexData.VAO->getName() + "::vertex_buffer_" + CUL::String( getId() ) );
+    }
+    else
+    {
+        setName( "vertex_buffer_" + CUL::String( getId() ) );
+    }
 }
 
 void VertexBuffer::loadData()
 {
     release();
 
-    m_vertexData.VBO = getDevice()->generateBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
-    getDevice()->bufferData( m_vertexData.VBO, m_vertexData.vertices, LOGLW::BufferTypes::ARRAY_BUFFER );
+    m_bufferId = getDevice()->generateBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
+    getDevice()->bufferData( m_bufferId, m_vertexData.vertices, LOGLW::BufferTypes::ARRAY_BUFFER );
     getDevice()->vertexAttribPointer( m_vertexData );
 
     if( m_vertexData.indices.size() )
@@ -55,13 +63,13 @@ void VertexBuffer::render()
     else
     {
         // TODO! need to check if there are actual trianiangles or other types.
-        getDevice()->drawArrays( m_vertexData.VAO, m_vertexData.primitiveType, 0, 3 );
+        getDevice()->drawArrays( m_vertexData.VAO->getId(), m_vertexData.primitiveType, 0, 3 );
     }
 }
 
 unsigned VertexBuffer::getId() const
 {
-    return m_vertexData.VBO;
+    return m_bufferId;
 }
 
 int VertexBuffer::getSize() const
@@ -71,7 +79,7 @@ int VertexBuffer::getSize() const
 
 void VertexBuffer::bind()
 {
-    getDevice()->bindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER, m_vertexData.VBO );
+    getDevice()->bindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER, m_bufferId );
 }
 
 VertexBuffer::~VertexBuffer()
@@ -81,5 +89,5 @@ VertexBuffer::~VertexBuffer()
 
 void VertexBuffer::release()
 {
-    getDevice()->deleteBuffer( LOGLW::BufferTypes::ARRAY_BUFFER, m_vertexData.VBO );
+    getDevice()->deleteBuffer( LOGLW::BufferTypes::ARRAY_BUFFER, m_bufferId );
 }

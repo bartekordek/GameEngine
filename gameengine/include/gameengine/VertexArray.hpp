@@ -63,6 +63,8 @@ public:
     void unbind();
     void release();
 
+    void enableVertexAttributeArray(uint32_t id);
+
     ~VertexArray();
 protected:
 private:

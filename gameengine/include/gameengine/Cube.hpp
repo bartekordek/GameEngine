@@ -24,11 +24,13 @@ NAMESPACE_BEGIN( LOGLW )
 class Camera;
 class IGameEngine;
 class TransformComponent;
+class Program;
+struct VertexData;
 
 class Cube final: public IObject, public IUtilityUser
 {
 public:
-    GAME_ENGINE_API Cube( Camera* camera, IGameEngine* engine, bool forceLegacy );
+    GAME_ENGINE_API Cube( Camera* camera, IGameEngine* engine, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void setImage( unsigned wallIndex, const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
@@ -37,25 +39,26 @@ public:
 
 protected:
 private:
-    void createPlaceHolders();
-
+    void init();
+    void createBuffers();
+    void createShaders();
+    void deleteBuffers();
     void render() override;
-
+    void setSize( const glm::vec3& size );
+    void setTransformation();
     void release();
 
+    bool m_recreateBuffers = false;
     TransformComponent* m_transformComponent = nullptr;
     bool m_initialized = false;
 
     Camera* m_camera = nullptr;
-    IGameEngine* m_engine = nullptr;
+    IGameEngine& m_engine;
 
     std::mutex m_renderMutex;
-
-    std::array<CUL::MATH::Point, 6> m_wallsPositions;
-    std::array<class Quad*, 6> m_walls = {};
-    std::array<CUL::MATH::Rotation, 6> m_rotations;
-
+    Program* m_shaderProgram = nullptr;
     CUL::Graphics::ColorS m_color;
+    std::unique_ptr<VertexData> m_vertexData;
 
 public:
     // Deleted:

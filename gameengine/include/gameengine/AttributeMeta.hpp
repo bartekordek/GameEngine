@@ -7,6 +7,7 @@
 NAMESPACE_BEGIN( LOGLW )
 
 class VertexArray;
+class VertexBuffer;
 
 struct AttributeMeta
 {
@@ -35,8 +36,8 @@ struct AttributeMeta
 struct VertexData
 {
     LOGLW::PrimitiveType primitiveType = LOGLW::PrimitiveType::NONE;
-    unsigned VBO = 0u;
-    unsigned VAO = 0u;
+    VertexArray* VAO = nullptr;
+    VertexBuffer* VBO = nullptr;
     std::vector<AttributeMeta> Attributes;
     std::vector<float> vertices;
     std::vector<unsigned> indices;

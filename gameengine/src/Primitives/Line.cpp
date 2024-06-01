@@ -62,7 +62,7 @@ void Line::createBuffers()
     m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 3 * sizeof( float ), nullptr ) );
 
     m_vao = m_engine.createVAO();
-    m_vertexData->VAO = m_vao->getId();
+    m_vertexData->VAO = m_vao;
     m_vao->setDisableRenderOnMyOwn( true );
 
     m_vao->addVertexBuffer( *m_vertexData.get() );

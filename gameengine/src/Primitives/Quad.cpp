@@ -110,7 +110,7 @@ void Quad::createBuffers()
     m_vao = m_engine.createVAO();
     setName( "quad_" + CUL::String( getId() ) );
     m_vao->setDisableRenderOnMyOwn( true );
-    vboData.VAO = m_vao->getId();
+    vboData.VAO = m_vao;
 
     m_vao->addVertexBuffer( vboData );
 }

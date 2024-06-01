@@ -197,7 +197,7 @@ void Sprite::init()
     {
         m_vao = getEngine().createVAO();
         m_vao->setDisableRenderOnMyOwn( true );
-        m_vertexData->VAO = m_vao->getId();
+        m_vertexData->VAO = m_vao;
         getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
         getDevice()->enableVertexAttribArray( 0 );
         getDevice()->enableVertexAttribArray( 1 );
@@ -229,7 +229,7 @@ void Sprite::init()
 
         m_vbo = getEngine().createVBO( *m_vertexData );
         m_vbo->setDisableRenderOnMyOwn( true );
-        m_vertexData->VBO = m_vbo->getId();
+        m_vertexData->VBO = m_vbo;
         getDevice()->bufferData( m_vbo->getId(), m_vertexData->vertices, BufferTypes::ARRAY_BUFFER );
 
         m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 5 * sizeof( float ), nullptr ) );

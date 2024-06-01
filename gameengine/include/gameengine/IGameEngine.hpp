@@ -141,7 +141,7 @@ public:
     GAME_ENGINE_API Quad* createQuad( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API Anchor* createAnchor( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API class VertexArray* createVAO();
-    GAME_ENGINE_API Cube* createCube( bool forceLegacy = false );
+    GAME_ENGINE_API Cube* createCube( IObject* parent, bool forceLegacy = false );
 
     GAME_ENGINE_API void addObjectToRender( IRenderable* renderable );
     GAME_ENGINE_API void removeObjectToRender( IRenderable* renderable );

@@ -66,7 +66,7 @@ protected:
 private:
     void loadData();
     void release();
-
+    std::uint64_t m_bufferId = 0u;
     VertexData m_vertexData;
     Ptr<IndexBuffer> m_indexBuffer;
     std::atomic<bool> m_load = true;

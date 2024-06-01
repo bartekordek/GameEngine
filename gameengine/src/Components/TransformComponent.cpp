@@ -158,7 +158,7 @@ void TransformComponent::setPivot( const TransformComponent::Pos& pivot )
     m_pivot = pivot;
     m_pivotReal = m_size.toGlmVec() * m_pivot.toGlmVec();
 
-    changeSizeDelegate.execute();
+    //changeSizeDelegate.execute();
 }
 
 void TransformComponent::addOnChangeCallback(const String& callbackName, const std::function<void( const glm::mat4& model )> callback)
