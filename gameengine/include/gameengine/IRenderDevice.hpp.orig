@@ -223,9 +223,15 @@ public:
     // VAO, VBO
     virtual void setVertexArrayClientState( const bool enable ) = 0;
     virtual void setColorClientState( bool enable ) = 0;
+<<<<<<< Updated upstream
     virtual unsigned int generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size = 1 );
     virtual unsigned int generateAndBindBuffer( const BufferTypes bufferType, const int size = 1 );
-    virtual void deleteBuffer( BufferTypes bufferType, std::uint64_t& id ) = 0;
+    virtual void deleteBuffer( BufferTypes bufferType, unsigned& id ) = 0;
+=======
+    virtual unsigned int generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size = 1 ) = 0;
+    virtual unsigned int generateAndBindBuffer( const BufferTypes bufferType, const int size = 1 ) = 0;
+    virtual void deleteBuffer( BufferTypes bufferType, uint32_t id ) = 0;
+>>>>>>> Stashed changes
 
     virtual void enableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
     virtual void disableVertexAttribiute( unsigned programId, const String& attribName ) = 0;

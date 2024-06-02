@@ -1,35 +1,56 @@
 #pragma once
 
+#include "gameengine/Import.hpp"
+
+#if defined(GAME_ENGINE_WINDOWS)
 
 #include "gameengine/IRenderDevice.hpp"
-#include "gameengine/IndexBuffer.hpp"
+#include "DX12/CommandWrapper.hpp"
+
+struct ImGuiContext;
 
 NAMESPACE_BEGIN( LOGLW )
 
-class DeviceOpenGL_Legacy final: public IRenderDevice
+class DeviceDX12 final: public IRenderDevice
 {
 public:
-    DeviceOpenGL_Legacy( const DeviceOpenGL_Legacy& ) = delete;
-    DeviceOpenGL_Legacy( DeviceOpenGL_Legacy&& ) = delete;
-    DeviceOpenGL_Legacy& operator=( const DeviceOpenGL_Legacy& ) = delete;
-    DeviceOpenGL_Legacy& operator=( DeviceOpenGL_Legacy&& ) = delete;
+    DeviceDX12();
 
 protected:
 private:
-    // Inherited via IRenderDevice
+    struct Float3
+    {
+        float x = 0.f;
+        float y = 0.f;
+        float z = 0.f;
+    };
+
+    struct Float4
+    {
+        float x = 0.f;
+        float y = 0.f;
+        float z = 0.f;
+        float w = 0.f;
+    };
+
+    struct Vertex
+    {
+        Float3 position;
+        Float4 color;
+    };
+
     void* getNativeDevice() override;
+
     bool isLegacy() override;
-    size_t getFrameBufferCount() const override;
-    void initDebugUI() override;
-    void resetMatrixToIdentity( const MatrixTypes matrix ) override;
+
+    // Inherited via IRenderDevice
+    void resetMatrixToIdentity( const MatrixTypes matrixIn ) override;
     void setViewport( const Viewport& viewport ) override;
     void setOrthogonalPerspective( const Camera& vp ) override;
     void setPerspectiveProjection( const Camera& vp ) override;
     void lookAt( const Camera& vp ) override;
     void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;
     void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) override;
-    void prepareFrame() override;
-    void finishFrame() override;
     std::uint32_t createProgram( const CUL::String& name ) override;
     void removeProgram( unsigned programId ) override;
     void useProgram( int programId ) override;
@@ -40,6 +61,20 @@ private:
     void dettachShader( unsigned programId, unsigned shaderId ) override;
     void removeShader( unsigned shaderId ) override;
     ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
+
+    void createDescriptorHeaps();
+    void createRenderTargetViews();
+    void createRootSignature();
+    void createShaders();
+    void createVertexBuffer();
+    void createSwapChain();
+
+    void createCommandQueue();
+
+    void setViewportSize();
+    void setScissorRect();
+    void initInterfaces();
+    void createDXDevice();
     void setAttribValue( int attributeLocation, float value ) override;
     void setAttribValue( int attributeLocation, int value ) override;
     void setAttribValue( int attributeLocation, unsigned value ) override;
@@ -65,7 +100,13 @@ private:
     void vertexPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer ) override;
     void setVertexArrayClientState( const bool enable ) override;
     void setColorClientState( bool enable ) override;
+<<<<<<< Updated upstream
     void deleteBuffer( BufferTypes bufferType, unsigned& id ) override;
+=======
+    unsigned int generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size = 1 ) override;
+    unsigned int generateAndBindBuffer( const BufferTypes bufferType, const int size = 1 ) override;
+    void deleteBuffer( BufferTypes bufferType, uint32_t id ) override;
+>>>>>>> Stashed changes
     void enableVertexAttribiute( unsigned programId, const String& attribName ) override;
     void disableVertexAttribiute( unsigned programId, const String& attribName ) override;
     int getAttribLocation( unsigned programId, const String& attribName ) override;
@@ -108,14 +149,70 @@ private:
     void setActiveTextureUnit( ETextureUnitIndex textureUnitIndex ) override;
     void bindTexture( const unsigned int textureId ) override;
     void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) override;
+    void updateTextureData( const TextureInfo& ti, void* data ) override;
     void matrixStackPush() override;
     void matrixStackPop() override;
     unsigned getGPUTotalAvailableMemoryKb() override;
+    unsigned getGPUCurrentAvailableMemoryKb() override;
+    void toggleDebugOutput( bool enable ) override;
+    void checkLastCommandForErrors() override;
+
+    void enableDebugLayers();
+
+private:
+    void initDebugUI() override;
+    void GetHardwareAdapter( IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, bool requestHighPerformanceAdapter = false );
+    void update();
+    bool m_useWarpDevice = false;
+    SDL2W::IWindow* m_window = nullptr;
+    static const UINT FrameCount = 2;
+
+    Microsoft::WRL::ComPtr<ID3D12Device2> CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4>& adapter );
+    void WaitForPreviousFrame();
+    void prepareFrame() override;
+    void finishFrame() override;
+    size_t getFrameBufferCount() const override;
+
+    Microsoft::WRL::ComPtr<ID3D12Device2> m_device;
+    Microsoft::WRL::ComPtr<IDXGIAdapter1> m_dxgiAdapter;
+    Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapChain;
+    Microsoft::WRL::ComPtr<IDXGIFactory4> m_factory;
+
+    CommandWrapper m_mainCommandWrapper;
+    Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_commandQueue;
+
+    Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> m_commandListUI;
+
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
+    UINT m_rtvDescriptorSize = 0u;
+    std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, FrameCount> m_renderTargets;
+
+    Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_srvDescHeap;
+
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> m_vertexBuffer;
+
+    D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView;
+
+    float m_aspectRatio;
+
+    UINT m_frameIndex = 0u;
+    UINT64 m_fenceValue = 0u;
+    Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
+    HANDLE m_fenceEvent;
+
+    CD3DX12_VIEWPORT m_viewport;
+    CD3DX12_RECT m_scissorRect;
+
+    ImGuiContext* m_imguiContext = nullptr;
 
     const String& getName() const override;
     SDL2W::RenderTypes::RendererType getType() const override;
 
-    String m_name = "OpenGL Legacy.";
+    String m_name = "DirectX 12.";
 };
 
 NAMESPACE_END( LOGLW )
+
+#endif // GAME_ENGINE_WINDOWS

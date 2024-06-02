@@ -658,7 +658,21 @@ void DeviceDX12::setColorClientState( bool enable )
 {
 }
 
+<<<<<<< Updated upstream
 void DeviceDX12::deleteBuffer( BufferTypes bufferType, unsigned& id )
+=======
+unsigned int DeviceDX12::generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size )
+{
+	return 0;
+}
+
+unsigned int DeviceDX12::generateAndBindBuffer( const BufferTypes bufferType, const int size )
+{
+	return 0;
+}
+
+void DeviceDX12::deleteBuffer( BufferTypes, uint32_t )
+>>>>>>> Stashed changes
 {
 }
 

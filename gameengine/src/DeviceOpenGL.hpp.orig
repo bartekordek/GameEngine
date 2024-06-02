@@ -10,10 +10,14 @@ NAMESPACE_BEGIN( LOGLW )
 
 #undef log
 
+<<<<<<< Updated upstream
 class VertexArray;
 class VertexBuffer;
 
 enum class ShaderTypes : int
+=======
+enum class EShaderTypes : int
+>>>>>>> Stashed changes
 {
     FRAGMENT_SHADER = 0x8B30,
     VERTEX_SHADER = 0x8B31,
@@ -49,7 +53,11 @@ private:
     void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;
     void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) override;
 
+<<<<<<< Updated upstream
     static ShaderTypes getShaderType( const CUL::String& fileExtension );
+=======
+    EShaderTypes getShaderType( const CUL::String& fileExtension );
+>>>>>>> Stashed changes
 
     std::uint32_t createProgram( const CUL::String& name ) override;
     void removeProgram( unsigned programId ) override;
@@ -100,7 +108,7 @@ private:
     void setUniformValue( int uniformLocation, unsigned value ) override;
 
     unsigned int generateAndBindBuffer( const BufferTypes bufferType, const int size = 1 ) override;
-    void deleteBuffer( BufferTypes bufferType, std::uint64_t& id ) override;
+    void deleteBuffer( BufferTypes bufferType, uint32_t id ) override;
     unsigned int generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size = 1 ) override;
     void enableVertexAttribiute( unsigned programId, const String& attribName ) override;
     void disableVertexAttribiute( unsigned programId, const String& attribName ) override;

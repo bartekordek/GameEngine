@@ -4,10 +4,13 @@
 #include "gameengine/Camera.hpp"
 #include "gameengine/Viewport.hpp"
 #include "gameengine/AttributeMeta.hpp"
+<<<<<<< Updated upstream
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Shaders/ShaderUnit.hpp"
+=======
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/VertexBuffer.hpp"
+>>>>>>> Stashed changes
 
 #include "SDL2Wrapper/IWindow.hpp"
 
@@ -416,6 +419,7 @@ std::uint32_t DeviceOpenGL::createProgram( const CUL::String& name )
         return 0;
     }
 
+
     glObjectLabel( GL_PROGRAM, programId, -1, name.cStr() );
 
     return programId;
@@ -496,7 +500,7 @@ CUL::String enumToString( const GLenum val )
     }
 }
 
-ShaderTypes DeviceOpenGL::getShaderType( const CUL::String& fileExtension )
+EShaderTypes DeviceOpenGL::getShaderType( const CUL::String& fileExtension )
 {
     /*
     .vert - a vertex shader
@@ -508,18 +512,18 @@ ShaderTypes DeviceOpenGL::getShaderType( const CUL::String& fileExtension )
     */
     if( fileExtension.equals( "frag" ) || fileExtension.equals( ".frag" ) )
     {
-        return static_cast<ShaderTypes>( GL_FRAGMENT_SHADER );
+        return static_cast<EShaderTypes>( GL_FRAGMENT_SHADER );
     }
     else if( fileExtension.equals( "vert" ) || fileExtension.equals( ".vert" ) )
     {
-        return static_cast<ShaderTypes>( GL_VERTEX_SHADER );
+        return static_cast<EShaderTypes>( GL_VERTEX_SHADER );
     }
     else if( fileExtension.equals( "geom" ) || fileExtension.equals( ".geom" ) )
     {
-        return static_cast<ShaderTypes>( GL_GEOMETRY_SHADER );
+        return static_cast<EShaderTypes>( GL_GEOMETRY_SHADER );
     }
 
-    return static_cast<ShaderTypes>( GL_INVALID_ENUM );
+    return static_cast<EShaderTypes>( GL_INVALID_ENUM );
 }
 
 void DeviceOpenGL::attachShader( unsigned programId, unsigned shaderId )
@@ -767,7 +771,6 @@ void DeviceOpenGL::vertexAttribPointer( const VertexData& meta )
         const auto normalized = static_cast<GLboolean>( attribute.Normalized );
         const auto stride = static_cast<GLsizei>( attribute.Stride );
         const auto ptr = attribute.Pointer;
-        const auto sizeOfFloat = 6 * sizeof( float );
         glVertexAttribPointer( index, size, type, normalized, stride, ptr );
         glEnableVertexAttribArray( index );
     }
@@ -1667,7 +1670,7 @@ void DeviceOpenGL::disableVertexAttribiute( unsigned programId, const String& at
     glDisableVertexAttribArray( attributeLocation );
 }
 
-void DeviceOpenGL::deleteBuffer( BufferTypes bufferType, std::uint64_t& id )
+void DeviceOpenGL::deleteBuffer( BufferTypes bufferType, uint32_t id )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -1880,6 +1883,7 @@ void DeviceOpenGL::enableVertexAttribArray( unsigned attributeId )
     vaobj.
     */
     log( "glEnableVertexAttribArray" );
+    auto sizeOfunsignedint = sizeof( unsigned int );
     glEnableVertexAttribArray( static_cast<GLuint>( attributeId ) );
 }
 

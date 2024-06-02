@@ -201,7 +201,21 @@ void DeviceOpenGL_Legacy::setColorClientState( bool enable )
 {
 }
 
+<<<<<<< Updated upstream
 void DeviceOpenGL_Legacy::deleteBuffer( BufferTypes bufferType, unsigned& id )
+=======
+unsigned int DeviceOpenGL_Legacy::generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size )
+{
+    return 0;
+}
+
+unsigned int DeviceOpenGL_Legacy::generateAndBindBuffer( const BufferTypes bufferType, const int size )
+{
+    return 0;
+}
+
+void DeviceOpenGL_Legacy::deleteBuffer( BufferTypes, uint32_t )
+>>>>>>> Stashed changes
 {
 }
 
