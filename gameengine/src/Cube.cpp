@@ -2,79 +2,30 @@
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
-#include "gameengine/Shaders/ShaderProgram.hpp"
+
 #include "CUL/Threading/ThreadUtil.hpp"
 
 using namespace LOGLW;
 
-Cube::Cube( Camera* camera, IGameEngine* engine, IObject* parent, bool forceLegacy )
-    : IObject( "Cube", engine, forceLegacy ), m_camera( camera ), m_engine( *engine )
+Cube::Cube( Camera* camera, IGameEngine* engine, bool forceLegacy ) : IObject( "Cube", engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
-    m_transformComponent = getTransform();
-    m_vertexData = std::make_unique<VertexData>();
-    setParent( parent );
-
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    constexpr float size = 4.f;
-    m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
-    // TODO: add normals
-    setSize( { size, size, 0 } );
 
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName ) {
-        RunOnRenderThread::getInstance().Run( [this, newName]() {
-            m_vertexData->VAO->setName( getName() + "::vao" );
-        } );
-    };
-
-    RunOnRenderThread::getInstance().Run( [this]() {
-        init();
-    } );
-    m_transformComponent->changeSizeDelegate.addDelegate( [this]() {
-        m_recreateBuffers = true;
-    } );
-
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName ) {
-        RunOnRenderThread::getInstance().Run( [this, newName]() {
-            m_shaderProgram->setName( getName() + "::shader_program" );
-            m_vertexData->VAO->setName( getName() + "::vao" );
-        } );
-    };
-}
-
-void Cube::setSize( const glm::vec3& )
-{
-    CUL::Assert::simple( false, "NOT IMPLEMENTED!" );
-    //m_shape.data[0] = { size.x, size.y, 0.f, 0.f, 0.f, 1.f };
-    //m_shape.data[1] = { size.x, 0.f, 0.f, 0.f, 0.f, 1.f };
-    //m_shape.data[2] = { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f };
-    //m_shape.data[3] = { 0.f, size.y, 0.f, 0.f, 0.f, 1.f };
-}
-
-void Cube::init()
-{
-    if( getDevice()->isLegacy() )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
+        createPlaceHolders();
+        m_initialized = true;
     }
     else
     {
-        createBuffers();
-        createShaders();
-
-        setTransformation();
+        m_engine->addPreRenderTask(
+            [this]()
+            {
+                createPlaceHolders();
+                m_initialized = true;
+                m_engine->addObjectToRender( this );
+            } );
     }
-}
-
-void Cube::setTransformation()
-{
-    const Camera& camera = m_engine.getCamera();
-    const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
-    const glm::mat4 viewMatrix = camera.getViewMatrix();
-
-    const glm::mat4 model = m_transformComponent->getModel();
-
-    m_shaderProgram->setUniform( "projection", projectionMatrix );
-    m_shaderProgram->setUniform( "view", viewMatrix );
-    m_shaderProgram->setUniform( "model", model );
 }
 
 // void Cube::setImage(unsigned wallIndex, const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader)
@@ -93,9 +44,14 @@ void Cube::setColor( const CUL::Graphics::ColorS& color )
 
     std::lock_guard<std::mutex> renderLock( m_renderMutex );
 
+    static const size_t wallsSize = m_walls.size();
+    for( size_t i = 0; i < wallsSize; ++i )
+    {
+        m_walls[i]->setColor( m_color );
+    }
 }
 
-void Cube::createBuffers()
+void Cube::createPlaceHolders()
 {
     const TransformComponent::Pos cubeSize( 2.f, 2.f, 2.f );
     const TransformComponent::Pos quadSize( 2.f, 2.f, 0.f );
@@ -104,139 +60,124 @@ void Cube::createBuffers()
     m_transformComponent->setPivot( { 0.0f, 0.f, 0.f } );
 
     TransformComponent::Pos pivot = { 0.5f, 0.5f, 0.f };
+    // 0
+    {
+        Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        quad->setDisableRenderOnMyOwn( true );
+        addChild( quad );
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, 1.f ) );
+        //transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, 3.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        quad->setName( "Wall00" );
+        quad->setColor( CUL::Graphics::ColorE::GREEN );
+        m_walls[0] = quad;
+    }
 
-    m_vertexData->VAO = getEngine().createVAO();
-    m_vertexData->VAO->setName( "cube::vao" );
-    m_vertexData->VAO->setDisableRenderOnMyOwn( true );
-    m_vertexData->VAO->enableVertexAttributeArray( 0 );
-    m_vertexData->VAO->enableVertexAttributeArray( 1 );
+    // 1
+    {
+        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        quad->setDisableRenderOnMyOwn( true );
+        addChild( quad );
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, -1.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        quad->setName( "Wall01" );
+        quad->setColor( m_color );
+        m_walls[1] = quad;
+    }
 
-    float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    // 2
+    {
+        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        quad->setDisableRenderOnMyOwn( true );
+        addChild( quad );
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setPositionAbsolute( CUL::MATH::Point( -1.f, 0.f, 0.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        CUL::MATH::Rotation rotation;
+        rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        transformCmp->setRotationToParent( rotation );
+        quad->setName( "Wall02" );
+        quad->setColor( m_color );
+        m_walls[2] = quad;
+    }
 
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+    // 3
+    {
+        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        quad->setDisableRenderOnMyOwn( true );
+        addChild( quad );
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setPositionAbsolute( CUL::MATH::Point( 1.f, 0.f, 0.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        CUL::MATH::Rotation rotation;
+        rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        transformCmp->setRotationToParent( rotation );
+        quad->setName( "Wall03" );
+        quad->setColor( m_color );
+        m_walls[3] = quad;
+    }
 
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+    // 4
+    {
+        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        quad->setDisableRenderOnMyOwn( true );
+        addChild( quad );
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, -1.f, 0.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        CUL::MATH::Rotation rotation;
+        rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        transformCmp->setRotationToParent( rotation );
+        quad->setName( "Wall04" );
+        quad->setColor( m_color );
+        m_walls[4] = quad;
+    }
 
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
-    };
-    const auto verticesElementsCount = sizeof( vertices ) / sizeof( vertices[0] );
-    m_vertexData->vertices.reserve( verticesElementsCount );
-    m_vertexData->vertices.insert( m_vertexData->vertices.end(), &vertices[0], &vertices[verticesElementsCount] );
-
-    const auto stride = 6 * sizeof( float );
-    const auto dType = LOGLW::DataType::FLOAT;
-    m_vertexData->Attributes.emplace_back( AttributeMeta( "aPos", 0, 3, dType, false, stride, nullptr ) );
-    m_vertexData->Attributes.emplace_back( AttributeMeta( "aNormal", 1, 3, dType, false, stride,
-                                                    reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
-
-    m_vertexData->VBO = getEngine().createVBO( *m_vertexData.get() );
-    m_vertexData->VBO->setDisableRenderOnMyOwn( true );
-    m_vertexData->VAO->addVertexBuffer( *m_vertexData );
-
-    getDevice()->bufferData(
-        m_vertexData->VBO->getId(),
-        m_vertexData->vertices,
-        BufferTypes::ARRAY_BUFFER );
-}
-
-void Cube::createShaders()
-{
-    m_shaderProgram = getEngine().createProgram();
-    m_shaderProgram->setName( getName() + "::program" );
-
-    const std::string vertexShaderSource =
-#include "embedded_shaders/cube.vert"
-        ;
-
-    const std::string fragmentShaderSource =
-#include "embedded_shaders/cube.frag"
-        ;
-
-    const auto fragmentShader = getEngine().createShader( "embedded_shaders/cube.frag", fragmentShaderSource );
-    const auto vertexShader = getEngine().createShader( "embedded_shaders/cube.vert", vertexShaderSource );
-
-    m_shaderProgram->attachShader( vertexShader );
-    m_shaderProgram->attachShader( fragmentShader );
-    m_shaderProgram->link();
-    m_shaderProgram->validate();
-
-    m_shaderProgram->enable();
+    // 5
+    {
+        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        quad->setDisableRenderOnMyOwn( true );
+        addChild( quad );
+        TransformComponent* transformCmp = quad->getTransform();
+        transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 1.f, 0.f ) );
+        transformCmp->setSize( quadSize );
+        transformCmp->setPivot( pivot );
+        CUL::MATH::Rotation rotation;
+        rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
+        transformCmp->setRotationToParent( rotation );
+        quad->setName( "Wall05" );
+        quad->setColor( m_color );
+        m_walls[5] = quad;
+    }
 }
 
 void Cube::render()
 {
-    if( getDevice()->isLegacy() || getForceLegacy() )
+    const auto children = getChildren();
+    for( const auto child : children )
     {
-        //getDevice()->draw( m_shape, m_transformComponent->getModel(), m_color );
-    }
-    else
-    {
-        if( m_recreateBuffers )
-        {
-            deleteBuffers();
-            createBuffers();
-            m_recreateBuffers = false;
-        }
-
-        m_shaderProgram->enable();
-        m_shaderProgram->goThroughTasks();
-        setTransformation();
-        //applyColor();
-        m_vertexData->VAO->render();
-
-        m_shaderProgram->disable();
+        child->render();
     }
 }
 
 Cube::~Cube()
 {
-    deleteBuffers();
-    m_engine.removeObjectToRender( this );
+    m_engine->removeObjectToRender( this );
     release();
-}
-
-void Cube::deleteBuffers()
-{
-    delete m_vertexData->VAO;
-    m_vertexData->VAO = nullptr;
 }
 
 void Cube::release()
 {
-
+    for( size_t i = 0; i < 6; ++i )
+    {
+        delete m_walls[i];
+        m_walls[i] = nullptr;
+    }
 }
