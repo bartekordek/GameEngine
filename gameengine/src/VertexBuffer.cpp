@@ -89,5 +89,5 @@ VertexBuffer::~VertexBuffer()
 
 void VertexBuffer::release()
 {
-    getDevice()->deleteBuffer( LOGLW::BufferTypes::ARRAY_BUFFER, (unsigned int&)m_bufferId );
+    getDevice()->deleteBuffer( LOGLW::BufferTypes::ARRAY_BUFFER, m_bufferId );
 }

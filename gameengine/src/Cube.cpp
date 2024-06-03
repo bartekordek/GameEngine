@@ -1,11 +1,8 @@
 #include "gameengine/Cube.hpp"
-#include "gameengine/Camera.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
-#include "gameengine/VertexArray.hpp"
-#include "gameengine/Program.hpp"
-#include "RunOnRenderThread.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
 
 using namespace LOGLW;
@@ -44,8 +41,9 @@ Cube::Cube( Camera* camera, IGameEngine* engine, IObject* parent, bool forceLega
     };
 }
 
-void Cube::setSize( const glm::vec3& size )
+void Cube::setSize( const glm::vec3& )
 {
+    CUL::Assert::simple( false, "NOT IMPLEMENTED!" );
     //m_shape.data[0] = { size.x, size.y, 0.f, 0.f, 0.f, 1.f };
     //m_shape.data[1] = { size.x, 0.f, 0.f, 0.f, 0.f, 1.f };
     //m_shape.data[2] = { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f };

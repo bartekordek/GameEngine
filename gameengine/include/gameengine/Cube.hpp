@@ -24,7 +24,7 @@ NAMESPACE_BEGIN( LOGLW )
 class Camera;
 class IGameEngine;
 class TransformComponent;
-class Program;
+class ShaderProgram;
 struct VertexData;
 
 class Cube final: public IObject, public IUtilityUser
@@ -56,7 +56,7 @@ private:
     IGameEngine& m_engine;
 
     std::mutex m_renderMutex;
-    Program* m_shaderProgram = nullptr;
+    ShaderProgram* m_shaderProgram = nullptr;
     CUL::Graphics::ColorS m_color;
     std::unique_ptr<VertexData> m_vertexData;
 

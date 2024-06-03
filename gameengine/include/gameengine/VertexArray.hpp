@@ -89,7 +89,7 @@ private:
     void createVAO();
     void createVBOs();
 
-    std::uint32_t m_vaoId = 0;
+    std::uint64_t m_vaoId = 0;
 
     std::mutex m_tasksMtx;
     std::deque<TaskType> m_preRenderTasks;

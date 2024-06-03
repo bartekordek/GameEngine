@@ -114,6 +114,12 @@ void VertexArray::render()
     {
         m_vbos[i]->render();
     }
+
+    for( auto& vbo: m_vbos )
+    {
+        vbo->render();
+    }
+
     if( m_shaderProgram )
     {
         throw std::logic_error( "Method not implemented" );

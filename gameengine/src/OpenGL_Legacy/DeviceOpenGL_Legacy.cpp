@@ -201,10 +201,6 @@ void DeviceOpenGL_Legacy::setColorClientState( bool enable )
 {
 }
 
-void DeviceOpenGL_Legacy::deleteBuffer( BufferTypes bufferType, unsigned& id )
-{
-}
-
 void DeviceOpenGL_Legacy::enableVertexAttribiute( unsigned programId, const String& attribName )
 {
 }

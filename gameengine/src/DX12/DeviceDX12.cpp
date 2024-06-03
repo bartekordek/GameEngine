@@ -658,10 +658,6 @@ void DeviceDX12::setColorClientState( bool enable )
 {
 }
 
-void DeviceDX12::deleteBuffer( BufferTypes bufferType, unsigned& id )
-{
-}
-
 void DeviceDX12::enableVertexAttribiute( unsigned programId, const String& attribName )
 {
 }

@@ -100,7 +100,6 @@ private:
     void vertexPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer ) override;
     void setVertexArrayClientState( const bool enable ) override;
     void setColorClientState( bool enable ) override;
-    void deleteBuffer( BufferTypes bufferType, unsigned& id ) override;
     void enableVertexAttribiute( unsigned programId, const String& attribName ) override;
     void disableVertexAttribiute( unsigned programId, const String& attribName ) override;
     int getAttribLocation( unsigned programId, const String& attribName ) override;

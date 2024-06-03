@@ -1674,19 +1674,21 @@ void DeviceOpenGL::deleteBuffer( BufferTypes bufferType, std::uint64_t& id )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
+    GLuint oglId = id;
     if( id )
     {
         if( bufferType == BufferTypes::ARRAY_BUFFER )
         {
             log( "DeviceOpenGL::deleteBuffer BufferTypes::ARRAY_BUFFER: " + String( id ) );
-            glDeleteBuffers( 1, &id );
+            
+            glDeleteBuffers( 1, &oglId );
             m_currentBufferId[bufferType] = -1;
             id = 0;
         }
         else if( bufferType == BufferTypes::VERTEX_ARRAY )
         {
             log( "DeviceOpenGL::deleteBuffer BufferTypes::VERTEX_ARRAY: " + String( id ) );
-            glDeleteVertexArrays( 1, &id );
+            glDeleteVertexArrays( 1, &oglId );
             m_currentBufferId[bufferType] = -1;
             id = 0;
         }
