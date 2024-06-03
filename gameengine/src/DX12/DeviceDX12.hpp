@@ -44,8 +44,6 @@ private:
     bool isLegacy() override;
 
     // Inherited via IRenderDevice
-    void setOrthogonalPerspective( const Camera& vp ) override;
-    void setPerspectiveProjection( const Camera& vp ) override;
     void lookAt( const Camera& vp ) override;
     void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;
     void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) override;
@@ -57,7 +55,6 @@ private:
     int getCurrentProgram() const override;
     void attachShader( unsigned programId, unsigned shaderId ) override;
     void dettachShader( unsigned programId, unsigned shaderId ) override;
-    void removeShader( unsigned shaderId ) override;
     ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
 
     void createDescriptorHeaps();

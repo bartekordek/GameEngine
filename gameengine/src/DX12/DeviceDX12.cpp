@@ -25,14 +25,6 @@ bool DeviceDX12::isLegacy()
 	return false;
 }
 
-void DeviceDX12::setOrthogonalPerspective( const Camera& )
-{
-}
-
-void DeviceDX12::setPerspectiveProjection( const Camera& )
-{
-}
-
 void DeviceDX12::lookAt( const Camera& )
 {
 }
@@ -76,10 +68,6 @@ void DeviceDX12::attachShader( unsigned programId, unsigned shaderId )
 }
 
 void DeviceDX12::dettachShader( unsigned programId, unsigned shaderId )
-{
-}
-
-void DeviceDX12::removeShader( unsigned shaderId )
 {
 }
 

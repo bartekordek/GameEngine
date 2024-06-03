@@ -22,14 +22,6 @@ bool DeviceDX09::isLegacy()
     return false;
 }
 
-void DeviceDX09::setOrthogonalPerspective( const Camera& )
-{
-}
-
-void DeviceDX09::setPerspectiveProjection( const Camera& )
-{
-}
-
 std::uint32_t DeviceDX09::createProgram( const CUL::String& name )
 {
     return 0u;
@@ -61,10 +53,6 @@ void DeviceDX09::attachShader( unsigned programId, unsigned shaderId )
 }
 
 void DeviceDX09::dettachShader( unsigned programId, unsigned shaderId )
-{
-}
-
-void DeviceDX09::removeShader( unsigned shaderId )
 {
 }
 

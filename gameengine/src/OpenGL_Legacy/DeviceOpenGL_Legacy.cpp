@@ -25,14 +25,6 @@ void DeviceOpenGL_Legacy::setViewport( const Viewport& )
 {
 }
 
-void DeviceOpenGL_Legacy::setOrthogonalPerspective( const Camera& )
-{
-}
-
-void DeviceOpenGL_Legacy::setPerspectiveProjection( const Camera& )
-{
-}
-
 void DeviceOpenGL_Legacy::lookAt( const Camera& )
 {
 }
@@ -84,10 +76,6 @@ void DeviceOpenGL_Legacy::attachShader( unsigned, unsigned )
 }
 
 void DeviceOpenGL_Legacy::dettachShader( unsigned, unsigned )
-{
-}
-
-void DeviceOpenGL_Legacy::removeShader( unsigned )
 {
 }
 

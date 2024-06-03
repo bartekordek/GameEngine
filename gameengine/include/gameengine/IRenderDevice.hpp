@@ -153,8 +153,8 @@ public:
 
     virtual void resetMatrixToIdentity( const MatrixTypes matrix );
     virtual void setViewport( const Viewport& viewport );
-    virtual void setOrthogonalPerspective( const Camera& vp ) = 0;
-    virtual void setPerspectiveProjection( const Camera& vp ) = 0;
+    virtual void setOrthogonalPerspective( const Camera& vp );
+    virtual void setPerspectiveProjection( const Camera& vp );
     virtual void lookAt( const Camera& vp );
     virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec );
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up );
@@ -164,11 +164,10 @@ public:
     // General
     virtual void setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::String& name );
 
-
-    virtual void prepareFrame() = 0;
+    virtual void prepareFrame();
     virtual void finishFrame() = 0;
 
-    virtual std::uint32_t createProgram( const CUL::String& name ) = 0;
+    virtual std::uint32_t createProgram( const CUL::String& name );
     virtual void removeProgram( unsigned programId ) = 0;
     virtual void useProgram( int programId ) = 0;
     virtual void linkProgram( unsigned programId ) = 0;
@@ -178,7 +177,7 @@ public:
 
     virtual void attachShader( unsigned programId, unsigned shaderId ) = 0;
     virtual void dettachShader( unsigned programId, unsigned shaderId ) = 0;
-    virtual void removeShader( unsigned shaderId ) = 0;
+    virtual void removeShader( unsigned shaderId );
 
     virtual ContextInfo initContextVersion( SDL2W::IWindow* window ) = 0;
 

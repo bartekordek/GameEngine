@@ -93,6 +93,11 @@ void IRenderDevice::setObjectName( EObjectType, std::uint32_t, const CUL::String
     throw std::logic_error( "Method not implemented" );
 }
 
+void IRenderDevice::removeShader( unsigned shaderId )
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
 unsigned int IRenderDevice::generateElementArrayBuffer( const std::vector<unsigned int>&/* data*/, const int /*size*/ /*= 1 */ )
 {
     throw std::logic_error( "Method not implemented" );
@@ -156,7 +161,18 @@ void IRenderDevice::bufferData( BufferDataId, const std::vector<unsigned int>&, 
 
 void IRenderDevice::bufferData( BufferDataId, const CUL::MATH::Primitives::Quad&, const BufferTypes )
 {
+    throw std::logic_error( "Method not implemented" );
+}
 
+void IRenderDevice::prepareFrame()
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
+std::uint32_t IRenderDevice::createProgram( const CUL::String& name )
+{
+    throw std::logic_error( "Method not implemented" );
+    return 0u;
 }
 
 void IRenderDevice::resetMatrixToIdentity(const MatrixTypes matrix)
@@ -165,6 +181,16 @@ void IRenderDevice::resetMatrixToIdentity(const MatrixTypes matrix)
 }
 
 void IRenderDevice::setViewport( const Viewport& )
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
+void IRenderDevice::setOrthogonalPerspective( const Camera& )
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
+void IRenderDevice::setPerspectiveProjection( const Camera& )
 {
     throw std::logic_error( "Method not implemented" );
 }
