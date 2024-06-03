@@ -25,14 +25,6 @@ bool DeviceDX12::isLegacy()
 	return false;
 }
 
-void DeviceDX12::resetMatrixToIdentity( const MatrixTypes )
-{
-}
-
-void DeviceDX12::setViewport( const Viewport& )
-{
-}
-
 void DeviceDX12::setOrthogonalPerspective( const Camera& )
 {
 }

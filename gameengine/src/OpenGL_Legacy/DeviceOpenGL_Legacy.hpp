@@ -21,7 +21,7 @@ private:
     bool isLegacy() override;
     size_t getFrameBufferCount() const override;
     void initDebugUI() override;
-    void resetMatrixToIdentity( const MatrixTypes matrix ) override;
+
     void setViewport( const Viewport& viewport ) override;
     void setOrthogonalPerspective( const Camera& vp ) override;
     void setPerspectiveProjection( const Camera& vp ) override;

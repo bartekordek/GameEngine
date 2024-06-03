@@ -158,10 +158,17 @@ void IRenderDevice::bufferData( BufferDataId, const CUL::MATH::Primitives::Quad&
 {
 
 }
+
 void IRenderDevice::resetMatrixToIdentity(const MatrixTypes matrix)
 {
 	throw std::logic_error("Method not implemented");
 }
+
+void IRenderDevice::setViewport( const Viewport& )
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
 void IRenderDevice::lookAt(const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up)
 {
     throw std::logic_error("Method not implemented");

@@ -44,8 +44,6 @@ private:
     bool isLegacy() override;
 
     // Inherited via IRenderDevice
-    void resetMatrixToIdentity( const MatrixTypes matrixIn ) override;
-    void setViewport( const Viewport& viewport ) override;
     void setOrthogonalPerspective( const Camera& vp ) override;
     void setPerspectiveProjection( const Camera& vp ) override;
     void lookAt( const Camera& vp ) override;

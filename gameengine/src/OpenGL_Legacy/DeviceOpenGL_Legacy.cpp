@@ -21,10 +21,6 @@ void DeviceOpenGL_Legacy::initDebugUI()
 {
 }
 
-void DeviceOpenGL_Legacy::resetMatrixToIdentity( const MatrixTypes )
-{
-}
-
 void DeviceOpenGL_Legacy::setViewport( const Viewport& )
 {
 }

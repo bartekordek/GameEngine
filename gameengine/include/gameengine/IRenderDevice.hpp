@@ -152,7 +152,7 @@ public:
     virtual void initDebugUI() = 0;
 
     virtual void resetMatrixToIdentity( const MatrixTypes matrix );
-    virtual void setViewport( const Viewport& viewport ) = 0;
+    virtual void setViewport( const Viewport& viewport );
     virtual void setOrthogonalPerspective( const Camera& vp ) = 0;
     virtual void setPerspectiveProjection( const Camera& vp ) = 0;
     virtual void lookAt( const Camera& vp );
