@@ -22,15 +22,6 @@ bool DeviceDX09::isLegacy()
     return false;
 }
 
-std::uint32_t DeviceDX09::createProgram( const CUL::String& name )
-{
-    return 0u;
-}
-
-void DeviceDX09::removeProgram( unsigned programId )
-{
-}
-
 void DeviceDX09::useProgram( int programId )
 {
 }

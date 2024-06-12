@@ -45,15 +45,6 @@ void DeviceOpenGL_Legacy::finishFrame()
 {
 }
 
-std::uint32_t DeviceOpenGL_Legacy::createProgram( const CUL::String& name )
-{
-    return 0;
-}
-
-void DeviceOpenGL_Legacy::removeProgram( unsigned )
-{
-}
-
 void DeviceOpenGL_Legacy::useProgram( int )
 {
 }

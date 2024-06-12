@@ -168,7 +168,7 @@ public:
     virtual void finishFrame() = 0;
 
     virtual std::uint32_t createProgram( const CUL::String& name );
-    virtual void removeProgram( unsigned programId ) = 0;
+    virtual void removeProgram( unsigned programId );
     virtual void useProgram( int programId ) = 0;
     virtual void linkProgram( unsigned programId ) = 0;
     virtual void validateProgram( unsigned programId ) = 0;

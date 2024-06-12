@@ -175,6 +175,11 @@ std::uint32_t IRenderDevice::createProgram( const CUL::String& name )
     return 0u;
 }
 
+void IRenderDevice::removeProgram( unsigned )
+{
+    throw std::logic_error("Method not implemented");
+}
+
 void IRenderDevice::resetMatrixToIdentity(const MatrixTypes matrix)
 {
 	throw std::logic_error("Method not implemented");
