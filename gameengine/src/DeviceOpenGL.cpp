@@ -2171,7 +2171,6 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-
     ShaderUnit* result = findShader( shaderPath );
     if( result != nullptr )
     {
@@ -2208,6 +2207,11 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath )
 #include "embedded_shaders/camera.vert"
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
+    else
+    {
+        CUL::Assert::simple( shaderPath.exists(), "NOT IN THE RENDER THREAD." );
+        newShader->File->load( true );
     }
 
     const auto extension = newShader->File->getPath().getExtension();
