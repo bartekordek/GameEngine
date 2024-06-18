@@ -37,14 +37,6 @@ void DeviceDX12::lookAt( const Pos3Dd&, const Pos3Dd&, const Pos3Dd& )
 {
 }
 
-void DeviceDX12::useProgram( int )
-{
-}
-
-void DeviceDX12::linkProgram( unsigned )
-{
-}
-
 void DeviceDX12::validateProgram( unsigned )
 {
 }

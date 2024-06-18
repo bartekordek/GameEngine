@@ -22,14 +22,6 @@ bool DeviceDX09::isLegacy()
     return false;
 }
 
-void DeviceDX09::useProgram( int programId )
-{
-}
-
-void DeviceDX09::linkProgram( unsigned programId )
-{
-}
-
 void DeviceDX09::validateProgram( unsigned programId )
 {
 }

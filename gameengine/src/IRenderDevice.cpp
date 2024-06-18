@@ -180,6 +180,17 @@ void IRenderDevice::removeProgram( unsigned )
     throw std::logic_error("Method not implemented");
 }
 
+void IRenderDevice::useProgram( int programId )
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
+void IRenderDevice::linkProgram( unsigned programId )
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
+
 void IRenderDevice::resetMatrixToIdentity(const MatrixTypes matrix)
 {
 	throw std::logic_error("Method not implemented");

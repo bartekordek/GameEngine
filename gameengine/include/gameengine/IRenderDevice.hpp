@@ -169,8 +169,8 @@ public:
 
     virtual std::uint32_t createProgram( const CUL::String& name );
     virtual void removeProgram( unsigned programId );
-    virtual void useProgram( int programId ) = 0;
-    virtual void linkProgram( unsigned programId ) = 0;
+    virtual void useProgram( int programId );
+    virtual void linkProgram( unsigned programId );
     virtual void validateProgram( unsigned programId ) = 0;
 
     virtual int getCurrentProgram() const = 0;
