@@ -24,7 +24,6 @@ private:
     bool isLegacy() override;
 
     // Inherited via IRenderDevice
-    void validateProgram( unsigned programId ) override;
     int getCurrentProgram() const override;
     void attachShader( unsigned programId, unsigned shaderId ) override;
     void dettachShader( unsigned programId, unsigned shaderId ) override;

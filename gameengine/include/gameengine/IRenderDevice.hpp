@@ -171,7 +171,7 @@ public:
     virtual void removeProgram( unsigned programId );
     virtual void useProgram( int programId );
     virtual void linkProgram( unsigned programId );
-    virtual void validateProgram( unsigned programId ) = 0;
+    virtual void validateProgram( unsigned programId );
 
     virtual int getCurrentProgram() const = 0;
 

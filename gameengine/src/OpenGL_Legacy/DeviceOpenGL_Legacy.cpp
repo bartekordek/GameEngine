@@ -49,10 +49,6 @@ void DeviceOpenGL_Legacy::useProgram( int )
 {
 }
 
-void DeviceOpenGL_Legacy::validateProgram( unsigned )
-{
-}
-
 int DeviceOpenGL_Legacy::getCurrentProgram() const
 {
     return 0;

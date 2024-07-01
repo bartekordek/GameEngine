@@ -37,10 +37,6 @@ void DeviceDX12::lookAt( const Pos3Dd&, const Pos3Dd&, const Pos3Dd& )
 {
 }
 
-void DeviceDX12::validateProgram( unsigned )
-{
-}
-
 int DeviceDX12::getCurrentProgram() const
 {
 	return 0;

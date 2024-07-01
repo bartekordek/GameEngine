@@ -22,10 +22,6 @@ bool DeviceDX09::isLegacy()
     return false;
 }
 
-void DeviceDX09::validateProgram( unsigned programId )
-{
-}
-
 int DeviceDX09::getCurrentProgram() const
 {
     return 0;

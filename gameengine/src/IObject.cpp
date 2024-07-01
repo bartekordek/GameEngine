@@ -69,7 +69,7 @@ void IObject::removeByParent( bool enable )
 
 IObject::~IObject()
 {
-    CUL::LOG::ILogger::getInstance()->log( "IObject::~IObject(): " + getName() );
+    CUL::LOG::ILogger::getInstance().logVariable(CUL::LOG::Severity::INFO, "IObject::~IObject() [%s]", getName().cStr());
 
     for( const auto& componentPair: m_components)
     {
