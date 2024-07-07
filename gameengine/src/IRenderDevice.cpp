@@ -190,14 +190,20 @@ void IRenderDevice::linkProgram( unsigned programId )
     throw std::logic_error( "Method not implemented" );
 }
 
-void IRenderDevice::validateProgram( unsigned programId )
+void IRenderDevice::validateProgram( std::uint32_t programId )
 {
     throw std::logic_error("Method not implemented");
 }
 
-void IRenderDevice::resetMatrixToIdentity(const MatrixTypes matrix)
+int IRenderDevice::getCurrentProgram() const
 {
-	throw std::logic_error("Method not implemented");
+    throw std::logic_error( "Method not implemented" );
+    return 0;
+}
+
+void IRenderDevice::resetMatrixToIdentity( const MatrixTypes matrix )
+{
+    throw std::logic_error( "Method not implemented" );
 }
 
 void IRenderDevice::setViewport( const Viewport& )

@@ -54,7 +54,7 @@ private:
     std::uint32_t createProgram( const CUL::String& name ) override;
     void removeProgram( unsigned programId ) override;
     void linkProgram( unsigned programId ) override;
-    void validateProgram( unsigned programId ) override;
+    void validateProgram( std::uint32_t programId ) override;
 
     ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath ) override;
     void attachShader( unsigned programId, unsigned shaderId ) override;

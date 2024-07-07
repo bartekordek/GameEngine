@@ -453,7 +453,7 @@ void DeviceOpenGL::linkProgram( unsigned programId )
     assertOnProgramError( programId, GL_LINK_STATUS );
 }
 
-void DeviceOpenGL::validateProgram( unsigned programId )
+void DeviceOpenGL::validateProgram( std::uint32_t programId )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {

@@ -22,11 +22,6 @@ bool DeviceDX09::isLegacy()
     return false;
 }
 
-int DeviceDX09::getCurrentProgram() const
-{
-    return 0;
-}
-
 void DeviceDX09::attachShader( unsigned programId, unsigned shaderId )
 {
 }

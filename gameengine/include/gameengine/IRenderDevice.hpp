@@ -171,9 +171,9 @@ public:
     virtual void removeProgram( unsigned programId );
     virtual void useProgram( int programId );
     virtual void linkProgram( unsigned programId );
-    virtual void validateProgram( unsigned programId );
+    virtual void validateProgram( std::uint32_t programId );
 
-    virtual int getCurrentProgram() const = 0;
+    virtual int getCurrentProgram() const;
 
     virtual void attachShader( unsigned programId, unsigned shaderId ) = 0;
     virtual void dettachShader( unsigned programId, unsigned shaderId ) = 0;

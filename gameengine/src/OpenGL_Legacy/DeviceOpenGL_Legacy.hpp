@@ -29,7 +29,6 @@ private:
     void prepareFrame() override;
     void finishFrame() override;
     void useProgram( int programId ) override;
-    int getCurrentProgram() const override;
     void attachShader( unsigned programId, unsigned shaderId ) override;
     void dettachShader( unsigned programId, unsigned shaderId ) override;
     ContextInfo initContextVersion( SDL2W::IWindow* window ) override;

@@ -49,11 +49,6 @@ void DeviceOpenGL_Legacy::useProgram( int )
 {
 }
 
-int DeviceOpenGL_Legacy::getCurrentProgram() const
-{
-    return 0;
-}
-
 void DeviceOpenGL_Legacy::attachShader( unsigned, unsigned )
 {
 }

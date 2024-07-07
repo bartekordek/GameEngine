@@ -37,11 +37,6 @@ void DeviceDX12::lookAt( const Pos3Dd&, const Pos3Dd&, const Pos3Dd& )
 {
 }
 
-int DeviceDX12::getCurrentProgram() const
-{
-	return 0;
-}
-
 void DeviceDX12::attachShader( unsigned programId, unsigned shaderId )
 {
 }
