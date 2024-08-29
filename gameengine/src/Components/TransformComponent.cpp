@@ -161,16 +161,16 @@ void TransformComponent::setPivot( const TransformComponent::Pos& pivot )
     changeSizeDelegate.execute();
 }
 
-void TransformComponent::addOnChangeCallback(const String& callbackName, const std::function<void( const glm::mat4& model )> callback)
+void TransformComponent::addOnChangeCallback( const String& callbackName, const std::function<void( const glm::mat4& model )> callback )
 {
-    auto it = m_onChangeCallbacks.find(callbackName);
+    auto it = m_onChangeCallbacks.find( callbackName );
     if( it == m_onChangeCallbacks.end() )
     {
         m_onChangeCallbacks[callbackName] = callback;
     }
     else
     {
-        CUL::Assert::simple(false, "Callback already places: " + callbackName);
+        CUL::Assert::simple( false, ( CUL::String( "Callback already places: " ) + callbackName ).cStr() );
     }
 }
 

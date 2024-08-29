@@ -49,14 +49,6 @@ void DeviceOpenGL_Legacy::useProgram( int )
 {
 }
 
-void DeviceOpenGL_Legacy::attachShader( unsigned, unsigned )
-{
-}
-
-void DeviceOpenGL_Legacy::dettachShader( unsigned, unsigned )
-{
-}
-
 ContextInfo DeviceOpenGL_Legacy::initContextVersion( SDL2W::IWindow* )
 {
     return ContextInfo();

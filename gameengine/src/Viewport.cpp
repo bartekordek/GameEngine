@@ -32,9 +32,16 @@ String Viewport::getSerializationContent( CUL::CounterType tabsSize, const bool 
     String tabs = getTab( tabsSize );
 
     String result;
-    result = result + tabs + "    \"name\": \"Viewport\",\n";
-    result = result + tabs + "    \"Position\": \n" + pos.serialize( tabsSize + 1, true );
-    result = result + tabs + "    \"Size\": \n" + size.serialize( tabsSize + 1 );
+    result.append(tabs);
+    result.append( "    \"name\": \"Viewport\",\n" );
+
+    result.append( tabs );
+    result.append( "    \"Position\": \n" + pos.serialize( tabsSize + 1, true ) );
+
+    result.append( tabs );
+    result.append( "    \"Size\": \n" );
+
+    result.append( size.serialize( tabsSize + 1 ) );
 
     return result;
 }
