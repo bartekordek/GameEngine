@@ -24,8 +24,6 @@ private:
     bool isLegacy() override;
 
     // Inherited via IRenderDevice
-    void attachShader( unsigned programId, unsigned shaderId ) override;
-    void dettachShader( unsigned programId, unsigned shaderId ) override;
     ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
 
     void createDescriptorHeaps();

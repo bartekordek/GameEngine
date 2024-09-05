@@ -22,14 +22,6 @@ bool DeviceDX09::isLegacy()
     return false;
 }
 
-void DeviceDX09::attachShader( unsigned programId, unsigned shaderId )
-{
-}
-
-void DeviceDX09::dettachShader( unsigned programId, unsigned shaderId )
-{
-}
-
 LOGLW::ContextInfo DeviceDX09::initContextVersion( SDL2W::IWindow* window )
 {
     LOGLW::ContextInfo result;

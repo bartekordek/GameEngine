@@ -175,8 +175,8 @@ public:
 
     virtual int getCurrentProgram() const;
 
-    virtual void attachShader( unsigned programId, unsigned shaderId ) = 0;
-    virtual void dettachShader( unsigned programId, unsigned shaderId ) = 0;
+    virtual void attachShader( unsigned programId, unsigned shaderId );
+    virtual void dettachShader( unsigned programId, unsigned shaderId );
     virtual void removeShader( unsigned shaderId );
 
     virtual ContextInfo initContextVersion( SDL2W::IWindow* window ) = 0;

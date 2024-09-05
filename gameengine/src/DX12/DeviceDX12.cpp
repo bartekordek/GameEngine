@@ -37,13 +37,6 @@ void DeviceDX12::lookAt( const Pos3Dd&, const Pos3Dd&, const Pos3Dd& )
 {
 }
 
-void DeviceDX12::attachShader( unsigned programId, unsigned shaderId )
-{
-}
-
-void DeviceDX12::dettachShader( unsigned programId, unsigned shaderId )
-{
-}
 
 void ThrowIfFailed( HRESULT hr );
 

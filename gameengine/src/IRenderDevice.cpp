@@ -201,6 +201,16 @@ int IRenderDevice::getCurrentProgram() const
     return 0;
 }
 
+void IRenderDevice::attachShader( unsigned programId, unsigned shaderId )
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
+void IRenderDevice::dettachShader( unsigned programId, unsigned shaderId )
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
 void IRenderDevice::resetMatrixToIdentity( const MatrixTypes matrix )
 {
     throw std::logic_error( "Method not implemented" );

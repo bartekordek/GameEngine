@@ -176,7 +176,7 @@ public:
 
 protected:
     std::atomic_bool m_drawOrigin = false;
-    std::array<IObject*, 3> m_axis = { nullptr, nullptr, nullptr };
+    std::array<IObject*, 3> m_axis{ nullptr, nullptr, nullptr };
     struct GUIParams
     {
         float z = 0.0f;

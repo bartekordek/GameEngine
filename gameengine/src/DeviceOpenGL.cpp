@@ -265,8 +265,8 @@ ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
     m_versionString = (char*) glGetString( GL_VERSION );
     checkLastCommandForErrors();
     log( "OpenGL Version: " + m_versionString );
-
-    if( m_versionString.toLowerR().contains( "es" ) )
+    const auto lower = m_versionString.toLowerR();
+    if( lower.contains( "es" ) )
     {
         m_isEmbeddedSystems = true;
     }
@@ -1902,11 +1902,16 @@ std::vector<std::string> split( const std::string& s, char delim )
 
 std::vector<std::string> DeviceOpenGL::listExtensions()
 {
+    std::vector<std::string> extensionsVec;
     GLint extensionsCount = 0;
     glGetIntegerv( GL_NUM_EXTENSIONS, &extensionsCount );
     const GLubyte* extensions = glGetString( GL_EXTENSIONS );
-    CUL::String wat = static_cast<const unsigned char*>( extensions );
-    std::vector<std::string> extensionsVec = split( wat.string(), ' ' );
+    if( extensions )
+    {
+        CUL::String wat( reinterpret_cast<const char*>( extensions ) );
+        extensionsVec = split( wat.string(), ' ' );
+    }
+
     return extensionsVec;
 }
 

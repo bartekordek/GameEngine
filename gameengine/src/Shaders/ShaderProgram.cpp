@@ -170,21 +170,20 @@ String ShaderProgram::getAttributeStr( const String& name )
 float ShaderProgram::getAttributeF( const String& name )
 {
     const std::int32_t uniformId = getUniformLocation( name );
-    return std::get<float>( m_uniformMapping[uniformId].Value );
+    return std::get<float>( m_uniformMapping[name].Value );
 }
 
 unsigned int ShaderProgram::getAttributeUi( const String& name )
 {
     const std::int32_t uniformId = getUniformLocation( name );
-    return std::get<std::uint32_t>( m_uniformMapping[uniformId].Value );
+    return std::get<std::uint32_t>( m_uniformMapping[name].Value );
 }
 
 int ShaderProgram::getAttributeI( const String& name )
 {
     const std::int32_t uniformId = getUniformLocation( name );
-    return std::get<std::int32_t>( m_uniformMapping[uniformId].Value );
+    return std::get<std::int32_t>( m_uniformMapping[name].Value );
 }
-
 
 void ShaderProgram::enable()
 {
