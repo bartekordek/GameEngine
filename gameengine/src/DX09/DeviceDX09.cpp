@@ -22,7 +22,7 @@ bool DeviceDX09::isLegacy()
     return false;
 }
 
-LOGLW::ContextInfo DeviceDX09::initContextVersion( SDL2W::IWindow* window )
+LOGLW::ContextInfo DeviceDX09::initContextVersion( SDL2W::IWindow* /*window*/ )
 {
     LOGLW::ContextInfo result;
     return result;
@@ -69,10 +69,6 @@ void DeviceDX09::initInterfaces()
 }
 
 void DeviceDX09::createDXDevice()
-{
-}
-
-void DeviceDX09::setAttribValue( int attributeLocation, float value )
 {
 }
 

@@ -504,10 +504,6 @@ void DeviceDX12::finishFrame()
     WaitForPreviousFrame();
 }
 
-void DeviceDX12::setAttribValue( int attributeLocation, float value )
-{
-}
-
 void DeviceDX12::setAttribValue( int attributeLocation, int value )
 {
 }
