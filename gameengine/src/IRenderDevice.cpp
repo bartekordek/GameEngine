@@ -90,12 +90,17 @@ unsigned int IRenderDevice::generateAndBindBuffer( const BufferTypes /* bufferTy
 
 void IRenderDevice::setObjectName( EObjectType, std::uint32_t, const CUL::String& )
 {
-    throw std::logic_error( "Method not implemented" );
+    throw std::logic_error( "Method not implemented." );
 }
 
 void IRenderDevice::removeShader( unsigned shaderId )
 {
-    throw std::logic_error( "Method not implemented" );
+    throw std::logic_error( "Method not implemented." );
+}
+
+void IRenderDevice::setAttribValue( int attributeLocation, float value )
+{
+    CUL::Assert::simple( false, "Method not implemented." );
 }
 
 unsigned int IRenderDevice::generateElementArrayBuffer( const std::vector<unsigned int>&/* data*/, const int /*size*/ /*= 1 */ )

@@ -30,7 +30,6 @@ private:
     void finishFrame() override;
     void useProgram( int programId ) override;
     ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
-    void setAttribValue( int attributeLocation, float value ) override;
     void setAttribValue( int attributeLocation, int value ) override;
     void setAttribValue( int attributeLocation, unsigned value ) override;
     void setAttribValue( int attributeLocation, bool value ) override;

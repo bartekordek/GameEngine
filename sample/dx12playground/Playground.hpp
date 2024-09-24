@@ -98,6 +98,6 @@ private:
 	Microsoft::WRL::ComPtr<IDXGISwapChain3> mSwapChain;   // the pointer to the swap chain interface
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> mCommandList;  //d3d12 command list
 	Microsoft::WRL::ComPtr<ID3D12Fence> mFence; //fence used by GPU to signal when command queue execution has finished
-	
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> mRenderTarget[g_bbCount]; //backbuffer resource, like d3d11's ID3D11Texture2D, array of 2 for flip_sequential support
 };

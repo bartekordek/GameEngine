@@ -181,7 +181,7 @@ public:
 
     virtual ContextInfo initContextVersion( SDL2W::IWindow* window ) = 0;
 
-    virtual void setAttribValue( int attributeLocation, float value ) = 0;
+    virtual void setAttribValue( int attributeLocation, float value );
     virtual void setAttribValue( int attributeLocation, int value ) = 0;
     virtual void setAttribValue( int attributeLocation, unsigned value ) = 0;
     virtual void setAttribValue( int attributeLocation, bool value ) = 0;

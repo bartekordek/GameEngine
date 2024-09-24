@@ -54,10 +54,6 @@ ContextInfo DeviceOpenGL_Legacy::initContextVersion( SDL2W::IWindow* )
     return ContextInfo();
 }
 
-void DeviceOpenGL_Legacy::setAttribValue( int, float )
-{
-}
-
 void DeviceOpenGL_Legacy::setAttribValue( int, int )
 {
 }
