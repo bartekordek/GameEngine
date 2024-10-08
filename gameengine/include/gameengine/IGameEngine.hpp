@@ -13,7 +13,7 @@
 #include "CUL/Log/ILogContainer.hpp"
 #include "CUL/Math/Vector3D.hpp"
 #include "CUL/String.hpp"
-#include "CUL/GenericUtils/SimpleDelegate.hpp"
+#include "CUL/GenericUtils/DelegateTemplate.hpp"
 
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
 #include "CUL/STL_IMPORTS/STD_queue.hpp"
@@ -25,7 +25,7 @@ NAMESPACE_BEGIN( CUL )
 NAMESPACE_BEGIN( GUTILS )
 class IConfigFile;
 #ifdef _MSC_VER
-class GAME_ENGINE_API CUL::GUTILS::SimpleDelegate;
+//class GAME_ENGINE_API CUL::GUTILS::SimpleDelegate;
 #endif
 NAMESPACE_END( GUTILS )
 NAMESPACE_END( CUL )
@@ -157,8 +157,7 @@ public:
     GAME_ENGINE_API ImGuiContext* getGuiContext() const;
     GAME_ENGINE_API void setGuiContext( ImGuiContext* const inContext );
 
-    CUL::GUTILS::SimpleDelegate guiFrameDelegate;
-
+    CUL::GUTILS::DelegateTemplateTwoParam<float, float> guiFrameDelegate;
 
     // Shaders
     GAME_ENGINE_API class ShaderProgram* createProgram();

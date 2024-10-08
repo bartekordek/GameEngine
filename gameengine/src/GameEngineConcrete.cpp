@@ -392,185 +392,197 @@ void GameEngineConcrete::renderFrame()
     m_frameTimer->start();
 }
 
+bool g_enableDebugInfo = false;
+
 #if _MSC_VER
 #pragma warning( push )
 #pragma warning( disable : 4061 )
 #endif
 void GameEngineConcrete::renderInfo()
 {
-    const auto& winSize = m_activeWindow->getSize();
-
-    String name = "INFO LOG";
-    ImGui::Begin( name.cStr(), nullptr,
-                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
-    ImGui::SetWindowPos( { 0, 0 } );
-    ImGui::SetWindowSize( { (float)winSize.getWidth() * 0.2f, (float)winSize.getHeight() * 1.f } );
-
-    ImGui::Text( "Legacy: %s", getDevice()->isLegacy() ? "true" : "false" );
-    ImGui::Text( "Renderer: %s", getDevice()->getName().cStr() );
-
-    float gputTotal = getGPUTotalAvailableMemoryKb();
-    gputTotal /= 1024;
-
-    float gpuCurrent = getGPUCurrentAvailableMemoryKb();
-    gpuCurrent /= 1024;
-
-    ImGui::Text( "GPU USAGE:" );
-    const CUL::String val = CUL::String( (int)gpuCurrent ) + CUL::String( "MB / " ) + CUL::String( (int)gputTotal ) + CUL::String( "MB" );
-    ImGui::ProgressBar( gpuCurrent / gputTotal, ImVec2( 0.f, 0.f ), val.cStr() );
-
-    auto res = false;
+    float debugInfoWidth{ 0.f };
+    float debugInfoHeight{ 0.f };
+    if( g_enableDebugInfo )
     {
-        static bool isPerspective = getCamera().getProjectionType() == LOGLW::ProjectionType::PERSPECTIVE;
-        res = ImGui::Checkbox( "Projection is Perspective", &isPerspective );
+        const auto& winSize = m_activeWindow->getSize();
+
+
+
+        String name = "INFO LOG";
+        ImGui::Begin( name.cStr(), nullptr,
+                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
+        ImGui::SetWindowPos( { 0, 0 } );
+
+        debugInfoWidth = (float)winSize.getWidth() * 0.2f;
+        debugInfoHeight = (float)winSize.getHeight() * 1.f;
+        ImGui::SetWindowSize( { debugInfoWidth, debugInfoHeight } );
+
+        ImGui::Text( "Legacy: %s", getDevice()->isLegacy() ? "true" : "false" );
+        ImGui::Text( "Renderer: %s", getDevice()->getName().cStr() );
+
+        float gputTotal = getGPUTotalAvailableMemoryKb();
+        gputTotal /= 1024;
+
+        float gpuCurrent = getGPUCurrentAvailableMemoryKb();
+        gpuCurrent /= 1024;
+
+        ImGui::Text( "GPU USAGE:" );
+        const CUL::String val =
+            CUL::String( (int)gpuCurrent ) + CUL::String( "MB / " ) + CUL::String( (int)gputTotal ) + CUL::String( "MB" );
+        ImGui::ProgressBar( gpuCurrent / gputTotal, ImVec2( 0.f, 0.f ), val.cStr() );
+
+        auto res = false;
+        {
+            static bool isPerspective = getCamera().getProjectionType() == LOGLW::ProjectionType::PERSPECTIVE;
+            res = ImGui::Checkbox( "Projection is Perspective", &isPerspective );
+            if( res )
+            {
+                getCamera().setProjectionType( isPerspective ? LOGLW::ProjectionType::PERSPECTIVE : LOGLW::ProjectionType::ORTO );
+                getCamera().toggleProjectionChanged( true );
+            }
+        }
+
+        // ImGui::Checkbox( "Depth test", &m_projectionData.m_depthTest.getRef() );
+        // m_projectionData.m_depthTest.runIfChanged();
+
+        ImGui::Text( "Aspect Ratio: %f", getCamera().getAspectRatio() );
+        ImGui::Text( "FOV-Y: %f", getCamera().getFov() );
+
+        CUL::Graphics::Pos3Dd centerPos = getCamera().getCenter();
+        String text = "Target:" + centerPos.serialize( 0 );
+        ImGui::Text( "%s", text.cStr() );
+
+        CUL::Graphics::Pos3Dd eyePos = getCamera().getEye();
+        text = "Eye:" + eyePos.serialize( 0 );
+        ImGui::Text( "%s", text.cStr() );
+
+        CUL::Graphics::Pos3Dd upPos = getCamera().getUp();
+        text = "Up:" + upPos.serialize( 0 );
+        ImGui::Text( "%s", text.cStr() );
+
+        const auto& mData = m_sdlW->getMouseData();
+        text = "Mouse = ( " + String( mData.getX() ) + ", " + String( mData.getY() ) + " )";
+        ImGui::Text( "%s", text.cStr() );
+
+        {
+            static float zNear = getCamera().getZnear();
+            res = ImGui::SliderFloat( "Z-near", &zNear, -4.f, 8.f );
+            if( res )
+            {
+                getCamera().setZNear( zNear );
+            }
+        }
+
+        {
+            static float zFar = getCamera().getZfar();
+            res = ImGui::SliderFloat( "Z-far", &zFar, 0.f, 64.f );
+            if( res )
+            {
+                getCamera().setZfar( zFar );
+            }
+        }
+
+        {
+            static glm::vec3 eye = getCamera().getEye();
+            res = ImGui::SliderFloat( "Eye-Z", &eye.z, -512.f, 1024.0f );
+            if( res )
+            {
+                getCamera().setEyePos( eye );
+            }
+        }
+
+        static glm::vec3 centerCamera = getCamera().getCenter();
+        res = ImGui::SliderFloat( "Center-Z", &centerCamera.z, -64.0f, 255.0f );
         if( res )
         {
-            getCamera().setProjectionType( isPerspective ? LOGLW::ProjectionType::PERSPECTIVE : LOGLW::ProjectionType::ORTO );
+            getCamera().setCenter( centerCamera );
             getCamera().toggleProjectionChanged( true );
         }
-    }
 
-    // ImGui::Checkbox( "Depth test", &m_projectionData.m_depthTest.getRef() );
-    // m_projectionData.m_depthTest.runIfChanged();
+        text = "Left: " + String( getCamera().getLeft() );
+        ImGui::Text( "%s", text.cStr() );
 
-    ImGui::Text( "Aspect Ratio: %f", getCamera().getAspectRatio() );
-    ImGui::Text( "FOV-Y: %f", getCamera().getFov() );
+        text = "Right: " + String( getCamera().getRight() );
+        ImGui::Text( "%s", text.cStr() );
 
-    CUL::Graphics::Pos3Dd centerPos = getCamera().getCenter();
-    String text = "Target:" + centerPos.serialize( 0 );
-    ImGui::Text( "%s", text.cStr() );
+        text = "Top: " + String( getCamera().getTop() );
+        ImGui::Text( "%s", text.cStr() );
 
-    CUL::Graphics::Pos3Dd eyePos = getCamera().getEye();
-    text = "Eye:" + eyePos.serialize( 0 );
-    ImGui::Text( "%s", text.cStr() );
+        text = "Bottom: " + String( getCamera().getBottom() );
+        ImGui::Text( "%s", text.cStr() );
 
-    CUL::Graphics::Pos3Dd upPos = getCamera().getUp();
-    text = "Up:" + upPos.serialize( 0 );
-    ImGui::Text( "%s", text.cStr() );
-
-    const auto& mData = m_sdlW->getMouseData();
-    text = "Mouse = ( " + String( mData.getX() ) + ", " + String( mData.getY() ) + " )";
-    ImGui::Text( "%s", text.cStr() );
-
-    {
-        static float zNear = getCamera().getZnear();
-        res = ImGui::SliderFloat( "Z-near", &zNear, -4.f, 8.f );
-        if( res )
+        for( const auto& pair : m_debugValues )
         {
-            getCamera().setZNear( zNear );
-        }
-    }
-
-    {
-        static float zFar = getCamera().getZfar();
-        res = ImGui::SliderFloat( "Z-far", &zFar, 0.f, 64.f );
-        if( res )
-        {
-            getCamera().setZfar( zFar );
-        }
-    }
-
-    {
-        static glm::vec3 eye = getCamera().getEye();
-        res = ImGui::SliderFloat( "Eye-Z", &eye.z, -512.f, 1024.0f );
-        if( res )
-        {
-            getCamera().setEyePos( eye );
-        }
-    }
-
-    static glm::vec3 centerCamera = getCamera().getCenter();
-    res = ImGui::SliderFloat( "Center-Z", &centerCamera.z, -64.0f, 255.0f );
-    if( res )
-    {
-        getCamera().setCenter( centerCamera );
-        getCamera().toggleProjectionChanged( true );
-    }
-
-    text = "Left: " + String( getCamera().getLeft() );
-    ImGui::Text( "%s", text.cStr() );
-
-    text = "Right: " + String( getCamera().getRight() );
-    ImGui::Text( "%s", text.cStr() );
-
-    text = "Top: " + String( getCamera().getTop() );
-    ImGui::Text( "%s", text.cStr() );
-
-    text = "Bottom: " + String( getCamera().getBottom() );
-    ImGui::Text( "%s", text.cStr() );
-
-    for( const auto& pair : m_debugValues )
-    {
-        if( pair.second.type == DebugType::TEXT )
-        {
-            const size_t id = pair.second.value.index();
-            switch( id )
+            if( pair.second.type == DebugType::TEXT )
             {
-                case 0:
-                    ImGui::Text( pair.second.text.cStr(), *(const char*)std::get<String*>( pair.second.value ) );
-                    break;
-                case 1:
-                    ImGui::Text( pair.second.text.cStr(), *std::get<float*>( pair.second.value ) );
-                    break;
-                case 2:
-                    ImGui::Text( pair.second.text.cStr(), *std::get<int*>( pair.second.value ) );
-                    break;
-                default:
-                    break;
+                const size_t id = pair.second.value.index();
+                switch( id )
+                {
+                    case 0:
+                        ImGui::Text( pair.second.text.cStr(), *(const char*)std::get<String*>( pair.second.value ) );
+                        break;
+                    case 1:
+                        ImGui::Text( pair.second.text.cStr(), *std::get<float*>( pair.second.value ) );
+                        break;
+                    case 2:
+                        ImGui::Text( pair.second.text.cStr(), *std::get<int*>( pair.second.value ) );
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else if( pair.second.type == DebugType::SLIDER )
+            {
+                const size_t id = pair.second.value.index();
+                bool changed = false;
+                switch( id )
+                {
+                    case 0:
+                        // ImGui::Text( pair.second.text.cStr(),  );
+                        // const auto changed = ImGui::SliderFloat(
+                        // pair.second.text.cStr(), *std::get<String*>(
+                        // pair.second.value ) 0.0f, 192.0f );
+                        break;
+                    case 1:
+                        changed = ImGui::SliderFloat( pair.second.text.cStr(), std::get<float*>( pair.second.value ), pair.second.min,
+                                                      pair.second.max );
+                        break;
+                    case 2:
+                        changed = ImGui::SliderInt( pair.second.text.cStr(), std::get<int*>( pair.second.value ), (int)pair.second.min,
+                                                    (int)pair.second.max );
+                        break;
+                    default:
+                        break;
+                }
+
+                if( changed && pair.second.onChange )
+                {
+                    pair.second.onChange();
+                }
             }
         }
-        else if( pair.second.type == DebugType::SLIDER )
-        {
-            const size_t id = pair.second.value.index();
-            bool changed = false;
-            switch( id )
-            {
-                case 0:
-                    // ImGui::Text( pair.second.text.cStr(),  );
-                    // const auto changed = ImGui::SliderFloat(
-                    // pair.second.text.cStr(), *std::get<String*>(
-                    // pair.second.value ) 0.0f, 192.0f );
-                    break;
-                case 1:
-                    changed = ImGui::SliderFloat( pair.second.text.cStr(), std::get<float*>( pair.second.value ), pair.second.min,
-                                                  pair.second.max );
-                    break;
-                case 2:
-                    changed = ImGui::SliderInt( pair.second.text.cStr(), std::get<int*>( pair.second.value ), (int)pair.second.min,
-                                                (int)pair.second.max );
-                    break;
-                default:
-                    break;
-            }
 
-            if( changed && pair.second.onChange )
+        ImGui::Text( "FrameTime: %4.2f ms", 1000.f / ImGui::GetIO().Framerate );
+        ImGui::Text( "FPS: %4.2f", m_activeWindow->getFpsCounter()->getCurrentFps() );
+
+        ImGui::Text( "m_currentFrameLengthNs: %d", m_currentFrameLengthNs );
+        ImGui::Text( "m_targetFrameLengthNs: %d", m_targetFrameLengthNs );
+        ImGui::Text( "m_frameSleepNs: %d", m_frameSleepNs );
+        ImGui::Text( "m_usDelta: %d", m_usDelta );
+
+        ImGui::End();
+
+        {
+            std::lock_guard<std::mutex> locker( m_guiTasksMtx );
+            while( false == m_guiTasks.empty() )
             {
-                pair.second.onChange();
+                auto task = m_guiTasks.front();
+                task();
+                m_guiTasks.pop();
             }
         }
     }
-
-    ImGui::Text( "FrameTime: %4.2f ms", 1000.f / ImGui::GetIO().Framerate );
-    ImGui::Text( "FPS: %4.2f", m_activeWindow->getFpsCounter()->getCurrentFps() );
-
-    ImGui::Text( "m_currentFrameLengthNs: %d", m_currentFrameLengthNs );
-    ImGui::Text( "m_targetFrameLengthNs: %d", m_targetFrameLengthNs );
-    ImGui::Text( "m_frameSleepNs: %d", m_frameSleepNs );
-    ImGui::Text( "m_usDelta: %d", m_usDelta );
-
-    ImGui::End();
-
-    {
-        std::lock_guard<std::mutex> locker( m_guiTasksMtx );
-        while( false == m_guiTasks.empty() )
-        {
-            auto task = m_guiTasks.front();
-            task();
-            m_guiTasks.pop();
-        }
-    }
-
-    guiFrameDelegate.execute();
+    guiFrameDelegate.execute(debugInfoWidth, debugInfoWidth);
 }
 #if _MSC_VER
 #pragma warning( pop )
