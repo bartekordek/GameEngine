@@ -56,7 +56,7 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
         const auto config = m_sdlW->getConfig();
         if( config )
         {
-            forceLegacy = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool();
+            forceLegacy = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool() == CUL::ThreeState::True;
         }
 
         const auto rendererType = m_activeWindow->getCurrentRendererType();
