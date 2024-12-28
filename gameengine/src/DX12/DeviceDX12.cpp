@@ -623,32 +623,32 @@ int DeviceDX12::getUniformLocation( unsigned programId, const String& attribName
 	return 0;
 }
 
-void DeviceDX12::unbindBuffer( const BufferTypes bufferType )
+void DeviceDX12::unbindBuffer( const BufferTypes )
 {
 }
 
-void DeviceDX12::bindBuffer( const BufferTypes bufferType, unsigned bufferId )
+void DeviceDX12::bindBuffer( const BufferTypes, unsigned )
 {
 }
 
-unsigned int DeviceDX12::generateBuffer( const BufferTypes type, const int size )
+unsigned int DeviceDX12::generateBuffer( const BufferTypes, const int )
 {
 	return 0;
 }
 
-void DeviceDX12::drawElements( const PrimitiveType type, const std::vector<unsigned int>& data )
+void DeviceDX12::drawElements( const PrimitiveType, const std::vector<unsigned int>& )
 {
 }
 
-void DeviceDX12::drawElements( const PrimitiveType type, const std::vector<float>& data )
+void DeviceDX12::drawElements( const PrimitiveType, const std::vector<float>& )
 {
 }
 
-void DeviceDX12::drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count )
+void DeviceDX12::drawElementsFromLastBuffer( const PrimitiveType, const DataType, unsigned )
 {
 }
 
-void DeviceDX12::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count )
+void DeviceDX12::drawArrays( unsigned, const PrimitiveType, unsigned, unsigned  )
 {
 }
 
@@ -660,19 +660,19 @@ void DeviceDX12::enableVertexAttribArray( unsigned )
 {
 }
 
-void DeviceDX12::setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data )
+void DeviceDX12::setVertexPointer( int, DataType, int, const void* )
 {
 }
 
-void DeviceDX12::draw( const QuadCUL& quad, const QuadCUL& texQuad )
+void DeviceDX12::draw( const QuadCUL&, const QuadCUL& )
 {
 }
 
-void DeviceDX12::draw( const QuadCUL& quad, const ColorS& color )
+void DeviceDX12::draw( const QuadCUL&, const ColorS& )
 {
 }
 
-void DeviceDX12::draw( const QuadCUL& quad, const Point& translation, const CUL::MATH::Rotation& rotation, const ColorS& color )
+void DeviceDX12::draw( const QuadCUL&, const Point&, const CUL::MATH::Rotation&, const ColorS& )
 {
 }
 
