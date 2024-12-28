@@ -27,10 +27,9 @@ CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 struct EditorState
 {
     CUL::String Name;
-    CUL::String Path;
     TextEditor Editor;
     CUL::String Extension;
-    CUL::FS::RegularFile File;
+    std::unique_ptr<CUL::FS::RegularFile> File;
 };
 
 ShaderEditor::ShaderEditor()
@@ -167,18 +166,28 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
         const CUL::String choosenShader = CUL::FS::PathDialog::getInstance().openDialog( filter );
         if( choosenShader.empty() == false )
         {
-            editorState.Path = choosenShader;
             editorState.Editor.SetReadOnly( true );
+            editorState.File = std::make_unique<CUL::FS::RegularFile>();
+            editorState.File->setPath( choosenShader );
+            editorState.File->loadBackground( true,
+                                              []()
+                                              {
+                                              } );
         }
     }
 
-    if( editorState.Path.empty() )
+    if( !editorState.File || editorState.File->getPath().getIsEmpty() )
     {
         ImGui::Text( "Choose path->" );
     }
     else
     {
-        ImGui::Text( editorState.Path.cStr() );
+        ImGui::Text( editorState.File->getPath().getPath().cStr() );
+    }
+
+    if( editorState.File && editorState.File->getIsLoaded() )
+    {
+        editorState.Editor.SetText( editorState.File->getAsOneString().cStr());
     }
 
     editorState.Editor.Render( name.cStr() );
