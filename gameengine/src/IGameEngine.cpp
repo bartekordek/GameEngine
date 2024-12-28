@@ -121,7 +121,7 @@ Quad* IGameEngine::createQuad( IObject* parent, bool forceLegacy )
     return result;
 }
 
-GAME_ENGINE_API Anchor* IGameEngine::createAnchor( IObject* parent, bool forceLegacy )
+Anchor* IGameEngine::createAnchor( IObject* parent, bool forceLegacy )
 {
     return new Anchor( getCamera(), *this, parent, forceLegacy );
 }
@@ -130,6 +130,16 @@ void IGameEngine::addGuiTask( std::function<void(void)> task )
 {
     std::lock_guard<std::mutex> lockSection( m_guiTasksMtx );
     m_guiTasks.push( task );
+}
+
+void IGameEngine::toggleDrawDebugInfo( bool inEnableDebugInfoDraw )
+{
+    m_drawDebugInfo = inEnableDebugInfoDraw;
+}
+
+bool IGameEngine::getDrawDebugInfo()
+{
+    return m_drawDebugInfo;
 }
 
 VertexArray* IGameEngine::createVAO()

@@ -170,6 +170,8 @@ public:
     GAME_ENGINE_API void releaseResources();
 
     GAME_ENGINE_API void addGuiTask( std::function<void(void)> task );
+    GAME_ENGINE_API void toggleDrawDebugInfo( bool inEnableDebugInfoDraw );
+    GAME_ENGINE_API bool getDrawDebugInfo();
 
     GAME_ENGINE_API virtual ~IGameEngine();
 
@@ -218,7 +220,8 @@ private:
     std::map<ShaderProgram*, std::unique_ptr<ShaderProgram>> m_shadersPrograms;
     std::map<String, ShaderProgram*> m_shaders;
 
-    ImGuiContext* m_ImGuiContext = nullptr;
+    ImGuiContext* m_ImGuiContext{ nullptr };
+    bool m_drawDebugInfo{ false };
 };
 
 NAMESPACE_END( LOGLW )

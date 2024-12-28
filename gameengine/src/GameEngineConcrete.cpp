@@ -45,9 +45,10 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );
     CUL::Assert::simple( nullptr != m_logger, "NO LOGGER." );
 
-    auto initTask = [this, sdl2w] (){
+    auto initTask = [this, sdl2w]()
+    {
         DebugSystemParams params;
-        static_assert( (int) ETextureUnitIndex::UNIT_0 == GL_TEXTURE0, "Incorrect texture unit mapping." );
+        static_assert( (int)ETextureUnitIndex::UNIT_0 == GL_TEXTURE0, "Incorrect texture unit mapping." );
 
         m_imageLoader = m_cul->getImageLoader();
 
@@ -56,7 +57,8 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
         const auto config = m_sdlW->getConfig();
         if( config )
         {
-            forceLegacy = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool() == CUL::ThreeState::True;
+            const CUL::ThreeState threeState = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool();
+            forceLegacy = threeState == CUL::ThreeState::True ? true : false;
         }
 
         const auto rendererType = m_activeWindow->getCurrentRendererType();
@@ -71,7 +73,7 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
         }
         else if( rendererType == SDL2W::RenderTypes::RendererType::DIRECTX_12 )
         {
-#if defined(GAME_ENGINE_WINDOWS)
+#if defined( GAME_ENGINE_WINDOWS )
             m_renderDevice = new DeviceDX12();
 #else
             CUL::Assert::simple( false, "NOTE IMPLEMENTED." );
@@ -95,15 +97,19 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
         params.SDLWindow = m_activeWindow->getSDLWindow();
         params.SDL_GL_Context = m_glContext.glContext;
 
-
         if( m_debugSystem )
         {
             m_debugSystem->init( params );
-            m_debugSystem->addRenderCallback( [this]() {
-                renderInfo();
-            } );
+            m_debugSystem->addRenderCallback(
+                [this]()
+                {
+                    renderInfo();
+                } );
         }
 
+        CUL::ThreeState drawDebugInfo = config->getValue( "DRAW_DEBUG_INFO" ).toBool();
+
+        toggleDrawDebugInfo( ( drawDebugInfo == CUL::ThreeState::True || drawDebugInfo == CUL::ThreeState::Undetermined ) ? true : false );
     };
     {
         std::lock_guard<std::mutex> lock( m_initTasksMtx );
@@ -264,7 +270,7 @@ void GameEngineConcrete::renderLoop()
 
     while( m_runRenderLoop )
     {
-        ZoneScoped; 
+        ZoneScoped;
         runPreRenderTasks();
         renderFrame();
         runPostRenderTasks();
@@ -349,8 +355,8 @@ void GameEngineConcrete::renderFrame()
 
     if( getCamera().getProjectionChanged() )
     {
-        //changeProjectionType();
-        //getCamera().toggleProjectionChanged( false );
+        // changeProjectionType();
+        // getCamera().toggleProjectionChanged( false );
     }
 
     if( m_onBeforeFrame )
@@ -376,7 +382,7 @@ void GameEngineConcrete::renderFrame()
         m_debugSystem->frame();
     }
 
-    if( m_frameTimer->getIsStarted())
+    if( m_frameTimer->getIsStarted() )
     {
         m_frameTimer->stop();
         m_currentFrameLengthNs = m_frameTimer->getElapsedNs();
@@ -392,8 +398,6 @@ void GameEngineConcrete::renderFrame()
     m_frameTimer->start();
 }
 
-bool g_enableDebugInfo = false;
-
 #if _MSC_VER
 #pragma warning( push )
 #pragma warning( disable : 4061 )
@@ -402,11 +406,9 @@ void GameEngineConcrete::renderInfo()
 {
     float debugInfoWidth{ 0.f };
     float debugInfoHeight{ 0.f };
-    if( g_enableDebugInfo )
+    if( getDrawDebugInfo() )
     {
         const auto& winSize = m_activeWindow->getSize();
-
-
 
         String name = "INFO LOG";
         ImGui::Begin( name.cStr(), nullptr,
@@ -582,7 +584,7 @@ void GameEngineConcrete::renderInfo()
             }
         }
     }
-    guiFrameDelegate.execute(debugInfoWidth, debugInfoWidth);
+    guiFrameDelegate.execute( debugInfoWidth, debugInfoWidth );
 }
 #if _MSC_VER
 #pragma warning( pop )
