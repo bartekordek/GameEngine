@@ -20,3 +20,6 @@
 	path = deps/tinyobjloader
 	url = git@github.com:tinyobjloader/tinyobjloader.git
 	ignore = dirty
+[submodule "deps/ImGuiColorTextEdit"]
+	path = deps/ImGuiColorTextEdit
+	url = git@github.com:bartekordek/ImGuiColorTextEdit.git
