@@ -44,13 +44,41 @@
             "preLaunchTask": "[WINDOWS][DEBUG][BUILLD][snake_static]"
         },
         {
-            "name": "Linux Debug",
+            "name": "[Linux][Debug][gameenginePlaygroundApp]",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceRoot}/Build-Linux/gameenginePlaygroundApp.bin",
-            "args": ["-w", "1024", "-h", "800" ],
+            "args": [
+                "-w",
+                "1024",
+                "-h",
+                "800"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/runDir",
+            "environment": [],
+            "externalConsole": false,
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "[Linux][Debug][shader_editor_static]",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/Build-Linux/shader_editor_static.bin",
+            "args": [
+                "-w",
+                "1024",
+                "-h",
+                "800"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/tools/shader_editor",
             "environment": [],
             "externalConsole": false,
             "setupCommands": [

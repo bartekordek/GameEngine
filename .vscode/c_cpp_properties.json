@@ -44,7 +44,9 @@
                 "${workspaceFolder}/deps/SDL2Wrapper/deps/SDL2/include",
                 "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/inc",
                 "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/src",
-                "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/deps/glm"
+                "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/deps/glm",
+                "${workspaceFolder}/deps/imgui",
+                "${workspaceFolder}/deps/ImGuiColorTextEdit"
             ],
             "defines": [
                 "_DEBUG",

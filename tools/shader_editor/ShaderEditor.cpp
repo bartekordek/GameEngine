@@ -100,14 +100,14 @@ void ShaderEditor::afterInit()
     TextEditor::LanguageDefinition languageDefinition = TextEditor::LanguageDefinition::GLSL();
 
     std::unique_ptr<EditorState> pixelShader = std::make_unique<EditorState>();
-    pixelShader->Extension = ".frag";
+    pixelShader->Extension = "frag";
     pixelShader->Name = "pixel_shader";
     pixelShader->Editor.SetReadOnly(true);
     m_editors.insert({pixelShader->Name.string(), std::move(pixelShader)});
 
 
     std::unique_ptr<EditorState> vertexShader = std::make_unique<EditorState>();
-    vertexShader->Extension = ".vert";
+    vertexShader->Extension = "vert";
     vertexShader->Name = "vertex_shader";
     vertexShader->Editor.SetReadOnly(true);
     m_editors.insert({vertexShader->Name.string(), std::move(vertexShader)});
@@ -167,7 +167,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
         if( choosenShader.empty() == false )
         {
             editorState.Editor.SetReadOnly( true );
-            editorState.File = std::make_unique<CUL::FS::RegularFile>();
+            editorState.File = std::make_unique<CUL::FS::RegularFile>( choosenShader, m_engine->getCul() );
             editorState.File->setPath( choosenShader );
             editorState.File->loadBackground( true,
                                               []()
@@ -182,7 +182,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
     }
     else
     {
-        ImGui::Text( editorState.File->getPath().getPath().cStr() );
+        ImGui::Text( "%s",editorState.File->getPath().getPath().cStr() );
     }
 
     if( editorState.File && editorState.File->getIsLoaded() )

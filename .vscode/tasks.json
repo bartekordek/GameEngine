@@ -69,6 +69,31 @@
             ]
         },
         {
+            "label": "[LINUX][DEBUG][BUILLD][shader_editor_static]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build-Linux",
+                "--config",
+                "DEBUG",
+                "-j16",
+                "--target",
+                "shader_editor_static"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {
             "label": "[LINUX][DEBUG][BUILLD][libsdl2wrapper_dynamic]",
             "type": "shell",
             "command": "cmake",
