@@ -2216,7 +2216,7 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath )
     else
     {
         CUL::Assert::simple( shaderPath.exists(), "NOT IN THE RENDER THREAD." );
-        newShader->File->load( true );
+        newShader->File->load( true, true );
     }
 
     const auto extension = newShader->File->getPath().getExtension();

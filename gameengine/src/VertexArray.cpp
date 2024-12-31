@@ -171,7 +171,7 @@ void VertexArray::runTasks()
                     auto shaderPath = m_shadersPaths.front();
 
                     auto shaderFile = CUL::CULInterface::getInstance()->getFF()->createFileFromPath( shaderPath );
-                    shaderFile->load(true);
+                    shaderFile->load( true, true );
                     //auto shader = new Shader( *getEngine(), shaderFile );
                     throw std::logic_error( "Method not implemented" );
                     //m_shaderProgram->attachShader( shader );

@@ -30,6 +30,7 @@ struct EditorState
     TextEditor Editor;
     CUL::String Extension;
     std::unique_ptr<CUL::FS::RegularFile> File;
+    std::string CachedText;
 };
 
 ShaderEditor::ShaderEditor()
@@ -169,10 +170,9 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
             editorState.Editor.SetReadOnly( true );
             editorState.File = std::make_unique<CUL::FS::RegularFile>( choosenShader, m_engine->getCul() );
             editorState.File->setPath( choosenShader );
-            editorState.File->loadBackground( true,
-                                              []()
-                                              {
-                                              } );
+            editorState.File->loadBackground( true, true, [&editorState]() {
+                editorState.CachedText = editorState.File->getAsOneString().string();
+            } );
         }
     }
 
@@ -185,9 +185,16 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
         ImGui::Text( "%s",editorState.File->getPath().getPath().cStr() );
     }
 
-    if( editorState.File && editorState.File->getIsLoaded() )
+    if( editorState.CachedText.empty() == false )
     {
-        editorState.Editor.SetText( editorState.File->getAsOneString().cStr());
+        editorState.Editor.SetText( editorState.CachedText );
+        editorState.Editor.SetReadOnly( false );
+        const std::string editorText = editorState.Editor.GetText();
+        if( editorText != editorState.CachedText )
+        {
+            m_engine->getLoger()->log("Hello!");
+        }
+
     }
 
     editorState.Editor.Render( name.cStr() );
