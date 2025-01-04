@@ -30,13 +30,6 @@ private:
     void finishFrame() override;
     void useProgram( int programId ) override;
     ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
-    void setAttribValue( int attributeLocation, int value ) override;
-    void setAttribValue( int attributeLocation, unsigned value ) override;
-    void setAttribValue( int attributeLocation, bool value ) override;
-    void setAttribValue( int attributeLocation, const CUL::String& value ) override;
-    void setUniformValue( int uniformLocation, float value ) override;
-    void setUniformValue( int uniformLocation, int value ) override;
-    void setUniformValue( int uniformLocation, unsigned value ) override;
     void setUniformValue( int uniformLocation, const glm::vec2& val ) override;
     void setUniformValue( int uniformLocation, const glm::vec3& val ) override;
     void setUniformValue( int uniformLocation, const glm::vec4& val ) override;

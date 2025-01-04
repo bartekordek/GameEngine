@@ -9,6 +9,7 @@
 #include "gameengine/Cube.hpp"
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Sprite.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 
 #include "SDL2Wrapper/IWindow.hpp"
 #include "SDL2Wrapper/Input/MouseData.hpp"
@@ -30,7 +31,7 @@ struct EditorState
     TextEditor Editor;
     CUL::String Extension;
     std::unique_ptr<CUL::FS::RegularFile> File;
-    std::string CachedText;
+    CUL::String CachedText;
 };
 
 ShaderEditor::ShaderEditor()
@@ -117,6 +118,9 @@ void ShaderEditor::afterInit()
     {
         currentPtr->Editor.SetLanguageDefinition(languageDefinition);
     }
+
+
+    m_shaderProgram = m_engine->createProgram();
 }
 
 void ShaderEditor::timer()
@@ -136,28 +140,43 @@ void ShaderEditor::guiIteration( float x, float /*y*/ )
     const auto targetHeight = (float)winSize.h * 1.f;
     const float wholeWidth = targetWidht * 0.5f;
     const float editorWidth = wholeWidth / 2.f;
-    ImGui::SetWindowSize( {wholeWidth, targetHeight } );
+    ImGui::SetWindowSize( { wholeWidth, targetHeight } );
 
-    drawEditor(x, 0, editorWidth, targetHeight, "pixel_shader");
-    drawEditor(x + editorWidth, 0, editorWidth, targetHeight, "vertex_shader");
+    ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+    const std::int32_t editorY = 16;
+    if( ImGui::BeginTabBar( "Editors Tabs", tab_bar_flags ) )
+    {
+        if( ImGui::BeginTabItem( "Pixel Shader" ) )
+        {
+            drawEditor( x, editorY, editorWidth, targetHeight - 10, "pixel_shader" );
+            ImGui::EndTabItem();
+        }
+
+        if( ImGui::BeginTabItem( "Vertex Shader" ) )
+        {
+            drawEditor( x, editorY, editorWidth, targetHeight - 10, "vertex_shader" );
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+    }
 
     ImGui::End();
 }
 
 void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::String& name )
 {
+    (void)x;
+    (void)y;
+    (void)w;
+    (void)h;
+
     EditorState& editorState = *m_editors[name.string()];
 
-    ImGui::SetNextWindowPos( ImVec2( x, y ), ImGuiCond_Always );
-    ImGui::SetNextWindowSize( ImVec2( w, h ), ImGuiCond_Always );
-
-    bool bOpen{ true };
     ImGuiWindowFlags window_flags{ 0 };
     window_flags |= ImGuiWindowFlags_NoTitleBar;
     window_flags |= ImGuiWindowFlags_NoMove;
     window_flags |= ImGuiWindowFlags_NoResize;
-
-    ImGui::Begin( name.cStr(), &bOpen, window_flags );
 
     if( ImGui::Button( "Press to find file." ) )
     {
@@ -170,36 +189,53 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
             editorState.Editor.SetReadOnly( true );
             editorState.File = std::make_unique<CUL::FS::RegularFile>( choosenShader, m_engine->getCul() );
             editorState.File->setPath( choosenShader );
-            editorState.File->loadBackground( true, true, [&editorState]() {
+            editorState.File->loadBackground( true, true,
+            [&editorState, this]()
+            {
                 editorState.CachedText = editorState.File->getAsOneString().string();
+                editorState.CachedText.removeTrailingLineEnd();
+                editorState.Editor.SetReadOnly( false );
+                editorState.Editor.SetText( editorState.CachedText.string() );
             } );
         }
     }
 
+    ImGui::SameLine();
+
     if( !editorState.File || editorState.File->getPath().getIsEmpty() )
     {
-        ImGui::Text( "Choose path->" );
+        ImGui::Text( "Choose path." );
     }
     else
     {
         ImGui::Text( "%s",editorState.File->getPath().getPath().cStr() );
     }
 
+    if( ImGui::Button( "Save & Compile" ) )
+    {
+        editorState.File->overwriteContents( editorState.CachedText );
+        editorState.File->saveFile();
+        m_shaderProgram->loadShader( editorState.File->getPath() );
+    }
+
     if( editorState.CachedText.empty() == false )
     {
-        editorState.Editor.SetText( editorState.CachedText );
-        editorState.Editor.SetReadOnly( false );
-        const std::string editorText = editorState.Editor.GetText();
+        CUL::String editorText = editorState.Editor.GetText();
+        editorText.removeTrailingLineEnd();
         if( editorText != editorState.CachedText )
         {
-            m_engine->getLoger()->log("Hello!");
+            m_engine->getLoger()->log( "editorText:" );
+            m_engine->getLoger()->log( editorText );
+            m_engine->getLoger()->log( "--------" );
+
+            m_engine->getLoger()->log( "editorState.CachedText:" );
+            m_engine->getLoger()->log( editorState.CachedText );
+            m_engine->getLoger()->log( "--------" );
         }
 
     }
 
     editorState.Editor.Render( name.cStr() );
-
-    ImGui::End();
 }
 
 void ShaderEditor::onMouseEvent( const SDL2W::MouseData& /*mouseData*/ )

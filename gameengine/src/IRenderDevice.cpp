@@ -98,7 +98,42 @@ void IRenderDevice::removeShader( unsigned shaderId )
     throw std::logic_error( "Method not implemented." );
 }
 
-void IRenderDevice::setAttribValue( int attributeLocation, float value )
+void IRenderDevice::setAttribValue( int /*attributeLocation*/, float /*value*/ )
+{
+    CUL::Assert::simple( false, "Method not implemented." );
+}
+
+void IRenderDevice::setAttribValue( int /*attributeLocation*/, int /*value*/ )
+{
+    CUL::Assert::simple( false, "Method not implemented." );
+}
+
+void IRenderDevice::setAttribValue( int /*attributeLocation*/, unsigned /*value*/ )
+{
+    CUL::Assert::simple( false, "Method not implemented." );
+}
+
+void IRenderDevice::setAttribValue( int /*attributeLocation*/, bool /*value*/ )
+{
+    CUL::Assert::simple( false, "Method not implemented." );
+}
+
+void IRenderDevice::setAttribValue( int /*attributeLocation*/, const CUL::String& /*value*/ )
+{
+    CUL::Assert::simple( false, "Method not implemented." );
+}
+
+void IRenderDevice::setUniformValue( int /*uniformLocation*/, float /*value*/ )
+{
+    CUL::Assert::simple( false, "Method not implemented." );
+}
+
+void IRenderDevice::setUniformValue( int /*uniformLocation*/, int /*value*/ )
+{
+    CUL::Assert::simple( false, "Method not implemented." );
+}
+
+void IRenderDevice::setUniformValue( int /*uniformLocation*/, unsigned /*value*/ )
 {
     CUL::Assert::simple( false, "Method not implemented." );
 }
@@ -206,9 +241,10 @@ int IRenderDevice::getCurrentProgram() const
     return 0;
 }
 
-void IRenderDevice::attachShader( unsigned programId, unsigned shaderId )
+bool IRenderDevice::attachShader( unsigned programId, unsigned shaderId )
 {
     throw std::logic_error( "Method not implemented" );
+    return false;
 }
 
 void IRenderDevice::dettachShader( unsigned programId, unsigned shaderId )

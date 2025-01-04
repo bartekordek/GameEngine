@@ -45,6 +45,7 @@ void ShaderProgram::loadShader( const String& shaderPath )
             attachShader( su->ID );
             link();
             validate();
+            su->State = EShaderUnitState::Loaded;
         } );
 }
 
@@ -193,6 +194,17 @@ void ShaderProgram::enable()
 void ShaderProgram::disable()
 {
     getDevice()->useProgram( 0 );
+}
+
+EShaderUnitState ShaderProgram::getShaderUnitState( CShaderTypes::ShaderType inType ) const
+{
+    const auto it = m_shaders.find( inType );
+    if( it == m_shaders.end() )
+    {
+        return EShaderUnitState::Unloaded;
+    }
+
+    return it->second->State;
 }
 
 

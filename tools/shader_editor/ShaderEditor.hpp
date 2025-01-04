@@ -37,6 +37,11 @@ namespace SDL2W
 	}
 }
 
+namespace LOGLW
+{
+class ShaderProgram;
+}
+
 struct EditorState;
 
 class ShaderEditor final: public SDL2W::IMouseObserver, public SDL2W::IKeyboardObserver
@@ -67,4 +72,6 @@ private:
     float m_time{0.f};
 
     std::unordered_map<std::string, std::unique_ptr<EditorState>> m_editors;
+
+    LOGLW::ShaderProgram* m_shaderProgram{ nullptr };
 };

@@ -72,34 +72,6 @@ void DeviceDX09::createDXDevice()
 {
 }
 
-void DeviceDX09::setAttribValue( int attributeLocation, int value )
-{
-}
-
-void DeviceDX09::setAttribValue( int attributeLocation, unsigned value )
-{
-}
-
-void DeviceDX09::setAttribValue( int attributeLocation, bool value )
-{
-}
-
-void DeviceDX09::setAttribValue( int attributeLocation, const CUL::String& value )
-{
-}
-
-void DeviceDX09::setUniformValue( int uniformLocation, float value )
-{
-}
-
-void DeviceDX09::setUniformValue( int uniformLocation, int value )
-{
-}
-
-void DeviceDX09::setUniformValue( int uniformLocation, unsigned value )
-{
-}
-
 void DeviceDX09::setUniformValue( int uniformLocation, const glm::vec2& val )
 {
 }

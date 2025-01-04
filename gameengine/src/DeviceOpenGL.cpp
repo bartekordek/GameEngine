@@ -521,14 +521,18 @@ ShaderTypes DeviceOpenGL::getShaderType( const CUL::String& fileExtension )
     return static_cast<ShaderTypes>( GL_INVALID_ENUM );
 }
 
-void DeviceOpenGL::attachShader( unsigned programId, unsigned shaderId )
+bool DeviceOpenGL::attachShader( unsigned programId, unsigned shaderId )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    glAttachShader( toGluint( programId ), toGluint( shaderId ) );
+    const GLuint programIdConverted = toGluint( programId );
+
+    glAttachShader( programIdConverted, toGluint( shaderId ) );
+
+    return true;
 }
 
 void DeviceOpenGL::dettachShader( unsigned programId, unsigned shaderId )
@@ -2094,8 +2098,9 @@ void DeviceOpenGL::finishFrame()
 {
 }
 
-void DeviceOpenGL::getLastOperationStatus()
+bool DeviceOpenGL::getLastOperationStatus()
 {
+    bool result{ true };
     GLenum errorCode;
     while( ( errorCode = glGetError() ) != GL_NO_ERROR )
     {
@@ -2126,7 +2131,9 @@ void DeviceOpenGL::getLastOperationStatus()
         }
 
         log(error);
+        result = false;
     }
+    return result;
 }
 
 
@@ -2238,9 +2245,14 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath )
         GLchar eLog[1024] = { 0 };
         glGetShaderInfoLog( id, sizeof( eLog ), nullptr, eLog );
         auto errorAsString = std::string( eLog );
-        CUL::String shaderCompilationErrorMessage = "Error compiling shader: " + errorAsString + "\n";
-        shaderCompilationErrorMessage += "Shader Path: " + shaderCode.getPath().getPath() + "\n";
-        customAssert( false, shaderCompilationErrorMessage );
+        newShader->ErrorMsg = "Error compiling shader: " + errorAsString + "\n";
+        newShader->ErrorMsg += "Shader Path: " + shaderCode.getPath().getPath() + "\n";
+        customAssert( false, newShader->ErrorMsg );
+        newShader->State = EShaderUnitState::Error;
+    }
+    else
+    {
+        newShader->State = EShaderUnitState::Loaded;
     }
 
     newShader->ID = id;

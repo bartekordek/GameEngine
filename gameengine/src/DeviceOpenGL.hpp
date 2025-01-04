@@ -57,7 +57,7 @@ private:
     void validateProgram( std::uint32_t programId ) override;
 
     ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath ) override;
-    void attachShader( unsigned programId, unsigned shaderId ) override;
+    bool attachShader( unsigned programId, unsigned shaderId ) override;
     void dettachShader( unsigned programId, unsigned shaderId ) override;
     void removeShader( unsigned shaderId ) override;
     void useProgram( int programId ) override;
@@ -190,7 +190,7 @@ private:
     uint8_t m_lastTextureId = 0u;
 
     void toggleDebugOutput( bool enable ) override;
-    void getLastOperationStatus();
+    bool getLastOperationStatus();
 
     unsigned getGPUTotalAvailableMemoryKb() override;
     unsigned getGPUCurrentAvailableMemoryKb() override;

@@ -175,22 +175,21 @@ public:
 
     virtual int getCurrentProgram() const;
 
-    virtual void attachShader( unsigned programId, unsigned shaderId );
+    virtual bool attachShader( unsigned programId, unsigned shaderId );
     virtual void dettachShader( unsigned programId, unsigned shaderId );
     virtual void removeShader( unsigned shaderId );
 
     virtual ContextInfo initContextVersion( SDL2W::IWindow* window ) = 0;
 
     virtual void setAttribValue( int attributeLocation, float value );
-    virtual void setAttribValue( int attributeLocation, int value ) = 0;
-    virtual void setAttribValue( int attributeLocation, unsigned value ) = 0;
-    virtual void setAttribValue( int attributeLocation, bool value ) = 0;
-    virtual void setAttribValue( int attributeLocation, const CUL::String& value ) = 0;
+    virtual void setAttribValue( int attributeLocation, int value );
+    virtual void setAttribValue( int attributeLocation, unsigned value );
+    virtual void setAttribValue( int attributeLocation, bool value );
+    virtual void setAttribValue( int attributeLocation, const CUL::String& value );
 
-    virtual void setUniformValue( int uniformLocation, float value ) = 0;
-    virtual void setUniformValue( int uniformLocation, int value ) = 0;
-    virtual void setUniformValue( int uniformLocation, unsigned value ) = 0;
-
+    virtual void setUniformValue( int uniformLocation, float value );
+    virtual void setUniformValue( int uniformLocation, int value );
+    virtual void setUniformValue( int uniformLocation, unsigned value );
 
     virtual void setUniformValue( int uniformLocation, const glm::vec2& val ) = 0;
     virtual void setUniformValue( int uniformLocation, const glm::vec3& val ) = 0;

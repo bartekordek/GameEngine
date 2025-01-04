@@ -12,6 +12,15 @@ NAMESPACE_END( CUL )
 
 NAMESPACE_BEGIN( LOGLW )
 
+
+enum class EShaderUnitState : std::int8_t
+{
+    Unkown = 1,
+    Loaded,
+    Unloaded,
+    Error
+};
+
 #if defined( _MSC_VER )
 #pragma warning( push, 0 )
 #pragma warning( disable : 4625 )
@@ -23,6 +32,8 @@ struct GAME_ENGINE_API ShaderUnit
     std::unique_ptr<CUL::FS::IFile> File;
     CShaderTypes::ShaderType Type{ CShaderTypes::ShaderType::Unkown };
     std::uint32_t ID = 0u;
+    EShaderUnitState State{ EShaderUnitState::Unkown };
+    CUL::String ErrorMsg;
 };
 
 #if defined( _MSC_VER )

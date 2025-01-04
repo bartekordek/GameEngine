@@ -54,34 +54,6 @@ ContextInfo DeviceOpenGL_Legacy::initContextVersion( SDL2W::IWindow* )
     return ContextInfo();
 }
 
-void DeviceOpenGL_Legacy::setAttribValue( int, int )
-{
-}
-
-void DeviceOpenGL_Legacy::setAttribValue( int, unsigned )
-{
-}
-
-void DeviceOpenGL_Legacy::setAttribValue( int, bool )
-{
-}
-
-void DeviceOpenGL_Legacy::setAttribValue( int , const CUL::String&  )
-{
-}
-
-void DeviceOpenGL_Legacy::setUniformValue( int, float )
-{
-}
-
-void DeviceOpenGL_Legacy::setUniformValue( int, int )
-{
-}
-
-void DeviceOpenGL_Legacy::setUniformValue( int uniformLocation, unsigned value )
-{
-}
-
 void DeviceOpenGL_Legacy::setUniformValue( int uniformLocation, const glm::vec2& val )
 {
 }

@@ -41,7 +41,11 @@ class ShaderProgram;
 
 using BuffIDType = std::uint32_t;
 
-class GAME_ENGINE_API VertexArray final: public IUtilityUser, public IRenderable, public CUL::IName, public CUL::IRegisterdObject
+class GAME_ENGINE_API VertexArray final:
+    public IUtilityUser,
+    public IRenderable,
+    public CUL::IName,
+    public CUL::IRegisterdObject
 {
 public:
     explicit VertexArray( IGameEngine& engine );

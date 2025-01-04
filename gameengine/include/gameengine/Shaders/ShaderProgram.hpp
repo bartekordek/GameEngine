@@ -16,9 +16,16 @@
 NAMESPACE_BEGIN( LOGLW )
 
 class IGameEngine;
+enum class EShaderUnitState : std::int8_t;
 struct ShaderUnit;
 
 using String = CUL::String;
+enum class EShaderProgramState : std::int8_t
+{
+    Unkown = -1,
+    Ok,
+    LinkError
+};
 
 class GAME_ENGINE_API ShaderProgram final: private IUtilityUser, public CUL::IName, public CUL::IRegisterdObject
 {
@@ -62,6 +69,8 @@ public:
 
     void enable();
     void disable();
+
+    EShaderUnitState getShaderUnitState( CShaderTypes::ShaderType inType ) const;
 
     ~ShaderProgram();
 
