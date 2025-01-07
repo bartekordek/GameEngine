@@ -8,6 +8,12 @@ using namespace LOGLW;
 
 VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* engine ) : IRenderable( engine )
 {
+    setVertexData( vertexData );
+    setName( "vertex_buffer_" + CUL::String( getId() ) );
+}
+
+void VertexBuffer::setVertexData( const VertexData& vertexData )
+{
     m_vertexData = vertexData;
     loadData();
 
@@ -19,7 +25,6 @@ VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* engine ) 
                 getDevice()->setObjectName( EObjectType::BUFFER, m_vertexData.VBO, newName );
             } );
     };
-    setName( "vertex_buffer_" + CUL::String( getId() ) );
 }
 
 void VertexBuffer::loadData()
@@ -72,6 +77,11 @@ int VertexBuffer::getSize() const
 void VertexBuffer::bind()
 {
     getDevice()->bindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER, m_vertexData.VBO );
+}
+
+const VertexData& VertexBuffer::getData() const
+{
+    return m_vertexData;
 }
 
 VertexBuffer::~VertexBuffer()

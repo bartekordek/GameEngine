@@ -40,6 +40,7 @@ namespace SDL2W
 namespace LOGLW
 {
 class ShaderProgram;
+class VertexArray;
 }
 
 struct EditorState;
@@ -47,7 +48,7 @@ struct EditorState;
 class ShaderEditor final: public SDL2W::IMouseObserver, public SDL2W::IKeyboardObserver
 {
 public:
-    ShaderEditor();
+    ShaderEditor( std::int16_t w, std::int16_t h, std::int16_t x, std::int16_t y );
     void run();
     void closeApp();
     virtual ~ShaderEditor();
@@ -73,5 +74,10 @@ private:
 
     std::unordered_map<std::string, std::unique_ptr<EditorState>> m_editors;
 
-    LOGLW::ShaderProgram* m_shaderProgram{ nullptr };
+    LOGLW::VertexArray* m_vao{ nullptr };
+
+    std::int16_t m_width;
+    std::int16_t m_height;
+    std::int16_t m_x;
+    std::int16_t m_y;
 };

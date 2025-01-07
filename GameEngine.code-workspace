@@ -6,6 +6,10 @@
     ],
     "settings": {
         "files.associations": {
+            "*.script": "lua",
+            "*.config": "xml",
+            "*.vert": "glsl",
+            "*.frag": "glsl",
             "xlocale": "cpp",
             "pointers": "cpp",
             "algorithm": "cpp",
@@ -105,7 +109,12 @@
             "xutility": "cpp",
             "*.ipp": "cpp",
             "span": "cpp",
-            "strstream": "cpp"
+            "strstream": "cpp",
+            "coroutine": "cpp",
+            "format": "cpp",
+            "ranges": "cpp",
+            "source_location": "cpp",
+            "valarray": "cpp"
         }
     }
 }

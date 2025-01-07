@@ -44,8 +44,8 @@ enum class DataType : int
     UNSIGNED_SHORT = 0x1403,
     INT = 0x1404,
     UNSIGNED_INT = 0x1405,
-    FLOAT = 0x1406,
-    DOUBLE = 0x140A
+    FLOAT = 0x1406,          //5126
+    DOUBLE = 0x140A          //5130
 };
 
 inline const char* DataTypeToName( DataType inDataType )

@@ -50,18 +50,17 @@ class GAME_ENGINE_API VertexArray final:
 public:
     explicit VertexArray( IGameEngine& engine );
 
+    VertexArray( const VertexArray& value ) = delete;
+    VertexArray( VertexArray&& value ) = delete;
+    VertexArray& operator=( const VertexArray& value ) = delete;
+    VertexArray& operator=( VertexArray&& value ) = delete;
+
     BuffIDType getId() const;
-    void addVBO( VertexBuffer* vbo );
-
     void addVertexBuffer( VertexData& data );
-
     void createShader( const CUL::FS::Path& path );
-
     ShaderProgram* getProgram();
-
     void render() override;
-
-    VertexBuffer* getVertexBuffer();
+    VertexBuffer* getVertexBuffer( std::size_t inIndex );
 
     void bind();
     void unbind();
@@ -89,7 +88,7 @@ private:
 
 
     void createVAO();
-    void createVBOs();
+    void createVBOs( VertexData& data );
 
     std::uint32_t m_vaoId = 0;
 
@@ -101,18 +100,11 @@ private:
     std::mutex m_shadersMtx;
     std::queue<CUL::FS::Path> m_shadersPaths;
 
-    std::vector<VertexData> m_vboDataToPrepare;
-    std::vector<Ptr<VertexBuffer>> m_vbos;
-    size_t m_vbosCount = 0;
+    std::vector<std::unique_ptr<VertexBuffer>> m_vbos;
 
     std::vector<Ptr<IndexBuffer>> m_indexBuffers;
 
     std::vector < std::vector<unsigned>> m_indicesToPrepare;
-
-    VertexArray( const VertexArray& value ) = delete;
-    VertexArray( VertexArray&& value ) = delete;
-    VertexArray& operator=( const VertexArray& value ) = delete;
-    VertexArray& operator=( VertexArray&& value ) = delete;
 };
 
 NAMESPACE_END( LOGLW )

@@ -39,10 +39,6 @@ BuffIDType VertexArray::getId() const
     return m_vaoId;
 }
 
-void VertexArray::addVBO( VertexBuffer* )
-{
-}
-
 ShaderProgram* VertexArray::getProgram()
 {
     return m_shaderProgram;
@@ -85,17 +81,7 @@ void VertexArray::createShader( const CUL::FS::Path& path )
 
 void VertexArray::addVertexBuffer( VertexData& data )
 {
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
-    {
-        m_vboDataToPrepare.emplace_back( std::move( data ) );
-        createVBOs();
-    }
-    else
-    {
-        std::lock_guard<std::mutex> guard( m_vbosMtx );
-        m_vboDataToPrepare.emplace_back( std::move( data ) );
-        registerTask( TaskType::ADD_VBO );
-    }
+    createVBOs( data );
 }
 
 void VertexArray::render()
@@ -105,26 +91,24 @@ void VertexArray::render()
     bind();
     if( m_shaderProgram )
     {
-        throw std::logic_error( "Method not implemented" );
-        //m_shaderProgram->render();
+        m_shaderProgram->enable();
     }
 
-    const size_t vbosCount = (size_t)m_vbosCount;
+    const size_t vbosCount = (size_t)m_vbos.size();
     for( size_t i = 0; i < vbosCount; ++i )
     {
         m_vbos[i]->render();
     }
     if( m_shaderProgram )
     {
-        throw std::logic_error( "Method not implemented" );
-        //m_shaderProgram->disable();
+        m_shaderProgram->disable();
     }
     unbind();
 }
 
-VertexBuffer* VertexArray::getVertexBuffer()
+VertexBuffer* VertexArray::getVertexBuffer( std::size_t inIndex )
 {
-    return m_vbos.front();
+    return m_vbos[inIndex].get();
 }
 
 bool VertexArray::taskIsAlreadyPlaced( TaskType tt ) const
@@ -141,10 +125,6 @@ void VertexArray::runTasks()
         if( task == TaskType::CREATE_VAO )
         {
             createVAO();
-        }
-        else if( task == TaskType::ADD_VBO )
-        {
-            createVBOs();
         }
         else if( task == TaskType::CREATE_PROGRAM )
         {
@@ -200,25 +180,18 @@ void VertexArray::registerTask( TaskType taskType )
     m_preRenderTasks.push_back( taskType );
 }
 
-void VertexArray::createVBOs()
+void VertexArray::createVBOs( VertexData& data )
 {
     bind();
-    while( !m_vboDataToPrepare.empty() )
-    {
-        auto vboData = m_vboDataToPrepare.back();
-        vboData.VAO = getId();
-        auto vbo = new VertexBuffer( vboData, getEngine() );
-        vbo->setDisableRenderOnMyOwn( true );
-        m_vbos.emplace_back( vbo );
-        m_vboDataToPrepare.pop_back();
-        ++m_vbosCount;
-    }
+    data.VAO = getId();
+    auto vbo = new VertexBuffer( data, getEngine() );
+    vbo->setDisableRenderOnMyOwn( true );
+    m_vbos.emplace_back( vbo );
 }
 
 void VertexArray::createVAO()
 {
-    m_vaoId = IUtilityUser::getDevice()->generateBuffer(
-        BufferTypes::VERTEX_ARRAY );
+    m_vaoId = IUtilityUser::getDevice()->generateBuffer( BufferTypes::VERTEX_ARRAY );
 }
 
 void VertexArray::bind()

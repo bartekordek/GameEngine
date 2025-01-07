@@ -1,5 +1,6 @@
 #include "ShaderEditor.hpp"
 
+#include "gameengine/AttributeMeta.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/EngineParams.hpp"
 #include "gameengine/Camera.hpp"
@@ -10,6 +11,7 @@
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Sprite.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
+#include "gameengine/VertexArray.hpp"
 
 #include "SDL2Wrapper/IWindow.hpp"
 #include "SDL2Wrapper/Input/MouseData.hpp"
@@ -34,18 +36,18 @@ struct EditorState
     CUL::String CachedText;
 };
 
-ShaderEditor::ShaderEditor()
+ShaderEditor::ShaderEditor( std::int16_t w, std::int16_t h, std::int16_t x, std::int16_t y ):
+    m_width( w ),
+    m_height( h ),
+    m_x( x ),
+    m_y( y )
 {
-
 }
 
 void ShaderEditor::run()
 {
-    auto width = 1280;
-    auto height = 600;
-
-    CUL::Graphics::Pos2Di winPos = { 200, 200 };
-    SDL2W::WinSize winSize = { width, height };
+    CUL::Graphics::Pos2Di winPos = { m_x, m_y };
+    SDL2W::WinSize winSize = { m_width, m_height };
 
     LOGLW::EngineParams engineParams;
     engineParams.configPath = "Config.txt";
@@ -65,7 +67,7 @@ void ShaderEditor::run()
     m_engine->drawOrigin( true );
     m_engine->startRenderingLoop();
 
-    m_timer.reset(CUL::TimerFactory::getChronoTimer( m_engine->getLoger() ) );
+    m_timer.reset( CUL::TimerFactory::getChronoTimer( m_engine->getLoger() ) );
 
     m_engine->runEventLoop();
 }
@@ -119,8 +121,29 @@ void ShaderEditor::afterInit()
         currentPtr->Editor.SetLanguageDefinition(languageDefinition);
     }
 
+    m_vao = m_engine->createVAO();
+    LOGLW::VertexData vertData;
+    vertData.indices = {
+        // note that we start from 0!
+        0, 1, 3,  // first Triangle
+        1, 2, 3   // second Triangle
+    };
+    constexpr float size = 4.f;
+    //vertData.vertices = m_shape.toVectorOfFloat();
+    vertData.vertices = {
+        0.0f, 0.0f, 0.0f,
+        size / 2.f, size, 0.f,
+        size, 0.f, 0.f };
 
-    m_shaderProgram = m_engine->createProgram();
+    vertData.Attributes.emplace_back(
+        LOGLW::AttributeMeta( "pos", 0, 3, LOGLW::DataType::FLOAT, false, (int)CUL::MATH::Primitives::Triangle::getStride(), nullptr ) );
+    vertData.Attributes.emplace_back( LOGLW::AttributeMeta( "nor", 1, 3, LOGLW::DataType::FLOAT, false,
+                                                    (int)CUL::MATH::Primitives::Triangle::getStride(),
+                                                    reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
+
+    vertData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
+
+    m_vao->addVertexBuffer( vertData );
 }
 
 void ShaderEditor::timer()
@@ -140,6 +163,7 @@ void ShaderEditor::guiIteration( float x, float /*y*/ )
     const auto targetHeight = (float)winSize.h * 1.f;
     const float wholeWidth = targetWidht * 0.5f;
     const float editorWidth = wholeWidth / 2.f;
+    const float editorHeight = targetHeight * 0.4f;
     ImGui::SetWindowSize( { wholeWidth, targetHeight } );
 
     ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
@@ -148,17 +172,25 @@ void ShaderEditor::guiIteration( float x, float /*y*/ )
     {
         if( ImGui::BeginTabItem( "Pixel Shader" ) )
         {
-            drawEditor( x, editorY, editorWidth, targetHeight - 10, "pixel_shader" );
+            drawEditor( x, editorY, editorWidth, editorHeight, "pixel_shader" );
             ImGui::EndTabItem();
         }
 
         if( ImGui::BeginTabItem( "Vertex Shader" ) )
         {
-            drawEditor( x, editorY, editorWidth, targetHeight - 10, "vertex_shader" );
+            drawEditor( x, editorY, editorWidth, editorHeight, "vertex_shader" );
             ImGui::EndTabItem();
         }
 
         ImGui::EndTabBar();
+    }
+
+    if( ImGui::TreeNode( "Input Data" ) )
+    {
+        const char* typeName = DataTypeToName( m_vao->getVertexBuffer( 0 )->getData().Attributes[0].Type );
+        ImGui::Text( "Data type: %s", typeName );
+
+        ImGui::TreePop();
     }
 
     ImGui::End();
@@ -215,7 +247,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
     {
         editorState.File->overwriteContents( editorState.CachedText );
         editorState.File->saveFile();
-        m_shaderProgram->loadShader( editorState.File->getPath() );
+        m_vao->getProgram()->loadShader( editorState.File->getPath() );
     }
 
     if( editorState.CachedText.empty() == false )

@@ -21,7 +21,7 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool f
     setParent( parent );
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    constexpr float size = 4.f;
+   constexpr float size = 4.f;
     m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
     // TODO: add normals
     setSize( { size, size, 0 } );
