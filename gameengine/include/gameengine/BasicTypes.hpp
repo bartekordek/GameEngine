@@ -48,6 +48,50 @@ enum class DataType : int
     DOUBLE = 0x140A
 };
 
+inline const char* DataTypeToName( DataType inDataType )
+{
+    if( inDataType == DataType::BYTE )
+    {
+        return "byte";
+    }
+
+    if( inDataType == DataType::UNSIGNED_BYTE )
+    {
+        return "unsigned byte";
+    }
+
+    if( inDataType == DataType::SHORT )
+    {
+        return "short";
+    }
+
+    if( inDataType == DataType::UNSIGNED_SHORT )
+    {
+        return "unsigned short";
+    }
+
+    if( inDataType == DataType::INT )
+    {
+        return "int";
+    }
+
+    if( inDataType == DataType::UNSIGNED_INT )
+    {
+        return "unsigned int";
+    }
+
+    if( inDataType == DataType::FLOAT )
+    {
+        return "float";
+    }
+
+    if( inDataType == DataType::DOUBLE )
+    {
+        return "double";
+    }
+
+    return "none";
+}
 
 enum class TextureFilterType : short
 {
