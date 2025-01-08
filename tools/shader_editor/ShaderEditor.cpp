@@ -160,9 +160,9 @@ void ShaderEditor::guiIteration( float x, float /*y*/ )
 
     auto winSize = m_engine->getMainWindow()->getSize();
     const auto targetWidht = (float)winSize.w - x;
-    const auto targetHeight = (float)winSize.h * 1.f;
+    const auto targetHeight = (float)winSize.h * 0.9f;
     const float wholeWidth = targetWidht * 0.5f;
-    const float editorWidth = wholeWidth / 2.f;
+    const float editorWidth = wholeWidth / 1.25f;
     const float editorHeight = targetHeight * 0.4f;
     ImGui::SetWindowSize( { wholeWidth, targetHeight } );
 
@@ -189,6 +189,8 @@ void ShaderEditor::guiIteration( float x, float /*y*/ )
     {
         const char* typeName = DataTypeToName( m_vao->getVertexBuffer( 0 )->getData().Attributes[0].Type );
         ImGui::Text( "Data type: %s", typeName );
+        ImGui::Text( "Data size: %d", m_vao->getVertexBuffer( 0 )->getData().Attributes[0].Size );
+        ImGui::Text( "Stride: %d", m_vao->getVertexBuffer( 0 )->getData().Attributes[0].Stride );
 
         ImGui::TreePop();
     }
@@ -200,8 +202,6 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
 {
     (void)x;
     (void)y;
-    (void)w;
-    (void)h;
 
     EditorState& editorState = *m_editors[name.string()];
 
@@ -267,7 +267,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
 
     }
 
-    editorState.Editor.Render( name.cStr() );
+    editorState.Editor.Render( name.cStr(), ImVec2( w, h ) );
 }
 
 void ShaderEditor::onMouseEvent( const SDL2W::MouseData& /*mouseData*/ )

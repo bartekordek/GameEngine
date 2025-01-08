@@ -51,6 +51,16 @@ void Cube::setColor( const CUL::Graphics::ColorS& color )
     }
 }
 
+void Cube::setName( const CUL::String& name )
+{
+    IObject::setName( name );
+    std::uint32_t i{ 0u };
+    for( Quad* quad : m_walls )
+    {
+        quad->setName( getName() + "::wall_" + String( i++ ) );
+    }
+}
+
 void Cube::createPlaceHolders()
 {
     const TransformComponent::Pos cubeSize( 2.f, 2.f, 2.f );
@@ -70,7 +80,7 @@ void Cube::createPlaceHolders()
         //transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, 3.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
-        quad->setName( "Wall00" );
+        quad->setName( getName() + "::wall_00" );
         quad->setColor( CUL::Graphics::ColorE::GREEN );
         m_walls[0] = quad;
     }
@@ -84,7 +94,7 @@ void Cube::createPlaceHolders()
         transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, -1.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
-        quad->setName( "Wall01" );
+        quad->setName( getName() + "::wall_01" );
         quad->setColor( m_color );
         m_walls[1] = quad;
     }
@@ -101,7 +111,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setRotationToParent( rotation );
-        quad->setName( "Wall02" );
+        quad->setName( getName() + "::wall_02" );
         quad->setColor( m_color );
         m_walls[2] = quad;
     }
@@ -118,7 +128,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setRotationToParent( rotation );
-        quad->setName( "Wall03" );
+        quad->setName( getName() + "::wall_03" );
         quad->setColor( m_color );
         m_walls[3] = quad;
     }
@@ -135,7 +145,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setRotationToParent( rotation );
-        quad->setName( "Wall04" );
+        quad->setName( getName() + "::wall_04" );
         quad->setColor( m_color );
         m_walls[4] = quad;
     }
@@ -152,7 +162,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setRotationToParent( rotation );
-        quad->setName( "Wall05" );
+        quad->setName( getName() + "::wall_05" );
         quad->setColor( m_color );
         m_walls[5] = quad;
     }

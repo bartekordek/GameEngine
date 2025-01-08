@@ -32,6 +32,7 @@ public:
 
     GAME_ENGINE_API void setImage( unsigned wallIndex, const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
+    GAME_ENGINE_API void setName( const CUL::String& name ) override;
 
     GAME_ENGINE_API ~Cube();
 
@@ -43,11 +44,11 @@ private:
 
     void release();
 
-    TransformComponent* m_transformComponent = nullptr;
+    TransformComponent* m_transformComponent{ nullptr };
     bool m_initialized = false;
 
-    Camera* m_camera = nullptr;
-    IGameEngine* m_engine = nullptr;
+    Camera* m_camera{ nullptr };
+    IGameEngine* m_engine{ nullptr };
 
     std::mutex m_renderMutex;
 

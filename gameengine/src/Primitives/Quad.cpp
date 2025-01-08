@@ -95,13 +95,15 @@ void Quad::createBuffers()
     setSize( size.toGlmVec() );
 
     VertexData vboData;
-    vboData.indices = {
+    std::vector<std::uint32_t> indices = {
         // note that we start from 0!
         0, 1, 3,  // first Triangle
         1, 2, 3   // second Triangle
     };
 
-    vboData.vertices = m_shape.toVectorOfFloat();
+    vboData.Indices.createFrom( indices );
+
+    vboData.Data.createFrom( m_shape.toVectorOfFloat() );
     vboData.Attributes.emplace_back( AttributeMeta( "pos", 0, 3, LOGLW::DataType::FLOAT, false, (int)CUL::MATH::Primitives::Quad::getStride(), nullptr ) );
     vboData.Attributes.emplace_back( AttributeMeta( "nor", 1, 3, LOGLW::DataType::FLOAT, false, (int)CUL::MATH::Primitives::Quad::getStride(), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
 

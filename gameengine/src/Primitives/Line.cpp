@@ -57,7 +57,7 @@ void Line::init()
 
 void Line::createBuffers()
 {
-    m_vertexData->vertices = m_line.toVectorOfFloat();
+    m_vertexData->Data.createFrom( m_line.toVectorOfFloat() );
     m_vertexData->primitiveType = LOGLW::PrimitiveType::LINE_STRIP;
     m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 3 * sizeof( float ), nullptr ) );
 

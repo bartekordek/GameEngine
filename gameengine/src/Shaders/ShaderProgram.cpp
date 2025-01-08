@@ -40,8 +40,9 @@ void ShaderProgram::loadShader( const String& shaderPath )
         [this, shaderPath]()
         {
             ShaderUnit* su = getDevice()->createShaderUnit( shaderPath );
-            std::unique_ptr<ShaderUnit> shaderPtr( su );
-            m_shaders[su->Type] = std::move(shaderPtr);
+            m_shaders[su->Type] = su;
+
+            //TODO: BUG! SHOULD NOT BE SHARED POINTER, DEVICE OWN SHADROS!
             attachShader( su->ID );
             link();
             validate();
@@ -243,6 +244,8 @@ void ShaderProgram::release()
 
         m_id = 0;
     }
+    m_shaders.clear();
+    m_uniformMapping.clear();
 }
 
 std::int32_t ShaderProgram::getUniformLocation( const String& name ) const

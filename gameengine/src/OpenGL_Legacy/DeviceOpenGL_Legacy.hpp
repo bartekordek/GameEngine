@@ -55,7 +55,6 @@ private:
     void unbindBuffer( const BufferTypes bufferType ) override;
     void bindBuffer( const BufferTypes bufferType, unsigned bufferId ) override;
     unsigned int generateBuffer( const BufferTypes type, const int size = 1 ) override;
-    void drawElements( const PrimitiveType type, const std::vector<unsigned int>& data ) override;
     void drawElements( const PrimitiveType type, const std::vector<float>& data ) override;
     void drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count ) override;
     void drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count ) override;

@@ -87,7 +87,7 @@ private:
     unsigned int generateVertexArray( const int size = 1 ) override;
 
     void bufferData( BufferDataId bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type ) override;
-    void bufferData( BufferDataId bufferId, const std::vector<unsigned int>& data, const BufferTypes type ) override;
+    void bufferData( BufferDataId bufferId, const CUL::DataWrapper& data, const BufferTypes type ) override;
     void bufferData( BufferDataId bufferId, const std::vector<float>& data, const BufferTypes type ) override;
     void bufferData( BufferDataId bufferId, const std::vector<TextureData2D>& data, const BufferTypes type ) override;
     void bufferData( BufferDataId bufferId, const float vertices[], BufferTypes type ) override;
@@ -110,7 +110,7 @@ private:
     void bindBuffer( const BufferTypes bufferType, unsigned bufferId ) override;
     unsigned int generateBuffer( const BufferTypes type, const int size = 1 ) override;
 
-    void drawElements( const PrimitiveType type, const std::vector<unsigned int>& data ) override;
+    void drawElements( const PrimitiveType type, const CUL::DataWrapper& inData ) override;
     void drawElements( const PrimitiveType type, const std::vector<float>& data ) override;
     void drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count ) override;
     void enableVertexAttribArray( unsigned attributeId ) override;

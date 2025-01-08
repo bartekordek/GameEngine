@@ -194,7 +194,7 @@ void IRenderDevice::bufferData( BufferDataId, const std::vector<float>&, const B
     throw std::logic_error( "Method not implemented" );
 }
 
-void IRenderDevice::bufferData( BufferDataId, const std::vector<unsigned int>&, const BufferTypes )
+void IRenderDevice::bufferData( BufferDataId, const CUL::DataWrapper& , const BufferTypes )
 {
     throw std::logic_error( "Method not implemented" );
 }
@@ -297,6 +297,12 @@ void IRenderDevice::freeTexture(std::uint32_t textureId)
     throw std::logic_error("Method not implemented");
 }
 
+void IRenderDevice::drawElements( const PrimitiveType, const CUL::DataWrapper& )
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
 IRenderDevice::~IRenderDevice()
 {
 }
+

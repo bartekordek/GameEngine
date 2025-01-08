@@ -152,18 +152,21 @@ void LOGLW::EditableTexture::init()
         data[3] = { x1, y0, z0, 1.0f, 1.0f };
         data[4] = { x0, y0, z0, 0.0f, 1.0f };
         data[5] = { x0, y1, z0, 0.0f, 0.0f };
+        std::vector<float> tmp;
         for( size_t i = 0; i < data.size(); ++i )
         {
             for( size_t j = 0; j < data[i].size(); ++j )
             {
-                m_vertexData->vertices.push_back( data[i][j] );
+                tmp.push_back( data[i][j] );
             }
         }
+
+        m_vertexData->Data.createFrom( tmp );
 
         m_vbo = getEngine().createVBO( *m_vertexData.get() );
         m_vbo->setDisableRenderOnMyOwn( true );
         m_vertexData->VBO = m_vbo->getId();
-        getDevice()->bufferData( m_vbo->getId(), m_vertexData->vertices, BufferTypes::ARRAY_BUFFER );
+        getDevice()->bufferData( m_vbo->getId(), m_vertexData->Data, BufferTypes::ARRAY_BUFFER );
 
         m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 5 * sizeof( float ), nullptr ) );
         m_vertexData->Attributes.push_back( AttributeMeta( "uvs", 1, 2, DataType::FLOAT, false, 5 * sizeof( float ), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );

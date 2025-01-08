@@ -2,6 +2,7 @@
 
 #include "gameengine/BasicTypes.hpp"
 #include "CUL/String.hpp"
+#include "CUL/Memory/DataWrapper.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
@@ -38,8 +39,8 @@ struct VertexData
     unsigned VBO = 0u;
     unsigned VAO = 0u;
     std::vector<AttributeMeta> Attributes;
-    std::vector<float> vertices;
-    std::vector<unsigned> indices;
+    CUL::DataWrapper Data;
+    CUL::DataWrapper Indices;
 };
 
 

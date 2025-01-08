@@ -14,6 +14,7 @@
 #include "CUL/Math/Primitives/Triangle.hpp"
 #include "CUL/Math/Primitives/Triangle3D.hpp"
 #include "CUL/Math/Rotation.hpp"
+#include "CUL/Memory/DataWrapper.hpp"
 #include "CUL/Graphics/SimpleSize2D.hpp"
 #include "CUL/Log/ILogger.hpp"
 #include "CUL/Graphics/IImage.hpp"
@@ -208,7 +209,7 @@ public:
     virtual unsigned int generateVertexArray( const int size = 1 ) = 0;
 
     virtual void bufferData( BufferDataId bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type );
-    virtual void bufferData( BufferDataId bufferId, const std::vector<unsigned int>& data, const BufferTypes type );
+    virtual void bufferData( BufferDataId bufferId, const CUL::DataWrapper& data, const BufferTypes type );
     virtual void bufferData( BufferDataId bufferId, const std::vector<float>& data, const BufferTypes type );
     virtual void bufferData( BufferDataId bufferId, const float vertices[], BufferTypes type );
     virtual void bufferData( BufferDataId bufferId, const std::vector<TextureData2D>& data, const BufferTypes type );
@@ -234,7 +235,7 @@ public:
     // virtual void bindBuffer( VertexArray* vao )  = 0;
     virtual unsigned int generateBuffer( const BufferTypes type, const int size = 1 ) = 0;
 
-    virtual void drawElements( const PrimitiveType type, const std::vector<unsigned int>& data ) = 0;
+    virtual void drawElements( const PrimitiveType type, const CUL::DataWrapper& inData );
     virtual void drawElements( const PrimitiveType type, const std::vector<float>& data ) = 0;
     virtual void drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count ) = 0;
     virtual void drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count ) = 0;

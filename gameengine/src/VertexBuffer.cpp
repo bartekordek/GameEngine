@@ -32,13 +32,13 @@ void VertexBuffer::loadData()
     release();
 
     m_vertexData.VBO = getDevice()->generateBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
-    getDevice()->bufferData( m_vertexData.VBO, m_vertexData.vertices, LOGLW::BufferTypes::ARRAY_BUFFER );
+    getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
     getDevice()->vertexAttribPointer( m_vertexData );
 
-    if( m_vertexData.indices.size() )
+    if( m_vertexData.Indices.getIsEmpty() == false )
     {
         m_indexBuffer = new IndexBuffer();
-        m_indexBuffer->loadData( m_vertexData.indices );
+        m_indexBuffer->loadData( m_vertexData.Indices );
     }
     else
     {

@@ -176,10 +176,6 @@ unsigned int DeviceDX09::generateBuffer( const BufferTypes type, const int size 
     return 0u;
 }
 
-void DeviceDX09::drawElements( const PrimitiveType type, const std::vector<unsigned int>& data )
-{
-}
-
 void DeviceDX09::drawElements( const PrimitiveType type, const std::vector<float>& data )
 {
 }

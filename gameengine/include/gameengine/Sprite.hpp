@@ -32,7 +32,7 @@ public:
     GAME_ENGINE_API void LoadImage( unsigned char* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader*,
                                     unsigned textureId );
 
-    //GAME_ENGINE_API unsigned m_textureId = 0u;
+    GAME_ENGINE_API void setName( const CUL::String& name ) override;
 
     GAME_ENGINE_API void render() override;
     GAME_ENGINE_API const CUL::Graphics::ImageInfo& getImageInfo() const;

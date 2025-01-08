@@ -622,6 +622,7 @@ void GameEngineConcrete::renderObjects()
     for( auto& renderableObject : m_objectsToRender )
     {
         m_renderDevice->useProgram( 0u );
+        const auto threadName = CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
         renderableObject->render();
     }
 }

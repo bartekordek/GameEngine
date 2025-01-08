@@ -158,10 +158,6 @@ unsigned int DeviceOpenGL_Legacy::generateBuffer( const BufferTypes type, const 
     return 0;
 }
 
-void DeviceOpenGL_Legacy::drawElements( const PrimitiveType type, const std::vector<unsigned int>& data )
-{
-}
-
 void DeviceOpenGL_Legacy::drawElements( const PrimitiveType type, const std::vector<float>& data )
 {
 }

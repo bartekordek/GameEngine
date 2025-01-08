@@ -84,7 +84,7 @@ private:
     uint8_t m_shaderProgramId = 0u;
 
     class Shader;
-    std::unordered_map<CShaderTypes::ShaderType, std::unique_ptr<ShaderUnit>> m_shaders;
+    std::unordered_map<CShaderTypes::ShaderType, ShaderUnit*> m_shaders;
 
     IGameEngine& m_engine;
     std::uint32_t m_id = 0;

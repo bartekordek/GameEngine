@@ -22,9 +22,9 @@ void IndexBuffer::bind()
     getDevice()->bindBuffer(BufferTypes::ELEMENT_ARRAY_BUFFER, m_id);
 }
 
-void IndexBuffer::loadData( std::vector<unsigned>& data )
+void IndexBuffer::loadData( const CUL::DataWrapper& inData )
 {
-    m_data = std::move( data );
+    m_data = inData;
 
     m_id = getDevice()->generateAndBindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
     setName( "index_buffer_" + CUL::String( getId() ) );
@@ -35,7 +35,7 @@ void IndexBuffer::loadData( std::vector<unsigned>& data )
     getDevice()->bufferData( m_id, m_data, BufferTypes::ELEMENT_ARRAY_BUFFER );
 }
 
-const std::vector<unsigned>& IndexBuffer::getData() const
+const CUL::DataWrapper& IndexBuffer::getData() const
 {
     return m_data;
 }

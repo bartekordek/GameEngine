@@ -120,11 +120,12 @@ void Playground::afterInit()
     m_cubeModern = m_engine->createCube( false );
     m_cubeModern->getTransform()->setPositionAbsolute( { -x, yCube, z } );
     m_cubeModern->setColor( CUL::Graphics::ColorE::BLUE );
+    m_cubeModern->setName( "m_cubeModern" );
 
     m_cubeLegacy = m_engine->createCube( false );
     m_cubeLegacy->getTransform()->setPositionAbsolute( { x, yCube, z } );
     m_cubeLegacy->setColor( CUL::Graphics::ColorE::RED );
-
+    m_cubeLegacy->setName( "m_cubeLegacy" );
 
     m_timer->runEveryPeriod( [this] (){timer(); }, 40000 );
 }
@@ -285,6 +286,7 @@ void Playground::onWindowEvent( const SDL2W::WindowEvent::Type type )
 
 void Playground::closeApp()
 {
+    m_timer->stop();
     delete m_quadModern;
     m_quadModern = nullptr;
     delete m_quadLegacy;

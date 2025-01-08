@@ -99,13 +99,14 @@ void Triangle::createBuffers()
     setSize( size.toGlmVec() );
 
     VertexData vboData;
-    vboData.indices = {
+    std::vector<std::uint32_t> uintData = {
         // note that we start from 0!
         0, 1, 3,  // first Triangle
         1, 2, 3   // second Triangle
     };
+    vboData.Indices.createFrom( uintData ); 
 
-    vboData.vertices = m_shape.toVectorOfFloat();
+    vboData.Data.createFrom( m_shape.toVectorOfFloat() );
     vboData.Attributes.emplace_back(
         AttributeMeta( "pos", 0, 3, LOGLW::DataType::FLOAT, false, (int)CUL::MATH::Primitives::Triangle::getStride(), nullptr ) );
     vboData.Attributes.emplace_back(

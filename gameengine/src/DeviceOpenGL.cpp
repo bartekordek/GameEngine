@@ -1387,10 +1387,14 @@ void DeviceOpenGL::bufferData( BufferDataId bufferId, const CUL::MATH::Primitive
     bufferDataImpl( dataVal, static_cast<GLenum>( type ), static_cast<GLsizeiptr>( 4 * sizeof( QuadCUL::PointType ) ) );
 }
 
-void DeviceOpenGL::bufferData( BufferDataId bufferId, const std::vector<unsigned int>& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( BufferDataId bufferId, const CUL::DataWrapper& data, const BufferTypes type )
 {
+    constexpr std::size_t size_gl_int = sizeof( GLuint );
+    constexpr std::size_t size_normal32Size = sizeof(std::uint32_t);
+    constexpr std::size_t size_un = sizeof( unsigned);
+
     bindBuffer( type, bufferId );
-    bufferDataImpl( data.data(), static_cast<GLenum>( type ), static_cast<GLsizeiptr>( data.size() * sizeof( unsigned int ) ) );
+    bufferDataImpl( data.getData(), static_cast<GLenum>( type ), static_cast<GLsizeiptr>( data.getSize() ) );
 }
 
 void DeviceOpenGL::bufferData( BufferDataId bufferId, const std::vector<float>& data, const BufferTypes type )
@@ -1805,11 +1809,22 @@ unsigned int DeviceOpenGL::generateBuffer( const BufferTypes bufferType, const i
     return bufferId;
 }
 
-void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<unsigned int>& data )
+void DeviceOpenGL::drawElements( const PrimitiveType type, const CUL::DataWrapper& inData )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    CUL::Assert::simple( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) == true,
+                         "NOT IN THE RENDER THREAD." );
+
+    if( inData.getType() == CUL::ETypes::Float )
     {
-        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+        glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( inData.getElementCount() ), GL_FLOAT, inData.getData() );
+    }
+    else if( inData.getType() == CUL::ETypes::Uint32 )
+    {
+        glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( inData.getElementCount() ), GL_UNSIGNED_INT, 0 );
+    }
+    else
+    {
+        CUL::Assert::simple( false, "Unkown type!" );
     }
 
     // glDrawElements — render primitives from array data
@@ -1843,8 +1858,6 @@ void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<uns
     // Vertex attributes that are modified by glDrawElements have an unspecified
     // value after glDrawElements returns.Attributes that aren't modified
     // maintain their previous values.
-
-    glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( data.size() ), GL_UNSIGNED_INT, 0 );
 }
 
 void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<float>& data )

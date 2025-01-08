@@ -19,6 +19,7 @@
 #include "SDL2Wrapper/ISDL2Wrapper.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
+#include "CUL/Log/ILogger.hpp"
 
 using namespace LOGLW;
 
@@ -216,6 +217,10 @@ void IGameEngine::removeProgram( ShaderProgram* program )
 
 void IGameEngine::addObjectToRender( IRenderable* renderable )
 {
+    const auto threadName = CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
+    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::INFO, "IGameEngine::addObjectToRender: %p [%s]", renderable,
+                                                  threadName.cStr() );
+
     if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
@@ -233,6 +238,10 @@ void IGameEngine::addObjectToRender( IRenderable* renderable )
 
 void IGameEngine::removeObjectToRender( IRenderable* renderable )
 {
+    const auto threadName = CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
+    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::INFO, "IGameEngine::removeObjectToRender: %p [%s]", renderable,
+                                                  threadName.cStr() );
+
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
@@ -245,7 +254,14 @@ void IGameEngine::removeObjectToRender( IRenderable* renderable )
     {
         std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
         auto it = m_objectsToRender.find( renderable );
-        CUL::Assert::simple( it == m_objectsToRender.end(), "Trying to remove already removed object." );
+
+        if( it == m_objectsToRender.end() )
+        {
+            char tmp[256];
+            sprintf( tmp, "Trying to remove already removed object: %p.", renderable );
+            CUL::Assert::simple( false, tmp );
+        }
+
         m_objectsToRender.erase( renderable );
     }
 }
@@ -296,7 +312,7 @@ ShaderProgram* IGameEngine::createShader( const String& path, const String& sour
     return result;
 }
 
-void IGameEngine::removeShader( ShaderProgram* shader )
+void IGameEngine::removeShader( ShaderProgram* /*shader*/ )
 {
     //removeShader( shader->getPath() );
     throw std::logic_error( "Method not implemented" );

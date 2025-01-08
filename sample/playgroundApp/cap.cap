@@ -5,7 +5,7 @@
         "commandLine": "",
         "environment": [
         ],
-        "executable": "E:\\Dev\\GameEngine-00\\Build-Windows\\Debug\\playgroundApp_static.exe",
+        "executable": "F:\\Dev\\learnopengl\\deps\\GameEngine\\Build-Windows\\Debug\\playgroundApp_static.exe",
         "inject": false,
         "numQueuedFrames": 0,
         "options": {
@@ -19,9 +19,10 @@
             "delayForDebugger": 0,
             "hookIntoChildren": false,
             "refAllResources": false,
+            "softMemoryLimit": 0,
             "verifyBufferAccess": false
         },
         "queuedFrameCap": 0,
-        "workingDir": "E:/Dev/GameEngine-00/sample/playgroundApp"
+        "workingDir": "F:/Dev/learnopengl/deps/GameEngine/sample/playgroundApp"
     }
 }

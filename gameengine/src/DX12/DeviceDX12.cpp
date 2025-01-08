@@ -636,10 +636,6 @@ unsigned int DeviceDX12::generateBuffer( const BufferTypes, const int )
 	return 0;
 }
 
-void DeviceDX12::drawElements( const PrimitiveType, const std::vector<unsigned int>& )
-{
-}
-
 void DeviceDX12::drawElements( const PrimitiveType, const std::vector<float>& )
 {
 }
