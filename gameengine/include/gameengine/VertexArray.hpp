@@ -6,6 +6,7 @@
 
 #include "CUL/IName.hpp"
 #include "CUL/IRegisteredObject.hpp"
+#include "CUL/IName.hpp"
 
 #include "CUL/STL_IMPORTS/STD_cstdint.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -65,6 +66,8 @@ public:
     void bind();
     void unbind();
     void release();
+
+    void setName( const CUL::String& name ) override;
 
     ~VertexArray();
 protected:

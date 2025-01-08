@@ -204,6 +204,16 @@ void VertexArray::unbind()
     getDevice()->bindBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, 0 );
 }
 
+void VertexArray::setName( const CUL::String& name )
+{
+    CUL::IName::setName( name );
+    std::uint16_t id{ 0u };
+    for( std::unique_ptr<VertexBuffer>& vbo : m_vbos )
+    {
+        vbo->setName( getName() + "::vbo::" + CUL::String( id++ ) );
+    }
+}
+
 VertexArray::~VertexArray()
 {
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )

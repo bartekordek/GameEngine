@@ -24,11 +24,12 @@ public:
 
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
     GAME_ENGINE_API ShaderProgram* getProgram() const;
-
+    GAME_ENGINE_API void setName( const CUL::String& name ) override;
     GAME_ENGINE_API ~Triangle();
 
 protected:
 private:
+    
     void render() override;
     void init();
     void createBuffers();

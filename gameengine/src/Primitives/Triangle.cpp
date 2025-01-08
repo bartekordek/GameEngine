@@ -79,6 +79,19 @@ void Triangle::init()
     }
 }
 
+void Triangle::setName( const CUL::String& name )
+{
+    IObject::setName( name );
+    if( m_vao )
+    {
+        m_vao->setName( getName() + "::vao" );
+    }
+    if( m_shaderProgram )
+    {
+        m_shaderProgram->setName( getName() + "::shader_program" );
+    }
+}
+
 void Triangle::createBuffers()
 {
     const auto size = m_transformComponent->getSize();
