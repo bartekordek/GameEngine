@@ -132,7 +132,7 @@ void APIENTRY glDebugOutput(
 GLenum glCheckError_( const char* file, int line )
 {
     GLenum errorCode;
-    bool hasError = false;
+    bool hasError{ false };
     while( ( errorCode = glGetError() ) != GL_NO_ERROR )
     {
         std::string error;
@@ -161,8 +161,8 @@ GLenum glCheckError_( const char* file, int line )
                 break;
         }
 
-        g_interface->getLogger()->log( CUL::String( file ) + ":" + CUL::String( line ) + " " + error );
-        error = true;
+        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::ERROR, "File: %s, line: %s, error: %s", file, line, error );
+        hasError = true;
     }
 
     CUL::Assert::simple( hasError == false, "OPENGL ERROR ^." );
