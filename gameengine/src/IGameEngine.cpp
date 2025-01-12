@@ -143,9 +143,13 @@ bool IGameEngine::getDrawDebugInfo()
     return m_drawDebugInfo;
 }
 
-VertexArray* IGameEngine::createVAO()
+VertexArray* IGameEngine::createVAO( const CUL::String& name )
 {
     auto result = new VertexArray( *this );
+    if( name.empty() == false )
+    {
+        result->setName( name );
+    }
     return result;
 }
 
@@ -165,6 +169,7 @@ void IGameEngine::drawOrigin( bool enable )
             Line* lineX = createLine( nullptr, false );
             lineX->setColor( ColorE::RED );
             lineX->setLength( originLinesLength );
+            lineX->setName( "Line::x" );
             m_axis[0] = lineX;
 
             CUL::MATH::Rotation rotation;
@@ -175,6 +180,7 @@ void IGameEngine::drawOrigin( bool enable )
             rotation.Roll.setValue( 90, CUL::MATH::Angle::Type::DEGREE );
             lineY->getTransform()->setRotationToParent( rotation );
             lineY->setLength( originLinesLength );
+            lineY->setName( "Line::y" );
             m_axis[1] = lineY;
 
             rotation.Roll.setValue( 0, CUL::MATH::Angle::Type::DEGREE );
@@ -184,6 +190,7 @@ void IGameEngine::drawOrigin( bool enable )
             lineZ->setColor( ColorE::BLUE );
             lineZ->getTransform()->setRotationToParent( rotation );
             lineZ->setLength( originLinesLength );
+            lineZ->setName( "Line::z" );
             m_axis[0] = lineZ;
         }
     }

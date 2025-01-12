@@ -24,7 +24,7 @@ public:
     using Pos = CUL::MATH::Point;
     using TranslationVector = CUL::MATH::Point;
 
-    TransformComponent( IObject& owner );
+    TransformComponent( IObject* owner );
 
     void setPositionToParent( const glm::vec3& position );
     const glm::vec3 getPositionToParent() const;
@@ -66,7 +66,7 @@ private:
     glm::mat4 getRotation() const;
     void printCurrentState() const;
 
-    IObject& m_owner;
+    IObject* m_owner{ nullptr };
 
     Pos m_size;
     glm::vec3 m_pos = { 0.f, 0.f, 0.f };

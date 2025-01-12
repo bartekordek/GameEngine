@@ -15,10 +15,6 @@
 
 using namespace LOGLW;
 
-struct ShaderProgram::Shader
-{
-
-};
 
 ShaderProgram::ShaderProgram() : m_engine( *IGameEngine::getInstance() )
 {
@@ -28,54 +24,149 @@ ShaderProgram::ShaderProgram() : m_engine( *IGameEngine::getInstance() )
         RunOnRenderThread::getInstance().Run(
             [this, newName]()
             {
-                getDevice()->setObjectName( EObjectType::PROGRAM, m_id, newName );
+                getDevice()->setObjectName( EObjectType::PROGRAM, m_shaderProgramId, newName );
             } );
     };
     setName( "ShaderProgram " + CUL::String( getId() ) );
 }
 
-void ShaderProgram::loadShader( const String& shaderPath )
+void ShaderProgram::compileLinkValidate()
 {
     RunOnRenderThread::getInstance().Run(
-        [this, shaderPath]()
+        [this]()
         {
-            ShaderUnit* su = getDevice()->createShaderUnit( shaderPath );
-            m_shaders[su->Type] = su;
-
-            //TODO: BUG! SHOULD NOT BE SHARED POINTER, DEVICE OWN SHADROS!
-            attachShader( su->ID );
-            link();
-            validate();
-            su->State = EShaderUnitState::Loaded;
+            //TODO
         } );
 }
 
+void ShaderProgram::reCompileWholeShader()
+{
+    std::vector<CUL::String> shadersPaths( m_shaders.size() );
+
+    std::size_t shaderIndex{ 0 };
+    for( auto& [shaderType, shaderUnit] : m_shaders )
+    {
+        shadersPaths[shaderIndex++] = shaderUnit->File->getPath().getPath();
+        detachShader( shaderUnit->ID );
+        getDevice()->deleteShaderUnit( shaderUnit );
+    }
+
+    for( const CUL::String& path : shadersPaths )
+    {
+        compileShader( path );
+    }
+    link();
+}
+
+void ShaderProgram::reCompileShader( const String& shaderPathString )
+{
+    CUL::String errorContent;
+    reCompileShader( shaderPathString, true, errorContent );
+}
+
+void ShaderProgram::reCompileShader( const String& shaderPathString, bool assertOnErrors, CUL::String& errorMessage )
+{
+    const CUL::FS::Path shaderPath( shaderPathString );
+    const auto extension = shaderPath.getExtension();
+    CShaderTypes::ShaderType type = CShaderTypes::getShaderType( extension );
+    const auto it = m_shaders.find( type );
+    if( it != m_shaders.end() )
+    {
+        detachShader( it->second->ID );
+        getDevice()->deleteShaderUnit( it->second );
+        m_shaders.erase( it );
+    }
+    compileShader( shaderPathString, assertOnErrors, errorMessage );
+}
+
+void ShaderProgram::compileShader( const String& shaderPath )
+{
+    CUL::String errorContent;
+    compileShader( shaderPath, true, errorContent );
+}
+
+void ShaderProgram::compileShader( const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage )
+{
+    ShaderUnit* su = getDevice()->createShaderUnit( shaderPath, assertOnErrors, errorMessage );
+    if( errorMessage.empty() )
+    {
+        m_shaders[su->Type] = su;
+        attachShader( su->ID );
+        su->State = EShaderUnitState::Loaded;
+    }
+    else
+    {
+        su->State = EShaderUnitState::Error;
+    }
+}
+
+
 void ShaderProgram::attachShader( std::uint32_t id )
 {
-    getDevice()->attachShader( m_id, id );
+    getDevice()->attachShader( m_shaderProgramId, id );
 }
 
 void ShaderProgram::attachShaders()
 {
     for( const auto& su : m_shaders )
     {
-        getDevice()->attachShader( m_id, su.second->ID );
+        getDevice()->attachShader( m_shaderProgramId, su.second->ID );
     }
+}
+
+void ShaderProgram::detachShader( std::uint32_t id )
+{
+    getDevice()->dettachShader( m_shaderProgramId, id );
 }
 
 void ShaderProgram::link()
 {
-    getDevice()->linkProgram(m_id);
+    RunOnRenderThread::getInstance().Run(
+        [this]()
+        {
+            linkImpl();
+        } );
+}
+
+void ShaderProgram::linkImpl()
+{
+    getDevice()->linkProgram( m_shaderProgramId );
+    m_linked = true;
+    m_uniformMapping.clear();  // Might have changed on link.
+
+    const auto attributes = getDevice()->fetchProgramAttributeInfo( m_shaderProgramId );
+    for( const auto& attribute : attributes )
+    {
+        ShaderVariable sv;
+        sv.Name = attribute.Name;
+        sv.Id = attribute.ID;
+        sv.Size = attribute.Size;
+        sv.TypeName = attribute.TypeName;
+        sv.Type = attribute.Type;
+        m_attributeMapping[attribute.Name] = sv;
+    }
+
+    const auto uniforms = getDevice()->fetchProgramUniformsInfo( m_shaderProgramId );
+    for( const auto& uniform : uniforms )
+    {
+        ShaderVariable sv;
+        sv.Name = uniform.Name;
+        sv.Id = uniform.ID;
+        sv.Size = uniform.Size;
+        sv.TypeName = uniform.TypeName;
+        sv.Type = uniform.Type;
+        m_uniformMapping[uniform.Name] = sv;
+    }
 }
 
 void ShaderProgram::validate()
 {
-    getDevice()->validateProgram( m_id );
+    getDevice()->validateProgram( m_shaderProgramId );
 }
 
 unsigned int ShaderProgram::getId() const
 {
-    return m_id;
+    return m_shaderProgramId;
 }
 
 void ShaderProgram::useShader() const
@@ -95,7 +186,7 @@ void ShaderProgram::create()
     RunOnRenderThread::getInstance().Run(
         [this]()
         {
-            m_id = getDevice()->createProgram( getName() );
+            m_shaderProgramId = getDevice()->createProgram( getName() );
         } );
 }
 
@@ -104,63 +195,55 @@ CShaderTypes::ShaderType ShaderProgram::getType() const
     return m_type;
 }
 
-void ShaderProgram::setUniform( const String& name, const char* value )
-{
 
+void ShaderProgram::setUniform( const String& inName, UniformValue inValue )
+{
+    RunOnRenderThread::getInstance().Run(
+        [this, inName, inValue]()
+        {
+            setUniformImpl( inName, inValue );
+        } );
 }
 
-void ShaderProgram::setUniform( const String& name, float value )
+void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
 {
-    const std::int32_t uniformId = getUniformLocation( name );
-    getDevice()->setUniformValue( uniformId, value );
-}
+    const auto it = m_uniformMapping.find( inName );
+    if( it == m_uniformMapping.end() )
+    {
+        return;
+    }
 
-void ShaderProgram::setUniform( const String& name, unsigned value )
-{
-    const std::int32_t uniformId = getUniformLocation( name );
-    getDevice()->setUniformValue( uniformId, value );
-}
+    ShaderVariable& sv = it->second;
 
-void ShaderProgram::setUniform( const String& name, int value )
-{
-    const std::int32_t uniformId = getUniformLocation( name );
-    getDevice()->setUniformValue( uniformId, value );
-}
+    enable();
+    switch( sv.Type )
+    {
+        case DataType::FLOAT:
+        {
+            getDevice()->setUniformValue( sv.Id, std::get<float>( inValue ) );
+            break;
+        }
+        case DataType::FLOAT_MAT4:
+        {
+            getDevice()->setUniformValue( sv.Id, std::get<glm::mat4>( inValue ) );
+            break;
+        }
+        case DataType::FLOAT_VEC3:
+        {
+            getDevice()->setUniformValue( sv.Id, std::get<glm::vec3>( inValue ) );
+            break;
+        }
+        case DataType::FLOAT_VEC4:
+        {
+            getDevice()->setUniformValue( sv.Id, std::get<glm::vec4>( inValue ) );
+            break;
+        }
+        default:
+            throw std::logic_error( "Method not implemented" );
+    }
 
-void ShaderProgram::setUniform( const String& name, bool value )
-{
-    const std::int32_t uniformId = getUniformLocation( name );
-    getDevice()->setUniformValue( uniformId, value );
-}
-
-void ShaderProgram::setUniform( const String& name, const glm::mat2& mat )
-{
-    const std::int32_t uniformId = getUniformLocation( name );
-    getDevice()->setUniformValue( uniformId, mat );
-}
-
-void ShaderProgram::setUniform( const String& name, const glm::mat3& mat )
-{
-    const std::int32_t uniformId = getUniformLocation( name );
-    getDevice()->setUniformValue( uniformId, mat );
-}
-
-void ShaderProgram::setUniform( const String& name, const glm::mat4& mat )
-{
-    const std::int32_t uniformId = getUniformLocation(name);
-    getDevice()->setUniformValue(uniformId, mat);
-}
-
-void ShaderProgram::setUniform( const String& name, const glm::vec3& value )
-{
-    const std::int32_t uniformId = getUniformLocation( name );
-    getDevice()->setUniformValue( uniformId, value );
-}
-
-void ShaderProgram::setUniform( const String& name, const glm::vec4& value )
-{
-    const std::int32_t uniformId = getUniformLocation( name );
-    getDevice()->setUniformValue( uniformId, value );
+    sv.Value = inValue;
+    sv.Applied = true;
 }
 
 String ShaderProgram::getAttributeStr( const String& name )
@@ -189,12 +272,18 @@ int ShaderProgram::getAttributeI( const String& name )
 
 void ShaderProgram::enable()
 {
-    getDevice()->useProgram( m_id );
+    if( m_linked )
+    {
+        getDevice()->useProgram( m_shaderProgramId );
+    }
 }
 
 void ShaderProgram::disable()
 {
-    getDevice()->useProgram( 0 );
+    if( m_linked )
+    {
+        getDevice()->useProgram( 0 );
+    }
 }
 
 EShaderUnitState ShaderProgram::getShaderUnitState( CShaderTypes::ShaderType inType ) const
@@ -208,6 +297,33 @@ EShaderUnitState ShaderProgram::getShaderUnitState( CShaderTypes::ShaderType inT
     return it->second->State;
 }
 
+const ShaderProgram::ShaderVariable& ShaderProgram::getUniformValue( const CUL::String& name )
+{
+    const auto it = m_uniformMapping.find( name );
+    ShaderVariable& result = it->second;
+
+    if( result.Applied )
+    {
+        return result;
+    }
+    LOGLW::UniformValue uv = getDevice()->getUniformValue( m_shaderProgramId, result.Id, result.Type );
+    result.Applied = true;
+    result.Value = uv;
+
+    return result;
+}
+
+std::vector<CUL::String> ShaderProgram::getUniformsNames()
+{
+    std::vector<CUL::String> result;
+
+    for( const auto& uniform : m_uniformMapping )
+    {
+        result.push_back( uniform.first );
+    }
+
+    return result;
+}
 
 ShaderProgram::~ShaderProgram()
 {
@@ -216,11 +332,11 @@ ShaderProgram::~ShaderProgram()
 
 void ShaderProgram::release()
 {
-    if( m_id )
+    if( m_shaderProgramId )
     {
         auto removeShaderTask = [this]()
         {
-            getDevice()->removeProgram( m_id );
+            getDevice()->removeProgram( m_shaderProgramId );
         };
 
         if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
@@ -242,25 +358,26 @@ void ShaderProgram::release()
             }
         }
 
-        m_id = 0;
+        m_shaderProgramId = 0;
     }
     m_shaders.clear();
     m_uniformMapping.clear();
 }
 
+bool ShaderProgram::getIsLinked() const
+{
+    return m_linked;
+}
+
 std::int32_t ShaderProgram::getUniformLocation( const String& name ) const
 {
-    getDevice()->useProgram( m_id );
+    getDevice()->useProgram( m_shaderProgramId );
 
     const auto it = m_uniformMapping.find( name );
     if( it == m_uniformMapping.end() )
+
     {
-        const std::int32_t id = getDevice()->getUniformLocation( m_id, name );
-        ShaderVariable sv;
-        sv.Id = id;
-        sv.Name = name;
-        m_uniformMapping[name] = sv;
-        return id;
+        return -1;
     }
 
     return it->second.Id;

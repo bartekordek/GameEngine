@@ -60,8 +60,10 @@ public:
     void addVertexBuffer( VertexData& data );
     void createShader( const CUL::FS::Path& path );
     ShaderProgram* getProgram();
+    void setProgram( ShaderProgram* inProgram );
     void render() override;
     VertexBuffer* getVertexBuffer( std::size_t inIndex );
+    void updateVertexData( std::size_t inIndex );
 
     void bind();
     void unbind();

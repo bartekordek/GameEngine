@@ -181,8 +181,10 @@ void Sprite::init()
     {
         m_shaderProgram = getEngine().createProgram();
 
-        m_shaderProgram->loadShader( "embedded_shaders/camera.frag" );
-        m_shaderProgram->loadShader( "embedded_shaders/camera.vert" );
+        m_shaderProgram->compileShader( "embedded_shaders/camera.frag" );
+        m_shaderProgram->compileShader( "embedded_shaders/camera.vert" );
+        m_shaderProgram->link();
+        m_shaderProgram->validate();
     }
 
     if( m_textureId == 0u )

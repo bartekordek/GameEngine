@@ -22,20 +22,10 @@ private:
     size_t getFrameBufferCount() const override;
     void initDebugUI() override;
 
-    void setViewport( const Viewport& viewport ) override;
-    void lookAt( const Camera& vp ) override;
-    void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;
-    void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) override;
     void prepareFrame() override;
     void finishFrame() override;
     void useProgram( int programId ) override;
     ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
-    void setUniformValue( int uniformLocation, const glm::vec2& val ) override;
-    void setUniformValue( int uniformLocation, const glm::vec3& val ) override;
-    void setUniformValue( int uniformLocation, const glm::vec4& val ) override;
-    void setUniformValue( int uniformLocation, const glm::mat2& val ) override;
-    void setUniformValue( int uniformLocation, const glm::mat3& val ) override;
-    void setUniformValue( int uniformLocation, const glm::mat4& val ) override;
     void setProjectionAndModelToIdentity() override;
     void clearColorAndDepthBuffer() override;
     void createQuad( float scale = 1.0f ) override;

@@ -25,6 +25,7 @@
 
 #include "CUL/STL_IMPORTS/STD_array.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
+#include "CUL/STL_IMPORTS/STD_variant.hpp"
 
 NAMESPACE_BEGIN( CUL )
 
@@ -79,6 +80,26 @@ struct GAME_ENGINE_API ContextInfo
     void* glContext = nullptr;
     String glVersion;
 };
+
+struct GAME_ENGINE_API ShaderParameterInfo
+{
+    std::int32_t ID{ -1 };
+    CUL::String Name;
+    DataType Type{ DataType::NONE };
+    String TypeName;
+    std::int32_t Size{ 0 };
+};
+
+struct GAME_ENGINE_API AttributeInfo: public ShaderParameterInfo
+{
+
+};
+
+struct GAME_ENGINE_API UniformInfo: public ShaderParameterInfo
+{
+};
+
+using UniformValue = std::variant<float, std::int32_t, std::uint32_t, bool, glm::vec2, glm::vec3, glm::vec4, glm::mat2, glm::mat3, glm::mat4>;
 
 
 struct GAME_ENGINE_API TextureInfo
@@ -160,7 +181,8 @@ public:
     virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec );
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up );
 
-    virtual ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPathe );
+    virtual ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
+    virtual void deleteShaderUnit( ShaderUnit* inShaderUnit );
 
     // General
     virtual void setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::String& name );
@@ -199,6 +221,9 @@ public:
     virtual void setUniformValue( int uniformLocation, const glm::mat2& val ) = 0;
     virtual void setUniformValue( int uniformLocation, const glm::mat3& val ) = 0;
     virtual void setUniformValue( int uniformLocation, const glm::mat4& val ) = 0;
+
+    virtual UniformValue getUniformValue( std::int32_t inProgramId, std::int32_t inUniformId, DataType inDataType );
+
 
     virtual void setProjectionAndModelToIdentity() = 0;
     virtual void clearColorAndDepthBuffer() = 0;
@@ -302,6 +327,10 @@ public:
 
     virtual const String& getName() const = 0;
     virtual SDL2W::RenderTypes::RendererType getType() const = 0;
+
+    virtual std::vector<AttributeInfo> fetchProgramAttributeInfo( std::int32_t inProgramId ) const;
+    virtual std::vector<UniformInfo> fetchProgramUniformsInfo( std::int32_t inProgramId ) const;
+
 
     virtual ~IRenderDevice();
 

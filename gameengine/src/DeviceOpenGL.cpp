@@ -29,6 +29,84 @@ void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum
                              const void*  // userParam
 );
 
+const char* toString( GLenum type )
+{
+    /*
+    GL_UNSIGNED_INT_VEC2,
+    GL_UNSIGNED_INT_VEC3,
+    GL_UNSIGNED_INT_VEC4,
+    GL_DOUBLE_VEC2,
+    GL_DOUBLE_VEC3,
+    GL_DOUBLE_VEC4,
+    GL_DOUBLE_MAT2,
+    GL_DOUBLE_MAT3,
+    GL_DOUBLE_MAT4,
+    GL_DOUBLE_MAT2x3,
+    GL_DOUBLE_MAT2x4,
+    GL_DOUBLE_MAT3x2,
+    GL_DOUBLE_MAT3x4,
+    GL_DOUBLE_MAT4x2,
+    GL_DOUBLE_MAT4x3*/
+
+    switch( type )
+    {
+        case GL_BYTE:
+            return "GLbyte";
+        case GL_INT_VEC2:
+            return "GL_INT_VEC2";
+        case GL_INT_VEC3:
+            return "GL_INT_VEC3";
+        case GL_INT_VEC4:
+            return "GL_INT_VEC4";
+        case GL_UNSIGNED_BYTE:
+            return "GLubyte";
+        case GL_SHORT:
+            return "GLshort";
+        case GL_UNSIGNED_SHORT:
+            return "GLushort";
+        case GL_INT:
+            return "GLint";
+        case GL_UNSIGNED_INT:
+            return "GLuint";
+        case GL_FLOAT:
+            return "GLfloat";
+        case GL_FLOAT_MAT2x3:
+            return "GL_FLOAT_MAT2x3";
+        case GL_FLOAT_MAT2x4:
+            return "GL_FLOAT_MAT2x4";
+        case GL_FLOAT_MAT2:
+            return "GLfloat_mat2";
+        case GL_FLOAT_MAT3x2:
+            return "GL_FLOAT_MAT3x2";
+        case GL_FLOAT_MAT3x4:
+            return "GL_FLOAT_MAT3x4";
+        case GL_FLOAT_MAT3:
+            return "GLfloat_mat3";
+        case GL_FLOAT_MAT4x2:
+            return "GL_FLOAT_MAT4x2";
+        case GL_FLOAT_MAT4:
+            return "GLfloat_mat4";
+        case GL_FLOAT_MAT4x3:
+            return "GL_FLOAT_MAT4x3";
+        case GL_FLOAT_VEC2:
+            return "GLFloat_vec2";
+        case GL_FLOAT_VEC3:
+            return "GLFloat_vec3";
+        case GL_FLOAT_VEC4:
+            return "GLFloat_vec4";
+        case GL_2_BYTES:
+            return "GL_2_BYTES";
+        case GL_3_BYTES:
+            return "GL_3_BYTES";
+        case GL_4_BYTES:
+            return "GL_4_BYTES";
+        case GL_DOUBLE:
+            return "GLdouble";
+        default:
+            return "not a GLenum type";
+    }
+}
+
 void APIENTRY glDebugOutput(
     GLenum source,
     GLenum type,
@@ -531,6 +609,7 @@ bool DeviceOpenGL::attachShader( unsigned programId, unsigned shaderId )
     const GLuint programIdConverted = toGluint( programId );
 
     glAttachShader( programIdConverted, toGluint( shaderId ) );
+    getLastOperationStatus();
 
     return true;
 }
@@ -768,10 +847,10 @@ void DeviceOpenGL::vertexAttribPointer( const VertexData& meta )
         const auto size = static_cast<GLint>( attribute.Size );
         const auto type = static_cast<GLenum>( attribute.Type );
         const auto normalized = static_cast<GLboolean>( attribute.Normalized );
-        const auto stride = static_cast<GLsizei>( attribute.Stride );
-        const auto ptr = attribute.Pointer;
+        const auto strideByte = static_cast<GLsizei>( attribute.StrideBytes );
+        const auto ptr = attribute.DataOffset;
         const auto sizeOfFloat = 6 * sizeof( float );
-        glVertexAttribPointer( index, size, type, normalized, stride, ptr );
+        glVertexAttribPointer( index, size, type, normalized, strideByte, ptr );
         glEnableVertexAttribArray( index );
     }
 }
@@ -902,12 +981,66 @@ void DeviceOpenGL::setAttribValue( int, bool )
 
 void DeviceOpenGL::setAttribValue( int, const CUL::String& )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
+}
+
+UniformValue DeviceOpenGL::getUniformValue( std::int32_t inProgramId, std::int32_t inUniformId, DataType inDataType )
+{
+    UniformValue result;
+    if( inDataType == DataType::FLOAT )
     {
-        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+        float value;
+        glGetUniformfv( inProgramId, inUniformId, &value );
+        result = value;
+    }
+    else if( inDataType == DataType::INT )
+    {
+        std::int32_t value;
+        glGetUniformiv( inProgramId, inUniformId, &value );
+        result = value;
+    }
+    else if( inDataType == DataType::FLOAT_VEC2 )
+    {
+        glm::vec2 value;
+        glGetnUniformfv( inProgramId, inUniformId, 2, &value[0] );
+        result = value;
+    }
+    else if( inDataType == DataType::FLOAT_VEC3 )
+    {
+        glm::vec3 value;
+        glGetnUniformfv( inProgramId, inUniformId, 3, &value[0] );
+        result = value;
+    }
+    else if( inDataType == DataType::FLOAT_MAT2 )
+    {
+        glm::mat2 value;
+        glGetnUniformfv( inProgramId, inUniformId, 4, &value[0].x );
+        result = value;
+    }
+    else if( inDataType == DataType::FLOAT_MAT3 )
+    {
+        glm::mat3 value;
+        glGetnUniformfv( inProgramId, inUniformId, 9, &value[0].x );
+        result = value;
+    }
+    else if( inDataType == DataType::FLOAT_MAT4 )
+    {
+        constexpr std::size_t elementsCount = 16;
+        constexpr std::size_t sizeOfFloat = sizeof( float );
+        constexpr std::size_t bufferSize = sizeOfFloat * elementsCount;
+
+        glm::mat4 value;
+        float value2[16];
+        glGetnUniformfv( inProgramId, inUniformId, bufferSize, &value[0].x );
+        glGetnUniformfv( inProgramId, inUniformId, bufferSize, &value2[0] );
+        result = value;
+    }
+    else
+    {
+        CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
     }
 
-    CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
+    return result;
 }
 
 void DeviceOpenGL::setUniformValue( int uniformLocation, float value )
@@ -2189,7 +2322,7 @@ void DeviceOpenGL::initDebugUI()
 	throw std::logic_error( "The method or operation is not implemented." );
 }
 
-ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath )
+ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -2258,9 +2391,13 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath )
         GLchar eLog[1024] = { 0 };
         glGetShaderInfoLog( id, sizeof( eLog ), nullptr, eLog );
         auto errorAsString = std::string( eLog );
-        newShader->ErrorMsg = "Error compiling shader: " + errorAsString + "\n";
-        newShader->ErrorMsg += "Shader Path: " + shaderCode.getPath().getPath() + "\n";
-        customAssert( false, newShader->ErrorMsg );
+        errorMessage = "Error compiling shader: " + errorAsString + "\n";
+        errorMessage += "Shader Path: " + shaderCode.getPath().getPath() + "\n";
+        if( assertOnErrors )
+        {
+            customAssert( false, errorMessage );
+        }
+        
         newShader->State = EShaderUnitState::Error;
     }
     else
@@ -2272,6 +2409,23 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath )
 
     m_shadersUnits[shaderPath.getPath()] = std::move(newShader);
     return m_shadersUnits[shaderPath.getPath()].get();
+}
+
+void DeviceOpenGL::deleteShaderUnit( ShaderUnit* inShaderUnit )
+{
+    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    {
+        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+    }
+
+    glDeleteShader( inShaderUnit->ID );
+
+    const auto shaderPath = inShaderUnit->File->getPath();
+    const auto shaderPathString = shaderPath.getPath();
+
+    const auto it = m_shadersUnits.find( shaderPathString );
+    CUL::Assert::simple( it != m_shadersUnits.end(), "NOT IN THE RENDER THREAD." );
+    m_shadersUnits.erase( it );
 }
 
 ShaderUnit* DeviceOpenGL::findShader( const CUL::FS::Path& shaderPath ) const
@@ -2294,6 +2448,68 @@ SDL2W::RenderTypes::RendererType DeviceOpenGL::getType() const
 void DeviceOpenGL::updateTextureData( const TextureInfo& ti, void* data )
 {
     glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, ti.size.width, ti.size.height, GL_RGBA, GL_UNSIGNED_BYTE, data );
+}
+
+std::vector<AttributeInfo> DeviceOpenGL::fetchProgramAttributeInfo( std::int32_t inProgramId ) const
+{
+    std::vector<AttributeInfo> result;
+
+    GLint size{ 0 };  // size of the variable
+
+    const GLsizei bufSize = 16;  // maximum name length
+    GLchar name[bufSize];        // variable name in GLSL
+
+    GLint count{ 0 };
+    glGetProgramiv( inProgramId, GL_ACTIVE_ATTRIBUTES, &count );
+
+    for( GLint i = 0; i < count; ++i )
+    {
+        GLsizei nameLength;
+        GLenum variableType;
+        glGetActiveAttrib( inProgramId, (GLuint)i, bufSize, &nameLength, &size, &variableType, name );
+
+        AttributeInfo info;
+        info.ID = i;
+        info.Name = name;
+        info.Size = size;
+        info.TypeName = toString( variableType );
+        info.Type = (DataType)variableType;
+
+        result.push_back( info );
+    }
+
+    return result;
+}
+
+std::vector<UniformInfo> DeviceOpenGL::fetchProgramUniformsInfo( std::int32_t inProgramId ) const
+{
+    std::vector<UniformInfo> result;
+
+    GLint size{ 0 };  // size of the variable
+
+    const GLsizei bufSize = 16;  // maximum name length
+    GLchar name[bufSize];        // variable name in GLSL
+
+    GLint count{ 0 };
+    glGetProgramiv( inProgramId, GL_ACTIVE_UNIFORMS, &count );
+
+    for( GLint i = 0; i < count; ++i )
+    {
+        GLsizei nameLength;
+        GLenum variableType;
+        glGetActiveUniform( inProgramId, (GLuint)i, bufSize, &nameLength, &size, &variableType, name );
+
+        UniformInfo info;
+        info.ID = i;
+        info.Name = name;
+        info.Size = size;
+        info.TypeName = toString( variableType );
+        info.Type = (DataType)variableType;
+
+        result.push_back( info );
+    }
+
+    return result;
 }
 
 void DeviceOpenGL::setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::String& name )

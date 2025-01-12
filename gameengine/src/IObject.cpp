@@ -8,15 +8,32 @@ using namespace LOGLW;
 IObject::IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy )
     : IRenderable( engine ), m_engine( *engine ), m_forceLegacy( forceLegacy )
 {
-    m_transform = new TransformComponent( *this );
+    m_transform = new TransformComponent( this );
     addComponent( "TransformComponent", m_transform );
     setName( name );
+    setObject( this );
 }
 
 // Dummy
 const std::vector<float> IObject::getVertices() const
 {
     return std::vector<float>();
+}
+
+IObject* IObject::getOuter()
+{
+    IObject* outer = this;
+    IObject* current = outer;
+    while( current != nullptr )
+    {
+        current = current->m_parent;
+        if( current )
+        {
+            outer = current;
+        }
+    }
+
+    return outer;
 }
 
 IObject* IObject::getParent()

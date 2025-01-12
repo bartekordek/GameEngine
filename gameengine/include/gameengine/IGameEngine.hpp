@@ -55,6 +55,7 @@ class Quad;
 class ShaderProgram;
 class Sprite;
 class Triangle;
+class VertexArray;
 class VertexBuffer;
 class Viewport;
 struct ContextInfo;
@@ -140,7 +141,7 @@ public:
     GAME_ENGINE_API Triangle* createTriangle( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API Quad* createQuad( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API Anchor* createAnchor( IObject* parent, bool forceLegacy = false );
-    GAME_ENGINE_API class VertexArray* createVAO();
+    GAME_ENGINE_API VertexArray* createVAO( const CUL::String& name = CUL::String( "" ) );
     GAME_ENGINE_API Cube* createCube( bool forceLegacy = false );
 
     GAME_ENGINE_API void addObjectToRender( IRenderable* renderable );

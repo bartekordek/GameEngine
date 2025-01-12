@@ -1,6 +1,8 @@
 #pragma once
 
 #include "gameengine/Import.hpp"
+#include "CUL/STL_IMPORTS/STD_stddef.hpp"
+#include "CUL/STL_IMPORTS/STD_cstdint.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
 
@@ -35,7 +37,7 @@ enum class PrimitiveType : unsigned
     QUAD_STRIP = 0x0008
 };
 
-enum class DataType : int
+enum class DataType : std::uint16_t
 {
     NONE = 0,
     BYTE = 0x1400,
@@ -44,54 +46,15 @@ enum class DataType : int
     UNSIGNED_SHORT = 0x1403,
     INT = 0x1404,
     UNSIGNED_INT = 0x1405,
-    FLOAT = 0x1406,          //5126
-    DOUBLE = 0x140A          //5130
+    FLOAT = 0x1406,   // 5126
+    DOUBLE = 0x140A,  // 5130
+    FLOAT_VEC2 = 0x8B50,
+    FLOAT_VEC3 = 0x8B51,
+    FLOAT_VEC4 = 0x8B52,
+    FLOAT_MAT2 = 0x8B5A,
+    FLOAT_MAT3 = 0x8B5B,
+    FLOAT_MAT4 = 0x8B5C
 };
-
-inline const char* DataTypeToName( DataType inDataType )
-{
-    if( inDataType == DataType::BYTE )
-    {
-        return "byte";
-    }
-
-    if( inDataType == DataType::UNSIGNED_BYTE )
-    {
-        return "unsigned byte";
-    }
-
-    if( inDataType == DataType::SHORT )
-    {
-        return "short";
-    }
-
-    if( inDataType == DataType::UNSIGNED_SHORT )
-    {
-        return "unsigned short";
-    }
-
-    if( inDataType == DataType::INT )
-    {
-        return "int";
-    }
-
-    if( inDataType == DataType::UNSIGNED_INT )
-    {
-        return "unsigned int";
-    }
-
-    if( inDataType == DataType::FLOAT )
-    {
-        return "float";
-    }
-
-    if( inDataType == DataType::DOUBLE )
-    {
-        return "double";
-    }
-
-    return "none";
-}
 
 enum class TextureFilterType : short
 {
@@ -122,6 +85,17 @@ enum class TextureTypes : short
     T_PROXY_TEXTURE_2D,
     T_TEXTURE_1D_ARRAY,
     T_PROXY_TEXTURE_1D_ARRAY
+};
+
+class GAME_ENGINE_API BasicTypes final
+{
+public:
+    static const char* toChar( PrimitiveType inType );
+    static const char* toChar( DataType inDataType );
+    static std::size_t getSize( DataType inDataType );
+
+protected:
+private:
 };
 
 NAMESPACE_END( LOGLW )

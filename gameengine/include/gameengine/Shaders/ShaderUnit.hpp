@@ -33,7 +33,6 @@ struct GAME_ENGINE_API ShaderUnit
     CShaderTypes::ShaderType Type{ CShaderTypes::ShaderType::Unkown };
     std::uint32_t ID = 0u;
     EShaderUnitState State{ EShaderUnitState::Unkown };
-    CUL::String ErrorMsg;
 };
 
 #if defined( _MSC_VER )

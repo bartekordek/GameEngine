@@ -52,11 +52,14 @@ class GAME_ENGINE_API VertexBuffer final: public IUtilityUser, public IRenderabl
 public:
     VertexBuffer( const VertexData& vertexData, IGameEngine* engine );
     void setVertexData( const VertexData& vertexData );
+    void updateVertexData( const VertexData& vertexData );
+    void updateVertexData();
     void render() override;
     unsigned getId() const;
     int getSize() const;
     void bind();
     const VertexData& getData() const;
+    VertexData& getData();
     ~VertexBuffer();
 
     VertexBuffer( const VertexBuffer& value ) = delete;

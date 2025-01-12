@@ -398,6 +398,8 @@ void GameEngineConcrete::renderFrame()
     m_frameTimer->start();
 }
 
+void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name );
+
 #if _MSC_VER
 #pragma warning( push )
 #pragma warning( disable : 4061 )
@@ -484,9 +486,28 @@ void GameEngineConcrete::renderInfo()
             }
         }
 
+        constexpr float slidermaxVal = 255.f;
         {
             static glm::vec3 eye = getCamera().getEye();
-            res = ImGui::SliderFloat( "Eye-Z", &eye.z, -512.f, 1024.0f );
+            res = ImGui::SliderFloat( "Eye-X", &eye.x, -slidermaxVal, slidermaxVal );
+            if( res )
+            {
+                getCamera().setEyePos( eye );
+            }
+        }
+
+        {
+            static glm::vec3 eye = getCamera().getEye();
+            res = ImGui::SliderFloat( "Eye-Y", &eye.y, -slidermaxVal, slidermaxVal );
+            if( res )
+            {
+                getCamera().setEyePos( eye );
+            }
+        }
+
+        {
+            static glm::vec3 eye = getCamera().getEye();
+            res = ImGui::SliderFloat( "Eye-Z", &eye.z, -slidermaxVal, slidermaxVal );
             if( res )
             {
                 getCamera().setEyePos( eye );
@@ -572,6 +593,20 @@ void GameEngineConcrete::renderInfo()
         ImGui::Text( "m_frameSleepNs: %d", m_frameSleepNs );
         ImGui::Text( "m_usDelta: %d", m_usDelta );
 
+        if( ImGui::TreeNode( "Objects" ) )
+        {
+            std::set<IObject*> shownList;
+
+            for( IRenderable* renderable : m_objectsToRender )
+            {
+                IObject* object = renderable->getObject()->getOuter();
+
+                drawObjects( shownList, object, object->getName() );
+            }
+
+            ImGui::TreePop();
+        }
+
         ImGui::End();
 
         {
@@ -589,6 +624,36 @@ void GameEngineConcrete::renderInfo()
 #if _MSC_VER
 #pragma warning( pop )
 #endif
+
+void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name )
+{
+    if( shownList.find( currentObject ) != shownList.end() )
+    {
+        return;
+    }
+
+    if( ImGui::TreeNode( name.cStr() ) )
+    {
+        const glm::vec3 trans = currentObject->getTransform()->getPositionToParent();
+        const CUL::MATH::Rotation rot = currentObject->getTransform()->getRotationToParent();
+
+        ImGui::Text( "Name: %s", name.cStr() );
+        ImGui::Text( "x: %4.2f y: %4.2f y: %4.2f", trans.x, trans.y, trans.z );
+        ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", rot.Pitch, rot.Yaw, rot.Roll );
+        shownList.insert( currentObject );
+
+        const std::set<IObject*>& children = currentObject->getChildren();
+        if( children.empty() == false )
+        {
+            std::int32_t i{ 0 };
+            for( IObject* child : children )
+            {
+                drawObjects( shownList, child, child->getName() );
+            }
+        }
+        ImGui::TreePop();
+    }
+}
 
 void GameEngineConcrete::prepareProjection()
 {

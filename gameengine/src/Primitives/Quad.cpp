@@ -130,8 +130,11 @@ void Quad::createShaders()
     m_shaderProgram = getEngine().createProgram();
     m_shaderProgram->setName( getName() + "::program" );
 
-    m_shaderProgram->loadShader( "embedded_shaders/basic_color.frag" );
-    m_shaderProgram->loadShader( "embedded_shaders/basic_pos.vert" );
+    CUL::String errorContent;
+    m_shaderProgram->compileShader( "embedded_shaders/basic_color.frag" );
+    m_shaderProgram->compileShader( "embedded_shaders/basic_pos.vert" );
+    m_shaderProgram->link();
+    m_shaderProgram->validate();
 }
 
 void Quad::render()

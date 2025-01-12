@@ -30,9 +30,8 @@ void VertexBuffer::setVertexData( const VertexData& vertexData )
 void VertexBuffer::loadData()
 {
     release();
-
     m_vertexData.VBO = getDevice()->generateBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
-    getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
+    updateVertexData();
     getDevice()->vertexAttribPointer( m_vertexData );
 
     if( m_vertexData.Indices.getIsEmpty() == false )
@@ -46,6 +45,17 @@ void VertexBuffer::loadData()
     }
 
     m_load = false;
+}
+
+void VertexBuffer::updateVertexData( const VertexData& vertexData )
+{
+    m_vertexData = vertexData;
+    updateVertexData();
+}
+
+void VertexBuffer::updateVertexData()
+{
+    getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
 }
 
 void VertexBuffer::render()
@@ -80,6 +90,11 @@ void VertexBuffer::bind()
 }
 
 const VertexData& VertexBuffer::getData() const
+{
+    return m_vertexData;
+}
+
+VertexData& VertexBuffer::getData()
 {
     return m_vertexData;
 }

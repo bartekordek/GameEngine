@@ -7,11 +7,13 @@
 
 using namespace LOGLW;
 
-TransformComponent::TransformComponent( IObject& owner ):m_owner( owner )
+TransformComponent::TransformComponent( IObject* owner ) : m_owner( owner )
 {
-    changeSizeDelegate.addDelegate( [this]() {
-        //printCurrentState();
-    } );
+    changeSizeDelegate.addDelegate(
+        [this]()
+        {
+            // printCurrentState();
+        } );
 }
 
 void TransformComponent::setPositionToParent( const glm::vec3& position )
@@ -26,16 +28,18 @@ const glm::vec3 TransformComponent::getPositionToParent() const
 
 void TransformComponent::setPositionAbsolute( const glm::vec3& position )
 {
-    const auto parent = m_owner.getParent();
-    if( parent )
+    if( m_owner )
     {
-        const auto parentAbsolutePos = parent->getTransform()->getPositionAbsolut();
-        m_pos = position - parentAbsolutePos;
+        const auto parent = m_owner->getParent();
+        if( parent )
+        {
+            const auto parentAbsolutePos = parent->getTransform()->getPositionAbsolut();
+            m_pos = position - parentAbsolutePos;
+            return;
+        }
     }
-    else
-    {
-        m_pos = position;
-    }
+
+    m_pos = position;
 }
 
 const glm::vec3 TransformComponent::getPositionAbsolut() const
@@ -86,13 +90,16 @@ const glm::mat4 TransformComponent::getModel() const
     model = model * trans_from_pivot;
     model = model * scale;
 
-    IObject* parent = m_owner.getParent();
-    if( parent )
+    if( m_owner )
     {
-        TransformComponent* parentTransform = static_cast< TransformComponent* >( parent->getComponent( "TransformComponent" ) );
-        if( parentTransform )
+        IObject* parent = m_owner->getParent();
+        if( parent )
         {
-            return parentTransform->getModel() * model;
+            TransformComponent* parentTransform = static_cast<TransformComponent*>( parent->getComponent( "TransformComponent" ) );
+            if( parentTransform )
+            {
+                return parentTransform->getModel() * model;
+            }
         }
     }
 
@@ -203,7 +210,7 @@ void TransformComponent::decomposeAndLogData( const glm::mat4& data ) const
     const auto rotationString = glm::to_string( rotation );
     const auto translationString = glm::to_string( translation );
 
-    const auto name = m_owner.getName();
+    const auto name = m_owner->getName();
 
     CUL::LOG::LOG_CONTAINER::getLogger()->log( name + ", translation: " + translationString + ", rotation: " + rotationString );
 }
@@ -234,7 +241,7 @@ const CUL::String ToString( const glm::vec3& val )
 
 void TransformComponent::printCurrentState() const
 {
-    CUL::LOG::LOG_CONTAINER::getLogger()->log( m_owner.getName() + ": " );
+    CUL::LOG::LOG_CONTAINER::getLogger()->log( m_owner->getName() + ": " );
     CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Size: " + ToString( m_size.toGlmVec() ) );
     CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Position: " + ToString( m_pos ) );
     CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Scale: " + ToString( m_scale ) );

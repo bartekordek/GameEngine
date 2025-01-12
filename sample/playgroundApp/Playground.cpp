@@ -20,13 +20,14 @@ CUL::MATH::Angle ang90( 90, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang180( 180, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 
+Playground::Playground( std::int16_t w, std::int16_t h, std::int16_t x, std::int16_t y ) : m_width( w ), m_height( h ), m_x( x ), m_y( y )
+{
+}
+
 void Playground::run()
 {
-    auto width = 1280;
-    auto height = 600;
-
-    CUL::Graphics::Pos2Di winPos = { 200, 200 };
-    SDL2W::WinSize winSize = { width, height };
+    CUL::Graphics::Pos2Di winPos = { m_x, m_y };
+    SDL2W::WinSize winSize = { m_width, m_height };
 
     LOGLW::EngineParams engineParams;
     engineParams.configPath = "Config.txt";

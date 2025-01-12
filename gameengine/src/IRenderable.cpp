@@ -20,6 +20,16 @@ void IRenderable::setDisableRenderOnMyOwn( bool disable )
     }
 }
 
+IObject* IRenderable::getObject()
+{
+    return m_object;
+}
+
+void IRenderable::setObject( IObject* inObject )
+{
+    m_object = inObject;
+}
+
 IRenderable::~IRenderable()
 {
     getEngine()->removeObjectToRender( this );

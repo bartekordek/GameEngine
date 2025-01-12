@@ -24,6 +24,7 @@ public:
 
     GAME_ENGINE_API virtual const std::vector<float> getVertices() const;
 
+    GAME_ENGINE_API IObject* getOuter();
     GAME_ENGINE_API IObject* getParent();
     GAME_ENGINE_API void setParent( IObject* parent );
 

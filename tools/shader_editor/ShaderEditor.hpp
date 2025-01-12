@@ -7,6 +7,7 @@
 #include "CUL/Math/Angle.hpp"
 #include "CUL/Math/Point.hpp"
 #include "CUL/Math/Rotation.hpp"
+#include "CUL/Math/SphericalCoord.hpp"
 #include "CUL/IMPORT_GLM.hpp"
 #include "CUL/STL_IMPORTS/STD_memory.hpp"
 #include "CUL/STL_IMPORTS/STD_unordered_map.hpp"
@@ -25,6 +26,7 @@ namespace LOGLW
 	class Sprite;
 	class Cube;
 	class Quad;
+    class TransformComponent;
 }
 
 namespace SDL2W
@@ -45,6 +47,14 @@ class VertexArray;
 
 struct EditorState;
 
+enum class EShaderUnitState: std::uint8_t
+{
+    Empty = 0u,
+    Loaded,
+    Compiled,
+    Error
+};
+
 class ShaderEditor final: public SDL2W::IMouseObserver, public SDL2W::IKeyboardObserver
 {
 public:
@@ -57,10 +67,14 @@ protected:
 private:
     void afterInit();
     void onMouseEvent( const SDL2W::MouseData& mouseData ) override;
+    bool m_mouseDown{ false };
+
     void onKeyBoardEvent( const SDL2W::KeyboardState& key ) override;
     void onWindowEvent( const SDL2W::WindowEvent::Type type );
     void timer();
     void guiIteration( float x, float y );
+    void drawLeftWindow( float x, float y );
+    void drawRightWindow( float x, float y );
     void drawEditor(float x, float y, float w, float h, const CUL::String& name);
 
     LOGLW::IGameEngine* m_engine{ nullptr };
@@ -75,9 +89,16 @@ private:
     std::unordered_map<std::string, std::unique_ptr<EditorState>> m_editors;
 
     LOGLW::VertexArray* m_vao{ nullptr };
+    std::unique_ptr<LOGLW::TransformComponent> m_transformComponent;
 
     std::int16_t m_width;
     std::int16_t m_height;
     std::int16_t m_x;
     std::int16_t m_y;
+
+    glm::vec3 m_eye;
+
+    CUL::MATH::SphericalCoord<float> m_cameraPosSp;
+    std::int32_t m_lastMouseX{ 0 };
+    std::int32_t m_lastMouseY{ 0 };
 };

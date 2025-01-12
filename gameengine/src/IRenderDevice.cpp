@@ -50,6 +50,21 @@ bool IRenderDevice::getIsEmbeddedSystems() const
     return m_isEmbeddedSystems;
 }
 
+std::vector<AttributeInfo> IRenderDevice::fetchProgramAttributeInfo( std::int32_t inProgramId ) const
+{
+    std::vector<AttributeInfo> result;
+    throw std::logic_error( "Method not implemented" );
+
+    return result;
+}
+
+std::vector<UniformInfo> IRenderDevice::fetchProgramUniformsInfo( std::int32_t inProgramId ) const
+{
+    std::vector<UniformInfo> result;
+    throw std::logic_error( "Method not implemented" );
+
+    return result;
+}
 
 void IRenderDevice::log( const String& text, const CUL::LOG::Severity severity ) const
 {
@@ -169,7 +184,12 @@ unsigned IRenderDevice::getGPUCurrentAvailableMemoryKb()
     return 0u;
 }
 
-ShaderUnit* IRenderDevice::createShaderUnit( const CUL::FS::Path& )
+ShaderUnit* IRenderDevice::createShaderUnit( const CUL::FS::Path&, bool, CUL::String& )
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
+void IRenderDevice::deleteShaderUnit( ShaderUnit* )
 {
     throw std::logic_error( "Method not implemented" );
 }
@@ -301,6 +321,13 @@ void IRenderDevice::drawElements( const PrimitiveType, const CUL::DataWrapper& )
 {
     throw std::logic_error( "Method not implemented" );
 }
+
+LOGLW::UniformValue IRenderDevice::getUniformValue( std::int32_t, std::int32_t, DataType )
+{
+    throw std::logic_error( "Method not implemented" );
+    return LOGLW::UniformValue();
+}
+
 
 IRenderDevice::~IRenderDevice()
 {

@@ -21,22 +21,6 @@ void DeviceOpenGL_Legacy::initDebugUI()
 {
 }
 
-void DeviceOpenGL_Legacy::setViewport( const Viewport& )
-{
-}
-
-void DeviceOpenGL_Legacy::lookAt( const Camera& )
-{
-}
-
-void DeviceOpenGL_Legacy::lookAt( const std::array<Pos3Dd, 3>& )
-{
-}
-
-void DeviceOpenGL_Legacy::lookAt( const Pos3Dd&, const Pos3Dd&, const Pos3Dd& )
-{
-}
-
 void DeviceOpenGL_Legacy::prepareFrame()
 {
 }
@@ -52,30 +36,6 @@ void DeviceOpenGL_Legacy::useProgram( int )
 ContextInfo DeviceOpenGL_Legacy::initContextVersion( SDL2W::IWindow* )
 {
     return ContextInfo();
-}
-
-void DeviceOpenGL_Legacy::setUniformValue( int uniformLocation, const glm::vec2& val )
-{
-}
-
-void DeviceOpenGL_Legacy::setUniformValue( int uniformLocation, const glm::vec3& val )
-{
-}
-
-void DeviceOpenGL_Legacy::setUniformValue( int uniformLocation, const glm::vec4& val )
-{
-}
-
-void DeviceOpenGL_Legacy::setUniformValue( int uniformLocation, const glm::mat2& val )
-{
-}
-
-void DeviceOpenGL_Legacy::setUniformValue( int uniformLocation, const glm::mat3& val )
-{
-}
-
-void DeviceOpenGL_Legacy::setUniformValue( int uniformLocation, const glm::mat4& val )
-{
 }
 
 void DeviceOpenGL_Legacy::setProjectionAndModelToIdentity()

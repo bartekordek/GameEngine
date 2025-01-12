@@ -29,7 +29,6 @@ public:
 
 protected:
 private:
-    
     void render() override;
     void init();
     void createBuffers();

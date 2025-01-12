@@ -56,7 +56,8 @@ private:
     void linkProgram( unsigned programId ) override;
     void validateProgram( std::uint32_t programId ) override;
 
-    ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath ) override;
+    ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage ) override;
+    void deleteShaderUnit( ShaderUnit* inShaderUnit ) override;
     bool attachShader( unsigned programId, unsigned shaderId ) override;
     void dettachShader( unsigned programId, unsigned shaderId ) override;
     void removeShader( unsigned shaderId ) override;
@@ -69,6 +70,8 @@ private:
     void setAttribValue( int attributeLocation, unsigned value ) override;
     void setAttribValue( int attributeLocation, bool value ) override;
     void setAttribValue( int attributeLocation, const CUL::String& value ) override;
+
+    UniformValue getUniformValue( std::int32_t inProgramId, std::int32_t inUniformId, DataType inDataType ) override;
 
     void setProjectionAndModelToIdentity() override;
     void clearColorAndDepthBuffer() override;
@@ -220,6 +223,8 @@ private:
 
 private:
     ShaderUnit* findShader( const CUL::FS::Path& shaderPath ) const;
+    std::vector<AttributeInfo> fetchProgramAttributeInfo( std::int32_t inProgramId ) const override;
+    std::vector<UniformInfo> fetchProgramUniformsInfo( std::int32_t inProgramId ) const override;
     std::unordered_map<String, std::unique_ptr<ShaderUnit>, CUL::StringHash> m_shadersUnits;
     mutable std::mutex m_shadersMtx;
 };

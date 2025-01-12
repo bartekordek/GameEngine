@@ -44,6 +44,11 @@ ShaderProgram* VertexArray::getProgram()
     return m_shaderProgram;
 }
 
+void VertexArray::setProgram( ShaderProgram* inProgram )
+{
+    m_shaderProgram = inProgram;
+}
+
 void VertexArray::createShader( const CUL::FS::Path& path )
 {
     CUL::Assert::simple( path.exists(), "File does not exist: " + path.getPath() );
@@ -109,6 +114,11 @@ void VertexArray::render()
 VertexBuffer* VertexArray::getVertexBuffer( std::size_t inIndex )
 {
     return m_vbos[inIndex].get();
+}
+
+void VertexArray::updateVertexData( std::size_t inIndex )
+{
+    m_vbos[inIndex]->updateVertexData();
 }
 
 bool VertexArray::taskIsAlreadyPlaced( TaskType tt ) const
