@@ -1,7 +1,8 @@
 #pragma once
 
-#include "SDL2Wrapper/Input/IKeyboardObserver.hpp"
-#include "SDL2Wrapper/Input/IMouseObserver.hpp"
+#include "gameengine/Input/IKeyboardObserver.hpp"
+#include "gameengine/Input/IMouseObserver.hpp"
+#include "gameengine/Windowing/WinData.hpp"
 
 #include "CUL/ITimer.hpp"
 #include "CUL/Math/Angle.hpp"
@@ -12,34 +13,33 @@
 
 namespace CUL
 {
-	class ITimer;
+class ITimer;
 }
 
 namespace LOGLW
 {
-	class IGameEngine;
-	class KeyboardState;
-	class Camera;
-	class Triangle;
-	class Sprite;
-	class Cube;
-	class Quad;
-}
+class IGameEngine;
+class Camera;
+class Triangle;
+class Sprite;
+class Cube;
+class Quad;
+}  // namespace LOGLW
 
-namespace SDL2W
+namespace LOGLW
 {
-	class MouseData;
-	class IWindow;
-	namespace WindowEvent
-	{
-		enum class Type: short;
-	}
+class MouseData;
+class IWindow;
+namespace WindowEvent
+{
+enum class Type : short;
 }
+}  // namespace LOGLW
 
-class Playground final: public SDL2W::IMouseObserver, public SDL2W::IKeyboardObserver
+class Playground final: public LOGLW::IMouseObserver, public LOGLW::IKeyboardObserver
 {
 public:
-    Playground( std::int16_t w, std::int16_t h, std::int16_t x, std::int16_t y );
+    Playground( const LOGLW::WinData& inWinData );
     Playground( const Playground& ) = delete;
     Playground( Playground&& ) = delete;
     Playground& operator=( const Playground& ) = delete;
@@ -52,13 +52,13 @@ public:
 protected:
 private:
     void afterInit();
-    void onMouseEvent( const SDL2W::MouseData& mouseData );
-    void onKeyBoardEvent( const SDL2W::KeyboardState& key );
-    void onWindowEvent( const SDL2W::WindowEvent::Type type );
+    void onMouseEvent( const LOGLW::MouseData& mouseData );
+    void onKeyBoardEvent( const LOGLW::KeyboardState& key );
+    void onWindowEvent( const LOGLW::WindowEvent::Type type );
     void timer();
 
     LOGLW::IGameEngine* m_engine = nullptr;
-    SDL2W::IWindow* m_mainWindow = nullptr;
+    LOGLW::IWindow* m_mainWindow = nullptr;
     LOGLW::Camera* m_camera = nullptr;
 
     LOGLW::Triangle* m_triangleModern = nullptr;
@@ -85,8 +85,5 @@ private:
     std::unique_ptr<CUL::ITimer> m_timer;
 
     float m_time = 0.f;
-    std::int16_t m_width;
-    std::int16_t m_height;
-    std::int16_t m_x;
-    std::int16_t m_y;
+    LOGLW::WinData m_winData;
 };

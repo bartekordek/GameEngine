@@ -4,13 +4,12 @@
 #include "gameengine/IDebugOverlay.hpp"
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
-
-#include "SDL2Wrapper/ISDL2Wrapper.hpp"
-#include "SDL2Wrapper/IWindow.hpp"
+#include "gameengine/ISDL2Wrapper.hpp"
+#include "gameengine/Windowing/IWindow.hpp"
 
 #include "CUL/ITimer.hpp"
 
-Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SDL2W::WinSize& winSize )
+Game::Game( int rows, int cols, const LOGLW::WinPos& windowPos, const LOGLW::WinSize& winSize )
     : m_windowPos( windowPos ), m_windowSize( winSize ), m_rowsCount( rows ), m_colsCount( cols )
 {
     m_background.resize( rows );
@@ -19,13 +18,13 @@ Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SD
         row.resize( cols );
     }
 
-    SDL2W::WindowData windowData;
-    windowData.name = "Snake!";
-    windowData.pos = m_windowPos;
-    windowData.currentRes = m_windowSize;
-    windowData.rendererType = SDL2W::RenderTypes::RendererType::OPENGL_MODERN;
+    LOGLW::WinData windowData;
+    windowData.Name = "Snake!";
+    windowData.Pos = m_windowPos;
+    windowData.CurrentRes = m_windowSize;
+    windowData.RendererType = LOGLW::RenderTypes::RendererType::OPENGL_MODERN;
 
-    m_sdlw.reset( SDL2W::ISDL2Wrapper::createSDL2Wrapper() );
+    m_sdlw.reset( LOGLW::ISDL2Wrapper::createSDL2Wrapper() );
     m_sdlw->init( windowData, "Config.txt" );
 
     m_oglw.reset( LOGLW::IGameEngine::createGameEngine( m_sdlw.get(), true ) );
@@ -50,12 +49,14 @@ Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SD
             this->renderScene();
         } );
 
-    m_oglw->registerWindowEventCallback( [this]( const SDL2W::WindowEvent::Type type ) {
-        if( SDL2W::WindowEvent::Type::CLOSE == type )
+    m_oglw->registerWindowEventCallback(
+        [this]( const LOGLW::WindowEvent::Type type )
         {
-            closeApp();
-        }
-    } );
+            if( LOGLW::WindowEvent::Type::CLOSE == type )
+            {
+                closeApp();
+            }
+        } );
 
     m_possibleSizes.push_back( { 1024, 800 } );
     m_possibleSizes.push_back( { 1680, 900 } );
@@ -65,7 +66,7 @@ Game::Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SD
 void Game::afterInit()
 {
     m_mainWindow = m_oglw->getMainWindow();
-    m_mainWindow->setBackgroundColor( SDL2W::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
+    m_mainWindow->setBackgroundColor( LOGLW::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
 
     glm::vec3 eye = { 0.0f, 0.0f, 300.f };
     m_oglw->getCamera().setEyePos( eye );
@@ -115,7 +116,7 @@ void Game::afterInit()
                 quad->getTransform()->setPivot( { 0.5f, 0.5f, 0.f } );
                 static float scale = 20.f;
                 quad->getTransform()->setScale( { scale, scale, scale } );
- 
+
                 quad->getTransform()->setPositionToParent( { xOffset + col * ( size + offset ), yOffset + row * ( size + offset ), 0.f } );
                 m_background[row][col] = quad;
                 ++index;
@@ -274,14 +275,14 @@ void Game::renderScene()
     m_angle += 0.01f;
 }
 
-void Game::onMouseEvent( const SDL2W::MouseData& mouseData )
+void Game::onMouseEvent( const LOGLW::MouseData& mouseData )
 {
     if( mouseData.isButtonDown( 3 ) )
     {
         const auto& md = m_oglw->getMouseData();
         const auto& winSize = m_oglw->getMainWindow()->getSize();
-        const auto winW = winSize.getWidth();
-        const auto winH = winSize.getHeight();
+        const auto winW = winSize.W;
+        const auto winH = winSize.H;
         const auto mouseX = md.getX();
         const auto mouseY = md.getY();
         const auto centerX = winW / 2 - mouseX;
@@ -308,7 +309,7 @@ void Game::onMouseEvent( const SDL2W::MouseData& mouseData )
         }
     }
 
-    if( mouseData.getEventType() == SDL2W::MouseData::EventType::MOUSEWHEEL )
+    if( mouseData.getEventType() == LOGLW::MouseData::EventType::MOUSEWHEEL )
     {
         if( mouseData.getWheelY() == 1 || mouseData.getWheelY() == -1 )
         {
@@ -319,7 +320,7 @@ void Game::onMouseEvent( const SDL2W::MouseData& mouseData )
     }
 }
 
-void Game::onKeyBoardEvent( const SDL2W::KeyboardState& key )
+void Game::onKeyBoardEvent( const LOGLW::KeyboardState& key )
 {
     if( !m_snakeHasMoved )
     {
@@ -364,12 +365,12 @@ void Game::onKeyBoardEvent( const SDL2W::KeyboardState& key )
         if( toggle == true )
         {
             m_logger->log( "Changing projection to ortographic." );
-            //m_oglw->setProjectionType( LOGLW::ProjectionType::ORTO );
+            // m_oglw->setProjectionType( LOGLW::ProjectionType::ORTO );
         }
         else
         {
             m_logger->log( "Changing projection to PERSPECTIVE." );
-            //m_oglw->setProjectionType( LOGLW::ProjectionType::PERSPECTIVE );
+            // m_oglw->setProjectionType( LOGLW::ProjectionType::PERSPECTIVE );
         }
         toggle = !toggle;
     }
@@ -395,7 +396,7 @@ void Game::onKeyBoardEvent( const SDL2W::KeyboardState& key )
         pos.setSize( m_possibleSizes[m_currentResolution].w, m_possibleSizes[m_currentResolution].h );
         m_viewport.set( { 0, 0 }, pos );
 
-        LOGLW::WindowSize windowSize =  m_possibleSizes[m_currentResolution];
+        LOGLW::WindowSize windowSize = m_possibleSizes[m_currentResolution];
         m_sdlw->getMainWindow()->setSize( windowSize.w, windowSize.h );
         m_oglw->setViewport( m_viewport );
     }

@@ -7,12 +7,13 @@ set(PROJECT_NAME_STATIC gameengine_static)
 project(${PROJECT_NAME_STATIC} LANGUAGES CXX)
 project(${PROJECT_NAME_DYNAMIC} LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 include_directories( SYSTEM ${GLM_INCLUDE_DIR} )
 include_directories( SYSTEM ${GLEW_INCLUDE_DIR} )
 include_directories( SYSTEM ${GLFW_INCLUDE_DIR} )
 include_directories( SYSTEM $ENV{freeglut_INCLUDE_DIR} )
+include_directories( SYSTEM ${OGLW_DEPS_ROOT}/SDL/include )
 
 get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
 foreach(dir ${dirs})
@@ -28,8 +29,9 @@ else()
 endif()
 
 find_package( GLEW REQUIRED )
+find_package( cul REQUIRED )
 
-file( GLOB_RECURSE SOURCES */*.hpp */*.cpp */*.frag */*.vert )
+file( GLOB_RECURSE SOURCES */*.hpp */*.cpp */*/*.hpp */*/*.cpp */*.frag */*.vert )
 
 source_group( TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCES} )
 
@@ -38,19 +40,23 @@ add_library( ${PROJECT_NAME_DYNAMIC} SHARED ${SOURCES} )
 
 set( DEPENDENCIES_STATIC
 PUBLIC LOGLW-AdditionalDeps
-PUBLIC sdl2wrapper_static
+PUBLIC cul_static
 PUBLIC glew_s
 PUBLIC glfw
 PUBLIC freeglut_static
+PUBLIC SDL2main
+PUBLIC SDL2-static
 PRIVATE tinyobjloader
 )
 
 set( DEPENDENCIES_DYNAMIC
 PUBLIC LOGLW-AdditionalDeps
-PUBLIC sdl2wrapper_dynamic
+PUBLIC cul_dynamic
 PUBLIC glew
 PUBLIC glfw
 PUBLIC freeglut_static
+PUBLIC SDL2main
+PUBLIC SDL2
 PRIVATE tinyobjloader
 )
 

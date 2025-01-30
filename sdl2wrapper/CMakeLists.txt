@@ -7,7 +7,7 @@ set(PROJECT_NAME_STATIC sdl2wrapper_static)
 project(sdl2wrapper_static LANGUAGES CXX)
 project(sdl2wrapper_dynamic LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 if( MSVC )
     add_compile_options( /Wall )

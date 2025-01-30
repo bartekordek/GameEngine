@@ -13,8 +13,8 @@
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/VertexArray.hpp"
 
-#include "SDL2Wrapper/IWindow.hpp"
-#include "SDL2Wrapper/Input/MouseData.hpp"
+#include "gameengine/Windowing/IWindow.hpp"
+#include "sdl2wrapper/Input/MouseData.hpp"
 
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 
@@ -31,7 +31,6 @@ CUL::MATH::Angle ang90( 90, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang180( 180, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 
-
 struct EditorState
 {
     CUL::String Name;
@@ -42,18 +41,15 @@ struct EditorState
     EShaderUnitState ShaderUnitState{ EShaderUnitState::Empty };
 };
 
-ShaderEditor::ShaderEditor( std::int16_t w, std::int16_t h, std::int16_t x, std::int16_t y ):
-    m_width( w ),
-    m_height( h ),
-    m_x( x ),
-    m_y( y )
+ShaderEditor::ShaderEditor( std::int16_t w, std::int16_t h, std::int16_t x, std::int16_t y )
+    : m_width( w ), m_height( h ), m_x( x ), m_y( y )
 {
 }
 
 void ShaderEditor::run()
 {
     CUL::Graphics::Pos2Di winPos = { m_x, m_y };
-    SDL2W::WinSize winSize = { m_width, m_height };
+    LOGLW::WinSize winSize = { m_width, m_height };
 
     LOGLW::EngineParams engineParams;
     engineParams.configPath = "Config.txt";
@@ -64,12 +60,28 @@ void ShaderEditor::run()
 
     m_engine = LOGLW::IGameEngine::createGameEngine( engineParams );
 
-    m_engine->addMouseEventCallback( [this] ( const SDL2W::MouseData& mouseData ){onMouseEvent( mouseData ); } );
+    m_engine->addMouseEventCallback(
+        [this]( const LOGLW::MouseData& mouseData )
+        {
+            onMouseEvent( mouseData );
+        } );
 
-    m_engine->onInitialize( [this] (){afterInit(); } );
+    m_engine->onInitialize(
+        [this]()
+        {
+            afterInit();
+        } );
 
-    m_engine->registerKeyboardEventCallback( [this] ( const SDL2W::KeyboardState& key ){onKeyBoardEvent( key ); } );
-    m_engine->registerWindowEventCallback( [this] ( const SDL2W::WindowEvent::Type type ){onWindowEvent( type ); } );
+    m_engine->registerKeyboardEventCallback(
+        [this]( const LOGLW::KeyboardState& key )
+        {
+            onKeyBoardEvent( key );
+        } );
+    m_engine->registerWindowEventCallback(
+        [this]( const LOGLW::WindowEvent::Type type )
+        {
+            onWindowEvent( type );
+        } );
     m_engine->drawOrigin( true );
     m_engine->startRenderingLoop();
 
@@ -81,7 +93,7 @@ void ShaderEditor::run()
 void ShaderEditor::afterInit()
 {
     m_mainWindow = m_engine->getMainWindow();
-    m_mainWindow->setBackgroundColor( SDL2W::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
+    m_mainWindow->setBackgroundColor( LOGLW::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
     const auto& winSize = m_mainWindow->getSize();
 
     m_camera = &m_engine->getCamera();
@@ -151,10 +163,7 @@ void ShaderEditor::afterInit()
     x1, y1, z1, r1, g1, b1,
     x2, y2, z2, r2, g2, b2,
     */
-    std::vector<float> vertices = {
-        0.0f, 0.0f, 0.f, 1.f, 0.f, 0.f,
-        1.0f, 1.0f, 0.f, 1.f, 0.f, 0.f,
-        1.0f, 0.0f, 0.f, 1.f, 0.f, 0.f };
+    std::vector<float> vertices = { 0.0f, 0.0f, 0.f, 1.f, 0.f, 0.f, 1.0f, 1.0f, 0.f, 1.f, 0.f, 0.f, 1.0f, 0.0f, 0.f, 1.f, 0.f, 0.f };
 
     vertData.Data.createFrom( vertices );
 
@@ -203,7 +212,7 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
     const float menuWidth = (float)winSize.w * 0.3f;
     const float editorWidth = menuWidth / 1.25f;
     const float editorHeight = targetHeight * 0.5f;
-    //const float windowX = (float)winSize.w - menuWidth; // Left side.
+    // const float windowX = (float)winSize.w - menuWidth; // Left side.
     const float windowX = x;
 
     ImGui::SetWindowPos( { windowX, 2.f } );
@@ -397,7 +406,7 @@ void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
     ImGui::SetWindowPos( { windowX, 2.f } );
     ImGui::SetWindowSize( { menuWidth, targetHeight } );
 
-        LOGLW::Camera& camera = m_engine->getCamera();
+    LOGLW::Camera& camera = m_engine->getCamera();
     glm::vec3 eyePos = camera.getEye();
 
     ImGui::Text( "Eye pos: x: %f, y: %f, z: %f", eyePos.x, eyePos.y, eyePos.z );
@@ -431,7 +440,6 @@ void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
         m_cameraPosSp.toCarthezian( m_eye.x, m_eye.y, m_eye.z );
         m_engine->setEyePos( m_eye );
     }
-
 
     float phiDeg = CUL::MATH::Converter<float>::toDeg( m_cameraPosSp.getPhi() );
     if( ImGui::SliderFloat( "Phi Deg", &phiDeg, 0.f, 180 ) )
@@ -476,14 +484,14 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
             editorState.File = std::make_unique<CUL::FS::RegularFile>( choosenShader, m_engine->getCul() );
             editorState.File->setPath( choosenShader );
             editorState.File->loadBackground( true, true,
-            [&editorState, this]()
-            {
-                editorState.CachedText = editorState.File->getAsOneString().string();
-                editorState.CachedText.removeTrailingLineEnd();
-                editorState.Editor.SetReadOnly( false );
-                editorState.Editor.SetText( editorState.CachedText.string() );
-                editorState.ShaderUnitState = EShaderUnitState::Loaded;
-            } );
+                                              [&editorState, this]()
+                                              {
+                                                  editorState.CachedText = editorState.File->getAsOneString().string();
+                                                  editorState.CachedText.removeTrailingLineEnd();
+                                                  editorState.Editor.SetReadOnly( false );
+                                                  editorState.Editor.SetText( editorState.CachedText.string() );
+                                                  editorState.ShaderUnitState = EShaderUnitState::Loaded;
+                                              } );
         }
     }
 
@@ -580,9 +588,8 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
 
             editorState.CachedText = editorText;
         }
-
     }
-    LOGLW::ShaderProgram* program =  m_vao->getProgram();
+    LOGLW::ShaderProgram* program = m_vao->getProgram();
     if( program && program->getIsLinked() )
     {
         const LOGLW::Camera& camera = m_engine->getCamera();
@@ -593,7 +600,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
         m_transformComponent->setPositionAbsolute( { 1.f, 1.f, 0.f } );
         const glm::mat4 model = m_transformComponent->getModel();
 
-        const auto targetModel = projectionMatrix* viewMatrix* model;
+        const auto targetModel = projectionMatrix * viewMatrix * model;
 
         program->setUniform( "projection", projectionMatrix );
         program->setUniform( "view", viewMatrix );
@@ -608,9 +615,9 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
     }
 }
 
-void ShaderEditor::onMouseEvent( const SDL2W::MouseData& mouseData )
+void ShaderEditor::onMouseEvent( const LOGLW::MouseData& mouseData )
 {
-    if( mouseData.getEventType() == SDL2W::MouseData::EventType::MOUSEWHEEL )
+    if( mouseData.getEventType() == LOGLW::MouseData::EventType::MOUSEWHEEL )
     {
         const auto whellY = mouseData.getWheelY();
         m_engine->getLoger()->logVariable( CUL::LOG::Severity::WARN, "ShaderEditor::onMouseEvent MOUSEWHEEL y: %d", whellY );
@@ -634,7 +641,7 @@ void ShaderEditor::onMouseEvent( const SDL2W::MouseData& mouseData )
             m_engine->getLoger()->logVariable( CUL::LOG::Severity::WARN, "ShaderEditor::onMouseEvent DIFF x: %d, y: %d", diffX, diffY );
 
             constexpr float divider{ 255.f };
-            m_cameraPosSp.incrementTheta(static_cast<float>( diffX ) / divider );
+            m_cameraPosSp.incrementTheta( static_cast<float>( diffX ) / divider );
             m_cameraPosSp.incrementPhi( -static_cast<float>( diffY ) / divider );
             m_cameraPosSp.toCarthezian( m_eye.x, m_eye.y, m_eye.z );
 
@@ -657,13 +664,13 @@ void ShaderEditor::onMouseEvent( const SDL2W::MouseData& mouseData )
     }
 }
 
-void ShaderEditor::onKeyBoardEvent( const SDL2W::KeyboardState& /*key*/ )
+void ShaderEditor::onKeyBoardEvent( const LOGLW::KeyboardState& /*key*/ )
 {
 }
 
-void ShaderEditor::onWindowEvent( const SDL2W::WindowEvent::Type type )
+void ShaderEditor::onWindowEvent( const LOGLW::WindowEvent::Type type )
 {
-    if( SDL2W::WindowEvent::Type::CLOSE == type )
+    if( LOGLW::WindowEvent::Type::CLOSE == type )
     {
         closeApp();
     }
@@ -677,5 +684,4 @@ void ShaderEditor::closeApp()
 
 ShaderEditor::~ShaderEditor()
 {
-
 }

@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IndexBuffer.hpp"
 
@@ -25,7 +24,7 @@ private:
     void prepareFrame() override;
     void finishFrame() override;
     void useProgram( int programId ) override;
-    ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
+    ContextInfo initContextVersion( LOGLW::IWindow* window ) override;
     void setProjectionAndModelToIdentity() override;
     void clearColorAndDepthBuffer() override;
     void createQuad( float scale = 1.0f ) override;
@@ -84,7 +83,7 @@ private:
     unsigned getGPUTotalAvailableMemoryKb() override;
 
     const String& getName() const override;
-    SDL2W::RenderTypes::RendererType getType() const override;
+    LOGLW::RenderTypes::RendererType getType() const override;
 
     String m_name = "OpenGL Legacy.";
 };

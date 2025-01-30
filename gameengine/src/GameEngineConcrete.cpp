@@ -15,10 +15,10 @@
 #include "DebugUtil/DebugSystemBase.hpp"
 #include "DebugUtil/DebugSystemParams.hpp"
 
-#include "SDL2Wrapper/ISDL2Wrapper.hpp"
-#include "SDL2Wrapper/IWindow.hpp"
-#include "SDL2Wrapper/Input/MouseData.hpp"
-#include "SDL2Wrapper/WindowData.hpp"
+#include "gameengine/ISDL2Wrapper.hpp"
+#include "gameengine/Windowing/IWindow.hpp"
+#include "gameengine/Input/MouseData.hpp"
+#include "gameengine/Windowing/WinData.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/GenericUtils/ConsoleUtilities.hpp"
@@ -34,7 +34,7 @@
 #undef LoadImage
 using namespace LOGLW;
 
-GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
+GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool )
     : m_sdlW( sdl2w ),
       m_activeWindow( sdl2w->getMainWindow() ),
       m_cul( sdl2w->getCul() ),
@@ -63,7 +63,7 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
 
         const auto rendererType = m_activeWindow->getCurrentRendererType();
 
-        if( rendererType == SDL2W::RenderTypes::RendererType::DIRECTX_9 )
+        if( rendererType == LOGLW::RenderTypes::RendererType::DIRECTX_9 )
         {
 #if defined( GAME_ENGINE_WINDOWS )
             m_renderDevice = new DeviceDX09();
@@ -71,7 +71,7 @@ GameEngineConcrete::GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool )
             CUL::Assert::simple( false, "NOTE IMPLEMENTED." );
 #endif
         }
-        else if( rendererType == SDL2W::RenderTypes::RendererType::DIRECTX_12 )
+        else if( rendererType == LOGLW::RenderTypes::RendererType::DIRECTX_12 )
         {
 #if defined( GAME_ENGINE_WINDOWS )
             m_renderDevice = new DeviceDX12();
@@ -296,15 +296,15 @@ void GameEngineConcrete::initialize()
     m_logger->log( "GameEngineConcrete::initialize()..." );
 
     const auto& winSize = m_activeWindow->getSize();
-    const float aspectRatio = static_cast<float>( winSize.w / winSize.h );
+    const float aspectRatio = static_cast<float>( winSize.W / winSize.H );
     getCamera().setAspectRatio( aspectRatio );
 
     m_sdlW->registerSDLEventObserver( this );
 
-    setupProjectionData( winSize.getWidth(), winSize.getHeight() );
+    setupProjectionData( winSize.W, winSize.H );
 
     m_viewport.pos.setXY( 0, 0 );
-    m_viewport.size.setSize( winSize.getWidth(), winSize.getHeight() );
+    m_viewport.size.setSize( winSize.W, winSize.H );
 
     m_logger->log( "Current viewport:" );
     m_logger->log( "\n" + m_viewport.serialize( 0 ) );
@@ -417,8 +417,8 @@ void GameEngineConcrete::renderInfo()
                       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
         ImGui::SetWindowPos( { 0, 0 } );
 
-        debugInfoWidth = (float)winSize.getWidth() * 0.2f;
-        debugInfoHeight = (float)winSize.getHeight() * 1.f;
+        debugInfoWidth = (float)winSize.W * 0.2f;
+        debugInfoHeight = (float)winSize.H * 1.f;
         ImGui::SetWindowSize( { debugInfoWidth, debugInfoHeight } );
 
         ImGui::Text( "Legacy: %s", getDevice()->isLegacy() ? "true" : "false" );
@@ -822,7 +822,7 @@ void GameEngineConcrete::stopEventLoop()
     m_sdlW->stopEventLoop();
 }
 
-SDL2W::IWindow* GameEngineConcrete::getMainWindow()
+LOGLW::IWindow* GameEngineConcrete::getMainWindow()
 {
     return m_sdlW->getMainWindow();
 }
@@ -839,39 +839,39 @@ ITexture* GameEngineConcrete::createTexture( const CUL::FS::Path& path, const bo
     return textureConcrete;
 }
 
-// SDL2W::IMouseObservable
-void GameEngineConcrete::addMouseEventCallback( const SDL2W::IMouseObservable::MouseCallback& callback )
+// LOGLW::IMouseObservable
+void GameEngineConcrete::addMouseEventCallback( const LOGLW::IMouseObservable::MouseCallback& callback )
 {
     m_sdlW->addMouseEventCallback( callback );
 }
 
-void GameEngineConcrete::registerMouseEventListener( SDL2W::IMouseObserver* observer )
+void GameEngineConcrete::registerMouseEventListener( LOGLW::IMouseObserver* observer )
 {
     m_sdlW->registerMouseEventListener( observer );
 }
 
-void GameEngineConcrete::unregisterMouseEventListener( SDL2W::IMouseObserver* observer )
+void GameEngineConcrete::unregisterMouseEventListener( LOGLW::IMouseObserver* observer )
 {
     m_sdlW->unregisterMouseEventListener( observer );
 }
 
-SDL2W::MouseData& GameEngineConcrete::getMouseData()
+LOGLW::MouseData& GameEngineConcrete::getMouseData()
 {
     return m_sdlW->getMouseData();
 }
 
-// SDL2W::IKeyboardObservable
-void GameEngineConcrete::registerKeyboardEventCallback( const std::function<void( const SDL2W::KeyboardState& keyboardState )>& callback )
+// LOGLW::IKeyboardObservable
+void GameEngineConcrete::registerKeyboardEventCallback( const std::function<void( const LOGLW::KeyboardState& keyboardState )>& callback )
 {
     m_sdlW->registerKeyboardEventCallback( callback );
 }
 
-void GameEngineConcrete::registerKeyboardEventListener( SDL2W::IKeyboardObserver* observer )
+void GameEngineConcrete::registerKeyboardEventListener( LOGLW::IKeyboardObserver* observer )
 {
     m_sdlW->registerKeyboardEventListener( observer );
 }
 
-void GameEngineConcrete::unregisterKeyboardEventListener( SDL2W::IKeyboardObserver* observer )
+void GameEngineConcrete::unregisterKeyboardEventListener( LOGLW::IKeyboardObserver* observer )
 {
     m_sdlW->unregisterKeyboardEventListener( observer );
 }
@@ -881,7 +881,7 @@ bool GameEngineConcrete::isKeyUp( const String& keyName ) const
     return m_sdlW->isKeyUp( keyName );
 }
 
-void GameEngineConcrete::registerWindowEventCallback( const SDL2W::WindowCallback& callback )
+void GameEngineConcrete::registerWindowEventCallback( const LOGLW::WindowCallback& callback )
 {
     m_sdlW->registerWindowEventCallback( callback );
 }

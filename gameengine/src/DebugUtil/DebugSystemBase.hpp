@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gameengine/Import.hpp"
-#include "SDL2Wrapper/RendererTypes.hpp"
+#include "gameengine/Render/RendererTypes.hpp"
 #include "CUL/STL_IMPORTS/STD_functional.hpp"
 #include "CUL/STL_IMPORTS/STD_memory.hpp"
 
@@ -12,7 +12,7 @@ struct DebugSystemParams;
 class DebugSystemBase
 {
 public:
-    static DebugSystemBase* create( SDL2W::RenderTypes::RendererType type );
+    static DebugSystemBase* create( RenderTypes::RendererType type );
 
     DebugSystemBase() = default;
     DebugSystemBase( const DebugSystemBase& ) = delete;

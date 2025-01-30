@@ -67,7 +67,6 @@ add_subdirectory(deps/tinyobjloader)
 option(RENDER_OPENGL_CORE "Enable Opengl" ON)
 
 add_subdirectory(gameengine)
-add_subdirectory(sdl2wrapper)
 
 if(MSVC)
     add_subdirectory(sample/dx12playground)

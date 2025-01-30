@@ -1,8 +1,7 @@
 #pragma once
 
 #include "gameengine/BasicTypes.hpp"
-
-#include "SDL2Wrapper/RendererTypes.hpp"
+#include "gameengine/Render/RendererTypes.hpp"
 
 #include "CUL/Filesystem/IFile.hpp"
 #include "CUL/Graphics/Color.hpp"
@@ -40,9 +39,9 @@ enum class PixelFormat : short;
 NAMESPACE_END( Graphics )
 NAMESPACE_END( CUL )
 
-NAMESPACE_BEGIN( SDL2W )
+NAMESPACE_BEGIN( LOGLW )
 class IWindow;
-NAMESPACE_END( SDL2W )
+NAMESPACE_END( LOGLW )
 
 NAMESPACE_BEGIN( LOGLW )
 
@@ -74,7 +73,6 @@ using LineColors = std::array<ColorS, 2>;
 using Point = CUL::MATH::Point;
 using BufferDataId = std::uint32_t;
 
-
 struct GAME_ENGINE_API ContextInfo
 {
     void* glContext = nullptr;
@@ -92,15 +90,14 @@ struct GAME_ENGINE_API ShaderParameterInfo
 
 struct GAME_ENGINE_API AttributeInfo: public ShaderParameterInfo
 {
-
 };
 
 struct GAME_ENGINE_API UniformInfo: public ShaderParameterInfo
 {
 };
 
-using UniformValue = std::variant<float, std::int32_t, std::uint32_t, bool, glm::vec2, glm::vec3, glm::vec4, glm::mat2, glm::mat3, glm::mat4>;
-
+using UniformValue =
+    std::variant<float, std::int32_t, std::uint32_t, bool, glm::vec2, glm::vec3, glm::vec4, glm::mat2, glm::mat3, glm::mat4>;
 
 struct GAME_ENGINE_API TextureInfo
 {
@@ -134,7 +131,7 @@ struct QuadSimple
     float topRight = 0.f;
 };
 
-enum class ETextureUnitIndex: int
+enum class ETextureUnitIndex : int
 {
     UNIT_0 = 0x84C0,
     UNIT_1,
@@ -202,7 +199,7 @@ public:
     virtual void dettachShader( unsigned programId, unsigned shaderId );
     virtual void removeShader( unsigned shaderId );
 
-    virtual ContextInfo initContextVersion( SDL2W::IWindow* window ) = 0;
+    virtual ContextInfo initContextVersion( LOGLW::IWindow* window ) = 0;
 
     virtual void setAttribValue( int attributeLocation, float value );
     virtual void setAttribValue( int attributeLocation, int value );
@@ -223,7 +220,6 @@ public:
     virtual void setUniformValue( int uniformLocation, const glm::mat4& val ) = 0;
 
     virtual UniformValue getUniformValue( std::int32_t inProgramId, std::int32_t inUniformId, DataType inDataType );
-
 
     virtual void setProjectionAndModelToIdentity() = 0;
     virtual void clearColorAndDepthBuffer() = 0;
@@ -326,11 +322,10 @@ public:
     bool getIsEmbeddedSystems() const;
 
     virtual const String& getName() const = 0;
-    virtual SDL2W::RenderTypes::RendererType getType() const = 0;
+    virtual LOGLW::RenderTypes::RendererType getType() const = 0;
 
     virtual std::vector<AttributeInfo> fetchProgramAttributeInfo( std::int32_t inProgramId ) const;
     virtual std::vector<UniformInfo> fetchProgramUniformsInfo( std::int32_t inProgramId ) const;
-
 
     virtual ~IRenderDevice();
 

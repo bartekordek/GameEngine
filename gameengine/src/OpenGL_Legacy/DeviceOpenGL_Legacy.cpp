@@ -33,7 +33,7 @@ void DeviceOpenGL_Legacy::useProgram( int )
 {
 }
 
-ContextInfo DeviceOpenGL_Legacy::initContextVersion( SDL2W::IWindow* )
+ContextInfo DeviceOpenGL_Legacy::initContextVersion( LOGLW::IWindow* )
 {
     return ContextInfo();
 }
@@ -190,15 +190,15 @@ void DeviceOpenGL_Legacy::draw( const QuadData& /*quad*/, const ColorS& /*color*
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const Point& , const ColorS& )
+void DeviceOpenGL_Legacy::draw( const Point&, const ColorS& )
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const QuadCUL& , const glm::mat4& , const ColorS& )
+void DeviceOpenGL_Legacy::draw( const QuadCUL&, const glm::mat4&, const ColorS& )
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const TriangleCUL& , const glm::mat4& , const ColorS& )
+void DeviceOpenGL_Legacy::draw( const TriangleCUL&, const glm::mat4&, const ColorS& )
 {
 }
 
@@ -206,7 +206,7 @@ void DeviceOpenGL_Legacy::translate( const Point& )
 {
 }
 
-void DeviceOpenGL_Legacy::translate( const float , const float , const float )
+void DeviceOpenGL_Legacy::translate( const float, const float, const float )
 {
 }
 
@@ -214,7 +214,7 @@ void DeviceOpenGL_Legacy::rotate( const CUL::MATH::Rotation& )
 {
 }
 
-void DeviceOpenGL_Legacy::rotate( const float , const float , const float , const float )
+void DeviceOpenGL_Legacy::rotate( const float, const float, const float, const float )
 {
 }
 
@@ -273,7 +273,7 @@ const String& DeviceOpenGL_Legacy::getName() const
     return m_name;
 }
 
-SDL2W::RenderTypes::RendererType DeviceOpenGL_Legacy::getType() const
+LOGLW::RenderTypes::RendererType DeviceOpenGL_Legacy::getType() const
 {
-    return SDL2W::RenderTypes::RendererType::OPENGL_LEGACY;
+    return LOGLW::RenderTypes::RendererType::OPENGL_LEGACY;
 }

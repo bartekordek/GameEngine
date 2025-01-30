@@ -2,7 +2,7 @@
 
 #include "gameengine/Import.hpp"
 
-#if defined(GAME_ENGINE_WINDOWS)
+#if defined( GAME_ENGINE_WINDOWS )
 
 #include "gameengine/IRenderDevice.hpp"
 #include "DX12/CommandWrapper.hpp"
@@ -47,7 +47,7 @@ private:
     void lookAt( const Camera& vp ) override;
     void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;
     void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) override;
-    ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
+    ContextInfo initContextVersion( LOGLW::IWindow* window ) override;
 
     void createDescriptorHeaps();
     void createRenderTargetViews();
@@ -143,7 +143,7 @@ private:
     void GetHardwareAdapter( IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, bool requestHighPerformanceAdapter = false );
     void update();
     bool m_useWarpDevice = false;
-    SDL2W::IWindow* m_window = nullptr;
+    LOGLW::IWindow* m_window = nullptr;
     static const UINT FrameCount = 2;
 
     Microsoft::WRL::ComPtr<ID3D12Device2> CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4>& adapter );
@@ -187,11 +187,11 @@ private:
     ImGuiContext* m_imguiContext = nullptr;
 
     const String& getName() const override;
-    SDL2W::RenderTypes::RendererType getType() const override;
+    LOGLW::RenderTypes::RendererType getType() const override;
 
     String m_name = "DirectX 12.";
 };
 
 NAMESPACE_END( LOGLW )
 
-#endif // GAME_ENGINE_WINDOWS
+#endif  // GAME_ENGINE_WINDOWS

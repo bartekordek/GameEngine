@@ -1,6 +1,6 @@
 #include "DX09/DeviceDX09.hpp"
 
-#if defined(GAME_ENGINE_WINDOWS)
+#if defined( GAME_ENGINE_WINDOWS )
 
 using namespace LOGLW;
 
@@ -22,7 +22,7 @@ bool DeviceDX09::isLegacy()
     return false;
 }
 
-LOGLW::ContextInfo DeviceDX09::initContextVersion( SDL2W::IWindow* /*window*/ )
+LOGLW::ContextInfo DeviceDX09::initContextVersion( LOGLW::IWindow* /*window*/ )
 {
     LOGLW::ContextInfo result;
     return result;
@@ -358,9 +358,9 @@ const LOGLW::String& DeviceDX09::getName() const
     return m_name;
 }
 
-SDL2W::RenderTypes::RendererType DeviceDX09::getType() const
+LOGLW::RenderTypes::RendererType DeviceDX09::getType() const
 {
-    return SDL2W::RenderTypes::RendererType::DIRECTX_9;
+    return LOGLW::RenderTypes::RendererType::DIRECTX_9;
 }
 
 #endif  // GAME_ENGINE_WINDOWS

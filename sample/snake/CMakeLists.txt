@@ -9,7 +9,7 @@ set(PROJECT_NAME_STATIC ${basename}_static)
 project(${PROJECT_NAME_STATIC} LANGUAGES CXX)
 project(${PROJECT_NAME_DYNAMIC} LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 if (MSVC)
     # warning level 4 and all warnings as errors

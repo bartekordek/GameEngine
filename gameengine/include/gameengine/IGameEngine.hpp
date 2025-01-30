@@ -2,9 +2,9 @@
 
 #include "gameengine/Import.hpp"
 
-#include "SDL2Wrapper/Input/IKeyboardObservable.hpp"
-#include "SDL2Wrapper/IWindowEventObservable.hpp"
-#include "SDL2Wrapper/Input/IMouseObservable.hpp"
+#include "gameengine/Input/IKeyboardObservable.hpp"
+#include "gameengine/Events/IWindowEventObservable.hpp"
+#include "gameengine/Input/IMouseObservable.hpp"
 
 #include "CUL/Graphics/Color.hpp"
 
@@ -25,16 +25,16 @@ NAMESPACE_BEGIN( CUL )
 NAMESPACE_BEGIN( GUTILS )
 class IConfigFile;
 #ifdef _MSC_VER
-//class GAME_ENGINE_API CUL::GUTILS::SimpleDelegate;
+// class GAME_ENGINE_API CUL::GUTILS::SimpleDelegate;
 #endif
 NAMESPACE_END( GUTILS )
 NAMESPACE_END( CUL )
 
-NAMESPACE_BEGIN( SDL2W )
+NAMESPACE_BEGIN( LOGLW )
 class IWindow;
 class ISDL2Wrapper;
 struct WinSize;
-NAMESPACE_END( SDL2W )
+NAMESPACE_END( LOGLW )
 
 struct ImGuiContext;
 
@@ -73,9 +73,7 @@ using IImageLoader = CUL::Graphics::IImageLoader;
 using EmptyFunctionCallback = std::function<void()>;
 using IPreRenderTask = CUL::GUTILS::ITask;
 
-class IGameEngine: public SDL2W::IMouseObservable,
-                   public SDL2W::IKeyboardObservable,
-                   public SDL2W::IWindowEventObservable
+class IGameEngine: public LOGLW::IMouseObservable, public LOGLW::IKeyboardObservable, public LOGLW::IWindowEventObservable
 {
 public:
     IGameEngine();
@@ -85,7 +83,7 @@ public:
     GAME_ENGINE_API virtual void runEventLoop() = 0;
     GAME_ENGINE_API virtual void stopEventLoop() = 0;
 
-    GAME_ENGINE_API virtual SDL2W::IWindow* getMainWindow() = 0;
+    GAME_ENGINE_API virtual LOGLW::IWindow* getMainWindow() = 0;
 
     GAME_ENGINE_API virtual void setBackgroundColor( const ColorS& color ) = 0;
     GAME_ENGINE_API virtual void startRenderingLoop() = 0;
@@ -123,7 +121,7 @@ public:
     // VBO HANDLE:
     GAME_ENGINE_API VertexBuffer* createVBO( const VertexData& vertexData );
 
-    GAME_ENGINE_API static IGameEngine* createGameEngine( SDL2W::ISDL2Wrapper* sdl2w, bool legacy = false );
+    GAME_ENGINE_API static IGameEngine* createGameEngine( LOGLW::ISDL2Wrapper* sdl2w, bool legacy = false );
     GAME_ENGINE_API static IGameEngine* createGameEngine( const EngineParams& engineParam );
 
     GAME_ENGINE_API static IGameEngine* getInstance();
@@ -147,7 +145,7 @@ public:
     GAME_ENGINE_API void addObjectToRender( IRenderable* renderable );
     GAME_ENGINE_API void removeObjectToRender( IRenderable* renderable );
 
-    GAME_ENGINE_API void toggleGrid(bool enableGrid);
+    GAME_ENGINE_API void toggleGrid( bool enableGrid );
 
     GAME_ENGINE_API unsigned getGPUTotalAvailableMemoryKb();
     GAME_ENGINE_API unsigned getGPUCurrentAvailableMemoryKb();
@@ -162,7 +160,7 @@ public:
 
     // Shaders
     GAME_ENGINE_API class ShaderProgram* createProgram();
-    GAME_ENGINE_API void removeProgram(ShaderProgram* program);
+    GAME_ENGINE_API void removeProgram( ShaderProgram* program );
 
     GAME_ENGINE_API ShaderProgram* createShader( const String& path, const String& source = "" );
     GAME_ENGINE_API void removeShader( ShaderProgram* shader );
@@ -170,7 +168,7 @@ public:
 
     GAME_ENGINE_API void releaseResources();
 
-    GAME_ENGINE_API void addGuiTask( std::function<void(void)> task );
+    GAME_ENGINE_API void addGuiTask( std::function<void( void )> task );
     GAME_ENGINE_API void toggleDrawDebugInfo( bool inEnableDebugInfoDraw );
     GAME_ENGINE_API bool getDrawDebugInfo();
 
@@ -195,9 +193,8 @@ protected:
     std::mutex m_guiTasksMtx;
     std::queue<std::function<void( void )>> m_guiTasks;
 
-
     std::mutex m_initTasksMtx;
-    std::stack< std::function<void( void )>> m_initTasks;
+    std::stack<std::function<void( void )>> m_initTasks;
 
     std::mutex m_preRenderTasksMtx;
     std::stack<std::function<void( void )>> m_preRenderTasks;

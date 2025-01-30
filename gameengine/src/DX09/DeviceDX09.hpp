@@ -2,7 +2,7 @@
 
 #include "gameengine/Import.hpp"
 
-#if defined(GAME_ENGINE_WINDOWS)
+#if defined( GAME_ENGINE_WINDOWS )
 
 #include "gameengine/IRenderDevice.hpp"
 
@@ -18,13 +18,12 @@ public:
 
 protected:
 private:
-
     void* getNativeDevice() override;
 
     bool isLegacy() override;
 
     // Inherited via IRenderDevice
-    ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
+    ContextInfo initContextVersion( LOGLW::IWindow* window ) override;
 
     void createDescriptorHeaps();
     void createRenderTargetViews();
@@ -108,22 +107,21 @@ private:
 private:
     void initDebugUI() override;
     bool m_useWarpDevice = false;
-    SDL2W::IWindow* m_window = nullptr;
+    LOGLW::IWindow* m_window = nullptr;
 
     void WaitForPreviousFrame();
     void prepareFrame() override;
     void finishFrame() override;
     size_t getFrameBufferCount() const override;
 
-
     ImGuiContext* m_imguiContext = nullptr;
 
     const String& getName() const override;
-    SDL2W::RenderTypes::RendererType getType() const override;
+    LOGLW::RenderTypes::RendererType getType() const override;
 
     String m_name = "DirectX 09.";
 };
 
 NAMESPACE_END( LOGLW )
 
-#endif // GAME_ENGINE_WINDOWS
+#endif  // GAME_ENGINE_WINDOWS

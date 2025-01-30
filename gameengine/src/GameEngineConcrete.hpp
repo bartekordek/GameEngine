@@ -6,7 +6,7 @@
 #include "gameengine/Sprite.hpp"
 #include "gameengine/Viewport.hpp"
 
-#include "SDL2Wrapper/ISDLEventObserver.hpp"
+#include "gameengine/Events/ISDLEventObserver.hpp"
 
 #include "CUL/GenericUtils/LckPrim.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
@@ -24,10 +24,10 @@
 
 union SDL_Event;
 
-NAMESPACE_BEGIN( SDL2W )
+NAMESPACE_BEGIN( LOGLW )
 class Key;
 class IKeyboardObserver;
-NAMESPACE_END( SDL2W )
+NAMESPACE_END( LOGLW )
 
 NAMESPACE_BEGIN( LOGLW )
 
@@ -67,13 +67,10 @@ struct DebugValueRow
     std::function<void( void )> onChange;
 };
 
-class GameEngineConcrete final: public IGameEngine,
-                                private IDebugOverlay,
-                                private SDL2W::ISDLEventObserver,
-                                private ITextureFactory
+class GameEngineConcrete final: public IGameEngine, private IDebugOverlay, private LOGLW::ISDLEventObserver, private ITextureFactory
 {
 public:
-    GameEngineConcrete( SDL2W::ISDL2Wrapper* sdl2w, bool legacy );
+    GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool legacy );
     void registerObjectForUtility();
     ~GameEngineConcrete();
 
@@ -141,26 +138,26 @@ private:
 
     void runEventLoop() override;
     void stopEventLoop() override;
-    SDL2W::IWindow* getMainWindow() override;
+    LOGLW::IWindow* getMainWindow() override;
 
     // ITextureFactory
     ITextureFactory* getTextureFactory() override;
     ITexture* createTexture( const CUL::FS::Path& path, const bool rgba = false ) override;
 
-    // SDL2W::IMouseObservable
-    void addMouseEventCallback( const SDL2W::IMouseObservable::MouseCallback& callback ) override;
-    void registerMouseEventListener( SDL2W::IMouseObserver* observer ) override;
-    void unregisterMouseEventListener( SDL2W::IMouseObserver* observer ) override;
-    SDL2W::MouseData& getMouseData() override;
+    // LOGLW::IMouseObservable
+    void addMouseEventCallback( const LOGLW::IMouseObservable::MouseCallback& callback ) override;
+    void registerMouseEventListener( LOGLW::IMouseObserver* observer ) override;
+    void unregisterMouseEventListener( LOGLW::IMouseObserver* observer ) override;
+    LOGLW::MouseData& getMouseData() override;
 
-    void registerKeyboardEventCallback( const std::function<void( const SDL2W::KeyboardState& key )>& callback ) override;
+    void registerKeyboardEventCallback( const std::function<void( const LOGLW::KeyboardState& key )>& callback ) override;
 
-    void registerKeyboardEventListener( SDL2W::IKeyboardObserver* observer ) override;
-    void unregisterKeyboardEventListener( SDL2W::IKeyboardObserver* observer ) override;
+    void registerKeyboardEventListener( LOGLW::IKeyboardObserver* observer ) override;
+    void unregisterKeyboardEventListener( LOGLW::IKeyboardObserver* observer ) override;
 
     bool isKeyUp( const String& keyName ) const override;
 
-    void registerWindowEventCallback( const SDL2W::WindowCallback& callback ) override;
+    void registerWindowEventCallback( const LOGLW::WindowCallback& callback ) override;
 
     std::unique_ptr<DebugSystemBase> m_debugSystem;
 
@@ -170,8 +167,8 @@ private:
 
     ContextInfo m_glContext;
 
-    SDL2W::ISDL2Wrapper* m_sdlW = nullptr;
-    SDL2W::IWindow* m_activeWindow = nullptr;
+    LOGLW::ISDL2Wrapper* m_sdlW = nullptr;
+    LOGLW::IWindow* m_activeWindow = nullptr;
     CUL::CULInterface* m_cul = nullptr;
     CUL::LOG::ILogger* m_logger = nullptr;
 
@@ -190,8 +187,6 @@ private:
     SafeBool m_viewportChanged = false;
 
     ColorS m_backgroundColor = ColorS( ColorE::BLACK );
-
-
 
     EmptyFunctionCallback m_onInitializeCallback;
     EmptyFunctionCallback m_onBeforeFrame;
@@ -219,7 +214,6 @@ private:
 
     int m_everyX = 0;
     int m_everyXMax = 4;
-
 
 private:  // Deleted
     GameEngineConcrete() = delete;
