@@ -1,0 +1,6 @@
+set( sdl2_repo_name SDL )
+set( sdl2_root CMAKE_CURRENT_SOURCE_DIR/../deps/${sdl2_repo_name} )
+set( sdl2_include ${sdl2_ROOT}/include )
+set( sdl2_binary_dir ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE} )
+message( "[Set sdl2_binary_dir to ${sdl2_binary_dir}]" )
+set( sdl2_found true )

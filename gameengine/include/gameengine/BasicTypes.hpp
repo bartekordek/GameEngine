@@ -46,14 +46,17 @@ enum class DataType : std::uint16_t
     UNSIGNED_SHORT = 0x1403,
     INT = 0x1404,
     UNSIGNED_INT = 0x1405,
-    FLOAT = 0x1406,   // 5126
-    DOUBLE = 0x140A,  // 5130
-    FLOAT_VEC2 = 0x8B50,
-    FLOAT_VEC3 = 0x8B51,
-    FLOAT_VEC4 = 0x8B52,
-    FLOAT_MAT2 = 0x8B5A,
-    FLOAT_MAT3 = 0x8B5B,
-    FLOAT_MAT4 = 0x8B5C
+    FLOAT = 0x1406,       // 5126
+    DOUBLE = 0x140A,      // 5130
+    FLOAT_VEC2 = 0x8B50,  // 35664
+    FLOAT_VEC3 = 0x8B51,  // 35665
+    FLOAT_VEC4 = 0x8B52,  // 35666
+    FLOAT_MAT2 = 0x8B5A,  // 35674
+    FLOAT_MAT3 = 0x8B5B,  // 35675
+    FLOAT_MAT4 = 0x8B5C,  // 35676
+    SAMPLER_1D = 0x8B5D,
+    SAMPLER_2D = 0x8B5E,
+    SAMPLER_3D = 0x8B5F
 };
 
 enum class TextureFilterType : short

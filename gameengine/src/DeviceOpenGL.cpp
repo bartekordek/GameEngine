@@ -102,6 +102,12 @@ const char* toString( GLenum type )
             return "GL_4_BYTES";
         case GL_DOUBLE:
             return "GLdouble";
+        case GL_SAMPLER_1D:
+            return "Sampler 1D";
+        case GL_SAMPLER_2D:
+            return "Sampler 2D";
+        case GL_SAMPLER_3D:
+            return "Sampler 3D";
         default:
             return "not a GLenum type";
     }

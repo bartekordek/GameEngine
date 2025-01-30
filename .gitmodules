@@ -2,9 +2,6 @@
 	path = deps/GWork
 	url = git@github.com:billyquith/GWork.git
 	ignore = dirty
-[submodule "deps/SDL2Wrapper"]
-	path = deps/SDL2Wrapper
-	url = git@github.com:bartekordek/SDL2Wrapper.git
 [submodule "deps/glfw"]
 	path = deps/glfw
 	url = git@github.com:glfw/glfw.git
@@ -23,3 +20,9 @@
 [submodule "deps/ImGuiColorTextEdit"]
 	path = deps/ImGuiColorTextEdit
 	url = git@github.com:bartekordek/ImGuiColorTextEdit.git
+[submodule "deps/CUL"]
+	path = deps/CUL
+	url = git@github.com:bartekordek/CUL.git
+[submodule "deps/SDL"]
+	path = deps/SDL
+	url = git@github.com:libsdl-org/SDL.git

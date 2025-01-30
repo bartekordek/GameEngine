@@ -7,9 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(EXEC LOGLW-AdditionalDeps)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../deps/SDL2Wrapper/deps/)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../deps/SDL2 ${CMAKE_CURRENT_BINARY_DIR}/../deps/SDL2)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../deps/SDL2Wrapper/deps/SDL2/include)
+include_directories(${SDL2_INCLUDE})
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${FREEGLUT_HOME}")
 message("[gameengine] 00 CMAKE_MODULE_PATH = ${CMAKE_MODULE_PATH}")
