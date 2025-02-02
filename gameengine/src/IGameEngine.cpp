@@ -14,9 +14,8 @@
 #include "gameengine/EngineParams.hpp"
 #include "gameengine/VertexBuffer.hpp"
 #include "gameengine/EditableTexture.h"
-
-#include "SDL2Wrapper/WindowData.hpp"
-#include "SDL2Wrapper/ISDL2Wrapper.hpp"
+#include "gameengine/Windowing/WinData.hpp"
+#include "gameengine/ISDL2Wrapper.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/Log/ILogger.hpp"
@@ -29,22 +28,19 @@ IGameEngine::IGameEngine()
 {
 }
 
-IGameEngine* IGameEngine::createGameEngine( SDL2W::ISDL2Wrapper* sdl2w, bool legacy )
+IGameEngine* IGameEngine::createGameEngine( LOGLW::ISDL2Wrapper* sdl2w, bool legacy )
 {
     s_instance = new GameEngineConcrete( sdl2w, legacy );
     return s_instance;
 }
 
-IGameEngine* IGameEngine::createGameEngine( const EngineParams& engineParam  )
+IGameEngine* IGameEngine::createGameEngine( const EngineParams& engineParam )
 {
-    SDL2W::WindowData windowData;
-    windowData.name = engineParam.winName;
-    windowData.pos = engineParam.windowPosition;
-    windowData.currentRes = engineParam.winSize;
-    windowData.rendererType = engineParam.RendererType;
+    LOGLW::WinData windowData;
+    windowData = engineParam.WinDataVal;
 
-    auto sdlWrap = SDL2W::ISDL2Wrapper::createSDL2Wrapper();
-    sdlWrap->init( windowData, engineParam.configPath );
+    auto sdlWrap = LOGLW::ISDL2Wrapper::createSDL2Wrapper();
+    sdlWrap->init( windowData, engineParam.ConfigPath );
 
     s_instance = new GameEngineConcrete( sdlWrap, engineParam.legacy );
     return s_instance;
@@ -114,7 +110,6 @@ Triangle* IGameEngine::createTriangle( IObject* parent, bool forceLegacy )
     return result;
 }
 
-
 Quad* IGameEngine::createQuad( IObject* parent, bool forceLegacy )
 {
     Quad* result = new Quad( getCamera(), *this, parent, forceLegacy );
@@ -127,7 +122,7 @@ Anchor* IGameEngine::createAnchor( IObject* parent, bool forceLegacy )
     return new Anchor( getCamera(), *this, parent, forceLegacy );
 }
 
-void IGameEngine::addGuiTask( std::function<void(void)> task )
+void IGameEngine::addGuiTask( std::function<void( void )> task )
 {
     std::lock_guard<std::mutex> lockSection( m_guiTasksMtx );
     m_guiTasks.push( task );
@@ -209,7 +204,7 @@ void IGameEngine::drawOrigin( bool enable )
 ShaderProgram* IGameEngine::createProgram()
 {
     ShaderProgram* result = new ShaderProgram();
-    m_shadersPrograms.insert( std::make_pair(result, std::unique_ptr<ShaderProgram>(result)) );
+    m_shadersPrograms.insert( std::make_pair( result, std::unique_ptr<ShaderProgram>( result ) ) );
     return result;
 }
 
@@ -314,14 +309,14 @@ ShaderProgram* IGameEngine::createShader( const String& path, const String& sour
     }
 
     throw std::logic_error( "Method not implemented" );
-    //result = new ShaderProgram( *this, shaderFile );
+    // result = new ShaderProgram( *this, shaderFile );
     m_shaders[path] = result;
     return result;
 }
 
 void IGameEngine::removeShader( ShaderProgram* /*shader*/ )
 {
-    //removeShader( shader->getPath() );
+    // removeShader( shader->getPath() );
     throw std::logic_error( "Method not implemented" );
 }
 

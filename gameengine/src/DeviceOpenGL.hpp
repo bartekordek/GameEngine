@@ -38,7 +38,7 @@ public:
 
 protected:
 private:
-    ContextInfo initContextVersion( SDL2W::IWindow* window ) override;
+    ContextInfo initContextVersion( LOGLW::IWindow* window ) override;
     void initDebugUI() override;
 
     void setOrthogonalPerspective( const Camera& vp ) override;
@@ -214,12 +214,10 @@ private:
 
     size_t getFrameBufferCount() const override;
 
-
     const String& getName() const override;
-    SDL2W::RenderTypes::RendererType getType() const override;
+    LOGLW::RenderTypes::RendererType getType() const override;
 
     String m_name = "OpenGL Modern.";
-
 
 private:
     ShaderUnit* findShader( const CUL::FS::Path& shaderPath ) const;

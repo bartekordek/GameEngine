@@ -6,36 +6,37 @@ int main( int argc, char** argv )
     CUL::GUTILS::ConsoleUtilities cu;
     cu.setArgs( argc, argv );
 
-    std::int16_t width = 1920;
-    std::int16_t height = 1080;
-    std::int16_t x{ 256 };
-    std::int16_t y{ 256 };
+    LOGLW::WinData wd;
+    wd.Pos = { .X = 256, .Y = 256 };
+    wd.WindowRes = { .W = 1920u, .H = 1080u };
 
     auto valW = cu.getFlagValue( "-w" ).string();
     if( !valW.empty() )
     {
-        width = std::stoi( valW );
+        wd.WindowRes.W = std::stoi( valW );
     }
 
     auto valH = cu.getFlagValue( "-h" ).string();
     if( !valH.empty() )
     {
-        height = std::stoi( valH );
+        wd.WindowRes.H = std::stoi( valH );
     }
 
     auto valX = cu.getFlagValue( "-x" ).string();
     if( !valX.empty() )
     {
-        x = std::stoi( valX );
+        wd.Pos.X = std::stoi( valX );
     }
 
     auto valY = cu.getFlagValue( "-y" ).string();
     if( !valY.empty() )
     {
-        y = std::stoi( valY );
+        wd.Pos.Y = std::stoi( valY );
     }
 
-    Playground playground( width, height, x, y );
+    wd.CurrentRes = wd.WindowRes;
+
+    Playground playground( wd );
     playground.run();
 
     return 0;

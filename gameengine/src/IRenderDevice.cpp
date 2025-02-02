@@ -2,8 +2,7 @@
 #include "gameengine/Camera.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Shaders/ShaderUnit.hpp"
-
-#include "SDL2Wrapper/IWindow.hpp"
+#include "gameengine/Windowing/IWindow.hpp"
 
 #include "CUL/CULInterface.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"

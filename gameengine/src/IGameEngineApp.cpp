@@ -1,54 +1,46 @@
 #include "gameengine/IGameEngineApp.hpp"
 #include "gameengine/IGameEngine.hpp"
-
-#include "SDL2Wrapper/IWindow.hpp"
-#include "SDL2Wrapper/WindowData.hpp"
+#include "gameengine/Windowing/IWindow.hpp"
 
 #include "CUL/Time.hpp"
 
 using namespace LOGLW;
 
-IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width,
-                                      unsigned height, int x, int y,
-                                      const char* winName,
-                                      const char* configPath, bool legacy )
+IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width, unsigned height, int x, int y, const char* winName, const char* configPath,
+                                bool legacy )
 {
-    SDL2W::WindowData windowData;
-    windowData.name = "Test";
-    windowData.pos = { x, y };
-    windowData.currentRes.setSize( width, height );
-    windowData.name = winName;
+    LOGLW::WinData windowData;
+    windowData.Name = "Test";
+    windowData.Pos = { x, y };
+    windowData.CurrentRes = { (std::uint16_t)width, (std::uint16_t)height };
+    windowData.Name = winName;
 
     init( windowData, fullscreen, configPath, legacy );
 }
 
-IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width,
-                                      unsigned height, WinPos pos,
-                                      const char* winName,
-                                      const char* configPath, bool legacy )
+IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width, unsigned height, WinOrientation orientation, const char* winName,
+                                const char* configPath,
+                                bool legacy )
 {
-    SDL2W::WindowData windowData;
-    windowData.name = "Test";
-    windowData.currentRes.setSize( width, height );
-    windowData.name = winName;
+    LOGLW::WinData windowData;
+    windowData.Name = "Test";
+    windowData.CurrentRes = { (std::uint16_t)width, (std::uint16_t)height };
+    windowData.Name = winName;
 
     init( windowData, fullscreen, configPath, legacy );
 
-    if ( pos == LOGLW::IGameEngineApp::WinPos::CENTER )
+    if( orientation == LOGLW::IGameEngineApp::WinOrientation::CENTER )
     {
-        auto screenSize =
-            m_sdlw->getMainWindow()->getCurrentScreenNativeResolution();
-        CUL::Graphics::Pos2Di newPos;
-        newPos.setXY( ( screenSize.w - width ) / 2,
-                      ( screenSize.h - height ) / 2 );
+        auto screenSize = m_sdlw->getMainWindow()->getCurrentScreenNativeResolution();
+        WinPos newPos{ static_cast<std::int32_t>( ( screenSize.W - width ) / 2 ),
+                       static_cast<std::int32_t>( ( screenSize.H - height ) / 2 ) };
         m_sdlw->getMainWindow()->setPos( newPos );
     }
 }
 
-void IGameEngineApp::init( const SDL2W::WindowData& windowData,
-                              bool fullscreen, const char* configPath, bool legacy )
+void IGameEngineApp::init( const LOGLW::WinData& windowData, bool fullscreen, const char* configPath, bool legacy )
 {
-    m_sdlw.reset( SDL2W::ISDL2Wrapper::createSDL2Wrapper() );
+    m_sdlw.reset( LOGLW::ISDL2Wrapper::createSDL2Wrapper() );
     m_sdlw->init( windowData, configPath );
     m_sdlw->registerWindowEventListener( this );
     m_sdlw->registerKeyboardEventListener( this );
@@ -58,23 +50,27 @@ void IGameEngineApp::init( const SDL2W::WindowData& windowData,
     m_logger = m_oglw->getLoger();
     m_device = m_oglw->getDevice();
 
-    m_oglw->onInitialize( [this]() {
-        onInit();
-    } );
-    m_oglw->beforeFrame( [this]() {
-        customFrame();
-    } );
+    m_oglw->onInitialize(
+        [this]()
+        {
+            onInit();
+        } );
+    m_oglw->beforeFrame(
+        [this]()
+        {
+            customFrame();
+        } );
 
     m_sdlw->getMainWindow()->setFullscreen( fullscreen );
 
-    //LOGLW::ProjectionData g_projectionData;
-    //const auto& winSize = m_sdlw->getMainWindow()->getSize();
-    //g_projectionData.setSize( { winSize.getWidth(), winSize.getHeight() } );
-    //g_projectionData.setZNear( 127.0f );
-    //g_projectionData.setZfar( -64.0f );
-    //g_projectionData.setCenter( { 0.f, 0.f } );
-    //g_projectionData.setEyePos( { 0.f, 0.f, 128.f } );
-    //g_projectionData.m_projectionType = LOGLW::ProjectionType::PERSPECTIVE;
+    // LOGLW::ProjectionData g_projectionData;
+    // const auto& winSize = m_sdlw->getMainWindow()->getSize();
+    // g_projectionData.setSize( { winSize.getWidth(), winSize.getHeight() } );
+    // g_projectionData.setZNear( 127.0f );
+    // g_projectionData.setZfar( -64.0f );
+    // g_projectionData.setCenter( { 0.f, 0.f } );
+    // g_projectionData.setEyePos( { 0.f, 0.f, 128.f } );
+    // g_projectionData.m_projectionType = LOGLW::ProjectionType::PERSPECTIVE;
 
     m_logicTimer.reset( CUL::TimerFactory::getChronoTimer( m_logger ) );
     m_logicThread = std::thread( &IGameEngineApp::logicThread, this );
@@ -100,15 +96,15 @@ void IGameEngineApp::logicThread()
     }
 }
 
-void IGameEngineApp::onWindowEvent( const SDL2W::WindowEvent::Type )
+void IGameEngineApp::onWindowEvent( const LOGLW::WindowEvent::Type )
 {
 }
 
-void IGameEngineApp::onKeyBoardEvent( const SDL2W::KeyboardState& )
+void IGameEngineApp::onKeyBoardEvent( const LOGLW::KeyboardState& )
 {
 }
 
-void IGameEngineApp::onMouseEvent( const SDL2W::MouseData& )
+void IGameEngineApp::onMouseEvent( const LOGLW::MouseData& )
 {
 }
 

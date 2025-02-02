@@ -238,6 +238,16 @@ void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
             getDevice()->setUniformValue( sv.Id, std::get<glm::vec4>( inValue ) );
             break;
         }
+        case DataType::SAMPLER_1D:
+        {
+            getDevice()->setUniformValue( sv.Id, std::get<std::int32_t>( inValue ) );
+            break;
+        }
+        case DataType::SAMPLER_2D:
+        {
+            getDevice()->setUniformValue( sv.Id, std::get<std::int32_t>( inValue ) );
+            break;
+        }
         default:
             throw std::logic_error( "Method not implemented" );
     }

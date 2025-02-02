@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SDL2Wrapper/Input/IKeyboardObserver.hpp"
-#include "SDL2Wrapper/Input/IMouseObserver.hpp"
+#include "sdl2wrapper/Input/IKeyboardObserver.hpp"
+#include "sdl2wrapper/Input/IMouseObserver.hpp"
 
 #include "CUL/ITimer.hpp"
 #include "CUL/Math/Angle.hpp"
@@ -14,40 +14,40 @@
 
 namespace CUL
 {
-	class ITimer;
+class ITimer;
 }
 
 namespace LOGLW
 {
-	class IGameEngine;
-	class KeyboardState;
-	class Camera;
-	class Triangle;
-	class Sprite;
-	class Cube;
-	class Quad;
-    class TransformComponent;
-}
+class IGameEngine;
+class KeyboardState;
+class Camera;
+class Triangle;
+class Sprite;
+class Cube;
+class Quad;
+class TransformComponent;
+}  // namespace LOGLW
 
-namespace SDL2W
+namespace LOGLW
 {
-	class MouseData;
-	class IWindow;
-	namespace WindowEvent
-	{
-		enum class Type: short;
-	}
+class MouseData;
+class IWindow;
+namespace WindowEvent
+{
+enum class Type : short;
 }
+}  // namespace LOGLW
 
 namespace LOGLW
 {
 class ShaderProgram;
 class VertexArray;
-}
+}  // namespace LOGLW
 
 struct EditorState;
 
-enum class EShaderUnitState: std::uint8_t
+enum class EShaderUnitState : std::uint8_t
 {
     Empty = 0u,
     Loaded,
@@ -55,7 +55,7 @@ enum class EShaderUnitState: std::uint8_t
     Error
 };
 
-class ShaderEditor final: public SDL2W::IMouseObserver, public SDL2W::IKeyboardObserver
+class ShaderEditor final: public LOGLW::IMouseObserver, public LOGLW::IKeyboardObserver
 {
 public:
     ShaderEditor( std::int16_t w, std::int16_t h, std::int16_t x, std::int16_t y );
@@ -66,25 +66,24 @@ public:
 protected:
 private:
     void afterInit();
-    void onMouseEvent( const SDL2W::MouseData& mouseData ) override;
+    void onMouseEvent( const LOGLW::MouseData& mouseData ) override;
     bool m_mouseDown{ false };
 
-    void onKeyBoardEvent( const SDL2W::KeyboardState& key ) override;
-    void onWindowEvent( const SDL2W::WindowEvent::Type type );
+    void onKeyBoardEvent( const LOGLW::KeyboardState& key ) override;
+    void onWindowEvent( const LOGLW::WindowEvent::Type type );
     void timer();
     void guiIteration( float x, float y );
     void drawLeftWindow( float x, float y );
     void drawRightWindow( float x, float y );
-    void drawEditor(float x, float y, float w, float h, const CUL::String& name);
+    void drawEditor( float x, float y, float w, float h, const CUL::String& name );
 
     LOGLW::IGameEngine* m_engine{ nullptr };
-    SDL2W::IWindow* m_mainWindow{ nullptr };
+    LOGLW::IWindow* m_mainWindow{ nullptr };
     LOGLW::Camera* m_camera{ nullptr };
-
 
     std::unique_ptr<CUL::ITimer> m_timer;
 
-    float m_time{0.f};
+    float m_time{ 0.f };
 
     std::unordered_map<std::string, std::unique_ptr<EditorState>> m_editors;
 

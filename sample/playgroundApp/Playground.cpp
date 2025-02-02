@@ -10,9 +10,8 @@
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Sprite.hpp"
 
-#include "SDL2Wrapper/IWindow.hpp"
-#include "SDL2Wrapper/Input/MouseData.hpp"
-
+#include "gameengine/Windowing/IWindow.hpp"
+#include "gameengine/Input/MouseData.hpp"
 
 #include "CUL/ITimer.hpp"
 
@@ -20,34 +19,46 @@ CUL::MATH::Angle ang90( 90, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang180( 180, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 
-Playground::Playground( std::int16_t w, std::int16_t h, std::int16_t x, std::int16_t y ) : m_width( w ), m_height( h ), m_x( x ), m_y( y )
+Playground::Playground( const LOGLW::WinData& inWinData ) : m_winData( inWinData )
 {
 }
 
 void Playground::run()
 {
-    CUL::Graphics::Pos2Di winPos = { m_x, m_y };
-    SDL2W::WinSize winSize = { m_width, m_height };
-
     LOGLW::EngineParams engineParams;
-    engineParams.configPath = "Config.txt";
+    engineParams.ConfigPath = "Config.txt";
     engineParams.legacy = false;
-    engineParams.windowPosition = winPos;
-    engineParams.winSize = winSize;
-    engineParams.winName = "gameenginePlaygroundApp";
+    engineParams.WinDataVal = m_winData;
+    engineParams.WinDataVal.Name = "gameenginePlaygroundApp";
 
     m_engine = LOGLW::IGameEngine::createGameEngine( engineParams );
 
-    m_engine->addMouseEventCallback( [this] ( const SDL2W::MouseData& mouseData ){onMouseEvent( mouseData ); } );
+    m_engine->addMouseEventCallback(
+        [this]( const LOGLW::MouseData& mouseData )
+        {
+            onMouseEvent( mouseData );
+        } );
 
-    m_engine->onInitialize( [this] (){afterInit(); } );
+    m_engine->onInitialize(
+        [this]()
+        {
+            afterInit();
+        } );
 
-    m_engine->registerKeyboardEventCallback( [this] ( const SDL2W::KeyboardState& key ){onKeyBoardEvent( key ); } );
-    m_engine->registerWindowEventCallback( [this] ( const SDL2W::WindowEvent::Type type ){onWindowEvent( type ); } );
+    m_engine->registerKeyboardEventCallback(
+        [this]( const LOGLW::KeyboardState& key )
+        {
+            onKeyBoardEvent( key );
+        } );
+    m_engine->registerWindowEventCallback(
+        [this]( const LOGLW::WindowEvent::Type type )
+        {
+            onWindowEvent( type );
+        } );
     m_engine->drawOrigin( true );
     m_engine->startRenderingLoop();
 
-    m_timer.reset(CUL::TimerFactory::getChronoTimer( m_engine->getLoger() ) );
+    m_timer.reset( CUL::TimerFactory::getChronoTimer( m_engine->getLoger() ) );
 
     m_engine->runEventLoop();
 }
@@ -55,13 +66,12 @@ void Playground::run()
 void Playground::afterInit()
 {
     m_mainWindow = m_engine->getMainWindow();
-    m_mainWindow->setBackgroundColor( SDL2W::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
+    m_mainWindow->setBackgroundColor( LOGLW::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
     const auto& winSize = m_mainWindow->getSize();
-
 
     m_camera = &m_engine->getCamera();
 
-    m_camera->setSize( { winSize.getWidth(), winSize.getHeight() } );
+    m_camera->setSize( { winSize.W, winSize.H } );
     m_camera->setEyePos( { 0.0f, 0.0f, 32.f } );
     m_camera->setCenter( { 0.f, 0.f, -10.f } );
     m_camera->setZNear( 1.f );
@@ -71,12 +81,15 @@ void Playground::afterInit()
     m_engine->drawDebugInfo( true );
     m_engine->drawOrigin( true );
 
-    m_engine->getDebugOverlay()->addSliderValue( "Blue Z", &blueTriangleZ, -64.0f, 128.f, [] (){
-    } );
+    m_engine->getDebugOverlay()->addSliderValue( "Blue Z", &blueTriangleZ, -64.0f, 128.f,
+                                                 []()
+                                                 {
+                                                 } );
 
-    m_engine->getDebugOverlay()->addSliderValue( "Red Z", &redTriangleZ, -64.0f, 128.f, [] (){
-    } );
-
+    m_engine->getDebugOverlay()->addSliderValue( "Red Z", &redTriangleZ, -64.0f, 128.f,
+                                                 []()
+                                                 {
+                                                 } );
 
     const float size = 32.f;
     LOGLW::TriangleData values;
@@ -98,7 +111,6 @@ void Playground::afterInit()
     m_triangleLegacy->setColor( LOGLW::ColorE::BLUE );
     m_triangleLegacy->getTransform()->setPositionAbsolute( { x, yTriangle, z } );
     m_triangleLegacy->setName( "m_triangleLegacy" );
-    
 
     m_quadModern = m_engine->createQuad( nullptr );
     m_quadModern->setName( "m_quadModern" );
@@ -128,7 +140,12 @@ void Playground::afterInit()
     m_cubeLegacy->setColor( CUL::Graphics::ColorE::RED );
     m_cubeLegacy->setName( "m_cubeLegacy" );
 
-    m_timer->runEveryPeriod( [this] (){timer(); }, 40000 );
+    m_timer->runEveryPeriod(
+        [this]()
+        {
+            timer();
+        },
+        40000 );
 }
 
 void Playground::timer()
@@ -142,13 +159,13 @@ void Playground::timer()
 
     if( m_quadLegacy )
     {
-        //m_quadLegacy->getTransform()->setRotationToParent( rotation );
+        // m_quadLegacy->getTransform()->setRotationToParent( rotation );
         m_quadLegacy->getTransform()->setScale( { ampplitude, ampplitude, 0.f } );
     }
 
     if( m_quadModern )
     {
-        //m_quadModern->getTransform()->setRotationToParent( rotation );
+        // m_quadModern->getTransform()->setRotationToParent( rotation );
         m_quadModern->getTransform()->setScale( { ampplitude, ampplitude, 0.f } );
     }
 
@@ -173,14 +190,14 @@ void Playground::timer()
     m_time += 0.01f;
 }
 
-void Playground::onMouseEvent( const SDL2W::MouseData& mouseData )
+void Playground::onMouseEvent( const LOGLW::MouseData& mouseData )
 {
     if( mouseData.isButtonDown( 3 ) )
     {
         const auto& md = m_engine->getMouseData();
         const auto& winSize = m_engine->getMainWindow()->getSize();
-        const auto winW = winSize.getWidth();
-        const auto winH = winSize.getHeight();
+        const auto winW = winSize.W;
+        const auto winH = winSize.H;
         const auto mouseX = md.getX();
         const auto mouseY = md.getY();
         const auto centerX = winW / 2 - mouseX;
@@ -207,7 +224,7 @@ void Playground::onMouseEvent( const SDL2W::MouseData& mouseData )
     }
 }
 
-void Playground::onKeyBoardEvent( const SDL2W::KeyboardState& key )
+void Playground::onKeyBoardEvent( const LOGLW::KeyboardState& key )
 {
     const auto deltaZ = 1.0f;
     const auto delta = 2.0f;
@@ -216,7 +233,6 @@ void Playground::onKeyBoardEvent( const SDL2W::KeyboardState& key )
     {
         closeApp();
     }
-
 
     if( key.at( "W" ) )
     {
@@ -277,9 +293,9 @@ void Playground::onKeyBoardEvent( const SDL2W::KeyboardState& key )
     }
 }
 
-void Playground::onWindowEvent( const SDL2W::WindowEvent::Type type )
+void Playground::onWindowEvent( const LOGLW::WindowEvent::Type type )
 {
-    if( SDL2W::WindowEvent::Type::CLOSE == type )
+    if( LOGLW::WindowEvent::Type::CLOSE == type )
     {
         closeApp();
     }

@@ -2,8 +2,8 @@
 
 #include "gameengine/Import.hpp"
 
-#include "SDL2Wrapper/IWindow.hpp"
-#include "SDL2Wrapper/WinSize.hpp"
+#include "gameengine/Windowing/IWindow.hpp"
+#include "gameengine/Windowing/WinSize.hpp"
 
 #include "CUL/Graphics/Pos3D.hpp"
 #include "CUL/Graphics/Pos2D.hpp"
@@ -15,13 +15,12 @@ NAMESPACE_BEGIN( LOGLW )
 using Pos3Di = CUL::Graphics::Pos3Di;
 using Pos3Df = CUL::Graphics::Pos3Df;
 using Pos2Di = CUL::Graphics::Pos2Di;
-using WindowSize = SDL2W::WinSize;
+using WindowSize = LOGLW::WinSize;
 
 class GAME_ENGINE_API ProjectionData final
 {
 public:
     CUL::GUTILS::DelegateTemplateZeroParam OnChange;
-
 
     ProjectionData();
     ProjectionData( const ProjectionData& val );
@@ -64,7 +63,6 @@ public:
     float m_right = 0.0f;
     float m_top = 0.0f;
     float m_bottom = 0.0f;
-
 
 protected:
 private:

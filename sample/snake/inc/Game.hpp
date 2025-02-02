@@ -4,15 +4,15 @@
 
 #include "gameengine/Camera.hpp"
 #include "gameengine/Viewport.hpp"
-
-#include "SDL2Wrapper/Input/IKeyboardObserver.hpp"
-#include "SDL2Wrapper/Input/IMouseObserver.hpp"
-#include "SDL2Wrapper/WindowData.hpp"
-#include "SDL2Wrapper/Input/MouseData.hpp"
+#include "gameengine/Input/IKeyboardObserver.hpp"
+#include "gameengine/Input/IMouseObserver.hpp"
+#include "gameengine/Windowing/WinData.hpp"
+#include "gameengine/Input/MouseData.hpp"
 
 #include "CUL/Time.hpp"
 #include "CUL/Graphics/Pos2D.hpp"
 #include "CUL/Graphics/Color.hpp"
+#include "CUL/Math/Angle.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
@@ -32,15 +32,17 @@ class IRenderDevice;
 class ShaderProgram;
 NAMESPACE_END( LOGLW )
 
-NAMESPACE_BEGIN( SDL2W )
+NAMESPACE_BEGIN( LOGLW )
 class ISDL2Wrapper;
 class IWindow;
-NAMESPACE_END( SDL2W )
+NAMESPACE_END( LOGLW )
 
-class Game final: public SDL2W::IMouseObserver, public SDL2W::IKeyboardObserver
+class Game final: public LOGLW::IMouseObserver, public LOGLW::IKeyboardObserver
 {
 public:
-    Game( int rows, int cols, const CUL::Graphics::Pos2Di& windowPos, const SDL2W::WinSize& winSize );
+    Game( int rows, int cols,
+        const LOGLW::WinPos& winPos,
+        const LOGLW::WinSize& winSize );
     void run();
 
     void stopGame();
@@ -50,8 +52,8 @@ protected:
 private:
     void reloadConfig();
     void afterInit();
-    void onMouseEvent( const SDL2W::MouseData& mouseData );
-    void onKeyBoardEvent( const SDL2W::KeyboardState& key );
+    void onMouseEvent( const LOGLW::MouseData& mouseData );
+    void onKeyBoardEvent( const LOGLW::KeyboardState& key );
     void renderScene();
     void gameLoop();
     void updateGFXLoop();
@@ -69,7 +71,7 @@ private:
     std::thread m_updateGFXThread;
     std::atomic<bool> m_runGameLoop = true;
 
-    std::unique_ptr<SDL2W::ISDL2Wrapper> m_sdlw;
+    std::unique_ptr<LOGLW::ISDL2Wrapper> m_sdlw;
     std::unique_ptr<LOGLW::IGameEngine> m_oglw;
 
     std::mutex m_boardMtx;
@@ -77,24 +79,24 @@ private:
     std::vector<std::vector<LOGLW::Quad*>> m_background;
     std::condition_variable m_boardInitialized;
 
-    SDL2W::MouseData m_mouseData;
+    LOGLW::MouseData m_mouseData;
 
     LOGLW::IRenderDevice* m_utility = nullptr;
     CUL::LOG::ILogger* m_logger = nullptr;
 
     std::unique_ptr<CUL::GUTILS::IConfigFile> m_configFile;
-    CUL::Graphics::Pos2Di m_windowPos;
-    SDL2W::WinSize m_windowSize;
+    LOGLW::WinPos m_windowPos;
+    LOGLW::WinSize m_windowSize;
 
     LOGLW::IObject* m_triangle0 = nullptr;
     CUL::Time configModificationTime;
-    SDL2W::IWindow* m_mainWindow = nullptr;
+    LOGLW::IWindow* m_mainWindow = nullptr;
 
     int m_mouseX = 0.0f;
 
-    CUL::MATH::Angle m_ang90 = { 90, CUL::MATH::Angle::Type::DEGREE };
-    CUL::MATH::Angle m_ang180 = { 180, CUL::MATH::Angle::Type::DEGREE };
-    CUL::MATH::Angle m_ang270 = { 270, CUL::MATH::Angle::Type::DEGREE };
+    CUL::MATH::Angle m_ang90 { 90, CUL::MATH::Angle::Type::DEGREE };
+    CUL::MATH::Angle m_ang180 { 180, CUL::MATH::Angle::Type::DEGREE };
+    CUL::MATH::Angle m_ang270 { 270, CUL::MATH::Angle::Type::DEGREE };
     glm::vec3 m_eyePos;
 
     CUL::Graphics::ColorS red = CUL::Graphics::ColorE::RED;

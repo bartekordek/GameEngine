@@ -22,7 +22,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OGLW_OUTPUT_DIR})
 set(OGLW_TESTS_RUN_DIR ${OGLW_ROOT}/runDir)
 set(OGLW_DEPS_ROOT ${OGLW_ROOT}/deps)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/deps/SDL2Wrapper/deps/CUL/cmake_modules")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/deps/CUL/cmake_modules")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/deps")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules")
 #set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules")
@@ -33,8 +33,10 @@ set(FREEGLUT_BUILD_SHARED_LIBS OFF CACHE BOOL "DO NOT BUILD SHARED" FORCE)
 add_subdirectory(${OGLW_DEPS_ROOT}/freeglut-3.2.1)
 
 # Add sub directories
-add_subdirectory(deps/SDL2Wrapper)
+set( SDL2_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/deps/SDL/include )
+add_subdirectory( ${CMAKE_CURRENT_SOURCE_DIR}/deps/SDL )
 add_subdirectory(deps)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/deps/CUL)
 
 find_package(GLUT REQUIRED)
 find_package(OpenGL REQUIRED)

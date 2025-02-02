@@ -6,8 +6,7 @@
 #include "gameengine/AttributeMeta.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Shaders/ShaderUnit.hpp"
-
-#include "SDL2Wrapper/IWindow.hpp"
+#include "gameengine/Windowing/IWindow.hpp"
 
 #include "CUL/CULInterface.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
@@ -102,24 +101,25 @@ const char* toString( GLenum type )
             return "GL_4_BYTES";
         case GL_DOUBLE:
             return "GLdouble";
+        case GL_SAMPLER_1D:
+            return "Sampler 1D";
+        case GL_SAMPLER_2D:
+            return "Sampler 2D";
+        case GL_SAMPLER_3D:
+            return "Sampler 3D";
         default:
             return "not a GLenum type";
     }
 }
 
-void APIENTRY glDebugOutput(
-    GLenum source,
-    GLenum type,
-    unsigned int id,
-    GLenum severity,
-    GLsizei /*length*/,
-    const char* message,
-    const void* /*userParam*/
+void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei /*length*/, const char* message,
+                             const void* /*userParam*/
 )
 {
     if( id == 131185 )
     {
-        // Buffer detailed info: Buffer object [x] (bound to GL_ARRAY_BUFFER_ARB, usage hint is GL_STATIC_DRAW) will use VIDEO memory as the source for buffer object operations.
+        // Buffer detailed info: Buffer object [x] (bound to GL_ARRAY_BUFFER_ARB, usage hint is GL_STATIC_DRAW) will use VIDEO memory as the
+        // source for buffer object operations.
         // https://stackoverflow.com/questions/62248552/opengl-debug-context-warning-will-use-video-memory-as-the-source-for-buffer-o
         // can be safely ignored.
         return;
@@ -206,7 +206,6 @@ void APIENTRY glDebugOutput(
     return;
 }
 
-
 GLenum glCheckError_( const char* file, int line )
 {
     GLenum errorCode;
@@ -262,22 +261,21 @@ DeviceOpenGL::DeviceOpenGL( bool forceLegacy ) : IRenderDevice( forceLegacy )
     g_loggerOGL = CUL::CULInterface::getInstance()->getLogger();
 }
 
-ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
+ContextInfo DeviceOpenGL::initContextVersion( LOGLW::IWindow* window )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::CULInterface::getInstance()->getThreadUtils().setThreadName( "RenderThread" );
-        if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo("RenderThread") )
+        if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
         {
             CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
         }
     }
 
-
     ContextInfo result;
     window->setGLContextVersion( 4, 6 );
-    window->setProfileMask( SDL2W::GLProfileMask::CORE );
-    window->setContextFlag( SDL2W::GLContextFlag::DEBUG_FLAG );
+    window->setProfileMask( LOGLW::GLProfileMask::CORE );
+    window->setContextFlag( LOGLW::GLContextFlag::DEBUG_FLAG );
     window->toggleDoubleBuffer( true );
     window->setStencilSize( 8 );
     result.glContext = window->createContext();
@@ -291,7 +289,6 @@ ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
         CUL::Assert::simple( GLEW_OK == error, "GLEW error: " + errorContent + result.glVersion );
     }
 
-
     if( glDebugMessageCallbackARB )
     {
         glDebugMessageCallbackARB( glDebugOutput, nullptr );
@@ -300,15 +297,13 @@ ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
         checkLastCommandForErrors();
         log( "Debug message enabled.", CUL::LOG::Severity::WARN );
 
+        // glEnable( GL_DEBUG_OUTPUT );
+        // checkLastCommandForErrors();
 
-
-        //glEnable( GL_DEBUG_OUTPUT );
-        //checkLastCommandForErrors();
-
-        //glDebugMessageCallback( glDebugOutput, 0 );
+        // glDebugMessageCallback( glDebugOutput, 0 );
         ////checkLastCommandForErrors();
 
-        //glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
+        // glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
     }
 
     checkLastCommandForErrors();
@@ -318,12 +313,9 @@ ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
     */
     // SDL_GL_DOUBLEBUFFER
 
-
     glGetIntegerv( GL_MAJOR_VERSION, &m_supportedVersion.major );
     checkLastCommandForErrors();
     glGetIntegerv( GL_MINOR_VERSION, &m_supportedVersion.minor );
-
-
 
     // Set debug otuput.
 
@@ -340,7 +332,7 @@ ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
     result.glVersion = s;
     checkLastCommandForErrors();
 
-    m_versionString = (char*) glGetString( GL_VERSION );
+    m_versionString = (char*)glGetString( GL_VERSION );
     checkLastCommandForErrors();
     log( "OpenGL Version: " + m_versionString );
     const auto lower = m_versionString.toLowerR();
@@ -352,14 +344,12 @@ ContextInfo DeviceOpenGL::initContextVersion( SDL2W::IWindow* window )
     return result;
 }
 
-
 void DeviceOpenGL::setOrthogonalPerspective( const Camera& camera )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
-
 
     const auto left = camera.getLeft();
     const auto right = camera.getRight();
@@ -425,13 +415,12 @@ void DeviceOpenGL::setPerspectiveProjection( const Camera& projectionData )
     auto ar = projectionData.getAspectRatio();
     auto zNear = projectionData.getZnear();
     auto zFar = projectionData.getZfar();
-    //if( isLegacy() )
+    // if( isLegacy() )
     {
-         resetMatrixToIdentity( MatrixTypes::PROJECTION );
-         gluPerspective( fov, ar, zNear, zFar );
+        resetMatrixToIdentity( MatrixTypes::PROJECTION );
+        gluPerspective( fov, ar, zNear, zFar );
     }
 }
-
 
 // TODO: Remove:
 #if _MSC_VER
@@ -460,7 +449,7 @@ void DeviceOpenGL::lookAt( const Camera& vp )
     const auto& eye = vp.getEye();
     const auto& center = vp.getCenter();
     const auto& up = vp.getUp();
-    //if( isLegacy() )
+    // if( isLegacy() )
     {
         gluLookAt( eye.x, eye.y, eye.z, center.x, center.y, center.z, up.x, up.y, up.z );
     }
@@ -492,7 +481,6 @@ std::uint32_t DeviceOpenGL::createProgram( const CUL::String& name )
         return 0;
     }
 
-
     glObjectLabel( GL_PROGRAM, programId, -1, name.cStr() );
 
     return programId;
@@ -505,7 +493,6 @@ void DeviceOpenGL::removeProgram( unsigned programId )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-
     static std::vector<int> released;
     log( "glDeleteProgram( " + String( programId ) + " );" );
     glDeleteProgram( toGluint( programId ) );
@@ -516,8 +503,8 @@ void DeviceOpenGL::removeProgram( unsigned programId )
         log( "deleted: " + String( released[i] ) );
     }
     // TODO: find a correct way to check whether program was deleted.
-    //assertOnProgramError( programId, GL_DELETE_STATUS );
-    glCheckError_("DeviceOpenGL.cpp", 180);
+    // assertOnProgramError( programId, GL_DELETE_STATUS );
+    glCheckError_( "DeviceOpenGL.cpp", 180 );
 }
 
 void DeviceOpenGL::linkProgram( unsigned programId )
@@ -642,7 +629,6 @@ void DeviceOpenGL::removeShader( unsigned shaderId )
     getLastOperationStatus();
 }
 
-
 void DeviceOpenGL::useProgram( int programId )
 {
     if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
@@ -753,13 +739,13 @@ int DeviceOpenGL::getUniformLocation( unsigned programId, const String& attribNa
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-   // log( "glGetUniformLocation( " + String( programId ) + ", " + attribName + " );" );
+    // log( "glGetUniformLocation( " + String( programId ) + ", " + attribName + " );" );
 
     auto attribLocation = glGetUniformLocation( programId, attribName.cStr() );
 
     if( attribLocation == -1 )
     {
-        //log( "DID NOT FOUND!" );
+        // log( "DID NOT FOUND!" );
     }
 
     const GLenum err = glGetError();
@@ -932,7 +918,6 @@ void DeviceOpenGL::checkLastCommandForErrors()
     }
 }
 
-
 GLuint toGluint( unsigned value )
 {
     return static_cast<GLuint>( value );
@@ -945,7 +930,7 @@ void DeviceOpenGL::setAttribValue( int attributeLocation, float value )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    log( "glUniform1f( " + String( attributeLocation ) + ", " + String( value  ) + " );" );
+    log( "glUniform1f( " + String( attributeLocation ) + ", " + String( value ) + " );" );
     glUniform1f( static_cast<GLfloat>( attributeLocation ), value );
 }
 
@@ -1146,7 +1131,7 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const Point& translation, const CU
 {
     matrixStackPush();
 
-    //https://stackoverflow.com/questions/17630313/rotation-around-a-pivot-point-with-opengl
+    // https://stackoverflow.com/questions/17630313/rotation-around-a-pivot-point-with-opengl
 
     translate( translation );
     rotate( rotation );
@@ -1309,17 +1294,16 @@ void DeviceOpenGL::draw( const LineData& values, const LineColors& color )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-
     if( getIsEmbeddedSystems() )
     {
     }
     else
     {
         glBegin( GL_LINES );
-            glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
-            glVertex3f( values[0][0], values[0][1], values[0][2] );
-            glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(), color[1].getAF() );
-            glVertex3f( values[1][0], values[1][1], values[1][2] );
+        glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
+        glVertex3f( values[0][0], values[0][1], values[0][2] );
+        glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(), color[1].getAF() );
+        glVertex3f( values[1][0], values[1][1], values[1][2] );
         glEnd();
     }
 }
@@ -1508,7 +1492,7 @@ unsigned int DeviceOpenGL::generateVertexArray( const int size )
     }
 
     GLuint vao = 0;
-    //log( "glGenVertexArrays( size, &vao )" );
+    // log( "glGenVertexArrays( size, &vao )" );
     glGenVertexArrays( size, &vao );
     return vao;
 }
@@ -1523,8 +1507,8 @@ void DeviceOpenGL::bufferData( BufferDataId bufferId, const CUL::MATH::Primitive
 void DeviceOpenGL::bufferData( BufferDataId bufferId, const CUL::DataWrapper& data, const BufferTypes type )
 {
     constexpr std::size_t size_gl_int = sizeof( GLuint );
-    constexpr std::size_t size_normal32Size = sizeof(std::uint32_t);
-    constexpr std::size_t size_un = sizeof( unsigned);
+    constexpr std::size_t size_normal32Size = sizeof( std::uint32_t );
+    constexpr std::size_t size_un = sizeof( unsigned );
 
     bindBuffer( type, bufferId );
     bufferDataImpl( data.getData(), static_cast<GLenum>( type ), static_cast<GLsizeiptr>( data.getSize() ) );
@@ -1702,7 +1686,6 @@ unsigned int DeviceOpenGL::generateElementArrayBuffer( const std::vector<unsigne
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
-
 
     const auto ebo = generateBuffer( BufferTypes::ELEMENT_ARRAY_BUFFER, size );
     bindBuffer( BufferTypes::ELEMENT_ARRAY_BUFFER, ebo );
@@ -1931,7 +1914,7 @@ unsigned int DeviceOpenGL::generateBuffer( const BufferTypes bufferType, const i
     if( BufferTypes::VERTEX_ARRAY == bufferType )
     {
         glGenVertexArrays( size, &bufferId );
-        log( "glGenVertexArrays id: " + String(bufferId) );
+        log( "glGenVertexArrays id: " + String( bufferId ) );
     }
     else
     {
@@ -2115,11 +2098,11 @@ void DeviceOpenGL::setTexuring( const bool enabled )
     {
         if( enabled )
         {
-            //glEnable( GL_TEXTURE_2D );
+            // glEnable( GL_TEXTURE_2D );
         }
         else
         {
-            //glDisable( GL_TEXTURE_2D );
+            // glDisable( GL_TEXTURE_2D );
         }
         checkLastCommandForErrors();
     }
@@ -2218,8 +2201,6 @@ DeviceOpenGL::~DeviceOpenGL()
     CUL::Assert::simple( 0 == m_currentMatrix, "ERROR PUSH COUNT IS NOT EQUAL TO POP COUNT." );
 }
 
-
-
 void* DeviceOpenGL::getNativeDevice()
 {
     return nullptr;
@@ -2238,7 +2219,6 @@ bool DeviceOpenGL::isLegacy()
 void DeviceOpenGL::prepareFrame()
 {
 }
-
 
 void DeviceOpenGL::finishFrame()
 {
@@ -2276,12 +2256,11 @@ bool DeviceOpenGL::getLastOperationStatus()
                 break;
         }
 
-        log(error);
+        log( error );
         result = false;
     }
     return result;
 }
-
 
 void DeviceOpenGL::toggleDebugOutput( bool enable )
 {
@@ -2292,13 +2271,13 @@ void DeviceOpenGL::toggleDebugOutput( bool enable )
 
     if( enable )
     {
-        //glEnable( GL_DEBUG_OUTPUT );
-        //checkLastCommandForErrors();
+        // glEnable( GL_DEBUG_OUTPUT );
+        // checkLastCommandForErrors();
 
-        //glDebugMessageCallback( glDebugOutput, 0 );
+        // glDebugMessageCallback( glDebugOutput, 0 );
         ////checkLastCommandForErrors();
 
-        //glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
+        // glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
         ////checkLastCommandForErrors();
     }
     else
@@ -2309,7 +2288,7 @@ void DeviceOpenGL::toggleDebugOutput( bool enable )
 
 size_t DeviceOpenGL::getFrameBufferCount() const
 {
-	throw std::logic_error( "The method or operation is not implemented." );
+    throw std::logic_error( "The method or operation is not implemented." );
 }
 
 const String& DeviceOpenGL::getName() const
@@ -2319,7 +2298,7 @@ const String& DeviceOpenGL::getName() const
 
 void DeviceOpenGL::initDebugUI()
 {
-	throw std::logic_error( "The method or operation is not implemented." );
+    throw std::logic_error( "The method or operation is not implemented." );
 }
 
 ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage )
@@ -2397,7 +2376,7 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath, boo
         {
             customAssert( false, errorMessage );
         }
-        
+
         newShader->State = EShaderUnitState::Error;
     }
     else
@@ -2407,7 +2386,7 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath, boo
 
     newShader->ID = id;
 
-    m_shadersUnits[shaderPath.getPath()] = std::move(newShader);
+    m_shadersUnits[shaderPath.getPath()] = std::move( newShader );
     return m_shadersUnits[shaderPath.getPath()].get();
 }
 
@@ -2430,7 +2409,7 @@ void DeviceOpenGL::deleteShaderUnit( ShaderUnit* inShaderUnit )
 
 ShaderUnit* DeviceOpenGL::findShader( const CUL::FS::Path& shaderPath ) const
 {
-    std::lock_guard<std::mutex> locker(m_shadersMtx);
+    std::lock_guard<std::mutex> locker( m_shadersMtx );
     const auto it = m_shadersUnits.find( shaderPath );
     if( it == m_shadersUnits.end() )
     {
@@ -2440,9 +2419,9 @@ ShaderUnit* DeviceOpenGL::findShader( const CUL::FS::Path& shaderPath ) const
     return it->second.get();
 }
 
-SDL2W::RenderTypes::RendererType DeviceOpenGL::getType() const
+LOGLW::RenderTypes::RendererType DeviceOpenGL::getType() const
 {
-    return SDL2W::RenderTypes::RendererType::OPENGL_MODERN;
+    return LOGLW::RenderTypes::RendererType::OPENGL_MODERN;
 }
 
 void DeviceOpenGL::updateTextureData( const TextureInfo& ti, void* data )

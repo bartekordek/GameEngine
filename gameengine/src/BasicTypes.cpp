@@ -98,6 +98,14 @@ std::size_t BasicTypes::getSize( DataType inDataType )
             return 4u;
         case DataType::DOUBLE:
             return 8u;
+        case DataType::FLOAT_VEC2:
+            return sizeof( float ) * 2u;
+        case DataType::FLOAT_VEC3:
+            return sizeof( float ) * 3u;
+        case DataType::FLOAT_MAT2:
+            return sizeof( float ) * 4u;
+        case DataType::FLOAT_MAT3:
+            return sizeof( float ) * 9u;
         default:
             return 0u;
     }

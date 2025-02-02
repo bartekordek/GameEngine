@@ -1,17 +1,17 @@
 #include "DX12/DeviceDX12.hpp"
 
-#if defined(GAME_ENGINE_WINDOWS)
+#if defined( GAME_ENGINE_WINDOWS )
 #include "gameengine/IGameEngine.hpp"
-#include "SDL2Wrapper/IWindow.hpp"
-#include "SDL2Wrapper/WinSize.hpp"
+#include "gameengine/Windowing/IWindow.hpp"
+#include "gameengine/Windowing/WinSize.hpp"
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 
 using namespace LOGLW;
 
-template<typename T>
+template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-DeviceDX12::DeviceDX12(): IRenderDevice( false )
+DeviceDX12::DeviceDX12() : IRenderDevice( false )
 {
 }
 
@@ -22,7 +22,7 @@ void* DeviceDX12::getNativeDevice()
 
 bool DeviceDX12::isLegacy()
 {
-	return false;
+    return false;
 }
 
 void DeviceDX12::lookAt( const Camera& )
@@ -37,10 +37,9 @@ void DeviceDX12::lookAt( const Pos3Dd&, const Pos3Dd&, const Pos3Dd& )
 {
 }
 
-
 void ThrowIfFailed( HRESULT hr );
 
-ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
+ContextInfo DeviceDX12::initContextVersion( LOGLW::IWindow* window )
 {
     m_window = window;
     setViewportSize();
@@ -74,13 +73,11 @@ ContextInfo DeviceDX12::initContextVersion( SDL2W::IWindow* window )
         // Wait for the command list to execute; we are reusing the same command
         // list in our main loop but for now, we just want to wait for setup to
         // complete before continuing.
-
     }
 
     WaitForPreviousFrame();
 
     ContextInfo result;
-
 
     return result;
 }
@@ -91,8 +88,8 @@ void DeviceDX12::setViewportSize()
     m_viewport.TopLeftY = 0;
     m_viewport.MinDepth = 0;
     m_viewport.MaxDepth = 1;
-    m_viewport.Width = m_window->getSize().getWidth();
-    m_viewport.Height = m_window->getSize().getHeight();
+    m_viewport.Width = m_window->getSize().W;
+    m_viewport.Height = m_window->getSize().H;
 }
 
 void DeviceDX12::setScissorRect()
@@ -106,7 +103,7 @@ void DeviceDX12::setScissorRect()
 void DeviceDX12::initInterfaces()
 {
     UINT dxgiFactoryFlags = 0;
-#if defined(_DEBUG)
+#if defined( _DEBUG )
     // Enable the debug layer (requires the Graphics Tools "optional feature").
     // NOTE: Enabling the debug layer after device creation will invalidate the active device.
     {
@@ -130,11 +127,7 @@ void DeviceDX12::createDXDevice()
         Microsoft::WRL::ComPtr<IDXGIAdapter> warpAdapter;
         ThrowIfFailed( m_factory->EnumWarpAdapter( IID_PPV_ARGS( &warpAdapter ) ) );
 
-        ThrowIfFailed( D3D12CreateDevice(
-            warpAdapter.Get(),
-            D3D_FEATURE_LEVEL_11_0,
-            IID_PPV_ARGS( &m_device )
-        ) );
+        ThrowIfFailed( D3D12CreateDevice( warpAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS( &m_device ) ) );
     }
     else
     {
@@ -142,51 +135,42 @@ void DeviceDX12::createDXDevice()
         m_dxgiAdapter = hardwareAdapter;
         GetHardwareAdapter( m_factory.Get(), &hardwareAdapter );
 
-        ThrowIfFailed( D3D12CreateDevice(
-            hardwareAdapter.Get(),
-            D3D_FEATURE_LEVEL_11_0,
-            IID_PPV_ARGS( &m_device )
-        ) );
+        ThrowIfFailed( D3D12CreateDevice( hardwareAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS( &m_device ) ) );
     }
 }
 
 void DeviceDX12::createCommandQueue()
 {
-	// Describe and create the command queue.
-	D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-	queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+    // Describe and create the command queue.
+    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+    queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+    queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 
-	ThrowIfFailed( m_device->CreateCommandQueue( &queueDesc, IID_PPV_ARGS( &m_commandQueue ) ) );
+    ThrowIfFailed( m_device->CreateCommandQueue( &queueDesc, IID_PPV_ARGS( &m_commandQueue ) ) );
 }
 
 void DeviceDX12::createSwapChain()
 {
-	// Describe and create the swap chain.
-	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-	swapChainDesc.BufferCount = FrameCount;
-	swapChainDesc.Width = static_cast<UINT>(m_window->getSize().getWidth());
-	swapChainDesc.Height = static_cast<UINT>(m_window->getSize().getHeight());
-	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	swapChainDesc.SampleDesc.Count = 1;
+    // Describe and create the swap chain.
+    DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+    swapChainDesc.BufferCount = FrameCount;
+    swapChainDesc.Width = static_cast<UINT>( m_window->getSize().W );
+    swapChainDesc.Height = static_cast<UINT>( m_window->getSize().H );
+    swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    swapChainDesc.SampleDesc.Count = 1;
 
-	ComPtr<IDXGISwapChain1> swapChain;
-	ThrowIfFailed( m_factory->CreateSwapChainForHwnd(
-		m_commandQueue.Get(),        // Swap chain needs the queue so that it can force a flush on it.
-		m_window->getHWND(),
-		&swapChainDesc,
-		nullptr,
-		nullptr,
-		&swapChain
-	) );
+    ComPtr<IDXGISwapChain1> swapChain;
+    ThrowIfFailed(
+        m_factory->CreateSwapChainForHwnd( m_commandQueue.Get(),  // Swap chain needs the queue so that it can force a flush on it.
+                                           m_window->getHWND(), &swapChainDesc, nullptr, nullptr, &swapChain ) );
 
-	// This sample does not support fullscreen transitions.
-	ThrowIfFailed( m_factory->MakeWindowAssociation( m_window->getHWND(), DXGI_MWA_NO_ALT_ENTER ) );
+    // This sample does not support fullscreen transitions.
+    ThrowIfFailed( m_factory->MakeWindowAssociation( m_window->getHWND(), DXGI_MWA_NO_ALT_ENTER ) );
 
-	ThrowIfFailed( swapChain.As( &m_swapChain ) );
-	m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
+    ThrowIfFailed( swapChain.As( &m_swapChain ) );
+    m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
 }
 
 void DeviceDX12::createDescriptorHeaps()
@@ -233,7 +217,8 @@ void DeviceDX12::createRootSignature()
     ComPtr<ID3DBlob> signature;
     ComPtr<ID3DBlob> error;
     ThrowIfFailed( D3D12SerializeRootSignature( &rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error ) );
-    ThrowIfFailed( m_device->CreateRootSignature( 0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS( &m_rootSignature ) ) );
+    ThrowIfFailed(
+        m_device->CreateRootSignature( 0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS( &m_rootSignature ) ) );
 }
 
 void DeviceDX12::createShaders()
@@ -241,7 +226,7 @@ void DeviceDX12::createShaders()
     ComPtr<ID3DBlob> vertexShader;
     ComPtr<ID3DBlob> pixelShader;
 
-#if defined(_DEBUG)
+#if defined( _DEBUG )
     // Enable better shader debugging with the graphics debugging tools.
     UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #else
@@ -252,11 +237,9 @@ void DeviceDX12::createShaders()
     ThrowIfFailed( D3DCompileFromFile( L"shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr ) );
 
     // Define the vertex input layout.
-    D3D12_INPUT_ELEMENT_DESC inputElementDescs[] =
-    {
+    D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }
-    };
+        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 } };
 
     // Describe and create the graphics pipeline state object (PSO).
     D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
@@ -273,18 +256,16 @@ void DeviceDX12::createShaders()
     psoDesc.NumRenderTargets = 1;
     psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
     psoDesc.SampleDesc.Count = 1;
-    ThrowIfFailed( m_device->CreateGraphicsPipelineState( &psoDesc, IID_PPV_ARGS( m_mainCommandWrapper.PipelineState.ReleaseAndGetAddressOf() ) ) );
+    ThrowIfFailed(
+        m_device->CreateGraphicsPipelineState( &psoDesc, IID_PPV_ARGS( m_mainCommandWrapper.PipelineState.ReleaseAndGetAddressOf() ) ) );
 }
 
 void DeviceDX12::createVertexBuffer()
 {
     // Define the geometry for a triangle.
-    Vertex triangleVertices[] =
-    {
-        { { 0.0f, 0.25f * m_aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
-        { { 0.25f, -0.25f * m_aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
-        { { -0.25f, -0.25f * m_aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } }
-    };
+    Vertex triangleVertices[] = { { { 0.0f, 0.25f * m_aspectRatio, 0.0f }, { 1.0f, 0.0f, 0.0f, 1.0f } },
+                                  { { 0.25f, -0.25f * m_aspectRatio, 0.0f }, { 0.0f, 1.0f, 0.0f, 1.0f } },
+                                  { { -0.25f, -0.25f * m_aspectRatio, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f } } };
 
     const UINT vertexBufferSize = sizeof( triangleVertices );
 
@@ -293,16 +274,14 @@ void DeviceDX12::createVertexBuffer()
     // over. Please read up on Default Heap usage. An upload heap is used here for
     // code simplicity and because there are very few verts to actually transfer.
     CD3DX12_HEAP_PROPERTIES heapProps( D3D12_HEAP_TYPE_UPLOAD );
-    ThrowIfFailed( m_device->CreateCommittedResource( &heapProps,
-        D3D12_HEAP_FLAG_NONE,
-        &CD3DX12_RESOURCE_DESC::Buffer( vertexBufferSize ),
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS( &m_vertexBuffer ) ) );
+
+    CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer( vertexBufferSize );
+    ThrowIfFailed( m_device->CreateCommittedResource( &heapProps, D3D12_HEAP_FLAG_NONE, &desc,
+                                                      D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS( &m_vertexBuffer ) ) );
 
     // Copy the triangle data to the vertex buffer.
     UINT8* pVertexDataBegin;
-    CD3DX12_RANGE readRange( 0, 0 );        // We do not intend to read from this resource on the CPU.
+    CD3DX12_RANGE readRange( 0, 0 );  // We do not intend to read from this resource on the CPU.
     ThrowIfFailed( m_vertexBuffer->Map( 0, &readRange, reinterpret_cast<void**>( &pVertexDataBegin ) ) );
     memcpy( pVertexDataBegin, triangleVertices, sizeof( triangleVertices ) );
     m_vertexBuffer->Unmap( 0, nullptr );
@@ -315,7 +294,7 @@ void DeviceDX12::createVertexBuffer()
 
 void DeviceDX12::enableDebugLayers()
 {
-#if defined(_DEBUG)
+#if defined( _DEBUG )
     // Always enable the debug layer before doing anything DX12 related
     // so all possible errors generated while creating DX12 objects
     // are caught by the debug layer.
@@ -325,10 +304,7 @@ void DeviceDX12::enableDebugLayers()
 #endif
 }
 
-void DeviceDX12::GetHardwareAdapter(
-    IDXGIFactory1* pFactory,
-    IDXGIAdapter1** ppAdapter,
-    bool requestHighPerformanceAdapter )
+void DeviceDX12::GetHardwareAdapter( IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, bool requestHighPerformanceAdapter )
 {
     *ppAdapter = nullptr;
 
@@ -337,13 +313,11 @@ void DeviceDX12::GetHardwareAdapter(
     Microsoft::WRL::ComPtr<IDXGIFactory6> factory6;
     if( SUCCEEDED( pFactory->QueryInterface( IID_PPV_ARGS( &factory6 ) ) ) )
     {
-        for(
-            UINT adapterIndex = 0;
-            SUCCEEDED( factory6->EnumAdapterByGpuPreference(
-                adapterIndex,
-                requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
-                IID_PPV_ARGS( &adapter ) ) );
-            ++adapterIndex )
+        for( UINT adapterIndex = 0; SUCCEEDED( factory6->EnumAdapterByGpuPreference(
+                 adapterIndex,
+                 requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
+                 IID_PPV_ARGS( &adapter ) ) );
+             ++adapterIndex )
         {
             DXGI_ADAPTER_DESC1 desc;
             adapter->GetDesc1( &desc );
@@ -424,7 +398,9 @@ void DeviceDX12::prepareFrame()
 void DeviceDX12::update()
 {
     // Indicate that the back buffer will be used as a render target.
-    m_mainCommandWrapper.CommandList->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET ) );
+    CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
+        m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET );
+    m_mainCommandWrapper.CommandList->ResourceBarrier( 1, &barrier );
 
     CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle( m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex, m_rtvDescriptorSize );
     m_mainCommandWrapper.CommandList->OMSetRenderTargets( 1, &rtvHandle, FALSE, nullptr );
@@ -437,15 +413,15 @@ void DeviceDX12::update()
     m_mainCommandWrapper.CommandList->DrawInstanced( 3, 1, 0, 0 );
 
     // Indicate that the back buffer will now be used to present.
-    m_mainCommandWrapper.CommandList->ResourceBarrier( 1, &CD3DX12_RESOURCE_BARRIER::Transition( m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT ) );
+    CD3DX12_RESOURCE_BARRIER barrier2 = CD3DX12_RESOURCE_BARRIER::Transition(
+        m_renderTargets[m_frameIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT );
+    m_mainCommandWrapper.CommandList->ResourceBarrier( 1, &barrier2 );
 
     ThrowIfFailed( m_mainCommandWrapper.CommandList->Close() );
-
 
     // Execute the command list.
     ID3D12CommandList* ppCommandLists[] = { m_mainCommandWrapper.CommandList.Get() };
     m_commandQueue->ExecuteCommandLists( _countof( ppCommandLists ), ppCommandLists );
-
 }
 
 Microsoft::WRL::ComPtr<ID3D12Device2> DeviceDX12::CreateDevice( Microsoft::WRL::ComPtr<IDXGIAdapter4>& adapter )
@@ -454,8 +430,8 @@ Microsoft::WRL::ComPtr<ID3D12Device2> DeviceDX12::CreateDevice( Microsoft::WRL::
     WindowsUtils::ThrowIfFailed( D3D12CreateDevice( adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS( &d3d12Device2 ) ) );
     //    NAME_D3D12_OBJECT(d3d12Device2);
 
-        // Enable debug messages in debug mode.
-#if defined(_DEBUG)
+    // Enable debug messages in debug mode.
+#if defined( _DEBUG )
     Microsoft::WRL::ComPtr<ID3D12InfoQueue> pInfoQueue;
     if( SUCCEEDED( d3d12Device2.As( &pInfoQueue ) ) )
     {
@@ -464,24 +440,21 @@ Microsoft::WRL::ComPtr<ID3D12Device2> DeviceDX12::CreateDevice( Microsoft::WRL::
         pInfoQueue->SetBreakOnSeverity( D3D12_MESSAGE_SEVERITY_WARNING, TRUE );
 
         // Suppress whole categories of messages
-        //D3D12_MESSAGE_CATEGORY Categories[] = {};
+        // D3D12_MESSAGE_CATEGORY Categories[] = {};
 
         // Suppress messages based on their severity level
-        D3D12_MESSAGE_SEVERITY Severities[] =
-        {
-            D3D12_MESSAGE_SEVERITY_INFO
-        };
+        D3D12_MESSAGE_SEVERITY Severities[] = { D3D12_MESSAGE_SEVERITY_INFO };
 
         // Suppress individual messages by their ID
         D3D12_MESSAGE_ID DenyIds[] = {
-            D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,   // I'm really not sure how to avoid this message.
-            D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,                         // This warning occurs when using capture frame while graphics debugging.
-            D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,                       // This warning occurs when using capture frame while graphics debugging.
+            D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,  // I'm really not sure how to avoid this message.
+            D3D12_MESSAGE_ID_MAP_INVALID_NULLRANGE,    // This warning occurs when using capture frame while graphics debugging.
+            D3D12_MESSAGE_ID_UNMAP_INVALID_NULLRANGE,  // This warning occurs when using capture frame while graphics debugging.
         };
 
         D3D12_INFO_QUEUE_FILTER NewFilter = {};
-        //NewFilter.DenyList.NumCategories = _countof(Categories);
-        //NewFilter.DenyList.pCategoryList = Categories;
+        // NewFilter.DenyList.NumCategories = _countof(Categories);
+        // NewFilter.DenyList.pCategoryList = Categories;
         NewFilter.DenyList.NumSeverities = _countof( Severities );
         NewFilter.DenyList.pSeverityList = Severities;
         NewFilter.DenyList.NumIDs = _countof( DenyIds );
@@ -578,7 +551,7 @@ void DeviceDX12::clearBuffer( const ClearMasks mask )
 
 unsigned int DeviceDX12::generateVertexArray( const int size )
 {
-	return 0;
+    return 0;
 }
 
 void DeviceDX12::setClientState( ClientStateTypes cs, bool enabled )
@@ -615,12 +588,12 @@ void DeviceDX12::disableVertexAttribiute( unsigned programId, const String& attr
 
 int DeviceDX12::getAttribLocation( unsigned programId, const String& attribName )
 {
-	return 0;
+    return 0;
 }
 
 int DeviceDX12::getUniformLocation( unsigned programId, const String& attribName )
 {
-	return 0;
+    return 0;
 }
 
 void DeviceDX12::unbindBuffer( const BufferTypes )
@@ -633,7 +606,7 @@ void DeviceDX12::bindBuffer( const BufferTypes, unsigned )
 
 unsigned int DeviceDX12::generateBuffer( const BufferTypes, const int )
 {
-	return 0;
+    return 0;
 }
 
 void DeviceDX12::drawElements( const PrimitiveType, const std::vector<float>& )
@@ -644,7 +617,7 @@ void DeviceDX12::drawElementsFromLastBuffer( const PrimitiveType, const DataType
 {
 }
 
-void DeviceDX12::drawArrays( unsigned, const PrimitiveType, unsigned, unsigned  )
+void DeviceDX12::drawArrays( unsigned, const PrimitiveType, unsigned, unsigned )
 {
 }
 
@@ -748,17 +721,17 @@ void DeviceDX12::setDepthTest( const bool )
 {
 }
 
-void DeviceDX12::setBackfaceCUll( const bool  )
+void DeviceDX12::setBackfaceCUll( const bool )
 {
 }
 
-void DeviceDX12::setTexuring( const bool  )
+void DeviceDX12::setTexuring( const bool )
 {
 }
 
 unsigned DeviceDX12::generateTexture()
 {
-	return 0;
+    return 0;
 }
 
 void DeviceDX12::setActiveTextureUnit( ETextureUnitIndex )
@@ -783,12 +756,12 @@ void DeviceDX12::matrixStackPop()
 
 unsigned DeviceDX12::getGPUTotalAvailableMemoryKb()
 {
-	return 0;
+    return 0;
 }
 
 unsigned DeviceDX12::getGPUCurrentAvailableMemoryKb()
 {
-	return 0;
+    return 0;
 }
 
 void DeviceDX12::toggleDebugOutput( bool )
@@ -816,17 +789,13 @@ void DeviceDX12::initDebugUI()
     ImGui::StyleColorsDark();
 
     ImGui_ImplSDL2_InitForD3D( m_window->getSDLWindow() );
-    ImGui_ImplDX12_Init( m_device.Get(),
-                         FrameCount,
-                         DXGI_FORMAT_R8G8B8A8_UNORM,
-                         m_srvDescHeap.Get(),
-                         m_srvDescHeap->GetCPUDescriptorHandleForHeapStart(),
-                         m_srvDescHeap->GetGPUDescriptorHandleForHeapStart() );
+    ImGui_ImplDX12_Init( m_device.Get(), FrameCount, DXGI_FORMAT_R8G8B8A8_UNORM, m_srvDescHeap.Get(),
+                         m_srvDescHeap->GetCPUDescriptorHandleForHeapStart(), m_srvDescHeap->GetGPUDescriptorHandleForHeapStart() );
 }
 
-SDL2W::RenderTypes::RendererType DeviceDX12::getType() const
+LOGLW::RenderTypes::RendererType DeviceDX12::getType() const
 {
-    return SDL2W::RenderTypes::RendererType::DIRECTX_12;
+    return LOGLW::RenderTypes::RendererType::DIRECTX_12;
 }
 
 void DeviceDX12::updateTextureData( const TextureInfo&, void* )
@@ -837,11 +806,10 @@ void ThrowIfFailed( HRESULT hr )
 {
     if( FAILED( hr ) )
     {
-
         char str[64] = {};
-        sprintf_s( str, "**ERROR** Fatal Error with HRESULT of %08X\n", static_cast< unsigned int >( hr ) );
+        sprintf_s( str, "**ERROR** Fatal Error with HRESULT of %08X\n", static_cast<unsigned int>( hr ) );
         throw;
     }
 }
 
-#endif // GAME_ENGINE_WINDOWS
+#endif  // GAME_ENGINE_WINDOWS
