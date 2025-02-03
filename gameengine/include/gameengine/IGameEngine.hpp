@@ -10,7 +10,6 @@
 
 #include "CUL/GenericUtils/ITask.hpp"
 #include "CUL/Graphics/IImageLoader.hpp"
-#include "CUL/Log/ILogContainer.hpp"
 #include "CUL/Math/Vector3D.hpp"
 #include "CUL/String.hpp"
 #include "CUL/GenericUtils/DelegateTemplate.hpp"

@@ -9,8 +9,6 @@
 #include "sdl2wrapper/IMPORT_DX9.hpp"
 #endif
 
-#include "CUL/Log/ILogContainer.hpp"
-
 using namespace LOGLW;
 
 IWindow::IWindow()

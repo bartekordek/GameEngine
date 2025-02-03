@@ -2,18 +2,17 @@
 #include "gameengine/IObject.hpp"
 
 #include "CUL/Log/ILogger.hpp"
-#include "CUL/Log/ILogContainer.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 
 using namespace LOGLW;
 
 TransformComponent::TransformComponent( IObject* owner ) : m_owner( owner )
 {
-    changeSizeDelegate.addDelegate(
-        [this]()
-        {
-            // printCurrentState();
-        } );
+    //changeSizeDelegate.addDelegate(
+    //    [this]()
+    //    {
+    //        // printCurrentState();
+    //    } );
 }
 
 void TransformComponent::setPositionToParent( const glm::vec3& position )
@@ -212,7 +211,7 @@ void TransformComponent::decomposeAndLogData( const glm::mat4& data ) const
 
     const auto name = m_owner->getName();
 
-    CUL::LOG::LOG_CONTAINER::getLogger()->log( name + ", translation: " + translationString + ", rotation: " + rotationString );
+    CUL::LOG::ILogger::getInstance().log( name + ", translation: " + translationString + ", rotation: " + rotationString );
 }
 
 const glm::vec3& TransformComponent::getScale() const
@@ -241,10 +240,10 @@ const CUL::String ToString( const glm::vec3& val )
 
 void TransformComponent::printCurrentState() const
 {
-    CUL::LOG::LOG_CONTAINER::getLogger()->log( m_owner->getName() + ": " );
-    CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Size: " + ToString( m_size.toGlmVec() ) );
-    CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Position: " + ToString( m_pos ) );
-    CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Scale: " + ToString( m_scale ) );
-    CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Pivot Normalized: " + ToString( m_pivot.toGlmVec() ) );
-    CUL::LOG::LOG_CONTAINER::getLogger()->log( "Current Pivot Real: " + ToString( m_pivotReal.toGlmVec() ) );
+    CUL::LOG::ILogger::getInstance().log( m_owner->getName() + ": " );
+    CUL::LOG::ILogger::getInstance().log( "Current Size: " + ToString( m_size.toGlmVec() ) );
+    CUL::LOG::ILogger::getInstance().log( "Current Position: " + ToString( m_pos ) );
+    CUL::LOG::ILogger::getInstance().log( "Current Scale: " + ToString( m_scale ) );
+    CUL::LOG::ILogger::getInstance().log( "Current Pivot Normalized: " + ToString( m_pivot.toGlmVec() ) );
+    CUL::LOG::ILogger::getInstance().log( "Current Pivot Real: " + ToString( m_pivotReal.toGlmVec() ) );
 }

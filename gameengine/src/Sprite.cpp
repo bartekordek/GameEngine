@@ -27,7 +27,7 @@ Sprite::Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, boo
     IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
     {
         getEngine().addPostRenderTask(
-            [this, newName]()
+            [this]()
             {
                 m_shaderProgram->setName( getName() + "::program" );
                 m_vao->setName( getName() + "::vao" );
