@@ -60,9 +60,6 @@ PUBLIC SDL2
 PRIVATE tinyobjloader
 )
 
-message( "DEBUG: PROJECT_NAME_STATIC: ${PROJECT_NAME_STATIC}" )
-message( "DEBUG: PROJECT_NAME_DYNAMIC: ${PROJECT_NAME_DYNAMIC}" )
-
 if( MSVC )
     target_link_libraries( ${PROJECT_NAME_STATIC} ${DEPENDENCIES_STATIC} )
     target_link_libraries( ${PROJECT_NAME_DYNAMIC} ${DEPENDENCIES_DYNAMIC} )
