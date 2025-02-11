@@ -97,4 +97,4 @@ private:  // Deleted
     ISDL2Wrapper& operator=( ISDL2Wrapper&& rhv ) = delete;
 };
 
-NAMESPACE_END( SDL2W )
+NAMESPACE_END( LOGLW )

@@ -26,11 +26,12 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
     // TODO: add normals
     setSize( { size, size, 0 } );
+    createProgram();
 
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
+    IName::AfterNameChangeCallback = [this]( const CUL::String& /*newName*/ )
     {
         RunOnRenderThread::getInstance().Run(
-            [this, newName]()
+            [this]()
             {
                 m_vao->setName( getName() + "::vao" );
             } );
@@ -42,18 +43,18 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
             init();
         } );
     m_transformComponent->changeSizeDelegate.addDelegate(
-        [this]()
+        []()
         {
             //m_recreateBuffers = true;
         } );
 
 
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
+    IName::AfterNameChangeCallback = [this]( const CUL::String& /*newName*/ )
     {
         RunOnRenderThread::getInstance().Run(
-            [this, newName]()
+            [this ]()
             {
-                m_shaderProgram->setName( getName() + "::shader_program" );
+                getProgram()->setName( getName() + "::shader_program" );
                 m_vao->setName( getName() + "::vao" );
             } );
     };
@@ -67,11 +68,6 @@ void Quad::setColor( const CUL::Graphics::ColorS& color )
     colorVec.y = m_color.getGF();
     colorVec.z = m_color.getBF();
     colorVec.w = m_color.getAF();
-}
-
-ShaderProgram* Quad::getProgram() const
-{
-    return m_shaderProgram;
 }
 
 void Quad::init()
@@ -127,14 +123,13 @@ void Quad::setSize( const glm::vec3& size )
 
 void Quad::createShaders()
 {
-    m_shaderProgram = getEngine().createProgram();
-    m_shaderProgram->setName( getName() + "::program" );
+    getProgram()->setName( getName() + "::program" );
 
     CUL::String errorContent;
-    m_shaderProgram->compileShader( "embedded_shaders/basic_color.frag" );
-    m_shaderProgram->compileShader( "embedded_shaders/basic_pos.vert" );
-    m_shaderProgram->link();
-    m_shaderProgram->validate();
+    getProgram()->compileShader( "embedded_shaders/basic_color.frag" );
+    getProgram()->compileShader( "embedded_shaders/basic_pos.vert" );
+    getProgram()->link();
+    getProgram()->validate();
 }
 
 void Quad::render()
@@ -152,12 +147,12 @@ void Quad::render()
             m_recreateBuffers = false;
         }
 
-        m_shaderProgram->enable();
+        getProgram()->enable();
         setTransformation();
         applyColor();
         m_vao->render();
 
-        m_shaderProgram->disable();
+        getProgram()->disable();
     }
 }
 
@@ -169,14 +164,14 @@ void Quad::setTransformation()
 
     const glm::mat4 model = m_transformComponent->getModel();
 
-    m_shaderProgram->setUniform( "projection", projectionMatrix );
-    m_shaderProgram->setUniform( "view", viewMatrix );
-    m_shaderProgram->setUniform( "model", model );
+    getProgram()->setUniform( "projection", projectionMatrix );
+    getProgram()->setUniform( "view", viewMatrix );
+    getProgram()->setUniform( "model", model );
 }
 
 void Quad::applyColor()
 {
-    m_shaderProgram->setUniform( "color", m_color.getVec4() );
+    getProgram()->setUniform( "color", m_color.getVec4() );
 }
 
 Quad::~Quad()
@@ -198,8 +193,6 @@ Quad::~Quad()
 void Quad::release()
 {
     deleteBuffers();
-    m_engine.removeProgram( m_shaderProgram );
-    m_shaderProgram = nullptr;
 }
 
 void Quad::deleteBuffers()

@@ -19,6 +19,7 @@
 #include "gameengine/Windowing/IWindow.hpp"
 #include "gameengine/Input/MouseData.hpp"
 #include "gameengine/Windowing/WinData.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/GenericUtils/ConsoleUtilities.hpp"
@@ -414,10 +415,10 @@ void GameEngineConcrete::renderInfo()
 
         String name = "INFO LOG";
         ImGui::Begin( name.cStr(), nullptr,
-                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
+                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
         ImGui::SetWindowPos( { 0, 0 } );
 
-        debugInfoWidth = (float)winSize.W * 0.2f;
+        debugInfoWidth = (float)winSize.W * 0.38f;
         debugInfoHeight = (float)winSize.H * 1.f;
         ImGui::SetWindowSize( { debugInfoWidth, debugInfoHeight } );
 
@@ -640,6 +641,80 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
         ImGui::Text( "Name: %s", name.cStr() );
         ImGui::Text( "x: %4.2f y: %4.2f y: %4.2f", trans.x, trans.y, trans.z );
         ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", rot.Pitch, rot.Yaw, rot.Roll );
+
+        ShaderProgram* shaderProgram = currentObject->getProgram();
+        if( shaderProgram )
+        {
+            if( shaderProgram->getIsLinked() )
+            {
+                if( ImGui::TreeNode( "Uniforms" ) )
+                {
+                    const std::vector<CUL::String> uniformNames = shaderProgram->getUniformsNames();
+                    for( const CUL::String& uniformName : uniformNames )
+                    {
+                        const auto& uniformVal = shaderProgram->getUniformValue( uniformName );
+                        ImGui::Text( "ID: %d, Name: %s, Type: %s", uniformVal.Id, uniformVal.Name.cStr(), uniformVal.TypeName.cStr() );
+                        if( uniformVal.Type == LOGLW::DataType::FLOAT )
+                        {
+                            ImGui::SameLine();
+                            ImGui::Text( "val: %f", std::get<float>( uniformVal.Value ) );
+                        }
+                        else if( uniformVal.Type == LOGLW::DataType::FLOAT_MAT4 )
+                        {
+                            glm::mat4 currentValue = std::get<glm::mat4>( uniformVal.Value );
+                            constexpr std::size_t bufferSize{ 32 };
+                            char tableName[bufferSize];
+                            snprintf( tableName, bufferSize, "## %s - %s", *shaderProgram->getName(), *uniformName );
+
+                            static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable |
+                                                           ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV |
+                                                           ImGuiTableFlags_ContextMenuInBody;
+                            if( ImGui::BeginTable( tableName, 4, flags ) )
+                            {
+                                constexpr std::size_t labelBufferLength{ 16u };
+                                char labelBuffer[labelBufferLength];
+
+                                for( std::int32_t row = 0; row < 4; ++row )
+                                {
+                                    ImGui::TableNextRow();
+                                    for( std::int32_t column = 0; column < 4; ++column )
+                                    {
+                                        ImGui::TableSetColumnIndex( column );
+                                        float& f0 = currentValue[row][column];
+                                        //ImGui::DragFloat( "df", &f0, 0.005f );
+                                        String fString( f0 );
+                                        constexpr std::size_t buffSize{ 32u };
+                                        char buff[buffSize];
+                                        std::strcpy( buff, fString.cStr() );
+                                        ImGui::PushItemWidth( -1 );
+
+                                        sprintf( labelBuffer, "## r %d c %d", row, column );
+                                        if( ImGui::InputText( labelBuffer, buff, buffSize ) )
+                                        {
+                                            fString = buff;
+                                            if( fString.isFloat() )
+                                            {
+                                                f0 = fString.toFloat();
+                                                shaderProgram->setUniform( uniformName, currentValue );
+                                            }
+                                        }
+                                        ImGui::PopItemWidth();
+                                    }
+                                }
+                                ImGui::EndTable();
+                            }
+                        }
+                        else if( uniformVal.Type == LOGLW::DataType::SAMPLER_2D )
+                        {
+                            ImGui::SameLine();
+                            ImGui::Text( "val: %d", std::get<std::int32_t>( uniformVal.Value ) );
+                        }
+                    }
+                    ImGui::TreePop();
+                }
+            }
+        }
+
         shownList.insert( currentObject );
 
         const std::set<IObject*>& children = currentObject->getChildren();

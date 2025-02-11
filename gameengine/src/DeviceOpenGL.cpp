@@ -1020,6 +1020,12 @@ UniformValue DeviceOpenGL::getUniformValue( std::int32_t inProgramId, std::int32
         glGetnUniformfv( inProgramId, inUniformId, bufferSize, &value2[0] );
         result = value;
     }
+    else if( inDataType == DataType::SAMPLER_2D )
+    {
+        std::int32_t value{ -1 };
+        glGetUniformiv( inProgramId, inUniformId, &value );
+        result = value;
+    }
     else
     {
         CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );

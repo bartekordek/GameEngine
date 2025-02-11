@@ -14,8 +14,9 @@
 NAMESPACE_BEGIN( LOGLW )
 
 class IComponent;
-class TransformComponent;
 class Name;
+class ShaderProgram;
+class TransformComponent;
 
 class IObject: public IRenderable, public CUL::IName
 {
@@ -37,6 +38,9 @@ public:
     GAME_ENGINE_API TransformComponent* getTransform();
 
     GAME_ENGINE_API void removeByParent( bool enable );
+    GAME_ENGINE_API void createProgram();
+    GAME_ENGINE_API ShaderProgram* getProgram();
+
     GAME_ENGINE_API virtual ~IObject();
 
 protected:
@@ -60,6 +64,8 @@ private:
 
     std::mutex m_childrenMtx;
     std::set<IObject*> m_children;
+
+    ShaderProgram* m_shaderProgram{ nullptr };
 
     // Deleted:
     IObject( const IObject& value ) = delete;

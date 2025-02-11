@@ -84,6 +84,7 @@ public:
 protected:
 private:
     void create();
+    void reCompileWholeShaderImpl();
     void setUniformImpl( const String& inName, UniformValue inValue );
     void linkImpl();
     void release();

@@ -67,8 +67,6 @@ private:
 
     CUL::Graphics::IImage* m_image = nullptr;
 
-    class ShaderProgram* m_shaderProgram = nullptr;
-
     TextureInfo m_textureInfo;
 
     unsigned m_elementBufferId = 0u;

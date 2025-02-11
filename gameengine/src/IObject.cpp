@@ -1,4 +1,5 @@
 #include "gameengine/IObject.hpp"
+#include "gameengine/IGameEngine.hpp"
 
 #include "gameengine/Components/TransformComponent.hpp"
 #include "CUL/Log/ILogger.hpp"
@@ -84,18 +85,28 @@ void IObject::removeByParent( bool enable )
     m_removeByParent = enable;
 }
 
+void IObject::createProgram()
+{
+    m_shaderProgram = getEngine().createProgram();
+}
+
+ShaderProgram* IObject::getProgram()
+{
+    return m_shaderProgram;
+}
+
 IObject::~IObject()
 {
-    CUL::LOG::ILogger::getInstance().logVariable(CUL::LOG::Severity::INFO, "IObject::~IObject() [%s]", getName().cStr());
+    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::INFO, "IObject::~IObject() [%s]", getName().cStr() );
 
-    for( const auto& componentPair: m_components)
+    for( const auto& componentPair : m_components )
     {
         delete componentPair.second;
     }
 
     m_components.clear();
 
-    if( m_parent && m_removeByParent == false)
+    if( m_parent && m_removeByParent == false )
     {
         if( m_parent )
         {
@@ -105,12 +116,15 @@ IObject::~IObject()
 
     std::lock_guard<std::mutex> locker( m_childrenMtx );
 
-    for( IObject* child: m_children )
+    for( IObject* child : m_children )
     {
         child->removeByParent( true );
         delete child;
     }
     m_children.clear();
+
+    m_engine.removeProgram( m_shaderProgram );
+    m_shaderProgram = nullptr;
 }
 
 void IObject::addParent( IObject* parent )

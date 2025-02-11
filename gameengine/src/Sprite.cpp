@@ -29,7 +29,7 @@ Sprite::Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, boo
         getEngine().addPostRenderTask(
             [this]()
             {
-                m_shaderProgram->setName( getName() + "::program" );
+                getProgram()->setName( getName() + "::program" );
                 m_vao->setName( getName() + "::vao" );
                 m_vbo->setName( getName() + "::vbo" );
                 getDevice()->setObjectName( EObjectType::TEXTURE, m_textureId, getName() + "::texture" );
@@ -77,9 +77,9 @@ void Sprite::render()
 void Sprite::setName( const CUL::String& name )
 {
     IObject::setName( name );
-    if( m_shaderProgram )
+    if( getProgram() )
     {
-        m_shaderProgram->setName( getName() + "::shader_program" );
+        getProgram()->setName( getName() + "::shader_program" );
     }
     if( m_vao )
     {
@@ -107,23 +107,23 @@ void Sprite::renderModern()
     getDevice()->setActiveTextureUnit( ETextureUnitIndex::UNIT_0 );
     getDevice()->bindTexture( m_textureId );
 
-    m_shaderProgram->enable();
+    getProgram()->enable();
 
     const glm::mat4 model = m_transformComponent->getModel();
 
     auto projectionMatrix = m_camera->getProjectionMatrix();
     auto viewMatrix = m_camera->getViewMatrix();
 
-    m_shaderProgram->setUniform( "projection", projectionMatrix );
-    m_shaderProgram->setUniform( "view", viewMatrix );
-    m_shaderProgram->setUniform( "model", model );
+    getProgram()->setUniform( "projection", projectionMatrix );
+    getProgram()->setUniform( "view", viewMatrix );
+    getProgram()->setUniform( "model", model );
 
     getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
     getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo->getId() );
 
     getDevice()->drawArrays( m_vao->getId(), PrimitiveType::TRIANGLES, 0, 6 );
 
-    m_shaderProgram->disable();
+    getProgram()->disable();
 
     getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, 0 );
     getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, 0 );
@@ -179,12 +179,13 @@ void Sprite::init()
 {
     if( !getDevice()->isLegacy() )
     {
-        m_shaderProgram = getEngine().createProgram();
+        createProgram();
 
-        m_shaderProgram->compileShader( "embedded_shaders/camera.frag" );
-        m_shaderProgram->compileShader( "embedded_shaders/camera.vert" );
-        m_shaderProgram->link();
-        m_shaderProgram->validate();
+
+        getProgram()->compileShader( "embedded_shaders/camera.frag" );
+        getProgram()->compileShader( "embedded_shaders/camera.vert" );
+        getProgram()->link();
+        getProgram()->validate();
     }
 
     if( m_textureId == 0u )
@@ -260,9 +261,9 @@ void Sprite::init()
         getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
         getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
 
-        m_shaderProgram->enable();
-        m_shaderProgram->setUniform( "texture1", 0 );
-        m_shaderProgram->disable();
+        getProgram()->enable();
+        getProgram()->setUniform( "texture1", 0 );
+        getProgram()->disable();
     }
     m_initialized = true;
 }
@@ -302,5 +303,4 @@ Sprite::~Sprite()
 
 void Sprite::release()
 {
-    getEngine().removeProgram( m_shaderProgram );
 }

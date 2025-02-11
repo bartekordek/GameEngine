@@ -41,6 +41,15 @@ void ShaderProgram::compileLinkValidate()
 
 void ShaderProgram::reCompileWholeShader()
 {
+    RunOnRenderThread::getInstance().Run(
+        [this]()
+        {
+            reCompileWholeShaderImpl();
+        } );
+}
+
+void ShaderProgram::reCompileWholeShaderImpl()
+{
     std::vector<CUL::String> shadersPaths( m_shaders.size() );
 
     std::size_t shaderIndex{ 0 };
