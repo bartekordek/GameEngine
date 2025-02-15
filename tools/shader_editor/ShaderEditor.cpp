@@ -14,7 +14,7 @@
 #include "gameengine/VertexArray.hpp"
 
 #include "gameengine/Windowing/IWindow.hpp"
-#include "sdl2wrapper/Input/MouseData.hpp"
+#include "gameengine/Input/MouseData.hpp"
 
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 
@@ -22,6 +22,7 @@
 #include "CUL/Filesystem/PathDialog.hpp"
 #include "CUL/Filesystem/RegularFile.hpp"
 #include "CUL/Math/Utils.hpp"
+#include "CUL/Threading/ThreadUtil.hpp"
 
 #include "CUL/STL_IMPORTS/STD_cmath.hpp"
 
@@ -41,22 +42,20 @@ struct EditorState
     EShaderUnitState ShaderUnitState{ EShaderUnitState::Empty };
 };
 
-ShaderEditor::ShaderEditor( std::int16_t w, std::int16_t h, std::int16_t x, std::int16_t y )
-    : m_width( w ), m_height( h ), m_x( x ), m_y( y )
+ShaderEditor::ShaderEditor( const LOGLW::WinSize& inWinSize, const LOGLW::WinPos& inWinPos ) : m_winSize( inWinSize ), m_winPos( inWinPos )
 {
 }
 
 void ShaderEditor::run()
 {
-    CUL::Graphics::Pos2Di winPos = { m_x, m_y };
-    LOGLW::WinSize winSize = { m_width, m_height };
+    CUL::ThreadUtil::getInstance().setThreadName( "EventThread" );
 
     LOGLW::EngineParams engineParams;
-    engineParams.configPath = "Config.txt";
+    engineParams.ConfigPath = "Config.txt";
     engineParams.legacy = false;
-    engineParams.windowPosition = winPos;
-    engineParams.winSize = winSize;
-    engineParams.winName = "gameengineShaderEditorApp";
+    engineParams.WinDataVal.Pos = m_winPos;
+    engineParams.WinDataVal.CurrentRes = m_winSize;
+    engineParams.WinDataVal.Name = "gameengineShaderEditorApp";
 
     m_engine = LOGLW::IGameEngine::createGameEngine( engineParams );
 
@@ -98,7 +97,7 @@ void ShaderEditor::afterInit()
 
     m_camera = &m_engine->getCamera();
 
-    m_camera->setSize( { winSize.getWidth(), winSize.getHeight() } );
+    m_camera->setSize( { winSize.W, winSize.H } );
     m_camera->setEyePos( { 6.0f, 10.0f, 24.f } );
     m_camera->setCenter( { 0.f, 0.f, -0.1f } );
     m_camera->setZNear( 1.f );
@@ -208,8 +207,8 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
 
     auto winSize = m_engine->getMainWindow()->getSize();
-    const auto targetHeight = (float)winSize.h * 1.0f;
-    const float menuWidth = (float)winSize.w * 0.3f;
+    const auto targetHeight = (float)winSize.H * 1.0f;
+    const float menuWidth = (float)winSize.W * 0.3f;
     const float editorWidth = menuWidth / 1.25f;
     const float editorHeight = targetHeight * 0.5f;
     // const float windowX = (float)winSize.w - menuWidth; // Left side.
@@ -398,10 +397,10 @@ void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
 
     auto winSize = m_engine->getMainWindow()->getSize();
-    const auto targetHeight = (float)winSize.h * 1.0f;
-    const float menuWidth = (float)winSize.w * 0.3f;
+    const auto targetHeight = (float)winSize.H * 1.0f;
+    const float menuWidth = (float)winSize.W * 0.3f;
     const float rightPadding = menuWidth + 0.f;
-    const float windowX = (float)winSize.w - rightPadding;  // Right side.
+    const float windowX = (float)winSize.W - rightPadding;  // Right side.
 
     ImGui::SetWindowPos( { windowX, 2.f } );
     ImGui::SetWindowSize( { menuWidth, targetHeight } );

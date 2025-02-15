@@ -1,7 +1,8 @@
 #pragma once
 
-#include "sdl2wrapper/Input/IKeyboardObserver.hpp"
-#include "sdl2wrapper/Input/IMouseObserver.hpp"
+#include "gameengine/Input/IKeyboardObserver.hpp"
+#include "gameengine/Input/IMouseObserver.hpp"
+#include "gameengine/Windowing/WinData.hpp"
 
 #include "CUL/ITimer.hpp"
 #include "CUL/Math/Angle.hpp"
@@ -10,7 +11,6 @@
 #include "CUL/Math/SphericalCoord.hpp"
 #include "CUL/IMPORT_GLM.hpp"
 #include "CUL/STL_IMPORTS/STD_memory.hpp"
-#include "CUL/STL_IMPORTS/STD_unordered_map.hpp"
 
 namespace CUL
 {
@@ -20,7 +20,6 @@ class ITimer;
 namespace LOGLW
 {
 class IGameEngine;
-class KeyboardState;
 class Camera;
 class Triangle;
 class Sprite;
@@ -58,7 +57,7 @@ enum class EShaderUnitState : std::uint8_t
 class ShaderEditor final: public LOGLW::IMouseObserver, public LOGLW::IKeyboardObserver
 {
 public:
-    ShaderEditor( std::int16_t w, std::int16_t h, std::int16_t x, std::int16_t y );
+    ShaderEditor( const LOGLW::WinSize& inWinSize, const LOGLW::WinPos& inWinPos );
     void run();
     void closeApp();
     virtual ~ShaderEditor();
@@ -90,10 +89,8 @@ private:
     LOGLW::VertexArray* m_vao{ nullptr };
     std::unique_ptr<LOGLW::TransformComponent> m_transformComponent;
 
-    std::int16_t m_width;
-    std::int16_t m_height;
-    std::int16_t m_x;
-    std::int16_t m_y;
+    LOGLW::WinSize m_winSize;
+    LOGLW::WinPos m_winPos;
 
     glm::vec3 m_eye;
 

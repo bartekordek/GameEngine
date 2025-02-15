@@ -2,6 +2,7 @@
 
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 #include "DebugUtil/DebugSystemParams.hpp"
+#include "CUL/IMPORT_tracy.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 
 using namespace LOGLW;
@@ -32,6 +33,7 @@ void DebugSystemOpenGLModern::init( const DebugSystemParams& params )
 
 void DebugSystemOpenGLModern::frame()
 {
+    ZoneScoped;
     if( m_initialized )
     {
         ImGui_ImplOpenGL3_NewFrame();

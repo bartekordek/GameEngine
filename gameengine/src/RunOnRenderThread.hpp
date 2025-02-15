@@ -3,6 +3,13 @@
 #include "gameengine/Import.hpp"
 #include "CUL/GenericUtils/Singleton.hpp"
 #include "CUL/STL_IMPORTS/STD_functional.hpp"
+#include "CUL/STL_IMPORTS/STD_memory.hpp"
+#include "CUL/STL_IMPORTS/STD_thread.hpp"
+
+namespace CUL
+{
+class ThreadUtil;
+}
 
 NAMESPACE_BEGIN( LOGLW )
 
@@ -19,11 +26,16 @@ public:
     RunOnRenderThread& operator=( RunOnRenderThread&& ) = delete;
 
     void Run( const std::function<void( void )> inFunction );
+    bool getIsRenderThread() const;
 
 protected:
 private:
     RunOnRenderThread();
     ~RunOnRenderThread();
+
+    CUL::ThreadUtil* m_threadUtil{ nullptr };
+
+    std::thread::id m_renderThreadId;
 
     IGameEngine* m_gameEngine = nullptr;
     IRenderDevice* m_device = nullptr;

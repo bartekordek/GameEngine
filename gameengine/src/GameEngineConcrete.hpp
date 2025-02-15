@@ -123,7 +123,6 @@ private:
     void drawQuad( const bool draw = true ) override;
 
     void clearModelViewEveryFrame( const bool enable ) override;
-    void calculateFrameWait();
 
     CUL::GUTILS::IConfigFile* getConfig() override;
 
@@ -193,14 +192,6 @@ private:
 
     void setFpsLimit( float maxFps ) override;
     float getFpsLimit() const override;
-
-    DumbPtr<CUL::ITimer> m_frameTimer;
-    float m_fpsLimit = 60.f;
-    std::int32_t m_targetFrameLengthNs = 0u;
-    std::int32_t m_currentFrameLengthNs = 0u;
-    std::int32_t m_frameSleepNs = 64;
-    std::int32_t m_usRes = 0;
-    std::int32_t m_usDelta = 8;
 
     DumbPtr<CUL::ITimer> m_customTimer;
 

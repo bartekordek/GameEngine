@@ -10,22 +10,30 @@ LOGLW::RunOnRenderThread::RunOnRenderThread()
 {
     m_gameEngine = IGameEngine::getInstance();
     m_device = m_gameEngine->getDevice();
+
+    m_threadUtil = &CUL::CULInterface::getInstance()->getThreadUtils();
+    m_renderThreadId = CUL::CULInterface::getInstance()->getThreadUtils().getThreadId( "RenderThread" );
 }
 
 void LOGLW::RunOnRenderThread::Run( const std::function<void( void )> inFunction )
 {
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getIsRenderThread() )
     {
         inFunction();
     }
     else
     {
         m_gameEngine->addPreRenderTask(
-            [this, inFunction]()
+            [/*this,*/ inFunction]()
             {
                 inFunction();
             } );
     }
+}
+
+bool LOGLW::RunOnRenderThread::getIsRenderThread() const
+{
+    return m_threadUtil->getCurrentThreadId() == m_renderThreadId;
 }
 
 LOGLW::RunOnRenderThread::~RunOnRenderThread()

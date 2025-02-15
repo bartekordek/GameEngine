@@ -4,6 +4,7 @@
 #include "gameengine/Shaders/ShaderUnit.hpp"
 #include "gameengine/Windowing/IWindow.hpp"
 
+#include "RunOnRenderThread.hpp"
 #include "CUL/CULInterface.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
 
@@ -36,7 +37,7 @@ const String TextureInfo::toString() const
 IRenderDevice::IRenderDevice( bool forceLegacy )
     : m_forceLegacy( forceLegacy ), m_logger( CUL::CULInterface::getInstance()->getLogger() )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         //CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }

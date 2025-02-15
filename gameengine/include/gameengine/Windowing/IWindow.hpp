@@ -120,8 +120,6 @@ public:
 
     virtual void toggleFpsCounter( bool on, short unsigned everyNsecond = 2 ) = 0;
 
-    virtual CUL::Video::FPSCounter* getFpsCounter() = 0;
-
     SDL_Window* getSDLWindow();
 
     void setSize( uint16_t width, uint16_t height );

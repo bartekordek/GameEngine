@@ -10,6 +10,7 @@
 #include "CUL/ITimer.hpp"
 
 #include "sdl2wrapper/IMPORT_SDL.hpp"
+#include "CUL/IMPORT_tracy.hpp"
 
 using namespace LOGLW;
 
@@ -111,12 +112,6 @@ void RegularSDL2Window::toggleFpsCounter( bool on, short unsigned everyNsecond )
         {
             m_sleepTimeInfoLoop = everyNsecond;
             m_runInfoLoop = true;
-
-            std::cout << "Sizeof m_fpsCounter: " << sizeof( CUL::Video::FPSCounter ) << "\n";
-            m_fpsCounter = std::make_unique<CUL::Video::FPSCounter>( m_logger );
-            m_fpsCounter->setSampleSize( 4 );
-            addFPSCounter( m_fpsCounter.get() );
-            m_fpsCounter->start();
             m_infoPrintLoop = std::thread( &RegularSDL2Window::infoLoop, this );
         }
     }
@@ -129,16 +124,6 @@ void RegularSDL2Window::toggleFpsCounter( bool on, short unsigned everyNsecond )
 
 void RegularSDL2Window::infoLoop()
 {
-    while( m_runInfoLoop )
-    {
-        CUL::ITimer::sleepSeconds( m_sleepTimeInfoLoop );
-        const auto currentFpsCount = m_fpsCounter->getCurrentFps();
-        const auto averageFpsCount = m_fpsCounter->getAverageFps();
-        const auto messageCfps = "CURRENT FPS: " + CUL::String( currentFpsCount );
-        const auto messageAfps = "AVERAGE FPS: " + CUL::String( averageFpsCount );
-        m_logger->log( messageCfps );
-        m_logger->log( messageAfps );
-    }
 }
 
 RegularSDL2Window::operator SDL_Window*()
@@ -164,6 +149,7 @@ const WinSize& RegularSDL2Window::getCurrentScreenNativeResolution() const
 
 void RegularSDL2Window::updateScreenBuffers()
 {
+    ZoneScoped;
     if( ( m_windowData.RendererType == RenderTypes::RendererType::OPENGL_LEGACY ) ||
         ( m_windowData.RendererType == RenderTypes::RendererType::OPENGL_MODERN ) )
     {
@@ -178,7 +164,6 @@ void RegularSDL2Window::updateScreenBuffers()
         //     SDL_RenderPresent( m_renderer );
         // }
     }
-    frameHasEnded();
 }
 
 void RegularSDL2Window::renderAll()
@@ -421,11 +406,6 @@ void RegularSDL2Window::removeObject( CUL::Graphics::IObject* object )
 ColorS RegularSDL2Window::getBackgroundColor() const
 {
     return m_backgroundColor;
-}
-
-CUL::Video::FPSCounter* RegularSDL2Window::getFpsCounter()
-{
-    return m_fpsCounter.get();
 }
 
 void RegularSDL2Window::setFullscreen( bool fullscreen )

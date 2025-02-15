@@ -8,6 +8,7 @@
 #include "gameengine/Shaders/ShaderUnit.hpp"
 #include "gameengine/Windowing/IWindow.hpp"
 
+#include "RunOnRenderThread.hpp"
 #include "CUL/CULInterface.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
@@ -263,10 +264,10 @@ DeviceOpenGL::DeviceOpenGL( bool forceLegacy ) : IRenderDevice( forceLegacy )
 
 ContextInfo DeviceOpenGL::initContextVersion( LOGLW::IWindow* window )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::CULInterface::getInstance()->getThreadUtils().setThreadName( "RenderThread" );
-        if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+        if( !RunOnRenderThread::getInstance().getIsRenderThread() )
         {
             CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
         }
@@ -346,7 +347,7 @@ ContextInfo DeviceOpenGL::initContextVersion( LOGLW::IWindow* window )
 
 void DeviceOpenGL::setOrthogonalPerspective( const Camera& camera )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -407,7 +408,7 @@ void DeviceOpenGL::setOrthogonalPerspective( const Camera& camera )
 
 void DeviceOpenGL::setPerspectiveProjection( const Camera& projectionData )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -430,7 +431,7 @@ void DeviceOpenGL::setPerspectiveProjection( const Camera& projectionData )
 
 void DeviceOpenGL::setViewport( const Viewport& viewport )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -442,7 +443,7 @@ void DeviceOpenGL::setViewport( const Viewport& viewport )
 #endif
 void DeviceOpenGL::lookAt( const Camera& vp )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -462,7 +463,7 @@ void DeviceOpenGL::lookAt( const std::array<Pos3Dd, 3>& vec )
 
 void DeviceOpenGL::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -488,7 +489,7 @@ std::uint32_t DeviceOpenGL::createProgram( const CUL::String& name )
 
 void DeviceOpenGL::removeProgram( unsigned programId )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -509,7 +510,7 @@ void DeviceOpenGL::removeProgram( unsigned programId )
 
 void DeviceOpenGL::linkProgram( unsigned programId )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -520,7 +521,7 @@ void DeviceOpenGL::linkProgram( unsigned programId )
 
 void DeviceOpenGL::validateProgram( std::uint32_t programId )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -588,7 +589,7 @@ ShaderTypes DeviceOpenGL::getShaderType( const CUL::String& fileExtension )
 
 bool DeviceOpenGL::attachShader( unsigned programId, unsigned shaderId )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -605,7 +606,7 @@ void DeviceOpenGL::dettachShader( unsigned programId, unsigned shaderId )
 {
     log( "glDetachShader( " + String( programId ) + ", " + String( shaderId ) + " );" );
 
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -620,7 +621,7 @@ void DeviceOpenGL::removeShader( unsigned shaderId )
 
     GLuint gshaderId = shaderId;
 
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -631,7 +632,7 @@ void DeviceOpenGL::removeShader( unsigned shaderId )
 
 void DeviceOpenGL::useProgram( int programId )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -653,7 +654,7 @@ int DeviceOpenGL::getCurrentProgram() const
 
 void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::vec2& val )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -664,7 +665,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::vec2& val )
 
 void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::vec3& val )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -675,7 +676,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::vec3& val )
 
 void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::vec4& val )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -686,7 +687,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::vec4& val )
 
 void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::mat2& val )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -697,7 +698,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::mat2& val )
 
 void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::mat3& val )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -708,7 +709,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::mat3& val )
 
 void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::mat4& val )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -720,7 +721,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, const glm::mat4& val )
 
 void DeviceOpenGL::setActiveTextureUnit( ETextureUnitIndex textureUnitIndex )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -734,7 +735,7 @@ void DeviceOpenGL::setActiveTextureUnit( ETextureUnitIndex textureUnitIndex )
 
 int DeviceOpenGL::getUniformLocation( unsigned programId, const String& attribName )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -769,7 +770,7 @@ int DeviceOpenGL::getUniformLocation( unsigned programId, const String& attribNa
 
 void DeviceOpenGL::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -791,7 +792,7 @@ void DeviceOpenGL::drawArrays( unsigned vaoId, const PrimitiveType primitiveType
 
 void DeviceOpenGL::vertexAttribPointer( const VertexData& meta )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -843,7 +844,7 @@ void DeviceOpenGL::vertexAttribPointer( const VertexData& meta )
 
 void DeviceOpenGL::setTextureData( std::uint32_t textureId, const TextureInfo& ti )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -856,7 +857,7 @@ void DeviceOpenGL::setTextureData( std::uint32_t textureId, const TextureInfo& t
 
 void DeviceOpenGL::rotate( const CUL::MATH::Rotation& rotation )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -868,7 +869,7 @@ void DeviceOpenGL::rotate( const CUL::MATH::Rotation& rotation )
 
 void DeviceOpenGL::draw( const CUL::MATH::Primitives::Line& values, const ColorS& color )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -882,7 +883,7 @@ void DeviceOpenGL::draw( const CUL::MATH::Primitives::Line& values, const ColorS
 
 void DeviceOpenGL::rotate( const float angleDeg, const float x, const float y, const float z )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -925,7 +926,7 @@ GLuint toGluint( unsigned value )
 
 void DeviceOpenGL::setAttribValue( int attributeLocation, float value )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -936,7 +937,7 @@ void DeviceOpenGL::setAttribValue( int attributeLocation, float value )
 
 void DeviceOpenGL::setAttribValue( int, int )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -946,7 +947,7 @@ void DeviceOpenGL::setAttribValue( int, int )
 
 void DeviceOpenGL::setAttribValue( int, unsigned )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -956,7 +957,7 @@ void DeviceOpenGL::setAttribValue( int, unsigned )
 
 void DeviceOpenGL::setAttribValue( int, bool )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1036,7 +1037,7 @@ UniformValue DeviceOpenGL::getUniformValue( std::int32_t inProgramId, std::int32
 
 void DeviceOpenGL::setUniformValue( int uniformLocation, float value )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1047,7 +1048,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, float value )
 
 void DeviceOpenGL::setUniformValue( int uniformLocation, int value )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1057,7 +1058,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, int value )
 }
 void DeviceOpenGL::setUniformValue( int uniformLocation, unsigned value )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1085,7 +1086,7 @@ void DeviceOpenGL::translate( const Point& point )
 
 void DeviceOpenGL::translate( const float x, const float y, const float z )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1095,7 +1096,7 @@ void DeviceOpenGL::translate( const float x, const float y, const float z )
 
 void DeviceOpenGL::scale( const CUL::MATH::Vector3Df& scale )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1105,7 +1106,7 @@ void DeviceOpenGL::scale( const CUL::MATH::Vector3Df& scale )
 
 void DeviceOpenGL::scale( const float scale )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1115,7 +1116,7 @@ void DeviceOpenGL::scale( const float scale )
 
 void DeviceOpenGL::draw( const QuadCUL& quad, const QuadCUL& texQuad )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1168,7 +1169,7 @@ void DeviceOpenGL::draw( const TriangleCUL& triangle, const glm::mat4& model, co
 
 void DeviceOpenGL::draw( const QuadCUL& quad, const ColorS& color )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1188,7 +1189,7 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const ColorS& color )
 
 void DeviceOpenGL::draw( const QuadData& quad, const ColorS& color )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1208,7 +1209,7 @@ void DeviceOpenGL::draw( const QuadData& quad, const ColorS& color )
 
 void DeviceOpenGL::draw( const QuadData& quad, const QuadColors& color )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1227,7 +1228,7 @@ void DeviceOpenGL::draw( const QuadData& quad, const QuadColors& color )
 
 void DeviceOpenGL::draw( const QuadCUL& quad, const std::array<ColorS, 4>& color )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1246,7 +1247,7 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const std::array<ColorS, 4>& color
 
 void DeviceOpenGL::draw( const TriangleCUL& triangle, const ColorS& color )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1261,7 +1262,7 @@ void DeviceOpenGL::draw( const TriangleCUL& triangle, const ColorS& color )
 
 void DeviceOpenGL::draw( const TriangleCUL& quad, const std::array<ColorS, 4>& color )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1278,7 +1279,7 @@ void DeviceOpenGL::draw( const TriangleCUL& quad, const std::array<ColorS, 4>& c
 
 void DeviceOpenGL::draw( const TriangleData& values, const std::array<ColorS, 3>& color )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1295,7 +1296,7 @@ void DeviceOpenGL::draw( const TriangleData& values, const std::array<ColorS, 3>
 
 void DeviceOpenGL::draw( const LineData& values, const LineColors& color )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1316,7 +1317,7 @@ void DeviceOpenGL::draw( const LineData& values, const LineColors& color )
 
 void DeviceOpenGL::draw( const LineData& values, const ColorS& color )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1338,7 +1339,7 @@ void DeviceOpenGL::draw( const Point& position, const ColorS& color )
 
 void DeviceOpenGL::clearColorAndDepthBuffer()
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1349,7 +1350,7 @@ void DeviceOpenGL::clearColorAndDepthBuffer()
 
 void DeviceOpenGL::createQuad( float scale )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1365,7 +1366,7 @@ void DeviceOpenGL::createQuad( float scale )
 
 void DeviceOpenGL::clearColorTo( const ColorS color )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1381,7 +1382,7 @@ void DeviceOpenGL::clearBuffer( const ClearMasks mask )
 
 void DeviceOpenGL::setClientState( ClientStateTypes cs, bool enabled )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1398,7 +1399,7 @@ void DeviceOpenGL::setClientState( ClientStateTypes cs, bool enabled )
 
 void DeviceOpenGL::texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1424,7 +1425,7 @@ void DeviceOpenGL::texCoordPointer( int coordinatesPerElement, DataType dataType
 
 void DeviceOpenGL::vertexPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1449,7 +1450,7 @@ void DeviceOpenGL::vertexPointer( int coordinatesPerElement, DataType dataType, 
 
 void DeviceOpenGL::setVertexArrayClientState( const bool enable )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1471,7 +1472,7 @@ void DeviceOpenGL::setVertexArrayClientState( const bool enable )
 
 void DeviceOpenGL::setColorClientState( bool enable )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1492,7 +1493,7 @@ void DeviceOpenGL::setColorClientState( bool enable )
 
 unsigned int DeviceOpenGL::generateVertexArray( const int size )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1528,7 +1529,7 @@ void DeviceOpenGL::bufferData( BufferDataId bufferId, const std::vector<float>& 
 
 void DeviceOpenGL::bufferData( BufferDataId bufferId, const std::vector<TextureData2D>& data, const BufferTypes type )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1539,7 +1540,7 @@ void DeviceOpenGL::bufferData( BufferDataId bufferId, const std::vector<TextureD
 
 void DeviceOpenGL::bufferDataImpl( const void* data, const GLenum target, const GLsizeiptr dataSize )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1663,7 +1664,7 @@ void DeviceOpenGL::bufferDataImpl( const void* data, const GLenum target, const 
 
 void DeviceOpenGL::bufferSubdata( BufferDataId bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1676,7 +1677,7 @@ void DeviceOpenGL::bufferSubdata( BufferDataId bufferId, const BufferTypes type,
 
 unsigned int DeviceOpenGL::generateAndBindBuffer( const BufferTypes bufferType, const int size )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1688,7 +1689,7 @@ unsigned int DeviceOpenGL::generateAndBindBuffer( const BufferTypes bufferType, 
 
 unsigned int DeviceOpenGL::generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1728,7 +1729,7 @@ GL_ARRAY_BUFFER target. The initial value is 0.
 
 void DeviceOpenGL::bufferData( BufferDataId bufferId, const float vertices[], BufferTypes bufferType )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1740,7 +1741,7 @@ void DeviceOpenGL::bufferData( BufferDataId bufferId, const float vertices[], Bu
 
 void DeviceOpenGL::enableVertexAttribiute( unsigned programId, const String& attribName )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1751,7 +1752,7 @@ void DeviceOpenGL::enableVertexAttribiute( unsigned programId, const String& att
 
 void DeviceOpenGL::setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1787,7 +1788,7 @@ void DeviceOpenGL::setVertexPointer( int coordinatesPerVertex, DataType dataType
 
 void DeviceOpenGL::disableVertexAttribiute( unsigned programId, const String& attribName )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1798,7 +1799,7 @@ void DeviceOpenGL::disableVertexAttribiute( unsigned programId, const String& at
 
 void DeviceOpenGL::deleteBuffer( BufferTypes bufferType, unsigned& id )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1828,7 +1829,7 @@ void DeviceOpenGL::deleteBuffer( BufferTypes bufferType, unsigned& id )
 
 int DeviceOpenGL::getAttribLocation( unsigned programId, const String& attribName )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1840,7 +1841,7 @@ int DeviceOpenGL::getAttribLocation( unsigned programId, const String& attribNam
 
 void DeviceOpenGL::unbindBuffer( const BufferTypes bufferType )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1850,7 +1851,7 @@ void DeviceOpenGL::unbindBuffer( const BufferTypes bufferType )
 
 void DeviceOpenGL::bindBuffer( const BufferTypes bufferType, unsigned bufferId )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1911,7 +1912,7 @@ void DeviceOpenGL::bindBuffer( const BufferTypes bufferType, unsigned bufferId )
 // TODO: Remove type?
 unsigned int DeviceOpenGL::generateBuffer( const BufferTypes bufferType, const int size )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1984,7 +1985,7 @@ void DeviceOpenGL::drawElements( const PrimitiveType type, const CUL::DataWrappe
 
 void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<float>& data )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -1994,7 +1995,7 @@ void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<flo
 
 void DeviceOpenGL::drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2004,7 +2005,7 @@ void DeviceOpenGL::drawElementsFromLastBuffer( const PrimitiveType primitiveType
 
 void DeviceOpenGL::enableVertexAttribArray( unsigned attributeId )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2056,7 +2057,7 @@ std::vector<std::string> DeviceOpenGL::listExtensions()
 
 void DeviceOpenGL::setDepthTest( const bool enabled )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2077,7 +2078,7 @@ void DeviceOpenGL::setDepthTest( const bool enabled )
 
 void DeviceOpenGL::setBackfaceCUll( const bool enabled )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2095,7 +2096,7 @@ void DeviceOpenGL::setBackfaceCUll( const bool enabled )
 
 void DeviceOpenGL::setTexuring( const bool enabled )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2116,7 +2117,7 @@ void DeviceOpenGL::setTexuring( const bool enabled )
 
 unsigned DeviceOpenGL::generateTexture()
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2134,7 +2135,7 @@ unsigned DeviceOpenGL::generateTexture()
 
 void DeviceOpenGL::bindTexture( const unsigned int textureId )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2154,7 +2155,7 @@ void DeviceOpenGL::bindTexture( const unsigned int textureId )
 
 void DeviceOpenGL::setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2166,7 +2167,7 @@ void DeviceOpenGL::setTextureParameter( uint8_t textureId, const TextureParamete
 
 void DeviceOpenGL::freeTexture( std::uint32_t textureId )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2180,7 +2181,7 @@ void DeviceOpenGL::freeTexture( std::uint32_t textureId )
 
 void DeviceOpenGL::matrixStackPush()
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2192,7 +2193,7 @@ void DeviceOpenGL::matrixStackPush()
 
 void DeviceOpenGL::matrixStackPop()
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2270,7 +2271,7 @@ bool DeviceOpenGL::getLastOperationStatus()
 
 void DeviceOpenGL::toggleDebugOutput( bool enable )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2309,7 +2310,7 @@ void DeviceOpenGL::initDebugUI()
 
 ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
@@ -2398,7 +2399,7 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath, boo
 
 void DeviceOpenGL::deleteShaderUnit( ShaderUnit* inShaderUnit )
 {
-    if( !CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }

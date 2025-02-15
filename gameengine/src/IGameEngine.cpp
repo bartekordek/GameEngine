@@ -220,8 +220,12 @@ void IGameEngine::removeProgram( ShaderProgram* program )
 void IGameEngine::addObjectToRender( IRenderable* renderable )
 {
     const auto threadName = CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
-    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::INFO, "IGameEngine::addObjectToRender: %p [%s]", renderable,
-                                                  threadName.cStr() );
+
+    constexpr std::size_t bufferSize{ 512 };
+    char buffer[bufferSize];
+    snprintf( buffer, bufferSize, "IGameEngine::addObjectToRender: %p [%s]", renderable, threadName.c_str() );
+
+    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::INFO, buffer );
 
     if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -242,7 +246,7 @@ void IGameEngine::removeObjectToRender( IRenderable* renderable )
 {
     const auto threadName = CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
     CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::INFO, "IGameEngine::removeObjectToRender: %p [%s]", renderable,
-                                                  threadName.cStr() );
+                                                  threadName.c_str() );
 
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -259,9 +263,7 @@ void IGameEngine::removeObjectToRender( IRenderable* renderable )
 
         if( it == m_objectsToRender.end() )
         {
-            char tmp[256];
-            sprintf( tmp, "Trying to remove already removed object: %p.", renderable );
-            CUL::Assert::simple( false, tmp );
+            CUL::Assert::check( false, "Trying to remove already removed object: %p.", renderable );
         }
 
         m_objectsToRender.erase( renderable );

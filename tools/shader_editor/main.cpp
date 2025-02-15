@@ -7,36 +7,39 @@ int main( int argc, char** argv )
     CUL::GUTILS::ConsoleUtilities cu;
     cu.setArgs( argc, argv );
 
-    std::int16_t width = 1920;
-    std::int16_t height = 1080;
-    std::int16_t x{ 256 };
-    std::int16_t y{ 256 };
+    LOGLW::WinSize size;
+    size.W = 1920;
+    size.H = 1080;
+
+    LOGLW::WinPos pos;
+    pos.X = 256;
+    pos.Y = 32;
 
     auto valW = cu.getFlagValue( "-w" ).string();
     if( !valW.empty() )
     {
-        width = std::stoi( valW );
+        size.W = std::stoi( valW );
     }
 
     auto valH = cu.getFlagValue( "-h" ).string();
     if( !valH.empty() )
     {
-        height = std::stoi( valH );
+        size.H = std::stoi( valH );
     }
 
     auto valX = cu.getFlagValue( "-x" ).string();
     if( !valX.empty() )
     {
-        x = std::stoi( valX );
+        pos.X = std::stoi( valX );
     }
 
     auto valY = cu.getFlagValue( "-y" ).string();
     if( !valY.empty() )
     {
-        y = std::stoi( valY );
+        pos.Y = std::stoi( valY );
     }
 
-    ShaderEditor editor( width, height, x, y );
+    ShaderEditor editor( size, pos );
     editor.run();
 
     return 0;

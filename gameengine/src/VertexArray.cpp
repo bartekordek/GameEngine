@@ -3,7 +3,7 @@
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "RunOnRenderThread.hpp"
-
+#include "CUL/IMPORT_tracy.hpp"
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
 
@@ -91,6 +91,7 @@ void VertexArray::addVertexBuffer( VertexData& data )
 
 void VertexArray::render()
 {
+    ZoneScoped;
     runTasks();
 
     bind();

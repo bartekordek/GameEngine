@@ -2,7 +2,6 @@
 
 #include "gameengine/Import.hpp"
 
-#include "CUL/Video/IFPSObservable.hpp"
 #include "CUL/Graphics/Color.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
@@ -10,7 +9,7 @@ NAMESPACE_BEGIN( LOGLW )
 using ColorS = CUL::Graphics::ColorS;
 using ColorE = CUL::Graphics::ColorE;
 
-class GAME_ENGINE_API IRender: public CUL::Video::IFPSObservable
+class GAME_ENGINE_API IRender
 {
 public:
     IRender() noexcept;

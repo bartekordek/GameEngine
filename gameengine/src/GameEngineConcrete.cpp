@@ -20,6 +20,7 @@
 #include "gameengine/Input/MouseData.hpp"
 #include "gameengine/Windowing/WinData.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
+#include "gameengine/Render/FrameTimeManager.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/GenericUtils/ConsoleUtilities.hpp"
@@ -39,14 +40,13 @@ GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool )
     : m_sdlW( sdl2w ),
       m_activeWindow( sdl2w->getMainWindow() ),
       m_cul( sdl2w->getCul() ),
-      m_logger( sdl2w->getCul()->getLogger() ),
-      m_frameTimer( CUL::TimerFactory::getChronoTimer( sdl2w->getCul()->getLogger() ) )
+      m_logger( sdl2w->getCul()->getLogger() )
 {
     CUL::Assert::simple( nullptr != sdl2w, "NO SDL WRAPPER." );
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );
     CUL::Assert::simple( nullptr != m_logger, "NO LOGGER." );
 
-    auto initTask = [this, sdl2w]()
+    auto initTask = [this]()
     {
         DebugSystemParams params;
         static_assert( (int)ETextureUnitIndex::UNIT_0 == GL_TEXTURE0, "Incorrect texture unit mapping." );
@@ -116,6 +116,8 @@ GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool )
         std::lock_guard<std::mutex> lock( m_initTasksMtx );
         m_initTasks.push( initTask );
     }
+
+    setFpsLimit( 60.f );
 }
 
 void GameEngineConcrete::registerObjectForUtility()
@@ -272,9 +274,11 @@ void GameEngineConcrete::renderLoop()
     while( m_runRenderLoop )
     {
         ZoneScoped;
+        FrameTimeManager::getInstance().startFrame();
         runPreRenderTasks();
         renderFrame();
         runPostRenderTasks();
+        FrameTimeManager::getInstance().endFrame();
         FrameMark;
     }
 
@@ -315,8 +319,6 @@ void GameEngineConcrete::initialize()
 
     showExtensions();
 
-    calculateFrameWait();
-
     getDevice()->toggleDebugOutput( true );
 
     m_hasBeenInitialized = true;
@@ -345,6 +347,7 @@ void GameEngineConcrete::setupProjectionData( uint16_t width, uint16_t height )
 
 void GameEngineConcrete::renderFrame()
 {
+    ZoneScoped;
     m_renderDevice->prepareFrame();
 
     if( m_clearEveryFrame )
@@ -383,20 +386,7 @@ void GameEngineConcrete::renderFrame()
         m_debugSystem->frame();
     }
 
-    if( m_frameTimer->getIsStarted() )
-    {
-        m_frameTimer->stop();
-        m_currentFrameLengthNs = m_frameTimer->getElapsedNs();
-
-        const std::int64_t diff = m_targetFrameLengthNs - m_currentFrameLengthNs;
-        if( diff > 0 )
-        {
-            CUL::ITimer::sleepNanoSeconds( diff );
-        }
-    }
-
     finishFrame();
-    m_frameTimer->start();
 }
 
 void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name );
@@ -407,6 +397,7 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
 #endif
 void GameEngineConcrete::renderInfo()
 {
+    ZoneScoped;
     float debugInfoWidth{ 0.f };
     float debugInfoHeight{ 0.f };
     if( getDrawDebugInfo() )
@@ -449,26 +440,16 @@ void GameEngineConcrete::renderInfo()
 
         // ImGui::Checkbox( "Depth test", &m_projectionData.m_depthTest.getRef() );
         // m_projectionData.m_depthTest.runIfChanged();
+        String text;
+        {
+            ZoneScoped;
+            ImGui::Text( "Aspect Ratio: %f", getCamera().getAspectRatio() );
+            ImGui::Text( "FOV-Y: %f", getCamera().getFov() );
 
-        ImGui::Text( "Aspect Ratio: %f", getCamera().getAspectRatio() );
-        ImGui::Text( "FOV-Y: %f", getCamera().getFov() );
-
-        CUL::Graphics::Pos3Dd centerPos = getCamera().getCenter();
-        String text = "Target:" + centerPos.serialize( 0 );
-        ImGui::Text( "%s", text.cStr() );
-
-        CUL::Graphics::Pos3Dd eyePos = getCamera().getEye();
-        text = "Eye:" + eyePos.serialize( 0 );
-        ImGui::Text( "%s", text.cStr() );
-
-        CUL::Graphics::Pos3Dd upPos = getCamera().getUp();
-        text = "Up:" + upPos.serialize( 0 );
-        ImGui::Text( "%s", text.cStr() );
-
-        const auto& mData = m_sdlW->getMouseData();
-        text = "Mouse = ( " + String( mData.getX() ) + ", " + String( mData.getY() ) + " )";
-        ImGui::Text( "%s", text.cStr() );
-
+            const auto& mData = m_sdlW->getMouseData();
+            text = "Mouse = ( " + String( mData.getX() ) + ", " + String( mData.getY() ) + " )";
+            ImGui::Text( "%s", text.cStr() );
+        }
         {
             static float zNear = getCamera().getZnear();
             res = ImGui::SliderFloat( "Z-near", &zNear, -4.f, 8.f );
@@ -537,6 +518,7 @@ void GameEngineConcrete::renderInfo()
 
         for( const auto& pair : m_debugValues )
         {
+            ZoneScoped;
             if( pair.second.type == DebugType::TEXT )
             {
                 const size_t id = pair.second.value.index();
@@ -586,13 +568,15 @@ void GameEngineConcrete::renderInfo()
             }
         }
 
+        ImGui::Text( "FPS (Imgui): %4.2f", ImGui::GetIO().Framerate );
         ImGui::Text( "FrameTime: %4.2f ms", 1000.f / ImGui::GetIO().Framerate );
-        ImGui::Text( "FPS: %4.2f", m_activeWindow->getFpsCounter()->getCurrentFps() );
+        //TODO:
+        //ImGui::Text( "FPS: %4.2f", m_activeWindow->getFpsCounter()->getCurrentFps() );
 
-        ImGui::Text( "m_currentFrameLengthNs: %d", m_currentFrameLengthNs );
-        ImGui::Text( "m_targetFrameLengthNs: %d", m_targetFrameLengthNs );
-        ImGui::Text( "m_frameSleepNs: %d", m_frameSleepNs );
-        ImGui::Text( "m_usDelta: %d", m_usDelta );
+        ImGui::Text( "Averga frame ms: %d", FrameTimeManager::getInstance().geAvgFrameTimeMS() );
+        ImGui::Text( "Target fram ms: %d", FrameTimeManager::getInstance().getTargetFrameTimeMS() );
+        //ImGui::Text( "m_frameSleepNs: %d", m_frameSleepNs );
+        //ImGui::Text( "m_usDelta: %d", m_usDelta );
 
         if( ImGui::TreeNode( "Objects" ) )
         {
@@ -758,6 +742,7 @@ void GameEngineConcrete::setEyePos( const glm::vec3& pos )
 
 void GameEngineConcrete::renderObjects()
 {
+    ZoneScoped;
     std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
     for( auto& renderableObject : m_objectsToRender )
     {
@@ -769,6 +754,7 @@ void GameEngineConcrete::renderObjects()
 
 void GameEngineConcrete::finishFrame()
 {
+    ZoneScoped;
     m_renderDevice->finishFrame();
 
     if( m_updateBuffers )
@@ -818,11 +804,6 @@ void GameEngineConcrete::drawQuad( const bool draw )
 void GameEngineConcrete::clearModelViewEveryFrame( const bool enable )
 {
     m_clearModelView = enable;
-}
-
-void GameEngineConcrete::calculateFrameWait()
-{
-    m_targetFrameLengthNs = 1000000000.0f / m_fpsLimit;
 }
 
 CUL::GUTILS::IConfigFile* GameEngineConcrete::getConfig()
@@ -968,16 +949,17 @@ CUL::CULInterface* GameEngineConcrete::getCul()
 
 void GameEngineConcrete::setFpsLimit( float maxFps )
 {
-    m_fpsLimit = maxFps;
+    FrameTimeManager::getInstance().setTargetFPS( maxFps );
 }
 
 float GameEngineConcrete::getFpsLimit() const
 {
-    return m_fpsLimit;
+    return FrameTimeManager::getInstance().getTargetFPS();
 }
 
 void GameEngineConcrete::runPreRenderTasks()
 {
+    ZoneScoped;
     std::lock_guard<std::mutex> lock( m_preRenderTasksMtx );
     while( !m_preRenderTasks.empty() )
     {
@@ -989,6 +971,7 @@ void GameEngineConcrete::runPreRenderTasks()
 
 void GameEngineConcrete::runPostRenderTasks()
 {
+    ZoneScoped;
     std::lock_guard<std::mutex> lock( m_postRenderTasksMtx );
     while( !m_postRenderTasks.empty() )
     {

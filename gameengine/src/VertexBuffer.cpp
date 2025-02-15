@@ -3,6 +3,7 @@
 #include "gameengine/AttributeMeta.hpp"
 #include "RunOnRenderThread.hpp"
 #include "gameengine/IRenderDevice.hpp"
+#include "CUL/IMPORT_tracy.hpp"
 
 using namespace LOGLW;
 
@@ -60,6 +61,7 @@ void VertexBuffer::updateVertexData()
 
 void VertexBuffer::render()
 {
+    ZoneScoped;
     bind();
     if( m_indexBuffer.get() )
     {

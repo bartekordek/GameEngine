@@ -8,6 +8,7 @@
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/AttributeMeta.hpp"
 #include "RunOnRenderThread.hpp"
+#include "CUL/IMPORT_tracy.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
 
@@ -134,6 +135,7 @@ void Quad::createShaders()
 
 void Quad::render()
 {
+    ZoneScoped;
     if( getDevice()->isLegacy() || getForceLegacy() )
     {
         getDevice()->draw( m_shape, m_transformComponent->getModel(), m_color );
