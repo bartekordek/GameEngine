@@ -53,10 +53,13 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     IName::AfterNameChangeCallback = [this]( const CUL::String& /*newName*/ )
     {
         RunOnRenderThread::getInstance().Run(
-            [this ]()
+            [this]()
             {
                 getProgram()->setName( getName() + "::shader_program" );
-                m_vao->setName( getName() + "::vao" );
+                if( m_vao )
+                {
+                    m_vao->setName( getName() + "::vao" );
+                }
             } );
     };
 }

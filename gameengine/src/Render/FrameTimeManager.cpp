@@ -19,27 +19,32 @@ void FrameTimeManager::setTargetFPS( float inTargetFPS )
     m_targetFrameTimeNs = 1000000000.f / inTargetFPS;
 }
 
-float LOGLW::FrameTimeManager::getTargetFrameTimeNS() const
+void FrameTimeManager::setSamplesCount( std::size_t inSamplesCount )
+{
+    m_samples.setCapacity( inSamplesCount );
+}
+
+float FrameTimeManager::getTargetFrameTimeNS() const
 {
     return m_targetFrameTimeNs;
 }
 
-float LOGLW::FrameTimeManager::getTargetFrameTimeMS() const
+float FrameTimeManager::getTargetFrameTimeMS() const
 {
     return m_targetFrameTimeNs / 1000.f;
 }
 
-float LOGLW::FrameTimeManager::geAvgFrameTimeNS() const
+float FrameTimeManager::geAvgFrameTimeNS() const
 {
     return m_samples.getAverage();
 }
 
-float LOGLW::FrameTimeManager::geAvgFrameTimeMS() const
+float FrameTimeManager::geAvgFrameTimeMS() const
 {
     return m_samples.getAverage() / 1000.f;
 }
 
-float LOGLW::FrameTimeManager::getTargetFPS() const
+float FrameTimeManager::getTargetFPS() const
 {
     return 1.f / m_targetFrameTimeNs;
 }
@@ -60,7 +65,8 @@ void FrameTimeManager::endFrame()
     {
         std::this_thread::sleep_for( std::chrono::nanoseconds( static_cast<std::uint64_t>( differenceNs ) ) );
     }
-    m_samples.add( m_lastFrameTimeNs + differenceNs );
+    static float frameTime = m_lastFrameTimeNs + differenceNs;
+    m_samples.add( frameTime );
 }
 
 FrameTimeManager::~FrameTimeManager()

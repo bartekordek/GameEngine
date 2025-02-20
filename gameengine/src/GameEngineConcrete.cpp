@@ -118,6 +118,7 @@ GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool )
     }
 
     setFpsLimit( 60.f );
+    FrameTimeManager::getInstance().setSamplesCount( 2048 );
 }
 
 void GameEngineConcrete::registerObjectForUtility()
@@ -409,7 +410,7 @@ void GameEngineConcrete::renderInfo()
                       ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
         ImGui::SetWindowPos( { 0, 0 } );
 
-        debugInfoWidth = (float)winSize.W * 0.38f;
+        debugInfoWidth = (float)winSize.W * 0.42f;
         debugInfoHeight = (float)winSize.H * 1.f;
         ImGui::SetWindowSize( { debugInfoWidth, debugInfoHeight } );
 
@@ -573,7 +574,7 @@ void GameEngineConcrete::renderInfo()
         //TODO:
         //ImGui::Text( "FPS: %4.2f", m_activeWindow->getFpsCounter()->getCurrentFps() );
 
-        ImGui::Text( "Averga frame ms: %d", FrameTimeManager::getInstance().geAvgFrameTimeMS() );
+        ImGui::Text( "Averge frame ms: %d", FrameTimeManager::getInstance().geAvgFrameTimeMS() );
         ImGui::Text( "Target fram ms: %d", FrameTimeManager::getInstance().getTargetFrameTimeMS() );
         //ImGui::Text( "m_frameSleepNs: %d", m_frameSleepNs );
         //ImGui::Text( "m_usDelta: %d", m_usDelta );

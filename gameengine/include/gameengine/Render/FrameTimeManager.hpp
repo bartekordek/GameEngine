@@ -13,6 +13,7 @@ public:
 
     void setFrameLengthMs( float inFrameLengthMs );
     void setTargetFPS( float inTargetFPS );
+    void setSamplesCount( std::size_t inSamplesCount );
 
     float getTargetFrameTimeNS() const;
     float getTargetFrameTimeMS() const;
