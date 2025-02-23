@@ -26,3 +26,6 @@
 [submodule "deps/SDL"]
 	path = deps/SDL
 	url = git@github.com:libsdl-org/SDL.git
+[submodule "deps/rapidobj"]
+	path = deps/rapidobj
+	url = git@github.com:guybrush77/rapidobj.git

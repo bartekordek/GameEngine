@@ -38,6 +38,8 @@ add_subdirectory( ${CMAKE_CURRENT_SOURCE_DIR}/deps/SDL )
 add_subdirectory(deps)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/deps/CUL)
 
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/deps/rapidobj)
+
 find_package(GLUT REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
