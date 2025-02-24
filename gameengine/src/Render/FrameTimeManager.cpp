@@ -44,6 +44,14 @@ float FrameTimeManager::geAvgFrameTimeMS() const
     return m_samples.getAverage() / 1000.f;
 }
 
+constexpr float nsInS = 1000000000.f;
+
+float FrameTimeManager::getAvgFPS() const
+{
+    const float averageSaFrameTime = m_samples.getAverage();
+    return nsInS / averageSaFrameTime;
+}
+
 float FrameTimeManager::getTargetFPS() const
 {
     return 1.f / m_targetFrameTimeNs;

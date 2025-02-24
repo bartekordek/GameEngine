@@ -330,7 +330,7 @@ public:
     virtual ~IRenderDevice();
 
 protected:
-    void log( const String& text, const CUL::LOG::Severity severity = CUL::LOG::Severity::INFO ) const;
+    void log( const String& text, const CUL::LOG::Severity severity = CUL::LOG::Severity::Info ) const;
     void customAssert( const bool value, const CUL::String& message ) const;
 
     bool m_forceLegacy = false;

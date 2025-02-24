@@ -49,6 +49,7 @@ class IRenderable;
 class IRenderDevice;
 class ITextureFactory;
 class Line;
+class PointLight;
 class ProjectionData;
 class Quad;
 class ShaderProgram;
@@ -137,6 +138,7 @@ public:
     GAME_ENGINE_API Line* createLine( IObject* parent, bool forceLegacy );
     GAME_ENGINE_API Triangle* createTriangle( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API Quad* createQuad( IObject* parent, bool forceLegacy = false );
+    GAME_ENGINE_API PointLight* createPointLight( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API Anchor* createAnchor( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API VertexArray* createVAO( const CUL::String& name = CUL::String( "" ) );
     GAME_ENGINE_API Cube* createCube( bool forceLegacy = false );

@@ -40,11 +40,10 @@ private:
     CUL::MATH::Primitives::Quad m_shape;
     glm::mat4 m_model;
 
-    TransformComponent* m_transformComponent = nullptr;
+    TransformComponent* m_transformComponent{ nullptr };
     std::atomic<bool> m_recreateBuffers = true;
-    VertexArray* m_vao = nullptr;
+    VertexArray* m_vao{ nullptr };
 
-    Camera& m_camera;
     IGameEngine& m_engine;
 
     CUL::Graphics::ColorS m_color;

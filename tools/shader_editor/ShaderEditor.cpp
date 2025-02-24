@@ -619,7 +619,7 @@ void ShaderEditor::onMouseEvent( const LOGLW::MouseData& mouseData )
     if( mouseData.getEventType() == LOGLW::MouseData::EventType::MOUSEWHEEL )
     {
         const auto whellY = mouseData.getWheelY();
-        m_engine->getLoger()->logVariable( CUL::LOG::Severity::WARN, "ShaderEditor::onMouseEvent MOUSEWHEEL y: %d", whellY );
+        m_engine->getLoger()->logVariable( CUL::LOG::Severity::Warn, "ShaderEditor::onMouseEvent MOUSEWHEEL y: %d", whellY );
         const float whellYf = 0.8f * static_cast<float>( whellY );
         m_cameraPosSp.incrementR( -whellYf );
         m_cameraPosSp.toCarthezian( m_eye.x, m_eye.y, m_eye.z );
@@ -637,7 +637,7 @@ void ShaderEditor::onMouseEvent( const LOGLW::MouseData& mouseData )
             const std::int32_t diffX = m_lastMouseX - mouseX;
             const std::int32_t diffY = m_lastMouseY - mouseY;
 
-            m_engine->getLoger()->logVariable( CUL::LOG::Severity::WARN, "ShaderEditor::onMouseEvent DIFF x: %d, y: %d", diffX, diffY );
+            m_engine->getLoger()->logVariable( CUL::LOG::Severity::Warn, "ShaderEditor::onMouseEvent DIFF x: %d, y: %d", diffX, diffY );
 
             constexpr float divider{ 255.f };
             m_cameraPosSp.incrementTheta( static_cast<float>( diffX ) / divider );

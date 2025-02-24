@@ -45,5 +45,4 @@ struct VertexData
     CUL::DataWrapper Indices;
 };
 
-
 NAMESPACE_END( LOGLW )

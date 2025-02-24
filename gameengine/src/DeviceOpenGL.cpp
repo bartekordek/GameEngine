@@ -202,7 +202,7 @@ void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum
     }
     messageString += ", Message: ";
     messageString += message;
-    g_loggerOGL->log( messageString, CUL::LOG::Severity::WARN );
+    g_loggerOGL->log( messageString, CUL::LOG::Severity::Warn );
 
     return;
 }
@@ -239,7 +239,7 @@ GLenum glCheckError_( const char* file, int line )
                 break;
         }
 
-        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::ERROR, "File: %s, line: %s, error: %s", file, line, error );
+        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Error, "File: %s, line: %s, error: %s", file, line, error );
         hasError = true;
     }
 
@@ -296,7 +296,7 @@ ContextInfo DeviceOpenGL::initContextVersion( LOGLW::IWindow* window )
         glEnable( GL_DEBUG_OUTPUT );
         glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
         checkLastCommandForErrors();
-        log( "Debug message enabled.", CUL::LOG::Severity::WARN );
+        log( "Debug message enabled.", CUL::LOG::Severity::Warn );
 
         // glEnable( GL_DEBUG_OUTPUT );
         // checkLastCommandForErrors();
@@ -787,7 +787,18 @@ void DeviceOpenGL::drawArrays( unsigned vaoId, const PrimitiveType primitiveType
     */
     // log( "drawArrays" );
     bindBuffer( BufferTypes::VERTEX_ARRAY, vaoId );
-    glDrawArrays( static_cast<GLenum>( primitiveType ), static_cast<GLint>( first ), static_cast<GLsizei>( count ) );
+
+    static std::size_t elementsCount{ 0u };
+    if( primitiveType == PrimitiveType::TRIANGLES )
+    {
+        elementsCount = count / 9u;
+    }
+    else
+    {
+        CUL::Assert::simple( false, "TODO: Write formula." );
+    }
+
+    glDrawArrays( static_cast<GLenum>( primitiveType ), static_cast<GLint>( first ), static_cast<GLsizei>( elementsCount ) );
 }
 
 void DeviceOpenGL::vertexAttribPointer( const VertexData& meta )
@@ -836,7 +847,6 @@ void DeviceOpenGL::vertexAttribPointer( const VertexData& meta )
         const auto normalized = static_cast<GLboolean>( attribute.Normalized );
         const auto strideByte = static_cast<GLsizei>( attribute.StrideBytes );
         const auto ptr = attribute.DataOffset;
-        const auto sizeOfFloat = 6 * sizeof( float );
         glVertexAttribPointer( index, size, type, normalized, strideByte, ptr );
         glEnableVertexAttribArray( index );
     }
@@ -995,6 +1005,12 @@ UniformValue DeviceOpenGL::getUniformValue( std::int32_t inProgramId, std::int32
     {
         glm::vec3 value;
         glGetnUniformfv( inProgramId, inUniformId, 3, &value[0] );
+        result = value;
+    }
+    else if( inDataType == DataType::FLOAT_VEC4 )
+    {
+        glm::vec4 value;
+        glGetnUniformfv( inProgramId, inUniformId, 4, &value[0] );
         result = value;
     }
     else if( inDataType == DataType::FLOAT_MAT2 )

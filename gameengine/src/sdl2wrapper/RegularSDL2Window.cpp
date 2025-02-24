@@ -49,9 +49,9 @@ SDL_Window* RegularSDL2Window::createWindow( const WinData& winData )
     setCurrentRendererType( winData.RendererType );
     auto& winName = winData.Name;
 
-    m_logger->log( "Creating window with:", CUL::LOG::Severity::INFO );
-    m_logger->log( "Pos.x = " + CUL::String( pos.X ) + ", Pos.y = " + CUL::String( pos.Y ), CUL::LOG::Severity::INFO );
-    m_logger->log( "Width = " + CUL::String( currentRes.W ) + ", height = " + CUL::String( currentRes.H ), CUL::LOG::Severity::INFO );
+    m_logger->log( "Creating window with:", CUL::LOG::Severity::Info );
+    m_logger->log( "Pos.x = " + CUL::String( pos.X ) + ", Pos.y = " + CUL::String( pos.Y ), CUL::LOG::Severity::Info );
+    m_logger->log( "Width = " + CUL::String( currentRes.W ) + ", height = " + CUL::String( currentRes.H ), CUL::LOG::Severity::Info );
     SDL_Window* result = nullptr;
     Uint32 windowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
     if( getCurrentRendererType() == RenderTypes::RendererType::OPENGL_LEGACY ||
@@ -74,7 +74,7 @@ SDL_Window* RegularSDL2Window::createWindow( const WinData& winData )
     {
         auto sdlError = SDL_GetError();
         CUL::String s_sdlError( sdlError );
-        m_logger->log( "SDL ERROR: [ " + s_sdlError + " ] ", CUL::LOG::Severity::CRITICAL );
+        m_logger->log( "SDL ERROR: [ " + s_sdlError + " ] ", CUL::LOG::Severity::Critical );
         CUL::Assert::simple( false, "The Window has not been initialized." );
     }
     else
@@ -320,7 +320,7 @@ SurfaceImage RegularSDL2Window::createSurface( const CUL::FS::Path& path )
 
     if( false == path.exists() )
     {
-        m_logger->log( "Checking for path FAILED: ", CUL::LOG::Severity::CRITICAL );
+        m_logger->log( "Checking for path FAILED: ", CUL::LOG::Severity::Critical );
         CUL::Assert::simple( false, "File " + path.getPath() + " does not exist." );
     }
 

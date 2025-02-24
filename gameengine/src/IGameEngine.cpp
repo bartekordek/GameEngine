@@ -9,6 +9,7 @@
 #include "gameengine/Primitives/Quad.hpp"
 
 #include "gameengine/Cube.hpp"
+#include "gameengine/Render/PointLight.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/EngineParams.hpp"
@@ -113,6 +114,13 @@ Triangle* IGameEngine::createTriangle( IObject* parent, bool forceLegacy )
 Quad* IGameEngine::createQuad( IObject* parent, bool forceLegacy )
 {
     Quad* result = new Quad( getCamera(), *this, parent, forceLegacy );
+
+    return result;
+}
+
+PointLight* IGameEngine::createPointLight( IObject* parent, bool forceLegacy )
+{
+    PointLight* result = new PointLight( parent, this );
 
     return result;
 }
@@ -225,7 +233,7 @@ void IGameEngine::addObjectToRender( IRenderable* renderable )
     char buffer[bufferSize];
     snprintf( buffer, bufferSize, "IGameEngine::addObjectToRender: %p [%s]", renderable, threadName.c_str() );
 
-    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::INFO, buffer );
+    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, buffer );
 
     if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -245,7 +253,7 @@ void IGameEngine::addObjectToRender( IRenderable* renderable )
 void IGameEngine::removeObjectToRender( IRenderable* renderable )
 {
     const auto threadName = CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
-    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::INFO, "IGameEngine::removeObjectToRender: %p [%s]", renderable,
+    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, "IGameEngine::removeObjectToRender: %p [%s]", renderable,
                                                   threadName.c_str() );
 
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )

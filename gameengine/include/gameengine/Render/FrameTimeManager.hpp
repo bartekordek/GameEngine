@@ -20,6 +20,7 @@ public:
     float geAvgFrameTimeNS() const;
     float geAvgFrameTimeMS() const;
 
+    float getAvgFPS() const;
     float getTargetFPS() const;
 
     void startFrame();

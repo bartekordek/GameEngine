@@ -72,7 +72,7 @@ void VertexBuffer::render()
     else
     {
         // TODO! need to check if there are actual trianiangles or other types.
-        getDevice()->drawArrays( m_vertexData.VAO, m_vertexData.primitiveType, 0, 3 );
+        getDevice()->drawArrays( m_vertexData.VAO, m_vertexData.primitiveType, 0, m_vertexData.Data.getSize() );
     }
 }
 

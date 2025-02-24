@@ -26,6 +26,7 @@
 #include "CUL/GenericUtils/ConsoleUtilities.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 #include "CUL/ITimer.hpp"
+#include "CUL/Math/Utils.hpp"
 #include "CUL/JSON/INode.hpp"
 #include "CUL/IMPORT_tracy.hpp"
 
@@ -302,7 +303,7 @@ void GameEngineConcrete::initialize()
     m_logger->log( "GameEngineConcrete::initialize()..." );
 
     const auto& winSize = m_activeWindow->getSize();
-    const float aspectRatio = static_cast<float>( winSize.W / winSize.H );
+    const float aspectRatio = static_cast<float>( winSize.W ) / static_cast<float>( winSize.H );
     getCamera().setAspectRatio( aspectRatio );
 
     m_sdlW->registerSDLEventObserver( this );
@@ -575,7 +576,8 @@ void GameEngineConcrete::renderInfo()
         //ImGui::Text( "FPS: %4.2f", m_activeWindow->getFpsCounter()->getCurrentFps() );
 
         ImGui::Text( "Averge frame ms: %d", FrameTimeManager::getInstance().geAvgFrameTimeMS() );
-        ImGui::Text( "Target fram ms: %d", FrameTimeManager::getInstance().getTargetFrameTimeMS() );
+        ImGui::Text( "Target frame ms: %d", FrameTimeManager::getInstance().getTargetFrameTimeMS() );
+        ImGui::Text( "Average FPS: %f", FrameTimeManager::getInstance().getAvgFPS() );
         //ImGui::Text( "m_frameSleepNs: %d", m_frameSleepNs );
         //ImGui::Text( "m_usDelta: %d", m_usDelta );
 
@@ -611,6 +613,62 @@ void GameEngineConcrete::renderInfo()
 #pragma warning( pop )
 #endif
 
+bool drawValues( glm::vec3& inOutValue, const CUL::String& inName )
+{
+    ImGui::Text( "%s", inName.cStr() );
+    constexpr float itemWidth{ 128.f };
+
+    bool changed{ false };
+
+    constexpr std::size_t stringBufferLength{ 32u };
+    static char stringBuffer[stringBufferLength];
+
+    constexpr std::size_t labelBufferLength{ 32u };
+    static char labelBuffer[labelBufferLength];
+
+    sprintf( labelBuffer, "##%s-xyz", inName.cStr() );
+
+    ImGuiInputTextFlags flags{ 0 };
+    changed = ImGui::InputFloat3( labelBuffer, &inOutValue.x, "%4.4f", flags );
+
+    sprintf( labelBuffer, "##%s-s", inName.cStr() );
+
+    constexpr float epsilon{0.00001};
+    if(
+        CUL::MATH::Utils::equals( inOutValue.x, inOutValue.y, epsilon ) &&
+        CUL::MATH::Utils::equals( inOutValue.x, inOutValue.z, epsilon ) )
+    {
+        float valueAsOne = inOutValue.x;
+        changed = ImGui::InputFloat( labelBuffer, &valueAsOne );
+        if( changed )
+        {
+            inOutValue.x = inOutValue.y = inOutValue.z = valueAsOne;
+        }
+    }
+
+    return changed;
+}
+
+void drawTransformData( LOGLW::TransformComponent* transform )
+{
+    glm::vec3 trans = transform->getPositionToParent();
+    if( drawValues( trans, "trans" ) )
+    {
+        transform->setPositionToParent( trans );
+    }
+
+    glm::vec3 scale = transform->getScale();
+    if( drawValues( scale, "scale" ) )
+    {
+        transform->setScale( scale );
+    }
+
+    ImGui::Text( "x: %4.2f y: %4.2f y: %4.2f", trans.x, trans.y, trans.z );
+
+    const CUL::MATH::Rotation rot = transform->getRotationToParent();
+    ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", rot.Pitch, rot.Yaw, rot.Roll );
+}
+
 void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name )
 {
     if( shownList.find( currentObject ) != shownList.end() )
@@ -618,17 +676,26 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
         return;
     }
 
+    constexpr std::size_t stringBufferLength{ 32u };
+    static char stringBuffer[stringBufferLength];
+
     if( ImGui::TreeNode( name.cStr() ) )
     {
-        const glm::vec3 trans = currentObject->getTransform()->getPositionToParent();
-        const CUL::MATH::Rotation rot = currentObject->getTransform()->getRotationToParent();
-
         ImGui::Text( "Name: %s", name.cStr() );
-        ImGui::Text( "x: %4.2f y: %4.2f y: %4.2f", trans.x, trans.y, trans.z );
-        ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", rot.Pitch, rot.Yaw, rot.Roll );
 
-        ShaderProgram* shaderProgram = currentObject->getProgram();
-        if( shaderProgram )
+        LOGLW::TransformComponent* transform = currentObject->getTransform();
+        if( transform != nullptr && ImGui::TreeNode( "Transform" ) )
+        {
+            drawTransformData( transform );
+            ImGui::TreePop();
+        }
+
+        constexpr std::size_t labelBufferLength{ 32u };
+        static char labelBuffer[labelBufferLength];
+
+        String fString;
+
+        if( ShaderProgram* shaderProgram = currentObject->getProgram() )
         {
             if( shaderProgram->getIsLinked() )
             {
@@ -644,6 +711,48 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
                             ImGui::SameLine();
                             ImGui::Text( "val: %f", std::get<float>( uniformVal.Value ) );
                         }
+                        if( uniformVal.Type == LOGLW::DataType::FLOAT_VEC4 )
+                        {
+                            glm::vec4 value = std::get<glm::vec4>( uniformVal.Value );
+
+                            auto ManagerValue = [&fString, shaderProgram]( float& inOutValue, const CUL::String& uniformName )
+                            {
+                                bool changed{ false };
+
+                                sprintf( stringBuffer, "%f", inOutValue );
+
+                                ImGui::PushItemWidth( -1 );
+
+                                if( ImGui::InputText( uniformName.cStr(), stringBuffer, stringBufferLength ) )
+                                {
+                                    fString = stringBuffer;
+                                    if( fString.isFloat() )
+                                    {
+                                        inOutValue = fString.toFloat();
+                                        changed = true;
+                                        //shaderProgram->setUniform( uniformName, currentValue );
+                                    }
+                                }
+                                else
+                                {
+                                    changed = false;
+                                }
+
+                                ImGui::PopItemWidth();
+                                return changed;
+                            };
+
+                            bool hasValueChanged{ false };
+                            hasValueChanged |= ManagerValue( value.x, uniformVal.Name + CUL::String( ".x" ) );
+                            hasValueChanged |= ManagerValue( value.y, uniformVal.Name + CUL::String( ".y" ) );
+                            hasValueChanged |= ManagerValue( value.z, uniformVal.Name + CUL::String( ".z" ) );
+                            hasValueChanged |= ManagerValue( value.w, uniformVal.Name + CUL::String( ".w" ) );
+
+                            if( hasValueChanged )
+                            {
+                                shaderProgram->setUniform( uniformName, value );
+                            }
+                        }
                         else if( uniformVal.Type == LOGLW::DataType::FLOAT_MAT4 )
                         {
                             glm::mat4 currentValue = std::get<glm::mat4>( uniformVal.Value );
@@ -656,9 +765,6 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
                                                            ImGuiTableFlags_ContextMenuInBody;
                             if( ImGui::BeginTable( tableName, 4, flags ) )
                             {
-                                constexpr std::size_t labelBufferLength{ 16u };
-                                char labelBuffer[labelBufferLength];
-
                                 for( std::int32_t row = 0; row < 4; ++row )
                                 {
                                     ImGui::TableNextRow();
@@ -666,8 +772,7 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
                                     {
                                         ImGui::TableSetColumnIndex( column );
                                         float& f0 = currentValue[row][column];
-                                        //ImGui::DragFloat( "df", &f0, 0.005f );
-                                        String fString( f0 );
+                                        fString = f0;
                                         constexpr std::size_t buffSize{ 32u };
                                         char buff[buffSize];
                                         std::strcpy( buff, fString.cStr() );

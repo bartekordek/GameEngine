@@ -97,7 +97,7 @@ ShaderProgram* IObject::getProgram()
 
 IObject::~IObject()
 {
-    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::INFO, "IObject::~IObject() [%s]", getName().cStr() );
+    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, "IObject::~IObject() [%s]", getName().cStr() );
 
     for( const auto& componentPair : m_components )
     {

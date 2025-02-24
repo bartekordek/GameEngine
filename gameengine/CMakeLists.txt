@@ -44,9 +44,9 @@ PUBLIC cul_static
 PUBLIC glew_s
 PUBLIC glfw
 PUBLIC freeglut_static
-
 PUBLIC SDL2-static
 PRIVATE tinyobjloader
+PRIVATE rapidobj
 )
 
 set( DEPENDENCIES_DYNAMIC
@@ -58,6 +58,7 @@ PUBLIC freeglut_static
 PUBLIC SDL2main
 PUBLIC SDL2
 PRIVATE tinyobjloader
+PRIVATE rapidobj
 )
 
 if( MSVC )
