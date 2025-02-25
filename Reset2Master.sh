@@ -8,6 +8,6 @@ echo "Update helpers..."
 cd deps/helpers && ./Reset2Master.sh
 echo "Update helpers... done."
 
-echo "Update SDL2Wrapper..."
-cd ../SDL2Wrapper && ./Reset2Master.sh
-echo "Update SDL2Wrapper... done."
+echo "Update CUL..."
+cd deps/CUL && ./Reset2Master.sh"
+echo "Update CUL... done."
