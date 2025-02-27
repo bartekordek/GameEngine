@@ -16,9 +16,13 @@
 
 using namespace LOGLW;
 
+constexpr const char* g_defaultQuadName =  "Quad" ;
+
 Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy )
-    : IObject( "Quad", &engine, forceLegacy ), m_engine( engine )
+    : IObject( "", &engine, forceLegacy ), m_engine( engine )
 {
+    setName( "quad_" + CUL::String( getId() ) );
+
     m_transformComponent = getTransform();
     setParent( parent );
 
@@ -28,15 +32,6 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     // TODO: add normals
     setSize( { size, size, 0 } );
     createProgram();
-
-    IName::AfterNameChangeCallback = [this]( const CUL::String& /*newName*/ )
-    {
-        RunOnRenderThread::getInstance().Run(
-            [this]()
-            {
-                m_vao->setName( getName() + "::vao" );
-            } );
-    };
 
     RunOnRenderThread::getInstance().Run(
         [this]()
@@ -55,10 +50,14 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
         RunOnRenderThread::getInstance().Run(
             [this]()
             {
-                getProgram()->setName( getName() + "::shader_program" );
-                if( m_vao )
+                if( auto program = getProgram() )
                 {
-                    m_vao->setName( getName() + "::vao" );
+                    program->setName( getName() + "::shader_program" );
+                }
+
+                if( VertexArray* vao = this->getVao() )
+                {
+                    vao->setName( getName() + "::vao" );
                 }
             } );
     };
@@ -90,6 +89,8 @@ void Quad::init()
 
 void Quad::createBuffers()
 {
+    createVao();
+
     const auto size = m_transformComponent->getSize();
 
     setSize( size.toGlmVec() );
@@ -109,12 +110,10 @@ void Quad::createBuffers()
 
     vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
 
-    m_vao = m_engine.createVAO();
-    setName( "quad_" + CUL::String( getId() ) );
-    m_vao->setDisableRenderOnMyOwn( true );
-    vboData.VAO = m_vao->getId();
+    getVao()->setDisableRenderOnMyOwn( true );
+    vboData.VAO = getVao()->getId();
 
-    m_vao->addVertexBuffer( vboData );
+    getVao()->addVertexBuffer( vboData );
 }
 
 void Quad::setSize( const glm::vec3& size )
@@ -147,7 +146,7 @@ void Quad::render()
     {
         if( m_recreateBuffers )
         {
-            deleteBuffers();
+            deleteVao();
             createBuffers();
             m_recreateBuffers = false;
         }
@@ -155,7 +154,7 @@ void Quad::render()
         getProgram()->enable();
         setTransformation();
         applyColor();
-        m_vao->render();
+        getVao()->render();
 
         getProgram()->disable();
     }
@@ -197,11 +196,4 @@ Quad::~Quad()
 
 void Quad::release()
 {
-    deleteBuffers();
-}
-
-void Quad::deleteBuffers()
-{
-    delete m_vao;
-    m_vao = nullptr;
 }

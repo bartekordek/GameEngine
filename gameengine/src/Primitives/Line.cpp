@@ -65,7 +65,7 @@ void Line::createBuffers()
     m_vertexData->VAO = m_vao->getId();
     m_vao->setDisableRenderOnMyOwn( true );
 
-    m_vao->addVertexBuffer( *m_vertexData.get() );
+    m_vao->addVertexBuffer( *m_vertexData );
 }
 
 void Line::createShaders()

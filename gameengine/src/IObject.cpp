@@ -1,6 +1,7 @@
 #include "gameengine/IObject.hpp"
 #include "gameengine/IGameEngine.hpp"
-
+#include "gameengine/VertexArray.hpp"
+#include "RunOnRenderThread.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "CUL/Log/ILogger.hpp"
 
@@ -13,6 +14,17 @@ IObject::IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy
     addComponent( "TransformComponent", m_transform );
     setName( name );
     setObject( this );
+
+    RunOnRenderThread::getInstance().Run(
+        [this]()
+        {
+            createVao();
+        } );
+}
+
+void IObject::createVao()
+{
+    m_vao = m_engine.createVAO();
 }
 
 // Dummy
@@ -95,6 +107,16 @@ ShaderProgram* IObject::getProgram()
     return m_shaderProgram;
 }
 
+VertexArray* IObject::getVao()
+{
+    return m_vao;
+}
+
+void IObject::setVao( VertexArray* inVao )
+{
+    m_vao = inVao;
+}
+
 IObject::~IObject()
 {
     CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, "IObject::~IObject() [%s]", getName().cStr() );
@@ -122,6 +144,8 @@ IObject::~IObject()
         delete child;
     }
     m_children.clear();
+
+    deleteVao();
 
     m_engine.removeProgram( m_shaderProgram );
     m_shaderProgram = nullptr;
@@ -166,4 +190,11 @@ IGameEngine& IObject::getEngine()
 bool IObject::getForceLegacy() const
 {
     return m_forceLegacy;
+}
+
+
+void IObject::deleteVao()
+{
+    delete m_vao;
+    m_vao = nullptr;
 }

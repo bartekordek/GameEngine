@@ -34,7 +34,6 @@ private:
     void setTransformation();
     void applyColor();
     void release();
-    void deleteBuffers();
     void setSize( const glm::vec3& size );
 
     CUL::MATH::Primitives::Quad m_shape;
@@ -42,7 +41,6 @@ private:
 
     TransformComponent* m_transformComponent{ nullptr };
     std::atomic<bool> m_recreateBuffers = true;
-    VertexArray* m_vao{ nullptr };
 
     IGameEngine& m_engine;
 

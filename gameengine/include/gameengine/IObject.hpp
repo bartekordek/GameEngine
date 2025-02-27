@@ -17,6 +17,7 @@ class IComponent;
 class Name;
 class ShaderProgram;
 class TransformComponent;
+class VertexArray;
 
 class IObject: public IRenderable, public CUL::IName
 {
@@ -40,6 +41,12 @@ public:
     GAME_ENGINE_API void removeByParent( bool enable );
     GAME_ENGINE_API void createProgram();
     GAME_ENGINE_API ShaderProgram* getProgram();
+
+    GAME_ENGINE_API VertexArray* getVao();
+    GAME_ENGINE_API void setVao( VertexArray* inVao );
+
+    GAME_ENGINE_API void deleteVao();
+    GAME_ENGINE_API void createVao();
 
     GAME_ENGINE_API virtual ~IObject();
 
@@ -66,6 +73,7 @@ private:
     std::set<IObject*> m_children;
 
     ShaderProgram* m_shaderProgram{ nullptr };
+    VertexArray* m_vao{ nullptr };
 
     // Deleted:
     IObject( const IObject& value ) = delete;
