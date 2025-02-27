@@ -319,15 +319,19 @@ void IRenderDevice::freeTexture(std::uint32_t textureId)
 
 void IRenderDevice::drawElements( const PrimitiveType, const CUL::DataWrapper& )
 {
-    throw std::logic_error( "Method not implemented" );
+    CUL::Assert::check( false, "IRenderDevice::drawElements - Method not implemented." );
 }
 
 LOGLW::UniformValue IRenderDevice::getUniformValue( std::int32_t, std::int32_t, DataType )
 {
-    throw std::logic_error( "Method not implemented" );
+    CUL::Assert::check( false, "IRenderDevice::getUniformValue - Method not implemented." );
     return LOGLW::UniformValue();
 }
 
+void IRenderDevice::createQuad( float scale )
+{
+    CUL::Assert::check( false, "IRenderDevice::createQuad - Method not implemented." );
+}
 
 IRenderDevice::~IRenderDevice()
 {

@@ -46,10 +46,6 @@ void DeviceOpenGL_Legacy::clearColorAndDepthBuffer()
 {
 }
 
-void DeviceOpenGL_Legacy::createQuad( float scale )
-{
-}
-
 void DeviceOpenGL_Legacy::clearColorTo( const ColorS color )
 {
 }

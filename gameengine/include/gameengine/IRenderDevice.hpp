@@ -223,7 +223,7 @@ public:
 
     virtual void setProjectionAndModelToIdentity() = 0;
     virtual void clearColorAndDepthBuffer() = 0;
-    virtual void createQuad( float scale = 1.0f ) = 0;
+    virtual void createQuad( float scale = 1.0f );
     virtual void clearColorTo( const ColorS color ) = 0;
     virtual void clearBuffer( const ClearMasks mask ) = 0;
 

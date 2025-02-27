@@ -27,7 +27,6 @@ private:
     ContextInfo initContextVersion( LOGLW::IWindow* window ) override;
     void setProjectionAndModelToIdentity() override;
     void clearColorAndDepthBuffer() override;
-    void createQuad( float scale = 1.0f ) override;
     void clearColorTo( const ColorS color ) override;
     void clearBuffer( const ClearMasks mask ) override;
     unsigned int generateVertexArray( const int size = 1 ) override;
