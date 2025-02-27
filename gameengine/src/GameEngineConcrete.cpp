@@ -778,10 +778,10 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
                                         fString = f0;
                                         constexpr std::size_t buffSize{ 32u };
                                         char buff[buffSize];
-                                        std::strcpy( buff, fString.cStr() );
+                                        strcpy( buff, fString.cStr() );
                                         ImGui::PushItemWidth( -1 );
 
-                                        sprintf( labelBuffer, "## r %d c %d", row, column );
+                                        snprintf( labelBuffer, buffSize, "## r %d c %d", row, column );
                                         if( ImGui::InputText( labelBuffer, buff, buffSize ) )
                                         {
                                             fString = buff;
@@ -820,8 +820,9 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
 
             for( LOGLW::AttributeMeta& meta : vertexData.Attributes )
             {
-                char attNameStr[256];
-                sprintf_s( attNameStr, "Attribute: %d", meta.Index );
+                constexpr std::size_t bufferSize{ 256u };
+                char attNameStr[bufferSize];
+                snprintf( attNameStr, bufferSize, "Attribute: %d", meta.Index );
 
                 if( ImGui::TreeNode( attNameStr ) )
                 {
@@ -830,7 +831,7 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
 
                     constexpr std::size_t textSize{ 16u };
                     char textInput[textSize];
-                    strcpy_s( textInput, meta.Name.cStr() );
+                    snprintf( textInput, textSize, meta.Name.cStr() );
                     if( ImGui::InputText( "Name", textInput, textSize ) )
                     {
                         meta.Name = textInput;
@@ -875,8 +876,9 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
 
                                 ImGui::TableSetColumnIndex( column );
                                 // ImGui::Text( "%f", *currentValueF );
-                                char labelVal[32];
-                                sprintf_s( labelVal, "val [ %d, %d ]", row, column );
+                                constexpr std::size_t bufferSize{ 32u };
+                                char labelVal[bufferSize];
+                                snprintf( labelVal, bufferSize, "val [ %d, %d ]", row, column );
                                 if( ImGui::InputFloat( labelVal, currentValueF, 0.01f, 1.0f, "%4.4f" ) )
                                 {
                                     // m_engine.getLoger()->log( "Clicked!" );
