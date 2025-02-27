@@ -23,7 +23,7 @@ add_compile_definitions(IMGUI_IMPL_OPENGL_ES2_ON_DESKTOP=1)
 
 
 set(SOURCES_GENERAL
-imgui/backends/imgui_impl_sdl.cpp
+imgui/backends/imgui_impl_sdl2.cpp
 imgui/backends/imgui_impl_opengl2.cpp
 imgui/backends/imgui_impl_opengl3.cpp
 imgui/imgui.cpp
