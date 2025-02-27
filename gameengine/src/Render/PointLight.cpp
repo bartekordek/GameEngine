@@ -61,7 +61,7 @@ void PointLight::init()
     getProgram()->compileShader( "embedded_shaders/basic_color.frag" );
     getProgram()->compileShader( "embedded_shaders/basic_pos.vert" );
     getProgram()->link();
-    constexpr float initialScale = 0.05f;
+    constexpr float initialScale = 0.1f;
     getProgram()->validate();
     getTransform()->setScale( { initialScale, initialScale, initialScale } );
     getTransform()->setPositionToParent( {2.f, 2.f, 1.f} );

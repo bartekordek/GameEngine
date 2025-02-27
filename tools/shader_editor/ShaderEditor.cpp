@@ -294,98 +294,9 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
         }
     }
 
-    if( ImGui::TreeNode( "Input Data" ) )
-    {
-        LOGLW::VertexData& vertexData = m_vao->getVertexBuffer( 0 )->getData();
 
-        const char* primitiveType = LOGLW::BasicTypes::toChar( vertexData.primitiveType );
-        ImGui::Text( "Primitive type: %s", primitiveType );
-        ImGui::Text( "VAO ID: %d", vertexData.VAO );
-        ImGui::Text( "VBO ID: %d", vertexData.VBO );
 
-        for( LOGLW::AttributeMeta& meta : vertexData.Attributes )
-        {
-            char attNameStr[256];
-            sprintf_s( attNameStr, "Attribute: %d", meta.Index );
 
-            if( ImGui::TreeNode( attNameStr ) )
-            {
-                const std::int32_t dataTypSizeB = static_cast<std::int32_t>( LOGLW::BasicTypes::getSize( meta.Type ) );
-                const std::int32_t strideElCount = meta.StrideBytes / dataTypSizeB;
-
-                constexpr std::size_t textSize{ 16u };
-                char textInput[textSize];
-                strcpy_s( textInput, meta.Name.cStr() );
-                if( ImGui::InputText( "Name", textInput, textSize ) )
-                {
-                    meta.Name = textInput;
-                }
-
-                ImGui::Text( "Index: %d", meta.Index );
-                ImGui::Text( "Size: %d", meta.Size );
-                const char* typeName = LOGLW::BasicTypes::toChar( meta.Type );
-                ImGui::Text( "Data type: %s", typeName );
-                ImGui::Text( "Normalized: %s", meta.Normalized ? "true" : "false" );
-                ImGui::Text( "Stride: %d (%d * %s)", meta.StrideBytes, strideElCount, LOGLW::BasicTypes::toChar( meta.Type ) );
-
-                std::int32_t columnCount = meta.Size;
-                std::int32_t rowsCount = static_cast<std::int32_t>( vertexData.Data.getElementCount() ) / strideElCount;
-
-                static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable |
-                                               ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV | ImGuiTableFlags_ContextMenuInBody;
-
-                if( ImGui::BeginTable( "Data", columnCount, flags ) )
-                {
-                    std::uintptr_t offset = reinterpret_cast<std::uintptr_t>( meta.DataOffset );
-                    std::uintptr_t dataVal = reinterpret_cast<std::uintptr_t>( vertexData.Data.getData() );
-
-                    // float* firstValue = reinterpret_cast<float*>( sum );
-                    // float* currentValue = firstValue;
-                    // float* offsetF = reinterpret_cast<float*>( offset );
-                    for( std::int32_t row = 0; row < rowsCount; ++row )
-                    {
-                        ImGui::TableNextRow();
-                        for( std::int32_t column = 0; column < columnCount; ++column )
-                        {
-                            std::uintptr_t current = dataVal + row * meta.StrideBytes + offset + column * dataTypSizeB;
-                            float* currentValueF = reinterpret_cast<float*>( current );
-                            // currentValue = firstValue + + column + ( meta.Stride / dataTypSizeB );
-                            float someFloat1{ 1.f };
-                            float someFloat0{ 0.f };
-                            float* someFloatAdd0 = &someFloat0;
-                            (void*)someFloatAdd0;
-                            float* someFloatAdd1 = &someFloat1;
-                            (void*)someFloatAdd1;
-
-                            constexpr std::size_t floatSize = sizeof( float );
-                            (int)floatSize;
-
-                            ImGui::TableSetColumnIndex( column );
-                            // ImGui::Text( "%f", *currentValueF );
-                            char labelVal[32];
-                            sprintf_s( labelVal, "val [ %d, %d ]", row, column );
-                            if( ImGui::InputFloat( labelVal, currentValueF, 0.01f, 1.0f, "%4.4f" ) )
-                            {
-                                m_engine->getLoger()->log( "Clicked!" );
-                            }
-                        }
-                    }
-                    ImGui::EndTable();
-                }
-
-                (unsigned)columnCount;
-                (unsigned)rowsCount;
-
-                ImGui::TreePop();
-            }
-        }
-        ImGui::TreePop();
-    }
-
-    if( ImGui::Button( "Update vertex data." ) )
-    {
-        m_vao->updateVertexData( 0u );
-    }
 
     ImGui::End();
 }

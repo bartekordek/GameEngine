@@ -126,7 +126,7 @@ void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum
         return;
     }
 
-    String messageString = "Severity: ";
+    String messageString = "glDebugOutput Severity: ";
 
     switch( severity )
     {
@@ -274,7 +274,7 @@ ContextInfo DeviceOpenGL::initContextVersion( LOGLW::IWindow* window )
     }
 
     ContextInfo result;
-    window->setGLContextVersion( 4, 6 );
+    window->setGLContextVersion( 3, 2 );
     window->setProfileMask( LOGLW::GLProfileMask::CORE );
     window->setContextFlag( LOGLW::GLContextFlag::DEBUG_FLAG );
     window->toggleDoubleBuffer( true );
@@ -792,6 +792,10 @@ void DeviceOpenGL::drawArrays( unsigned vaoId, const PrimitiveType primitiveType
     if( primitiveType == PrimitiveType::TRIANGLES )
     {
         elementsCount = count / 9u;
+    }
+    else if( primitiveType == PrimitiveType::LINE_STRIP )
+    {
+        elementsCount = count / 4u;
     }
     else
     {
