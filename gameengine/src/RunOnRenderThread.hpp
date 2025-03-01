@@ -26,6 +26,7 @@ public:
     RunOnRenderThread& operator=( RunOnRenderThread&& ) = delete;
 
     void Run( const std::function<void( void )> inFunction );
+    void RunWaitForResult( const std::function<void( void )> inFunction );
     bool getIsRenderThread() const;
 
 protected:

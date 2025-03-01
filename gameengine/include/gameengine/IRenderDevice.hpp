@@ -157,7 +157,8 @@ enum class EObjectType : uint8_t
     SAMPLER,
     TEXTURE,
     RENDERBUFFER,
-    FRAMEBUFFER
+    FRAMEBUFFER,
+    ELEMENT_ARRAY_BUFFER
 };
 
 class GAME_ENGINE_API IRenderDevice
@@ -201,7 +202,6 @@ public:
 
     virtual ContextInfo initContextVersion( LOGLW::IWindow* window ) = 0;
 
-    virtual void setAttribValue( int attributeLocation, float value );
     virtual void setAttribValue( int attributeLocation, int value );
     virtual void setAttribValue( int attributeLocation, unsigned value );
     virtual void setAttribValue( int attributeLocation, bool value );

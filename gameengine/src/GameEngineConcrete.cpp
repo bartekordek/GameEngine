@@ -320,7 +320,7 @@ void GameEngineConcrete::initialize()
     m_backgroundColor.setAlphaF( 0.0 );
     setBackgroundColor( m_backgroundColor );
 
-    showExtensions();
+    //showExtensions();
 
     getDevice()->toggleDebugOutput( true );
 
@@ -815,8 +815,8 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
             LOGLW::VertexData& vertexData = vao->getVertexBuffer( i )->getData();
             const char* primitiveType = LOGLW::BasicTypes::toChar( vertexData.primitiveType );
             ImGui::Text( "Primitive type: %s", primitiveType );
-            ImGui::Text( "VAO ID: %d", vertexData.VAO );
-            ImGui::Text( "VBO ID: %d", vertexData.VBO );
+            ImGui::Text( "VAO: %d, %s", vertexData.VAO, vao->getName().cStr() );
+            ImGui::Text( "VBO: %d", vertexData.VBO );
 
             for( LOGLW::AttributeMeta& meta : vertexData.Attributes )
             {
@@ -950,7 +950,6 @@ void GameEngineConcrete::renderObjects()
     std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
     for( auto& renderableObject : m_objectsToRender )
     {
-        m_renderDevice->useProgram( 0u );
         const auto threadName = CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
         renderableObject->render();
     }

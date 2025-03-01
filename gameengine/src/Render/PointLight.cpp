@@ -54,7 +54,6 @@ void PointLight::init()
     m_vao = getEngine().createVAO();
     vboData.VAO = m_vao->getId();
     m_vao->addVertexBuffer( vboData );
-    m_vao->setDisableRenderOnMyOwn( true );
 
     getProgram()->setName( getName() + "::program" );
     CUL::String errorContent;

@@ -118,7 +118,7 @@ Quad* IGameEngine::createQuad( IObject* parent, bool forceLegacy )
     return result;
 }
 
-PointLight* IGameEngine::createPointLight( IObject* parent, bool forceLegacy )
+PointLight* IGameEngine::createPointLight( IObject* parent, bool /*forceLegacy*/ )
 {
     PointLight* result = new PointLight( parent, this );
 
@@ -305,23 +305,25 @@ void IGameEngine::setGuiContext( ImGuiContext* const inContext )
 
 ShaderProgram* IGameEngine::createShader( const String& path, const String& source )
 {
-    ShaderProgram* result = findShader( path );
+    //ShaderProgram* result = findShader( path );
 
-    if( result )
-    {
-        return result;
-    }
+    //if( result )
+    //{
+    //    return result;
+    //}
 
-    auto shaderFile = getCul()->getFF()->createRegularFileRawPtr( path );
-    if( !source.empty() )
-    {
-        shaderFile->loadFromString( source );
-    }
+    //auto shaderFile = getCul()->getFF()->createRegularFileRawPtr( path );
+    //if( !source.empty() )
+    //{
+    //    shaderFile->loadFromString( source );
+    //}
 
-    throw std::logic_error( "Method not implemented" );
-    // result = new ShaderProgram( *this, shaderFile );
-    m_shaders[path] = result;
-    return result;
+    //throw std::logic_error( "Method not implemented" );
+    //// result = new ShaderProgram( *this, shaderFile );
+    //m_shaders[path] = result;
+    //return result;
+    CUL::Assert::check( false, "Method not implemented" );
+    return nullptr;
 }
 
 void IGameEngine::removeShader( ShaderProgram* /*shader*/ )

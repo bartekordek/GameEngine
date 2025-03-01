@@ -47,14 +47,16 @@ using BuffIDType = std::uint32_t;
 template<typename Type>
 using Ptr = CUL::GUTILS::DumbPtr<Type>;
 
-class GAME_ENGINE_API VertexBuffer final: public IUtilityUser, public IRenderable, public CUL::IName
+class GAME_ENGINE_API VertexBuffer final:
+    public IUtilityUser,
+    public CUL::IName
 {
 public:
     VertexBuffer( const VertexData& vertexData, IGameEngine* engine );
     void setVertexData( const VertexData& vertexData );
     void updateVertexData( const VertexData& vertexData );
     void updateVertexData();
-    void render() override;
+    void render();
     unsigned getId() const;
     int getSize() const;
     void bind();
@@ -68,12 +70,16 @@ public:
     VertexBuffer& operator=( VertexBuffer&& value ) = delete;
 
 protected:
+    void onNameChange( const CUL::String& newName ) override;
+
 private:
+    void init();
+    void createVboBuffer();
     void loadData();
     void release();
 
     VertexData m_vertexData;
-    Ptr<IndexBuffer> m_indexBuffer;
+    std::unique_ptr<IndexBuffer> m_indexBuffer;
     std::atomic<bool> m_load = true;
 };
 

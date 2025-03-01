@@ -6,7 +6,9 @@
 #include "CUL/CULInterface.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
 
-LOGLW::RunOnRenderThread::RunOnRenderThread()
+using namespace LOGLW;
+
+RunOnRenderThread::RunOnRenderThread()
 {
     m_gameEngine = IGameEngine::getInstance();
     m_device = m_gameEngine->getDevice();
@@ -15,7 +17,7 @@ LOGLW::RunOnRenderThread::RunOnRenderThread()
     m_renderThreadId = CUL::CULInterface::getInstance()->getThreadUtils().getThreadId( "RenderThread" );
 }
 
-void LOGLW::RunOnRenderThread::Run( const std::function<void( void )> inFunction )
+void RunOnRenderThread::Run( const std::function<void( void )> inFunction )
 {
     if( getIsRenderThread() )
     {
@@ -31,11 +33,44 @@ void LOGLW::RunOnRenderThread::Run( const std::function<void( void )> inFunction
     }
 }
 
-bool LOGLW::RunOnRenderThread::getIsRenderThread() const
+void RunOnRenderThread::RunWaitForResult( const std::function<void( void )> inFunction )
+{
+    if( getIsRenderThread() )
+    {
+        inFunction();
+    }
+    else
+    {
+        std::condition_variable cv;
+        std::mutex cv_m;
+        bool taskCompleted{ false };
+
+        m_gameEngine->addPreRenderTask(
+            [/*this,*/ inFunction, &taskCompleted, &cv, &cv_m]()
+            {
+                inFunction();
+                cv.notify_all();
+                {
+                    std::lock_guard<std::mutex> lk( cv_m );
+                    taskCompleted = true;
+                }
+                cv.notify_all();
+            } );
+
+        std::unique_lock<std::mutex> lk( cv_m );
+        cv.wait( lk,
+                 [&taskCompleted]
+                 {
+                     return taskCompleted;
+                 } );
+    }
+}
+
+bool RunOnRenderThread::getIsRenderThread() const
 {
     return m_threadUtil->getCurrentThreadId() == m_renderThreadId;
 }
 
-LOGLW::RunOnRenderThread::~RunOnRenderThread()
+RunOnRenderThread::~RunOnRenderThread()
 {
 }

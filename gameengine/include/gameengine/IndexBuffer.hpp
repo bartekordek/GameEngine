@@ -8,18 +8,25 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
-class IndexBuffer final : private IUtilityUser, public CUL::IName, public CUL::IRegisterdObject
+class IndexBuffer final:
+    private IUtilityUser,
+    public CUL::IName,
+    public CUL::IRegisterdObject
 {
 public:
     GAME_ENGINE_API IndexBuffer();
     GAME_ENGINE_API void loadData( const CUL::DataWrapper& inData );
     GAME_ENGINE_API const CUL::DataWrapper& getData() const;
-
+    GAME_ENGINE_API std::uint32_t getObjID() const;
     GAME_ENGINE_API void bind();
 
     GAME_ENGINE_API ~IndexBuffer();
 
+protected:
+    void onNameChange( const CUL::String& newName ) override;
+
 private:
+    void init();
     std::uint32_t m_id = 0u;
 
     CUL::DataWrapper m_data;

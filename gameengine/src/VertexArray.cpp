@@ -9,29 +9,36 @@
 
 using namespace LOGLW;
 
-VertexArray::VertexArray( IGameEngine& engine ) : IRenderable( &engine )
+VertexArray::VertexArray( IGameEngine& engine ) : m_engine( engine )
 {
     RunOnRenderThread::getInstance().Run(
         [this]()
         {
             createVAO();
         } );
+}
 
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
-    {
-        RunOnRenderThread::getInstance().Run(
-            [this, newName]()
+void VertexArray::onNameChange( const String& newName )
+{
+    CUL::IName::onNameChange( newName );
+
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this, &newName]()
+        {
+            getDevice()->setObjectName( EObjectType::VERTEX_ARRAY, m_vaoId, newName );
+            std::uint8_t index = 0u;
+            for( auto& vbo : m_vbos )
             {
-                getDevice()->setObjectName( EObjectType::VERTEX_ARRAY, m_vaoId, newName );
-                std::uint8_t index = 0u;
-                for( auto& vbo : m_vbos )
-                {
-                    vbo->setName( getName() + "::vertex_buffer" + CUL::String(index) );
-                    ++index;
-                }
-            } );
-    };
-    setName( "vertex_array_" + CUL::String( getId() ) );
+                const char* nameStr = *getName();
+
+                constexpr std::size_t bufferSize{ 1024u };
+                char buffer[bufferSize];
+                snprintf( buffer, bufferSize, "%s/vbo%d", nameStr, index );
+
+                vbo->setName( buffer );
+                ++index;
+            }
+        } );
 }
 
 BuffIDType VertexArray::getId() const
@@ -73,20 +80,25 @@ void VertexArray::createShader( const CUL::FS::Path& path )
         m_shadersPaths.push( path );
         registerTask( TaskType::ADD_SHADER );
     }
-
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
-    {
-        RunOnRenderThread::getInstance().Run(
-            [this, newName]()
-            {
-                getDevice()->setObjectName( EObjectType::BUFFER, m_vaoId, newName );
-            } );
-    };
 }
 
 void VertexArray::addVertexBuffer( VertexData& data )
 {
     createVBOs( data );
+}
+
+void VertexArray::updateVertexBuffer( VertexData& data )
+{
+    data.VAO = m_vaoId;
+    if( m_vbos.empty() )
+    {
+        createVBOs( data );
+    }
+    else
+    {
+        bind();
+        m_vbos[0]->setVertexData( data );
+    }
 }
 
 void VertexArray::render()
@@ -105,11 +117,15 @@ void VertexArray::render()
     {
         m_vbos[i]->render();
     }
-    if( m_shaderProgram )
+
+    if( m_unbindBuffersAfterDraw )
     {
-        m_shaderProgram->disable();
+        if( m_shaderProgram )
+        {
+            m_shaderProgram->disable();
+        }
+        unbind();
     }
-    unbind();
 }
 
 VertexBuffer* VertexArray::getVertexBuffer( std::size_t inIndex )
@@ -141,7 +157,7 @@ void VertexArray::runTasks()
         {
             if( !m_shaderProgram )
             {
-                m_shaderProgram = getEngine()->createProgram();
+                m_shaderProgram = m_engine.createProgram();
             }
         }
         else if( task == TaskType::ADD_SHADER )
@@ -195,13 +211,13 @@ void VertexArray::createVBOs( VertexData& data )
 {
     bind();
     data.VAO = getId();
-    auto vbo = new VertexBuffer( data, getEngine() );
-    vbo->setDisableRenderOnMyOwn( true );
+    auto vbo = new VertexBuffer( data, &m_engine );
     m_vbos.emplace_back( vbo );
 }
 
 void VertexArray::createVAO()
 {
+    CUL::Assert::check( m_vaoId == 0u, "VAO ALREADY CREATED!" );
     m_vaoId = IUtilityUser::getDevice()->generateBuffer( BufferTypes::VERTEX_ARRAY );
 }
 
@@ -221,7 +237,10 @@ void VertexArray::setName( const CUL::String& name )
     std::uint16_t id{ 0u };
     for( std::unique_ptr<VertexBuffer>& vbo : m_vbos )
     {
-        vbo->setName( getName() + "::vbo::" + CUL::String( id++ ) );
+        constexpr std::size_t bufferSize{ 512u };
+        char buffer[bufferSize];
+        snprintf( buffer, bufferSize, "%s/vbo%d", *getName(), id++ );
+        vbo->setName( buffer );
     }
 }
 
@@ -233,7 +252,7 @@ VertexArray::~VertexArray()
     }
     else
     {
-        getEngine()->addPreRenderTask(
+        m_engine.addPreRenderTask(
             [this]()
             {
             release();
@@ -243,6 +262,5 @@ VertexArray::~VertexArray()
 
 void VertexArray::release()
 {
-    getEngine()->removeObjectToRender( this );
     getDevice()->deleteBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, m_vaoId );
 }

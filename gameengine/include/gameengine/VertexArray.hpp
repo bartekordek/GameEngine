@@ -44,7 +44,6 @@ using BuffIDType = std::uint32_t;
 
 class GAME_ENGINE_API VertexArray final:
     public IUtilityUser,
-    public IRenderable,
     public CUL::IName,
     public CUL::IRegisterdObject
 {
@@ -58,10 +57,11 @@ public:
 
     BuffIDType getId() const;
     void addVertexBuffer( VertexData& data );
+    void updateVertexBuffer( VertexData& data );
     void createShader( const CUL::FS::Path& path );
     ShaderProgram* getProgram();
     void setProgram( ShaderProgram* inProgram );
-    void render() override;
+    void render();
     VertexBuffer* getVertexBuffer( std::size_t inIndex );
     void updateVertexData( std::size_t inIndex );
 
@@ -73,6 +73,8 @@ public:
 
     ~VertexArray();
 protected:
+    void onNameChange( const CUL::String& newName ) override;
+
 private:
     enum class TaskType : short
     {
@@ -95,6 +97,8 @@ private:
     void createVAO();
     void createVBOs( VertexData& data );
 
+    IGameEngine& m_engine;
+
     std::uint32_t m_vaoId = 0;
 
     std::mutex m_tasksMtx;
@@ -110,6 +114,7 @@ private:
     std::vector<Ptr<IndexBuffer>> m_indexBuffers;
 
     std::vector < std::vector<unsigned>> m_indicesToPrepare;
+    bool m_unbindBuffersAfterDraw{ false };
 };
 
 NAMESPACE_END( LOGLW )

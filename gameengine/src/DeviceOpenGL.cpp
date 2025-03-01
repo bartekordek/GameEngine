@@ -113,8 +113,8 @@ const char* toString( GLenum type )
     }
 }
 
-void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei /*length*/, const char* message,
-                             const void* /*userParam*/
+void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message,
+                             const void* userParam
 )
 {
     if( id == 131185 )
@@ -274,7 +274,7 @@ ContextInfo DeviceOpenGL::initContextVersion( LOGLW::IWindow* window )
     }
 
     ContextInfo result;
-    window->setGLContextVersion( 3, 2 );
+    window->setGLContextVersion( 4, 6 );
     window->setProfileMask( LOGLW::GLProfileMask::CORE );
     window->setContextFlag( LOGLW::GLContextFlag::DEBUG_FLAG );
     window->toggleDoubleBuffer( true );
@@ -505,7 +505,7 @@ void DeviceOpenGL::removeProgram( unsigned programId )
     }
     // TODO: find a correct way to check whether program was deleted.
     // assertOnProgramError( programId, GL_DELETE_STATUS );
-    glCheckError_( "DeviceOpenGL.cpp", 180 );
+    //glCheckError_( "DeviceOpenGL.cpp", 180 );
 }
 
 void DeviceOpenGL::linkProgram( unsigned programId )
@@ -595,9 +595,7 @@ bool DeviceOpenGL::attachShader( unsigned programId, unsigned shaderId )
     }
 
     const GLuint programIdConverted = toGluint( programId );
-
     glAttachShader( programIdConverted, toGluint( shaderId ) );
-    getLastOperationStatus();
 
     return true;
 }
@@ -938,17 +936,6 @@ GLuint toGluint( unsigned value )
     return static_cast<GLuint>( value );
 }
 
-void DeviceOpenGL::setAttribValue( int attributeLocation, float value )
-{
-    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
-    {
-        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
-    }
-
-    log( "glUniform1f( " + String( attributeLocation ) + ", " + String( value ) + " );" );
-    glUniform1f( static_cast<GLfloat>( attributeLocation ), value );
-}
-
 void DeviceOpenGL::setAttribValue( int, int )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
@@ -1062,7 +1049,6 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, float value )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    log( "glUniform1f( " + String( uniformLocation ) + ", " + String( value ) + " );" );
     glUniform1f( static_cast<GLfloat>( uniformLocation ), value );
 }
 
@@ -1941,7 +1927,7 @@ unsigned int DeviceOpenGL::generateBuffer( const BufferTypes bufferType, const i
     if( BufferTypes::VERTEX_ARRAY == bufferType )
     {
         glGenVertexArrays( size, &bufferId );
-        log( "glGenVertexArrays id: " + String( bufferId ) );
+        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, "glGenVertexArrays id: %d", bufferId );
     }
     else
     {
@@ -1957,13 +1943,15 @@ void DeviceOpenGL::drawElements( const PrimitiveType type, const CUL::DataWrappe
     CUL::Assert::simple( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) == true,
                          "NOT IN THE RENDER THREAD." );
 
+    const std::size_t elementsCount = inData.getElementCount();
+
     if( inData.getType() == CUL::ETypes::Float )
     {
-        glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( inData.getElementCount() ), GL_FLOAT, inData.getData() );
+        glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( elementsCount ), GL_FLOAT, inData.getData() );
     }
     else if( inData.getType() == CUL::ETypes::Uint32 )
     {
-        glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( inData.getElementCount() ), GL_UNSIGNED_INT, 0 );
+        glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( elementsCount ), GL_UNSIGNED_INT, 0 );
     }
     else
     {
@@ -2087,7 +2075,6 @@ void DeviceOpenGL::setDepthTest( const bool enabled )
         // glDepthMask( GL_TRUE );
         // glClearDepth( 1.0f );
         // glDepthMask( GL_FALSE );
-        glEnable( GL_DEPTH_TEST );
         glDepthFunc( GL_LESS );
     }
     else
@@ -2526,6 +2513,12 @@ void DeviceOpenGL::setObjectName( EObjectType objectType, std::uint32_t objectId
         case EObjectType::BUFFER:
             oglType = GL_BUFFER;
             log( "glObjectLabel GL_BUFFER id: " + String( objectId ) + ", name: " + name );
+            bindBuffer( BufferTypes::ARRAY_BUFFER, objectId );
+            break;
+        case EObjectType::ELEMENT_ARRAY_BUFFER:
+            oglType = GL_ELEMENT_ARRAY_BUFFER;
+            log( "glObjectLabel GL_ELEMENT_ARRAY_BUFFER id: " + String( objectId ) + ", name: " + name );
+            bindBuffer( BufferTypes::ELEMENT_ARRAY_BUFFER, objectId );
             break;
         case EObjectType::SHADER:
             oglType = GL_SHADER;

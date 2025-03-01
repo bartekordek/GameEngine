@@ -23,18 +23,14 @@ Sprite::Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, boo
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );
     m_vertexData = std::make_unique<VertexData>();
+}
 
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
-    {
-        getEngine().addPostRenderTask(
-            [this]()
-            {
-                getProgram()->setName( getName() + "::program" );
-                m_vao->setName( getName() + "::vao" );
-                m_vbo->setName( getName() + "::vbo" );
-                getDevice()->setObjectName( EObjectType::TEXTURE, m_textureId, getName() + "::texture" );
-            } );
-    };
+void Sprite::onNameChange( const String& newName )
+{
+    IObject::setName( newName );
+    RunOnRenderThread::getInstance().RunWaitForResult( [this](){
+            getDevice()->setObjectName( EObjectType::TEXTURE, m_textureId, getName() + "::texture" );
+        } );
 }
 
 void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader )
@@ -74,19 +70,6 @@ void Sprite::render()
     }
 }
 
-void Sprite::setName( const CUL::String& name )
-{
-    IObject::setName( name );
-    if( getProgram() )
-    {
-        getProgram()->setName( getName() + "::shader_program" );
-    }
-    if( m_vao )
-    {
-        m_vao->setName( getName() + "::shader_program::vao" );
-    }
-}
-
 const CUL::Graphics::ImageInfo& Sprite::getImageInfo() const
 {
     return m_image->getImageInfo();
@@ -118,10 +101,10 @@ void Sprite::renderModern()
     getProgram()->setUniform( "view", viewMatrix );
     getProgram()->setUniform( "model", model );
 
-    getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
-    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo->getId() );
+    getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, getVao()->getId() );
+    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, getVao()->getVertexBuffer( 0u )->getId() );
 
-    getDevice()->drawArrays( m_vao->getId(), PrimitiveType::TRIANGLES, 0, 6 );
+    getDevice()->drawArrays( getVao()->getId(), PrimitiveType::TRIANGLES, 0, 6 );
 
     getProgram()->disable();
 
@@ -211,10 +194,8 @@ void Sprite::init()
 
     if( !getDevice()->isLegacy() )
     {
-        m_vao = getEngine().createVAO();
-        m_vao->setDisableRenderOnMyOwn( true );
-        m_vertexData->VAO = m_vao->getId();
-        getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
+        m_vertexData->VAO = getVao()->getId();
+        getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, getVao()->getId() );
         getDevice()->enableVertexAttribArray( 0 );
         getDevice()->enableVertexAttribArray( 1 );
         fixAspectRatio();
@@ -248,10 +229,9 @@ void Sprite::init()
 
         m_vertexData->Data.createFrom( tmp );
 
-        m_vbo = getEngine().createVBO( *m_vertexData );
-        m_vbo->setDisableRenderOnMyOwn( true );
-        m_vertexData->VBO = m_vbo->getId();
-        getDevice()->bufferData( m_vbo->getId(), m_vertexData->Data, BufferTypes::ARRAY_BUFFER );
+        auto vbo = getVao()->getVertexBuffer( 0u );
+        m_vertexData->VBO = vbo->getId();
+        getDevice()->bufferData( vbo->getId(), m_vertexData->Data, BufferTypes::ARRAY_BUFFER );
 
         m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 5 * sizeof( float ), nullptr ) );
         m_vertexData->Attributes.push_back( AttributeMeta( "uvs", 1, 2, DataType::FLOAT, false, 5 * sizeof( float ), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );

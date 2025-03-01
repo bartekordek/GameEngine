@@ -23,7 +23,9 @@ class VertexArray;
 class VertexBuffer;
 struct VertexData;
 
-class Sprite final: public IObject, public IUtilityUser
+class Sprite final:
+    public IObject,
+    public IUtilityUser
 {
 public:
     Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy = false );
@@ -32,8 +34,6 @@ public:
     GAME_ENGINE_API void LoadImage( unsigned char* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader*,
                                     unsigned textureId );
 
-    GAME_ENGINE_API void setName( const CUL::String& name ) override;
-
     GAME_ENGINE_API void render() override;
     GAME_ENGINE_API const CUL::Graphics::ImageInfo& getImageInfo() const;
     GAME_ENGINE_API unsigned char* getData() const;
@@ -41,6 +41,8 @@ public:
     GAME_ENGINE_API ~Sprite();
 
 protected:
+    void onNameChange( const CUL::String& newName ) override;
+
 private:
     void init();
     bool m_initialized = false;
@@ -70,8 +72,6 @@ private:
     TextureInfo m_textureInfo;
 
     unsigned m_elementBufferId = 0u;
-    VertexArray* m_vao = nullptr;
-    VertexBuffer* m_vbo = nullptr;
 
     // Deleted:
     Sprite( const Sprite& arg ) = delete;

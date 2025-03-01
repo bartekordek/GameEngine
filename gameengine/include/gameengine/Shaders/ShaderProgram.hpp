@@ -9,6 +9,7 @@
 #include "CUL/IRegisteredObject.hpp"
 #include "CUL/Filesystem/Path.hpp"
 #include "CUL/Filesystem/IFile.hpp"
+#include "CUL/Task/TaskAccumulator.hpp"
 
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
 #include "CUL/STL_IMPORTS/STD_variant.hpp"
@@ -29,7 +30,10 @@ enum class EShaderProgramState : std::int8_t
     LinkError
 };
 
-class GAME_ENGINE_API ShaderProgram final: private IUtilityUser, public CUL::IName, public CUL::IRegisterdObject
+class GAME_ENGINE_API ShaderProgram final:
+    private IUtilityUser,
+    public CUL::IName,
+    public CUL::IRegisterdObject
 {
 public:
     struct ShaderVariable
@@ -82,6 +86,8 @@ public:
     ~ShaderProgram();
 
 protected:
+    void onNameChange( const CUL::String& newName ) override;
+
 private:
     void create();
     void reCompileWholeShaderImpl();
@@ -91,7 +97,7 @@ private:
     std::int32_t getUniformLocation( const String& name ) const;
 
     CShaderTypes::ShaderType m_type{ CShaderTypes::ShaderType::Unkown };
-    std::int32_t m_shaderProgramId{ -1 };
+    std::uint32_t m_shaderProgramId{ 0u };
 
     class Shader;
     std::unordered_map<CShaderTypes::ShaderType, ShaderUnit*> m_shaders;
@@ -102,6 +108,7 @@ private:
     mutable std::unordered_map<String, ShaderVariable, CUL::StringHash> m_attributeMapping;
 
     bool m_linked{ false };
+    CUL::CTaskAccumulator m_tasks;
 
     ShaderProgram( const ShaderProgram& arg ) = delete;
     ShaderProgram( ShaderProgram&& arg ) = delete;

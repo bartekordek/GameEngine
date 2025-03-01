@@ -65,7 +65,6 @@ private:
     int getCurrentProgram() const override;
     int m_currentProgram = 0;
 
-    void setAttribValue( int attributeLocation, float value ) override;
     void setAttribValue( int attributeLocation, int value ) override;
     void setAttribValue( int attributeLocation, unsigned value ) override;
     void setAttribValue( int attributeLocation, bool value ) override;

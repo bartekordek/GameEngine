@@ -7,7 +7,9 @@
 #include "gameengine/IGameEngine.hpp"
 #include "RunOnRenderThread.hpp"
 
-LOGLW::EditableTexture::EditableTexture( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy )
+using namespace LOGLW;
+
+EditableTexture::EditableTexture( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy )
     : IObject( "EditableTexture", engine, forceLegacy ), m_camera( camera ), m_cul( cul )
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
@@ -15,21 +17,20 @@ LOGLW::EditableTexture::EditableTexture( Camera* camera, CUL::CULInterface* cul,
     m_vertexData = std::make_unique<VertexData>();
 
     m_ti = std::make_unique<TextureInfo>();
-
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
-    {
-        getEngine().addPostRenderTask(
-            [this, newName]()
-            {
-                m_shaderProgram->setName( getName() + "::program" );
-                m_vao->setName( getName() + "::vao" );
-                m_vbo->setName( getName() + "::vbo" );
-                getDevice()->setObjectName( EObjectType::TEXTURE, m_textureId, getName() + "::texture" );
-            } );
-    };
 }
 
-void LOGLW::EditableTexture::create( uint16_t width, uint16_t height )
+void EditableTexture::onNameChange( const String& newName )
+{
+    IObject::onNameChange( newName );
+
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this, newName]()
+        {
+            getDevice()->setObjectName( EObjectType::TEXTURE, m_textureId, newName + "::texture" );
+        } );
+}
+
+void EditableTexture::create( uint16_t width, uint16_t height )
 {
     m_width = width;
     m_height = height;
@@ -50,16 +51,16 @@ void LOGLW::EditableTexture::create( uint16_t width, uint16_t height )
     m_imageInfo->size = { width, height };
 }
 
-void LOGLW::EditableTexture::setPixelValue( uint16_t x, uint16_t y, const TexPixel& color )
+void EditableTexture::setPixelValue( std::uint16_t inX, std::uint16_t inY, const TexPixel& color )
 {
-    const size_t offset = x + y * m_width;
+    const std::uint16_t offset = inX + inY * m_width;
     //TexPixel* targetValue = (TexPixel*)( (size_t)m_ti->data + offset );
     //*targetValue = color;
-    m_pixelData[offset] = color;
+    m_pixelData[static_cast<std::size_t>(offset)] = color;
     m_needToApply = true;
 }
 
-void LOGLW::EditableTexture::render()
+void EditableTexture::render()
 {
     if( m_create )
     {
@@ -83,7 +84,7 @@ void LOGLW::EditableTexture::render()
     }
 }
 
-void LOGLW::EditableTexture::init()
+void EditableTexture::init()
 {
     if( !getDevice()->isLegacy() )
     {
@@ -128,10 +129,8 @@ void LOGLW::EditableTexture::init()
 
     if( !getDevice()->isLegacy() )
     {
-        m_vao = getEngine().createVAO();
-        m_vao->setDisableRenderOnMyOwn( true );
-        m_vertexData->VAO = m_vao->getId();
-        getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
+        m_vertexData->VAO = getVao()->getId();
+        getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, getVao()->getId() );
         getDevice()->enableVertexAttribArray( 0 );
         getDevice()->enableVertexAttribArray( 1 );
 
@@ -163,18 +162,16 @@ void LOGLW::EditableTexture::init()
 
         m_vertexData->Data.createFrom( tmp );
 
-        m_vbo = getEngine().createVBO( *m_vertexData.get() );
-        m_vbo->setDisableRenderOnMyOwn( true );
-        m_vertexData->VBO = m_vbo->getId();
-        getDevice()->bufferData( m_vbo->getId(), m_vertexData->Data, BufferTypes::ARRAY_BUFFER );
+        m_vertexData->VBO = getVao()->getId();
+        getDevice()->bufferData( getVao()->getId(), m_vertexData->Data, BufferTypes::ARRAY_BUFFER );
 
         m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 5 * sizeof( float ), nullptr ) );
         m_vertexData->Attributes.push_back( AttributeMeta( "uvs", 1, 2, DataType::FLOAT, false, 5 * sizeof( float ), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
 
         getDevice()->vertexAttribPointer( *m_vertexData.get() );
 
-        getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
-        getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
+        getDevice()->unbindBuffer( BufferTypes::ARRAY_BUFFER );
+        getDevice()->unbindBuffer( BufferTypes::ELEMENT_ARRAY_BUFFER );
 
         throw std::logic_error( "Method not implemented" );
         //m_shaderProgram->enable();
@@ -184,17 +181,17 @@ void LOGLW::EditableTexture::init()
     m_initialized = true;
 }
 
-CUL::Graphics::DataType* LOGLW::EditableTexture::getData() const
+CUL::Graphics::DataType* EditableTexture::getData() const
 {
     return (CUL::Graphics::DataType*)m_pixelData.data();
 }
 
-const CUL::Graphics::ImageInfo& LOGLW::EditableTexture::getImageInfo() const
+const CUL::Graphics::ImageInfo& EditableTexture::getImageInfo() const
 {
     return *m_imageInfo;
 }
 
-void LOGLW::EditableTexture::renderLegacy()
+void EditableTexture::renderLegacy()
 {
     QuadData values;
     values[3] = { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f };
@@ -234,7 +231,7 @@ void LOGLW::EditableTexture::renderLegacy()
     getDevice()->bindTexture( 0 );
 }
 
-void LOGLW::EditableTexture::renderModern()
+void EditableTexture::renderModern()
 {
     if( !m_initialized )
     {
@@ -245,7 +242,7 @@ void LOGLW::EditableTexture::renderModern()
     getDevice()->bindTexture( m_textureId );
 
     throw std::logic_error( "Method not implemented" );
-    //m_shaderProgram->enable();
+    // m_shaderProgram->enable();
 
     const glm::mat4 model = m_transformComponent->getModel();
 
@@ -256,25 +253,25 @@ void LOGLW::EditableTexture::renderModern()
     m_shaderProgram->setUniform( "view", viewMatrix );
     m_shaderProgram->setUniform( "model", model );
 
-    getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
-    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo->getId() );
+    getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, getVao()->getId() );
+    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, getVao()->getVertexBuffer( 0u )->getId() );
 
-    getDevice()->drawArrays( m_vao->getId(), PrimitiveType::TRIANGLES, 0, 6 );
+    getDevice()->drawArrays( getVao()->getId(), PrimitiveType::TRIANGLES, 0, 6 );
 
     throw std::logic_error( "Method not implemented" );
-    //m_shaderProgram->disable();
+    // m_shaderProgram->disable();
 
     getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, 0 );
     getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, 0 );
     getDevice()->bindTexture( 0u );
 }
 
-void LOGLW::EditableTexture::updateTextureImpl()
+void EditableTexture::updateTextureImpl()
 {
     getDevice()->setTextureData( m_textureId, *m_ti );
     //getDevice()->updateTextureData( *m_ti, m_pixelData.data() );
 }
 
-LOGLW::EditableTexture::~EditableTexture()
+EditableTexture::~EditableTexture()
 {
 }

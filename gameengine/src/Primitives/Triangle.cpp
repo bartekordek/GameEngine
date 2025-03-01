@@ -60,11 +60,6 @@ void Triangle::setColor( const CUL::Graphics::ColorS& color )
     colorVec.w = m_color.getAF();
 }
 
-GAME_ENGINE_API ShaderProgram* Triangle::getProgram() const
-{
-    return m_shaderProgram;
-}
-
 void Triangle::init()
 {
     if( getDevice()->isLegacy() )
@@ -79,17 +74,9 @@ void Triangle::init()
     }
 }
 
-void Triangle::setName( const CUL::String& name )
+void Triangle::onNameChange( const String& newName )
 {
-    IObject::setName( name );
-    if( m_vao )
-    {
-        m_vao->setName( getName() + "::vao" );
-    }
-    if( m_shaderProgram )
-    {
-        m_shaderProgram->setName( getName() + "::shader_program" );
-    }
+    IObject::onNameChange( newName );
 }
 
 void Triangle::createBuffers()
@@ -114,11 +101,9 @@ void Triangle::createBuffers()
 
     vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
 
-    m_vao = m_engine.createVAO();
-    m_vao->setDisableRenderOnMyOwn( true );
-    vboData.VAO = m_vao->getId();
+    vboData.VAO = getVao()->getId();
 
-    m_vao->addVertexBuffer( vboData );
+    getVao()->addVertexBuffer( vboData );
 }
 
 void Triangle::setSize( const glm::vec3& )
@@ -128,13 +113,11 @@ void Triangle::setSize( const glm::vec3& )
 
 void Triangle::createShaders()
 {
-    m_shaderProgram = getEngine().createProgram();
-    m_shaderProgram->setName( getName() + "::program" );
-
-    m_shaderProgram->compileShader( "embedded_shaders/basic_color.frag" );
-    m_shaderProgram->compileShader( "embedded_shaders/basic_pos.vert" );
-    m_shaderProgram->link();
-    m_shaderProgram->validate();
+    auto shader = getProgram();
+    shader->reCompileShader( "embedded_shaders/basic_color.frag" );
+    shader->reCompileShader( "embedded_shaders/basic_pos.vert" );
+    shader->link();
+    shader->validate();
 }
 
 void Triangle::render()
@@ -152,13 +135,17 @@ void Triangle::render()
             m_recreateBuffers = false;
         }
 
-        m_shaderProgram->enable();
+        auto shader = getProgram();
+        shader->enable();
 
         setTransformation();
         applyColor();
-        m_vao->render();
+        getVao()->render();
 
-        m_shaderProgram->disable();
+        if( m_unbindBuffersAfterDraw == true )
+        {
+            shader->disable();
+        }
     }
 }
 
@@ -170,14 +157,15 @@ void Triangle::setTransformation()
 
     const glm::mat4 model = m_transformComponent->getModel();
 
-    m_shaderProgram->setUniform( "projection", projectionMatrix );
-    m_shaderProgram->setUniform( "view", viewMatrix );
-    m_shaderProgram->setUniform( "model", model );
+    auto shader = getProgram();
+    shader->setUniform( "projection", projectionMatrix );
+    shader->setUniform( "view", viewMatrix );
+    shader->setUniform( "model", model );
 }
 
 void Triangle::applyColor()
 {
-    m_shaderProgram->setUniform( "color", m_color.getVec4() );
+    getProgram()->setUniform( "color", m_color.getVec4() );
 }
 
 Triangle::~Triangle()
@@ -199,12 +187,8 @@ Triangle::~Triangle()
 void Triangle::release()
 {
     deleteBuffers();
-    m_engine.removeProgram( m_shaderProgram );
-    m_shaderProgram = nullptr;
 }
 
 void Triangle::deleteBuffers()
 {
-    delete m_vao;
-    m_vao = nullptr;
 }

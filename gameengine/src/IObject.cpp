@@ -1,5 +1,6 @@
 #include "gameengine/IObject.hpp"
 #include "gameengine/IGameEngine.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "RunOnRenderThread.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
@@ -7,24 +8,57 @@
 
 using namespace LOGLW;
 
-IObject::IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy )
-    : IRenderable( engine ), m_engine( *engine ), m_forceLegacy( forceLegacy )
+IObject::IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy ):
+    IRenderable( engine ),
+    m_engine( *engine ),
+    m_forceLegacy( forceLegacy )
 {
     m_transform = new TransformComponent( this );
     addComponent( "TransformComponent", m_transform );
-    setName( name );
     setObject( this );
 
-    RunOnRenderThread::getInstance().Run(
-        [this]()
-        {
-            createVao();
-        } );
+    createVao();
+    createProgram();
 }
 
 void IObject::createVao()
 {
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this]()
+        {
+            createVaoImpl();
+        } );
+}
+
+void IObject::createVaoImpl()
+{
+    CUL::Assert::check( m_vao == nullptr, "m_vao already created!" );
     m_vao = m_engine.createVAO();
+}
+
+void IObject::createProgram()
+{
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this]()
+        {
+            CUL::Assert::check( m_shaderProgram == nullptr, "m_shaderProgram already created!" );
+            m_shaderProgram = getEngine().createProgram();
+        } );
+}
+
+void IObject::onNameChange( const CUL::String& newName )
+{
+    CUL::IName::onNameChange( newName );
+
+    if( m_vao )
+    {
+        m_vao->setName( newName + "/vao" );
+    }
+
+    if( m_shaderProgram )
+    {
+        m_shaderProgram->setName( newName + "/shaderProgram" );
+    }
 }
 
 // Dummy
@@ -95,11 +129,6 @@ TransformComponent* IObject::getTransform()
 void IObject::removeByParent( bool enable )
 {
     m_removeByParent = enable;
-}
-
-void IObject::createProgram()
-{
-    m_shaderProgram = getEngine().createProgram();
 }
 
 ShaderProgram* IObject::getProgram()

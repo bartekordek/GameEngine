@@ -7,37 +7,64 @@
 
 using namespace LOGLW;
 
-VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* engine ) : IRenderable( engine )
+VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* engine ):
+    m_vertexData( vertexData )
 {
-    setVertexData( vertexData );
-    setName( "vertex_buffer_" + CUL::String( getId() ) );
+    init();
+}
+
+void VertexBuffer::init()
+{
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this]()
+        {
+            createVboBuffer();
+            loadData();
+        } );
+}
+
+void VertexBuffer::onNameChange( const String& newName )
+{
+    IName::onNameChange( newName );
+
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this, newName]()
+        {
+            getDevice()->setObjectName( EObjectType::BUFFER, m_vertexData.VBO, newName );
+
+            constexpr std::size_t bufferSize{ 1024u };
+            char buffer[bufferSize];
+            snprintf( buffer, bufferSize, "%s/index_buffer", *newName );
+            getDevice()->setObjectName( EObjectType::BUFFER, m_indexBuffer->getObjID(), buffer );
+        } );
+}
+
+void VertexBuffer::createVboBuffer()
+{
+    CUL::Assert::check( m_vertexData.VBO == 0u, "VERTEX DATA ALREADY CREATED!" );
+    m_vertexData.VBO = getDevice()->generateBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
 }
 
 void VertexBuffer::setVertexData( const VertexData& vertexData )
 {
-    m_vertexData = vertexData;
+    m_vertexData.Attributes = vertexData.Attributes;
+    m_vertexData.Data = vertexData.Data;
+    m_vertexData.Indices = vertexData.Indices;
     loadData();
-
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
-    {
-        RunOnRenderThread::getInstance().Run(
-            [this, newName]()
-            {
-                getDevice()->setObjectName( EObjectType::BUFFER, m_vertexData.VBO, newName );
-            } );
-    };
 }
 
 void VertexBuffer::loadData()
 {
-    release();
-    m_vertexData.VBO = getDevice()->generateBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
     updateVertexData();
     getDevice()->vertexAttribPointer( m_vertexData );
 
     if( m_vertexData.Indices.getIsEmpty() == false )
     {
-        m_indexBuffer = new IndexBuffer();
+        if( m_indexBuffer == nullptr )
+        {
+            m_indexBuffer = std::make_unique<IndexBuffer>();
+        }
+
         m_indexBuffer->loadData( m_vertexData.Indices );
     }
     else
@@ -50,7 +77,9 @@ void VertexBuffer::loadData()
 
 void VertexBuffer::updateVertexData( const VertexData& vertexData )
 {
-    m_vertexData = vertexData;
+    m_vertexData.Attributes = vertexData.Attributes;
+    m_vertexData.Data = vertexData.Data;
+    m_vertexData.Indices = vertexData.Indices;
     updateVertexData();
 }
 
@@ -72,7 +101,8 @@ void VertexBuffer::render()
     else
     {
         // TODO! need to check if there are actual trianiangles or other types.
-        getDevice()->drawArrays( m_vertexData.VAO, m_vertexData.primitiveType, 0, m_vertexData.Data.getSize() );
+        getDevice()->drawArrays( m_vertexData.VAO, m_vertexData.primitiveType, 0,
+                                 static_cast<std::uint32_t>( m_vertexData.Data.getSize() ) );
     }
 }
 

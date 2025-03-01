@@ -15,19 +15,21 @@
 
 using namespace LOGLW;
 
-
-ShaderProgram::ShaderProgram() : m_engine( *IGameEngine::getInstance() )
+ShaderProgram::ShaderProgram()
+    : m_engine( *IGameEngine::getInstance() )
 {
     create();
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
-    {
-        RunOnRenderThread::getInstance().Run(
-            [this, newName]()
-            {
-                getDevice()->setObjectName( EObjectType::PROGRAM, m_shaderProgramId, newName );
-            } );
-    };
-    setName( "ShaderProgram " + CUL::String( getId() ) );
+}
+
+void ShaderProgram::onNameChange( const String& newName )
+{
+    CUL::IName::onNameChange( newName );
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this, &newName]()
+        {
+            enable();
+            getDevice()->setObjectName( EObjectType::PROGRAM, m_shaderProgramId, newName );
+        });
 }
 
 void ShaderProgram::compileLinkValidate()
@@ -207,7 +209,7 @@ CShaderTypes::ShaderType ShaderProgram::getType() const
 
 void ShaderProgram::setUniform( const String& inName, UniformValue inValue )
 {
-    RunOnRenderThread::getInstance().Run(
+    m_tasks.addTask(
         [this, inName, inValue]()
         {
             setUniformImpl( inName, inValue );
@@ -224,7 +226,6 @@ void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
 
     ShaderVariable& sv = it->second;
 
-    enable();
     switch( sv.Type )
     {
         case DataType::FLOAT:
@@ -294,6 +295,7 @@ void ShaderProgram::enable()
     if( m_linked )
     {
         getDevice()->useProgram( m_shaderProgramId );
+        m_tasks.executeAll();
     }
 }
 

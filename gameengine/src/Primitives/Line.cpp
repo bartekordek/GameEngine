@@ -63,7 +63,6 @@ void Line::createBuffers()
 
     m_vao = m_engine.createVAO();
     m_vertexData->VAO = m_vao->getId();
-    m_vao->setDisableRenderOnMyOwn( true );
 
     m_vao->addVertexBuffer( *m_vertexData );
 }
@@ -173,6 +172,4 @@ void Line::release()
 
 void Line::deleteBuffers()
 {
-    delete m_vao;
-    m_vao = nullptr;
 }
