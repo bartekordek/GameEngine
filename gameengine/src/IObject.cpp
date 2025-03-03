@@ -8,7 +8,7 @@
 
 using namespace LOGLW;
 
-IObject::IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy ):
+IObject::IObject( const CUL::String& /*name*/, IGameEngine* engine, bool forceLegacy ):
     IRenderable( engine ),
     m_engine( *engine ),
     m_forceLegacy( forceLegacy )
@@ -38,12 +38,8 @@ void IObject::createVaoImpl()
 
 void IObject::createProgram()
 {
-    RunOnRenderThread::getInstance().RunWaitForResult(
-        [this]()
-        {
-            CUL::Assert::check( m_shaderProgram == nullptr, "m_shaderProgram already created!" );
-            m_shaderProgram = getEngine().createProgram();
-        } );
+    CUL::Assert::check( m_shaderProgram == nullptr, "m_shaderProgram already created!" );
+    m_shaderProgram = getEngine().createProgram();
 }
 
 void IObject::onNameChange( const CUL::String& newName )

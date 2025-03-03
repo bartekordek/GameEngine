@@ -11,6 +11,8 @@ using namespace LOGLW;
 
 VertexArray::VertexArray( IGameEngine& engine ) : m_engine( engine )
 {
+    m_vertexData = std::make_unique<VertexData>();
+
     RunOnRenderThread::getInstance().Run(
         [this]()
         {
@@ -82,22 +84,26 @@ void VertexArray::createShader( const CUL::FS::Path& path )
     }
 }
 
-void VertexArray::addVertexBuffer( VertexData& data )
+void VertexArray::addVertexBuffer( const VertexData& data )
 {
     createVBOs( data );
 }
 
-void VertexArray::updateVertexBuffer( VertexData& data )
+void VertexArray::updateVertexBuffer( const VertexData& data )
 {
-    data.VAO = m_vaoId;
+    m_vertexData->Attributes = data.Attributes;
+    m_vertexData->Data = data.Data;
+    m_vertexData->Indices = data.Indices;
+    m_vertexData->primitiveType = data.primitiveType;
+    m_vertexData->VAO = m_vaoId;
+
     if( m_vbos.empty() )
     {
-        createVBOs( data );
+        createVBOs( *m_vertexData );
     }
     else
     {
-        bind();
-        m_vbos[0]->setVertexData( data );
+        m_vbos[0]->setVertexData( *m_vertexData );
     }
 }
 
@@ -105,14 +111,21 @@ void VertexArray::render()
 {
     ZoneScoped;
     runTasks();
+    const size_t vbosCount = (size_t)m_vbos.size();
 
     bind();
+
+    for( size_t i = 0; i < vbosCount; ++i )
+    {
+        m_vbos[i]->bind();
+    }
+
     if( m_shaderProgram )
     {
         m_shaderProgram->enable();
     }
 
-    const size_t vbosCount = (size_t)m_vbos.size();
+    
     for( size_t i = 0; i < vbosCount; ++i )
     {
         m_vbos[i]->render();
@@ -135,7 +148,7 @@ VertexBuffer* VertexArray::getVertexBuffer( std::size_t inIndex )
 
 void VertexArray::updateVertexData( std::size_t inIndex )
 {
-    m_vbos[inIndex]->updateVertexData();
+    m_vbos[inIndex]->updateVertexData( false );
 }
 
 bool VertexArray::taskIsAlreadyPlaced( TaskType tt ) const
@@ -207,14 +220,11 @@ void VertexArray::registerTask( TaskType taskType )
     m_preRenderTasks.push_back( taskType );
 }
 
-void VertexArray::createVBOs( VertexData& data )
+void VertexArray::createVBOs( const VertexData& data )
 {
-    bind();
-    data.VAO = getId();
     auto vbo = new VertexBuffer( data, &m_engine );
     m_vbos.emplace_back( vbo );
 }
-
 void VertexArray::createVAO()
 {
     CUL::Assert::check( m_vaoId == 0u, "VAO ALREADY CREATED!" );
@@ -224,6 +234,7 @@ void VertexArray::createVAO()
 void VertexArray::bind()
 {
     getDevice()->bindBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, m_vaoId );
+    m_bufferTasks.executeAll();
 }
 
 void VertexArray::unbind()

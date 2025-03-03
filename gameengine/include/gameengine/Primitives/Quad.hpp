@@ -37,8 +37,7 @@ private:
     void init();
     void createBuffers();
     void createShaders();
-    void setTransformation();
-    void applyColor();
+    void setTransformationAndColor();
     void release();
     void updateBuffers();
     void updateBuffers_impl();

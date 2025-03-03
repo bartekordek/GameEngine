@@ -18,6 +18,8 @@
 #include "CUL/STL_IMPORTS/STD_sstream.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
 
+#include "CUL/IMPORT_tracy.hpp"
+
 using namespace LOGLW;
 
 static CUL::CULInterface* g_interface = nullptr;
@@ -635,11 +637,7 @@ void DeviceOpenGL::useProgram( int programId )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    if( m_currentProgram != programId )
-    {
-        glUseProgram( static_cast<GLuint>( programId ) );
-        m_currentProgram = programId;
-    }
+    glUseProgram( static_cast<GLuint>( programId ) );
 }
 
 int DeviceOpenGL::getCurrentProgram() const
@@ -2222,6 +2220,7 @@ void* DeviceOpenGL::getNativeDevice()
 
 bool DeviceOpenGL::isLegacy()
 {
+    ZoneScoped;
     if( m_forceLegacy )
     {
         return true;
@@ -2317,16 +2316,18 @@ void DeviceOpenGL::initDebugUI()
 
 ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage )
 {
-    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
-    {
-        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
-    }
-
     ShaderUnit* result = findShader( shaderPath );
     if( result != nullptr )
     {
         return result;
     }
+
+    return createShaderUnitForce( shaderPath, assertOnErrors, errorMessage );
+}
+
+ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage )
+{
+    CUL::Assert::simple( RunOnRenderThread::getInstance().getIsRenderThread() == true, "NOT IN THE RENDER THREAD." );
 
     std::unique_ptr<ShaderUnit> newShader = std::make_unique<ShaderUnit>();
     newShader->File.reset( CUL::CULInterface::getInstance()->getFF()->createRegularFileRawPtr( shaderPath ) );
@@ -2365,7 +2366,8 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath, boo
         newShader->File->load( true, true );
     }
 
-    const auto extension = newShader->File->getPath().getExtension();
+    const CUL::FS::Path filePath = newShader->File->getPath();
+    const auto extension = filePath.getExtension();
     newShader->Type = CShaderTypes::getShaderType( extension );
 
     const auto oglShaderType = getShaderType( extension );
@@ -2399,6 +2401,14 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath, boo
     }
 
     newShader->ID = id;
+
+    static std::int32_t shaderCounter{ 0 };
+
+    constexpr std::size_t bufferSize{ 64u };
+    char tableName[bufferSize];
+    snprintf( tableName, bufferSize, "%s/%d", *filePath.getPath(), shaderCounter++ );
+
+    setObjectName( LOGLW::EObjectType::SHADER, id, tableName );
 
     m_shadersUnits[shaderPath.getPath()] = std::move( newShader );
     return m_shadersUnits[shaderPath.getPath()].get();

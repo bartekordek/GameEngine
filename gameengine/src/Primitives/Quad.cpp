@@ -1,5 +1,6 @@
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Camera.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IObject.hpp"
@@ -64,10 +65,12 @@ void Quad::init()
     }
     else
     {
+        getVao()->setProgram( getProgram() );
+
         createBuffers();
         createShaders();
 
-        setTransformation();
+        setTransformationAndColor();
     }
 }
 
@@ -78,11 +81,12 @@ void Quad::createBuffers()
 
 void Quad::updateBuffers()
 {
-    RunOnRenderThread::getInstance().RunWaitForResult(
+    /*RunOnRenderThread::getInstance().RunWaitForResult(
         [this]()
         {
             updateBuffers_impl();
-        } );
+        } );*/
+    updateBuffers_impl();
 }
 
 void Quad::updateBuffers_impl()
@@ -137,10 +141,11 @@ void Quad::setSize( const glm::vec3& size )
 void Quad::createShaders()
 {
     CUL::String errorContent;
-    getProgram()->compileShader( "embedded_shaders/basic_color.frag" );
-    getProgram()->compileShader( "embedded_shaders/basic_pos.vert" );
-    getProgram()->link();
-    getProgram()->validate();
+    ShaderProgram::ShadersData sd;
+    sd.FragmentShader = "embedded_shaders/basic_color.frag";
+    sd.VertexShader = "embedded_shaders/basic_pos.vert";
+
+    getProgram()->createFrom( EExecuteType::ExecuteOnRenderThread, sd );
 }
 
 void Quad::render()
@@ -152,9 +157,8 @@ void Quad::render()
     }
     else
     {
-        getProgram()->enable();
-        setTransformation();
-        applyColor();
+        setTransformationAndColor();
+
         getVao()->render();
 
         if( m_unbindBuffersAfterDraw == true )
@@ -164,22 +168,24 @@ void Quad::render()
     }
 }
 
-void Quad::setTransformation()
+void Quad::setTransformationAndColor()
 {
+    ZoneScoped;
     const Camera& camera = m_engine.getCamera();
     const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     const glm::mat4 viewMatrix = camera.getViewMatrix();
 
     const glm::mat4 model = m_transformComponent->getModel();
 
-    getProgram()->setUniform( "projection", projectionMatrix );
-    getProgram()->setUniform( "view", viewMatrix );
-    getProgram()->setUniform( "model", model );
-}
-
-void Quad::applyColor()
-{
-    getProgram()->setUniform( "color", m_color.getVec4() );
+    ShaderProgram* shaderProgram = getProgram();
+    shaderProgram->runOnRenderingThread(
+        [this, shaderProgram, projectionMatrix, viewMatrix, model]()
+        {
+            shaderProgram->setUniform( EExecuteType::Now , "projection", projectionMatrix, true );
+            shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix, true );
+            shaderProgram->setUniform( EExecuteType::Now, "model", model, true );
+            shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4(), true );
+        } );
 }
 
 Quad::~Quad()

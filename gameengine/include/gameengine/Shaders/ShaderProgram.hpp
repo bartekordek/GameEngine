@@ -19,6 +19,7 @@
 NAMESPACE_BEGIN( LOGLW )
 
 class IGameEngine;
+enum class EExecuteType : std::int8_t;
 enum class EShaderUnitState : std::int8_t;
 struct ShaderUnit;
 
@@ -47,20 +48,25 @@ public:
         bool Applied{ false };
     };
 
+    struct ShadersData
+    {
+        CUL::String VertexShader;
+        CUL::String FragmentShader;
+    };
+
     ShaderProgram();
+    void createFrom( EExecuteType inEt, const ShadersData& inShaderData );
 
     unsigned int getId() const;
-    void useShader() const;
-    void reload();
 
-    void compileLinkValidate();
-    void compileShader( const String& shaderPath );
-    void compileShader( const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
-    void reCompileShader( const String& shaderPath );
-    void reCompileShader( const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
-    void reCompileWholeShader();
+    void compileLinkValidate( EExecuteType inEt );
+    void compileShader( EExecuteType inEt, const String& shaderPath );
+    void compileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
+    void reCompileShader( EExecuteType inEt, const String& shaderPath );
+    void reCompileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
+    void reCompileWholeShader( EExecuteType inEt );
 
-    void setUniform( const String& inName, UniformValue inValue );
+    void setUniform( EExecuteType inEt, const String& inName, UniformValue inValue, bool inIsRenderingThread = false );
 
     String getAttributeStr( const String& name );
     float getAttributeF( const String& name );
@@ -68,10 +74,10 @@ public:
     int getAttributeI( const String& name );
 
     CShaderTypes::ShaderType getType() const;
-    void attachShaders();
-    void attachShader( std::uint32_t id );
-    void detachShader( std::uint32_t id );
-    void link();
+    void attachShaders( EExecuteType inEt );
+    void attachShader( EExecuteType inEt, std::uint32_t id );
+    void detachShader( EExecuteType inEt, std::uint32_t id );
+    void link( EExecuteType inEt );
     bool getIsLinked() const;
 
     void validate();
@@ -82,6 +88,7 @@ public:
     EShaderUnitState getShaderUnitState( CShaderTypes::ShaderType inType ) const;
     const ShaderVariable& getUniformValue( const CUL::String& name );
     std::vector<CUL::String> getUniformsNames();
+    void runOnRenderingThread( std::function<void( void )> inFunction );
 
     ~ShaderProgram();
 
@@ -90,7 +97,10 @@ protected:
 
 private:
     void create();
-    void reCompileWholeShaderImpl();
+    void createFromImpl( EExecuteType inEt, const ShadersData& inShaderData );
+    void reCompileWholeShaderImpl( EExecuteType inEt );
+    void releaseShaderUnits();
+    void reCompileShaderImpl( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
     void setUniformImpl( const String& inName, UniformValue inValue );
     void linkImpl();
     void release();

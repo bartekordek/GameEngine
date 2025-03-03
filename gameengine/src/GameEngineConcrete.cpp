@@ -2,6 +2,7 @@
 
 #include "gameengine/Camera.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/Primitives/Triangle.hpp"
 #include "gameengine/VertexArray.hpp"
 
@@ -753,7 +754,7 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
 
                             if( hasValueChanged )
                             {
-                                shaderProgram->setUniform( uniformName, value );
+                                shaderProgram->setUniform( EExecuteType::Now, uniformName, value );
                             }
                         }
                         else if( uniformVal.Type == LOGLW::DataType::FLOAT_MAT4 )
@@ -788,7 +789,7 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
                                             if( fString.isFloat() )
                                             {
                                                 f0 = fString.toFloat();
-                                                shaderProgram->setUniform( uniformName, currentValue );
+                                                shaderProgram->setUniform( EExecuteType::Now, uniformName, currentValue );
                                             }
                                         }
                                         ImGui::PopItemWidth();

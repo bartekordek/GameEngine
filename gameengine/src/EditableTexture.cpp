@@ -1,5 +1,6 @@
 #include "gameengine/EditableTexture.h"
 #include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Camera.hpp"
@@ -26,7 +27,7 @@ void EditableTexture::onNameChange( const String& newName )
     RunOnRenderThread::getInstance().RunWaitForResult(
         [this, newName]()
         {
-            getDevice()->setObjectName( EObjectType::TEXTURE, m_textureId, newName + "::texture" );
+            getDevice()->setObjectName( EObjectType::TEXTURE, static_cast<std::uint32_t>( m_textureId ), newName + "::texture" );
         } );
 }
 
@@ -51,12 +52,13 @@ void EditableTexture::create( uint16_t width, uint16_t height )
     m_imageInfo->size = { width, height };
 }
 
-void EditableTexture::setPixelValue( std::uint16_t inX, std::uint16_t inY, const TexPixel& color )
+void EditableTexture::setPixelValue( std::int32_t inX, std::int32_t inY, const TexPixel& color )
 {
-    const std::uint16_t offset = inX + inY * m_width;
-    //TexPixel* targetValue = (TexPixel*)( (size_t)m_ti->data + offset );
+    const auto offset =
+         inX + inY * m_width;
+    // TexPixel* targetValue = (TexPixel*)( (size_t)m_ti->data + offset );
     //*targetValue = color;
-    m_pixelData[static_cast<std::size_t>(offset)] = color;
+    m_pixelData[static_cast<std::size_t>( offset )] = color;
     m_needToApply = true;
 }
 
@@ -110,7 +112,7 @@ void EditableTexture::init()
 
     if( m_textureId == 0u )
     {
-        m_textureId = getDevice()->generateTexture();
+        m_textureId = static_cast<std::int32_t>( getDevice()->generateTexture() );
     }
 
     if( !m_ti->initialized )
@@ -249,9 +251,9 @@ void EditableTexture::renderModern()
     auto projectionMatrix = m_camera->getProjectionMatrix();
     auto viewMatrix = m_camera->getViewMatrix();
 
-    m_shaderProgram->setUniform( "projection", projectionMatrix );
-    m_shaderProgram->setUniform( "view", viewMatrix );
-    m_shaderProgram->setUniform( "model", model );
+    m_shaderProgram->setUniform( EExecuteType::Now, "projection", projectionMatrix );
+    m_shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix );
+    m_shaderProgram->setUniform( EExecuteType::Now, "model", model );
 
     getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, getVao()->getId() );
     getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, getVao()->getVertexBuffer( 0u )->getId() );

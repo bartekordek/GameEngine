@@ -177,13 +177,20 @@ unsigned IRenderDevice::getGPUTotalAvailableMemoryKb()
 
 unsigned IRenderDevice::getGPUCurrentAvailableMemoryKb()
 {
-    throw std::logic_error( "Method not implemented" );
+    CUL::Assert::check( false, "IRenderDevice::getGPUCurrentAvailableMemoryKb: Method not implemented." );
     return 0u;
 }
 
 ShaderUnit* IRenderDevice::createShaderUnit( const CUL::FS::Path&, bool, CUL::String& )
 {
-    throw std::logic_error( "Method not implemented" );
+    CUL::Assert::check( false, "IRenderDevice::createShaderUnit: Method not implemented." );
+    return nullptr;
+}
+
+ShaderUnit* IRenderDevice::createShaderUnitForce(const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage)
+{
+    CUL::Assert::check( false, "IRenderDevice::createShaderUnitForce: Method not implemented." );
+    return nullptr;
 }
 
 void IRenderDevice::deleteShaderUnit( ShaderUnit* )

@@ -180,6 +180,7 @@ public:
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up );
 
     virtual ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
+    virtual ShaderUnit* createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
     virtual void deleteShaderUnit( ShaderUnit* inShaderUnit );
 
     // General

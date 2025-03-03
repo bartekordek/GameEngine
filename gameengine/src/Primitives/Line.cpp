@@ -1,6 +1,7 @@
 #include "gameengine/Primitives/Line.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
@@ -17,11 +18,13 @@ Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     setParent( parent );
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    const float size = 2.f;
+    const float size{ 2.f };
     m_transformComponent->setSize( CUL::MATH::Point( size, size, size ) );
     m_transformComponent->setPivot( { 0.f, 0.f, 0.f } );
 
-    m_line.data[1] = { size, 0.f, 0.f };
+    m_line.data[1][0] = size;
+    m_line.data[1][1] = 0.f;
+    m_line.data[1][2] = 0.f;
 
     m_transformComponent->changeSizeDelegate.addDelegate( [this]() {
         m_recreateBuffers = true;
@@ -72,9 +75,9 @@ void Line::createShaders()
     m_shaderProgram = getEngine().createProgram();
     m_shaderProgram->setName( getName() + "::program" );
 
-    m_shaderProgram->compileShader( "embedded_shaders/basic_color.frag" );
-    m_shaderProgram->compileShader( "embedded_shaders/basic_pos.vert" );
-    m_shaderProgram->link();
+    m_shaderProgram->compileShader( EExecuteType::Now, "embedded_shaders/basic_color.frag" );
+    m_shaderProgram->compileShader( EExecuteType::Now, "embedded_shaders/basic_pos.vert" );
+    m_shaderProgram->link( EExecuteType::Now );
     m_shaderProgram->validate();
 }
 
@@ -121,14 +124,14 @@ void Line::setTransformation()
 
     glm::mat4 model = m_transformComponent->getModel();
 
-    m_shaderProgram->setUniform( "projection", projectionMatrix );
-    m_shaderProgram->setUniform( "view", viewMatrix );
-    m_shaderProgram->setUniform( "model", model );
+    m_shaderProgram->setUniform( EExecuteType::Now, "projection", projectionMatrix );
+    m_shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix );
+    m_shaderProgram->setUniform( EExecuteType::Now, "model", model );
 }
 
 void Line::applyColor()
 {
-    m_shaderProgram->setUniform( "color", m_color.getVec4() );
+    m_shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4() );
 }
 
 void Line::setValues( const CUL::MATH::Primitives::Line& values )
@@ -144,7 +147,9 @@ void Line::setColor( const ColorS& color )
 void Line::setLength( float length )
 {
     m_transformComponent->setSize( { length, length, length } );
-    m_line.data[1] = { length, 0.f, 0.f };
+    m_line.data[1][0] = length;
+    m_line.data[1][1] = 0.f;
+    m_line.data[1][2] = 0.f;
 }
 
 Line::~Line()

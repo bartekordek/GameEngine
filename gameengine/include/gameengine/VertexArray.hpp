@@ -6,7 +6,7 @@
 
 #include "CUL/IName.hpp"
 #include "CUL/IRegisteredObject.hpp"
-#include "CUL/IName.hpp"
+#include "CUL/Task/TaskAccumulator.hpp"
 
 #include "CUL/STL_IMPORTS/STD_cstdint.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -56,8 +56,8 @@ public:
     VertexArray& operator=( VertexArray&& value ) = delete;
 
     BuffIDType getId() const;
-    void addVertexBuffer( VertexData& data );
-    void updateVertexBuffer( VertexData& data );
+    void addVertexBuffer( const VertexData& data );
+    void updateVertexBuffer( const VertexData& data );
     void createShader( const CUL::FS::Path& path );
     ShaderProgram* getProgram();
     void setProgram( ShaderProgram* inProgram );
@@ -95,9 +95,11 @@ private:
 
 
     void createVAO();
-    void createVBOs( VertexData& data );
+    void createVBOs( const VertexData& data );
 
     IGameEngine& m_engine;
+
+    CUL::CTaskAccumulator m_bufferTasks;
 
     std::uint32_t m_vaoId = 0;
 
@@ -109,12 +111,16 @@ private:
     std::mutex m_shadersMtx;
     std::queue<CUL::FS::Path> m_shadersPaths;
 
+
+    std::unique_ptr<VertexData> m_vertexData;
+
     std::vector<std::unique_ptr<VertexBuffer>> m_vbos;
 
     std::vector<Ptr<IndexBuffer>> m_indexBuffers;
 
     std::vector < std::vector<unsigned>> m_indicesToPrepare;
     bool m_unbindBuffersAfterDraw{ false };
+
 };
 
 NAMESPACE_END( LOGLW )

@@ -1,4 +1,5 @@
 #include "gameengine/Sprite.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
@@ -97,9 +98,9 @@ void Sprite::renderModern()
     auto projectionMatrix = m_camera->getProjectionMatrix();
     auto viewMatrix = m_camera->getViewMatrix();
 
-    getProgram()->setUniform( "projection", projectionMatrix );
-    getProgram()->setUniform( "view", viewMatrix );
-    getProgram()->setUniform( "model", model );
+    getProgram()->setUniform( EExecuteType::Now, "projection", projectionMatrix );
+    getProgram()->setUniform( EExecuteType::Now, "view", viewMatrix );
+    getProgram()->setUniform( EExecuteType::Now, "model", model );
 
     getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, getVao()->getId() );
     getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, getVao()->getVertexBuffer( 0u )->getId() );
@@ -162,12 +163,9 @@ void Sprite::init()
 {
     if( !getDevice()->isLegacy() )
     {
-        createProgram();
-
-
-        getProgram()->compileShader( "embedded_shaders/camera.frag" );
-        getProgram()->compileShader( "embedded_shaders/camera.vert" );
-        getProgram()->link();
+        getProgram()->compileShader( EExecuteType::Now, "embedded_shaders/camera.frag" );
+        getProgram()->compileShader( EExecuteType::Now, "embedded_shaders/camera.vert" );
+        getProgram()->link( EExecuteType::Now );
         getProgram()->validate();
     }
 
@@ -229,20 +227,16 @@ void Sprite::init()
 
         m_vertexData->Data.createFrom( tmp );
 
-        auto vbo = getVao()->getVertexBuffer( 0u );
-        m_vertexData->VBO = vbo->getId();
-        getDevice()->bufferData( vbo->getId(), m_vertexData->Data, BufferTypes::ARRAY_BUFFER );
-
         m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 5 * sizeof( float ), nullptr ) );
         m_vertexData->Attributes.push_back( AttributeMeta( "uvs", 1, 2, DataType::FLOAT, false, 5 * sizeof( float ), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
 
-        getDevice()->vertexAttribPointer( *m_vertexData );
+        getVao()->addVertexBuffer( *m_vertexData );
 
         getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
         getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
 
         getProgram()->enable();
-        getProgram()->setUniform( "texture1", 0 );
+        getProgram()->setUniform( EExecuteType::Now, "texture1", 0 );
         getProgram()->disable();
     }
     m_initialized = true;

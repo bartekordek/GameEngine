@@ -9,6 +9,7 @@
 #include "CUL/GenericUtils/DumbPtr.hpp"
 #include "CUL/IName.hpp"
 #include "CUL/IRegisteredObject.hpp"
+#include "CUL/Task/TaskAccumulator.hpp"
 
 #include "CUL/STL_IMPORTS/STD_cstdint.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -55,7 +56,7 @@ public:
     VertexBuffer( const VertexData& vertexData, IGameEngine* engine );
     void setVertexData( const VertexData& vertexData );
     void updateVertexData( const VertexData& vertexData );
-    void updateVertexData();
+    void updateVertexData( bool isRenderThread );
     void render();
     unsigned getId() const;
     int getSize() const;
@@ -78,6 +79,7 @@ private:
     void loadData();
     void release();
 
+    CUL::CTaskAccumulator m_bufferTasks;
     VertexData m_vertexData;
     std::unique_ptr<IndexBuffer> m_indexBuffer;
     std::atomic<bool> m_load = true;

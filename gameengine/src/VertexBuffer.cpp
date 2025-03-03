@@ -50,12 +50,17 @@ void VertexBuffer::setVertexData( const VertexData& vertexData )
     m_vertexData.Attributes = vertexData.Attributes;
     m_vertexData.Data = vertexData.Data;
     m_vertexData.Indices = vertexData.Indices;
-    loadData();
+
+    m_bufferTasks.addTask(
+        [this]()
+        {
+            loadData();
+        } );
 }
 
 void VertexBuffer::loadData()
 {
-    updateVertexData();
+    updateVertexData( false );
     getDevice()->vertexAttribPointer( m_vertexData );
 
     if( m_vertexData.Indices.getIsEmpty() == false )
@@ -80,12 +85,23 @@ void VertexBuffer::updateVertexData( const VertexData& vertexData )
     m_vertexData.Attributes = vertexData.Attributes;
     m_vertexData.Data = vertexData.Data;
     m_vertexData.Indices = vertexData.Indices;
-    updateVertexData();
+    updateVertexData( false );
 }
 
-void VertexBuffer::updateVertexData()
+void VertexBuffer::updateVertexData( bool isRenderThread )
 {
-    getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
+    if( isRenderThread )
+    {
+        getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
+    }
+    else
+    {
+        RunOnRenderThread::getInstance().RunWaitForResult(
+            [this]()
+            {
+                getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
+            } );
+    }
 }
 
 void VertexBuffer::render()
@@ -119,6 +135,7 @@ int VertexBuffer::getSize() const
 void VertexBuffer::bind()
 {
     getDevice()->bindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER, m_vertexData.VBO );
+    m_bufferTasks.executeAll();
 }
 
 const VertexData& VertexBuffer::getData() const

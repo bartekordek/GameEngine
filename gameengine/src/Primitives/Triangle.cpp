@@ -1,5 +1,6 @@
 #include "gameengine/Primitives/Triangle.hpp"
 #include "gameengine/Camera.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IObject.hpp"
@@ -7,6 +8,7 @@
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/AttributeMeta.hpp"
+#include "RunOnRenderThread.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
 
@@ -26,22 +28,21 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool f
     // TODO: add normals
     setSize( { size, size, 0 } );
 
-    m_shape.data[0] = { 0.0f, 0.0f, 0.0f };
-    m_shape.data[1] = { size / 2.f, size, 0.f };
-    m_shape.data[2] = { size, 0.f, 0.f };
+    m_shape.data[0][0] = 0.f;
+    m_shape.data[0][1] = 0.f;
+    m_shape.data[0][2] = 0.f;
 
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
-    {
-        init();
-    }
-    else
-    {
-        engine.addPreRenderTask(
-            [this]()
-            {
-                init();
-            } );
-    }
+    m_shape.data[1][0] = size / 2.f;
+    m_shape.data[1][1] = size;
+    m_shape.data[1][2] = 0.f;
+
+    m_shape.data[2][0] = size;
+    m_shape.data[2][1] = 0.f;
+    m_shape.data[2][2] = 0.f;
+
+    RunOnRenderThread::getInstance().RunWaitForResult( [this](){
+            init();
+        } );
 
     m_transformComponent->changeSizeDelegate.addDelegate(
         [this]()
@@ -69,8 +70,7 @@ void Triangle::init()
     {
         createBuffers();
         createShaders();
-
-        setTransformation();
+        setColorAndTransformation();
     }
 }
 
@@ -114,9 +114,9 @@ void Triangle::setSize( const glm::vec3& )
 void Triangle::createShaders()
 {
     auto shader = getProgram();
-    shader->reCompileShader( "embedded_shaders/basic_color.frag" );
-    shader->reCompileShader( "embedded_shaders/basic_pos.vert" );
-    shader->link();
+    shader->compileShader( EExecuteType::Now, "embedded_shaders/basic_color.frag" );
+    shader->compileShader( EExecuteType::Now, "embedded_shaders/basic_pos.vert" );
+    shader->link( EExecuteType::Now );
     shader->validate();
 }
 
@@ -138,8 +138,7 @@ void Triangle::render()
         auto shader = getProgram();
         shader->enable();
 
-        setTransformation();
-        applyColor();
+        setColorAndTransformation();
         getVao()->render();
 
         if( m_unbindBuffersAfterDraw == true )
@@ -149,7 +148,7 @@ void Triangle::render()
     }
 }
 
-void Triangle::setTransformation()
+void Triangle::setColorAndTransformation()
 {
     const Camera& camera = m_engine.getCamera();
     const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
@@ -158,14 +157,10 @@ void Triangle::setTransformation()
     const glm::mat4 model = m_transformComponent->getModel();
 
     auto shader = getProgram();
-    shader->setUniform( "projection", projectionMatrix );
-    shader->setUniform( "view", viewMatrix );
-    shader->setUniform( "model", model );
-}
-
-void Triangle::applyColor()
-{
-    getProgram()->setUniform( "color", m_color.getVec4() );
+    shader->setUniform( EExecuteType::Now, "projection", projectionMatrix );
+    shader->setUniform( EExecuteType::Now, "view", viewMatrix );
+    shader->setUniform( EExecuteType::Now, "model", model );
+    shader->setUniform( EExecuteType::Now, "color", m_color.getVec4() );
 }
 
 Triangle::~Triangle()

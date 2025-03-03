@@ -33,8 +33,7 @@ private:
     void init();
     void createBuffers();
     void createShaders();
-    void setTransformation();
-    void applyColor();
+    void setColorAndTransformation();
     void release();
     void deleteBuffers();
     void setSize( const glm::vec3& size );
