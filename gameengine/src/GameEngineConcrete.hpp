@@ -7,6 +7,7 @@
 #include "gameengine/Viewport.hpp"
 
 #include "gameengine/Events/ISDLEventObserver.hpp"
+#include "gameengine/IRenderDevice.hpp"
 
 #include "CUL/GenericUtils/LckPrim.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"

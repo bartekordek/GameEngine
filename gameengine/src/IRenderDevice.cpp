@@ -73,8 +73,7 @@ void IRenderDevice::log( const String& text, const CUL::LOG::Severity severity )
 
     if( m_lastLog != text )
     {
-        CUL::LOG::ILogger::getInstance().logVariable( severity, text.cStr() );
-        m_logger->log( text, severity );
+        CUL::LOG::ILogger::getInstance().logVariable( severity, *text );
         m_lastLog = text;
     }
 }

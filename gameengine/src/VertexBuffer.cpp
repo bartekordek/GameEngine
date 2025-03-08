@@ -32,10 +32,13 @@ void VertexBuffer::onNameChange( const String& newName )
         {
             getDevice()->setObjectName( EObjectType::BUFFER, m_vertexData.VBO, newName );
 
-            constexpr std::size_t bufferSize{ 1024u };
-            char buffer[bufferSize];
-            snprintf( buffer, bufferSize, "%s/index_buffer", *newName );
-            getDevice()->setObjectName( EObjectType::BUFFER, m_indexBuffer->getObjID(), buffer );
+            if( m_indexBuffer )
+            {
+                constexpr std::size_t bufferSize{ 1024u };
+                char buffer[bufferSize];
+                snprintf( buffer, bufferSize, "%s/index_buffer", *newName );
+                getDevice()->setObjectName( EObjectType::BUFFER, m_indexBuffer->getObjID(), buffer );
+            }
         } );
 }
 
@@ -60,7 +63,7 @@ void VertexBuffer::setVertexData( const VertexData& vertexData )
 
 void VertexBuffer::loadData()
 {
-    updateVertexData( false );
+    updateVertexData( true );
     getDevice()->vertexAttribPointer( m_vertexData );
 
     if( m_vertexData.Indices.getIsEmpty() == false )

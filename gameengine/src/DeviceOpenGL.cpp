@@ -2145,17 +2145,7 @@ void DeviceOpenGL::bindTexture( const unsigned int textureId )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    if( m_lastTextureId != textureId )
-    {
-        // log( "bindTexture..." );
-        glBindTexture( GL_TEXTURE_2D, textureId );
-        m_lastTextureId = textureId;
-        // log( "bindTexture... DONE." );
-    }
-    else
-    {
-        // log( "bindTexture canceled - already set." );
-    }
+    glBindTexture( GL_TEXTURE_2D, textureId );
 }
 
 void DeviceOpenGL::setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val )
@@ -2561,6 +2551,7 @@ void DeviceOpenGL::setObjectName( EObjectType objectType, std::uint32_t objectId
             break;
         case EObjectType::TEXTURE:
             oglType = GL_TEXTURE;
+            bindTexture( objectId );
             log( "glObjectLabel GL_TEXTURE id: " + String( objectId ) + ", name: " + name );
             break;
         case EObjectType::RENDERBUFFER:

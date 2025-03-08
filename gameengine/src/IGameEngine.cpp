@@ -74,7 +74,7 @@ IGameEngine* IGameEngine::getInstance()
 
 Sprite* IGameEngine::createSprite()
 {
-    auto sprite = new Sprite( &getCamera(), getCul(), this );
+    auto sprite = new Sprite( *this, nullptr, false );
 
     // sprite->LoadImage( path, m_imageLoader );
 
