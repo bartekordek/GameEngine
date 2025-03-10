@@ -617,63 +617,8 @@ void GameEngineConcrete::renderInfo()
 #pragma warning( pop )
 #endif
 
-bool drawValues( glm::vec3& inOutValue, const CUL::String& inName )
-{
-    ImGui::Text( "%s", inName.cStr() );
-    constexpr float itemWidth{ 128.f };
 
-    bool changed{ false };
-
-    constexpr std::size_t stringBufferLength{ 32u };
-    static char stringBuffer[stringBufferLength];
-
-    constexpr std::size_t labelBufferLength{ 32u };
-    static char labelBuffer[labelBufferLength];
-
-    sprintf( labelBuffer, "##%s-xyz", inName.cStr() );
-
-    ImGuiInputTextFlags flags{ 0 };
-    changed = ImGui::InputFloat3( labelBuffer, &inOutValue.x, "%4.4f", flags );
-
-    sprintf( labelBuffer, "##%s-s", inName.cStr() );
-
-    constexpr float epsilon{0.00001};
-    if(
-        CUL::MATH::Utils::equals( inOutValue.x, inOutValue.y, epsilon ) &&
-        CUL::MATH::Utils::equals( inOutValue.x, inOutValue.z, epsilon ) )
-    {
-        float valueAsOne = inOutValue.x;
-        changed = ImGui::InputFloat( labelBuffer, &valueAsOne );
-        if( changed )
-        {
-            inOutValue.x = inOutValue.y = inOutValue.z = valueAsOne;
-        }
-    }
-
-    return changed;
-}
-
-void drawTransformData( LOGLW::TransformComponent* transform )
-{
-    glm::vec3 trans = transform->getPositionToParent();
-    if( drawValues( trans, "trans" ) )
-    {
-        transform->setPositionToParent( trans );
-    }
-
-    glm::vec3 scale = transform->getScale();
-    if( drawValues( scale, "scale" ) )
-    {
-        transform->setScale( scale );
-    }
-
-    ImGui::Text( "x: %4.2f y: %4.2f y: %4.2f", trans.x, trans.y, trans.z );
-
-    const CUL::MATH::Rotation rot = transform->getRotationToParent();
-    ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", rot.Pitch, rot.Yaw, rot.Roll );
-}
-
-void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name )
+void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name )
 {
     if( shownList.find( currentObject ) != shownList.end() )
     {
@@ -686,6 +631,13 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
     if( ImGui::TreeNode( name.cStr() ) )
     {
         ImGui::Text( "Name: %s", name.cStr() );
+
+        Sprite* spriteObject = dynamic_cast<Sprite*>( currentObject );
+
+        if( spriteObject )
+        {
+            drawSpriteData( spriteObject );
+        }
 
         LOGLW::TransformComponent* transform = currentObject->getTransform();
         if( transform != nullptr && ImGui::TreeNode( "Transform" ) )
@@ -917,6 +869,89 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
         }
         ImGui::TreePop();
     }
+}
+
+void GameEngineConcrete::drawSpriteData( Sprite* inSprite )
+{
+    if( ImGui::TreeNode( "UV" ) )
+    {
+        constexpr std::size_t labelBufferLength{ 32u };
+        static char labelBuffer[labelBufferLength];
+
+        auto uvList = inSprite->getUV();
+        std::size_t i{ 0u };
+        for( UV& uv : uvList )
+        {
+            sprintf( labelBuffer, "##_uv_%d", i );
+            float values[2];
+            values[0] = uv.X;
+            values[1] = uv.Y;
+            if (ImGui::InputFloat2(labelBuffer, values))
+            {
+                uv.X = values[0];
+                uv.Y = values[1];
+
+                inSprite->setUV( uv, i );
+            }
+            ++i;
+        }
+
+        ImGui::TreePop();
+    }
+}
+
+void GameEngineConcrete::drawTransformData( LOGLW::TransformComponent* transform )
+{
+    glm::vec3 trans = transform->getPositionToParent();
+    if( drawValues( trans, "trans" ) )
+    {
+        transform->setPositionToParent( trans );
+    }
+
+    glm::vec3 scale = transform->getScale();
+    if( drawValues( scale, "scale" ) )
+    {
+        transform->setScale( scale );
+    }
+
+    ImGui::Text( "x: %4.2f y: %4.2f y: %4.2f", trans.x, trans.y, trans.z );
+
+    const CUL::MATH::Rotation rot = transform->getRotationToParent();
+    ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", rot.Pitch, rot.Yaw, rot.Roll );
+}
+
+bool GameEngineConcrete::drawValues( glm::vec3& inOutValue, const CUL::String& inName )
+{
+    ImGui::Text( "%s", inName.cStr() );
+    constexpr float itemWidth{ 128.f };
+
+    bool changed{ false };
+
+    constexpr std::size_t stringBufferLength{ 32u };
+    static char stringBuffer[stringBufferLength];
+
+    constexpr std::size_t labelBufferLength{ 32u };
+    static char labelBuffer[labelBufferLength];
+
+    sprintf( labelBuffer, "##%s-xyz", inName.cStr() );
+
+    ImGuiInputTextFlags flags{ 0 };
+    changed = ImGui::InputFloat3( labelBuffer, &inOutValue.x, "%4.4f", flags );
+
+    sprintf( labelBuffer, "##%s-s", inName.cStr() );
+
+    constexpr float epsilon{ 0.00001 };
+    if( CUL::MATH::Utils::equals( inOutValue.x, inOutValue.y, epsilon ) && CUL::MATH::Utils::equals( inOutValue.x, inOutValue.z, epsilon ) )
+    {
+        float valueAsOne = inOutValue.x;
+        changed = ImGui::InputFloat( labelBuffer, &valueAsOne );
+        if( changed )
+        {
+            inOutValue.x = inOutValue.y = inOutValue.z = valueAsOne;
+        }
+    }
+
+    return changed;
 }
 
 void GameEngineConcrete::prepareProjection()

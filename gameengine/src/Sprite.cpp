@@ -4,7 +4,6 @@
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IObject.hpp"
-#include "gameengine/IRenderDevice.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
@@ -15,7 +14,6 @@
 
 #include "CUL/IMPORT_GLM.hpp"
 
-#include "CUL/Threading/ThreadUtil.hpp"
 
 using namespace LOGLW;
 
@@ -26,6 +24,11 @@ Sprite::Sprite( IGameEngine& engine, IObject* parent, bool forceLegacy )
 {
     m_transformComponent = getTransform();
     setParent( parent );
+
+    m_uvList[0] = { 0.f, 0.f };
+    m_uvList[1] = { 1.f, 0.f };
+    m_uvList[2] = { 1.f, 1.f };
+    m_uvList[3] = { 0.f, 1.f };
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     constexpr float size = 4.f;
@@ -41,6 +44,8 @@ Sprite::Sprite( IGameEngine& engine, IObject* parent, bool forceLegacy )
     m_transformComponent->changeSizeDelegate.addDelegate(
         [this]()
         {
+            const auto size = m_transformComponent->getSize();
+            setSize( size.toGlmVec() );
             updateBuffers();
         } );
 
@@ -50,7 +55,7 @@ Sprite::Sprite( IGameEngine& engine, IObject* parent, bool forceLegacy )
 void Sprite::onNameChange( const String& newName )
 {
     IObject::onNameChange( newName );
-    getDevice()->setObjectName( EObjectType::TEXTURE, static_cast<std::uint32_t>( m_textureId ), getName() + "::texture" );
+    getDevice()->setObjectName( EObjectType::TEXTURE, static_cast<std::uint32_t>( m_textureId ), getName() + "/texture" );
 }
 
 void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader )
@@ -139,27 +144,22 @@ CUL::Graphics::DataType* Sprite::getData() const
     return m_image->getData();
 }
 
+
+void Sprite::setUV( const UV& inUV, std::size_t index )
+{
+    m_uvList[index] = inUV;
+    const auto size = m_transformComponent->getSize();
+    setSize( size.toGlmVec() );
+    updateBuffers_impl();
+}
+
 void Sprite::updateBuffers_impl()
 {
-    const auto size = m_transformComponent->getSize();
-
-    setSize( size.toGlmVec() );
-
     std::vector<std::uint32_t> indices = {
         // note that we start from 0!
         0, 1, 2,  // first Triangle
         2, 3, 0   // second Triangle
     };
-
-    /*
-
-        0.0f, 2.0f, 0.0f, 0.0f, 0.0f,
-        2.0f, 2.0f, 0.0f, 1.0f, 0.0f,
-        2.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-        0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-
-        */
-
     m_vboData.Indices.createFrom( indices );
 
     FloatData fd;
@@ -198,20 +198,17 @@ void Sprite::updateBuffers_impl()
 
 void Sprite::setSize( const glm::vec3& size )
 {
-    // 0, 1, 3
-    // 1, 2, 3
-
-    m_uvList[0] = { 0.f, 0.f };
-    m_uvList[1] = { 1.f, 0.f };
-    m_uvList[2] = { 0.f, 0.f };
-    m_uvList[3] = { 0.f, 1.f };
-
     m_vertexData = { 
-        0.0f, 2.0f, 0.0f, 0.0f, 0.0f,
-        2.0f, 2.0f, 0.0f, 1.0f, 0.0f,
-        2.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-        0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.0f, size.y, 0.0f, m_uvList[0].X, m_uvList[0].Y,
+      size.x, size.y, 0.0f, m_uvList[1].X, m_uvList[1].Y,
+      size.x,   0.0f, 0.0f, m_uvList[2].X, m_uvList[2].Y,
+        0.0f,   0.0f, 0.0f, m_uvList[3].X, m_uvList[3].Y
     };
+}
+
+const std::array<UV, 4>& Sprite::getUV() const
+{
+    return m_uvList;
 }
 
 void Sprite::createShaders()
@@ -270,18 +267,9 @@ void Sprite::setTransformationAndColor()
 
 Sprite::~Sprite()
 {
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
-    {
-        release();
-    }
-    else
-    {
-        m_engine.addPreRenderTask(
-            [this]()
-            {
-                release();
-            } );
-    }
+    RunOnRenderThread::getInstance().RunWaitForResult( [this] (){
+            release();
+        });
 }
 
 void Sprite::release()

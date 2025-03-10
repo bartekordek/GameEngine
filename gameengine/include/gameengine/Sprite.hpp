@@ -25,6 +25,12 @@ class TransformComponent;
 class VertexArray;
 struct TextureInfo;
 
+struct GAME_ENGINE_API UV
+{
+    float X;
+    float Y;
+};
+
 class Sprite final: public IUtilityUser, public IObject, public CUL::IRegisterdObject
 {
 public:
@@ -36,6 +42,9 @@ public:
     GAME_ENGINE_API const CUL::Graphics::ImageInfo& getImageInfo() const;
     GAME_ENGINE_API unsigned char* getData() const;
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
+
+    GAME_ENGINE_API const std::array<UV, 4>& getUV() const;
+    GAME_ENGINE_API void setUV( const UV& inUV, std::size_t index );
 
     GAME_ENGINE_API ~Sprite();
 
@@ -57,11 +66,7 @@ private:
     std::int32_t m_textureId{ 0 };
     std::array<std::array<float,8>, 4> m_vertexData;
 
-    struct UV
-    {
-        float X;
-        float Y;
-    };
+
 
     std::array<UV, 4> m_uvList;
     glm::mat4 m_model;
