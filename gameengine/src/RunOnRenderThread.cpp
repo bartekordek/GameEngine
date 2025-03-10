@@ -5,6 +5,7 @@
 
 #include "CUL/CULInterface.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
+#include "CUL/STL_IMPORTS/STD_condition_variable.hpp"
 
 using namespace LOGLW;
 
