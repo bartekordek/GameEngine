@@ -1,7 +1,9 @@
 #include "gameengine/Shaders/ShaderProgram.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/Shaders/ShaderUnit.hpp"
+
 #include "RunOnRenderThread.hpp"
 
 #include "CUL/CULInterface.hpp"
@@ -12,95 +14,181 @@
 #include "CUL/ObjectRegistry.hpp"
 
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
+#include "CUL/IMPORT_tracy.hpp"
 
 using namespace LOGLW;
 
-
-ShaderProgram::ShaderProgram() : m_engine( *IGameEngine::getInstance() )
+ShaderProgram::ShaderProgram()
+    : m_engine( *IGameEngine::getInstance() )
 {
     create();
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
+}
+
+void ShaderProgram::createFrom( EExecuteType inEt, const ShadersData& inShaderData )
+{
+    if( inEt == EExecuteType::Now )
+    {
+        createFromImpl( EExecuteType::Now, inShaderData );
+    }
+    else if( inEt == EExecuteType::WaitForCompletion )
+    {
+        RunOnRenderThread::getInstance().RunWaitForResult(
+            [this, &inShaderData]()
+            {
+                createFromImpl( EExecuteType::Now, inShaderData );
+            } );
+    }
+    else if( inEt == EExecuteType::ExecuteOnRenderThread )
+    {
+        m_tasks.addTask(
+            [this, inShaderData]()
+            {
+                createFromImpl( EExecuteType::Now, inShaderData );
+            } );
+    }
+}
+
+void ShaderProgram::createFromImpl( EExecuteType inEt, const ShadersData& inShaderData )
+{
+    releaseShaderUnits();
+
+    compileShader( inEt, inShaderData.FragmentShader );
+    compileShader( inEt, inShaderData.VertexShader );
+    link( inEt );
+    validate();
+}
+
+void ShaderProgram::onNameChange( const String& newName )
+{
+    CUL::IName::onNameChange( newName );
+    m_tasks.addTask(
+        [this, newName]()
+        {
+            getDevice()->setObjectName( EObjectType::PROGRAM, m_shaderProgramId, newName );
+        } );
+}
+
+void ShaderProgram::compileLinkValidate( EExecuteType /*inEt*/ )
+{
+    //TODO:
+    //RunOnRenderThread::getInstance().Run(
+    //    [this]()
+    //    {
+    //        //TODO
+    //    } );
+}
+
+void ShaderProgram::reCompileWholeShader( EExecuteType inEt )
+{
+    if( inEt == EExecuteType::WaitForCompletion )
     {
         RunOnRenderThread::getInstance().Run(
-            [this, newName]()
+            [this, inEt]()
             {
-                getDevice()->setObjectName( EObjectType::PROGRAM, m_shaderProgramId, newName );
+                reCompileWholeShaderImpl( inEt );
             } );
-    };
-    setName( "ShaderProgram " + CUL::String( getId() ) );
+    }
+    else if( inEt == EExecuteType::None )
+    {
+        reCompileWholeShaderImpl( inEt );
+    }
 }
 
-void ShaderProgram::compileLinkValidate()
-{
-    RunOnRenderThread::getInstance().Run(
-        [this]()
-        {
-            //TODO
-        } );
-}
-
-void ShaderProgram::reCompileWholeShader()
-{
-    RunOnRenderThread::getInstance().Run(
-        [this]()
-        {
-            reCompileWholeShaderImpl();
-        } );
-}
-
-void ShaderProgram::reCompileWholeShaderImpl()
+void ShaderProgram::reCompileWholeShaderImpl( EExecuteType inEt )
 {
     std::vector<CUL::String> shadersPaths( m_shaders.size() );
-
     std::size_t shaderIndex{ 0 };
-    for( auto& [shaderType, shaderUnit] : m_shaders )
+    for( const auto& [shaderType, shaderUnit] : m_shaders )
     {
         shadersPaths[shaderIndex++] = shaderUnit->File->getPath().getPath();
-        detachShader( shaderUnit->ID );
-        getDevice()->deleteShaderUnit( shaderUnit );
     }
+
+    releaseShaderUnits();
 
     for( const CUL::String& path : shadersPaths )
     {
-        compileShader( path );
+        compileShader( inEt, path );
     }
-    link();
+    link( inEt );
 }
 
-void ShaderProgram::reCompileShader( const String& shaderPathString )
+void ShaderProgram::releaseShaderUnits()
 {
-    CUL::String errorContent;
-    reCompileShader( shaderPathString, true, errorContent );
-}
-
-void ShaderProgram::reCompileShader( const String& shaderPathString, bool assertOnErrors, CUL::String& errorMessage )
-{
-    const CUL::FS::Path shaderPath( shaderPathString );
-    const auto extension = shaderPath.getExtension();
-    CShaderTypes::ShaderType type = CShaderTypes::getShaderType( extension );
-    const auto it = m_shaders.find( type );
-    if( it != m_shaders.end() )
+    for( auto& [shaderType, shaderUnit] : m_shaders )
     {
-        detachShader( it->second->ID );
-        getDevice()->deleteShaderUnit( it->second );
-        m_shaders.erase( it );
+        detachShader( EExecuteType::Now, shaderUnit->ID );
+        getDevice()->deleteShaderUnit( shaderUnit );
     }
-    compileShader( shaderPathString, assertOnErrors, errorMessage );
 }
 
-void ShaderProgram::compileShader( const String& shaderPath )
+void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString )
 {
     CUL::String errorContent;
-    compileShader( shaderPath, true, errorContent );
+    reCompileShader( inEt, shaderPathString, true, errorContent );
 }
 
-void ShaderProgram::compileShader( const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage )
+void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString, bool assertOnErrors, CUL::String& errorMessage )
 {
-    ShaderUnit* su = getDevice()->createShaderUnit( shaderPath, assertOnErrors, errorMessage );
+    if( inEt == EExecuteType::WaitForCompletion )
+    {
+        RunOnRenderThread::getInstance().RunWaitForResult(
+            [this, inEt, &shaderPathString, assertOnErrors, &errorMessage]()
+            {
+                reCompileShaderImpl( inEt, shaderPathString, assertOnErrors, errorMessage );
+            } );
+    }
+    else if( inEt == EExecuteType::ExecuteOnRenderThread )
+    {
+        m_tasks.addTask(
+            [this, inEt, shaderPathString, assertOnErrors]()
+            {
+                CUL::String errorMessage;
+                reCompileShaderImpl( inEt, shaderPathString, assertOnErrors, errorMessage );
+            } );
+    }
+    else
+    {
+        reCompileShaderImpl( inEt, shaderPathString, assertOnErrors, errorMessage );
+    }
+}
+
+void ShaderProgram::reCompileShaderImpl( EExecuteType inEt, const String& inShaderPathString, bool assertOnErrors, CUL::String& errorMessage )
+{
+    const CUL::FS::Path inShaderPath( inShaderPathString );
+    const auto extension = inShaderPath.getExtension();
+    CShaderTypes::ShaderType type = CShaderTypes::getShaderType( extension );
+
+    std::unordered_map<CShaderTypes::ShaderType, CUL::String> shadersPaths;
+    for( auto& [shaderType, shaderUnit] : m_shaders )
+    {
+        shadersPaths[shaderType] = shaderUnit->File->getPath();
+        const std::uint32_t shaderId = shaderUnit->ID;
+        getDevice()->deleteShaderUnit( shaderUnit );
+        detachShader( inEt, shaderId );
+        shaderUnit = nullptr;
+    }
+
+    shadersPaths[type] = inShaderPath;
+
+    for( const auto& [shaderType, shaderPath] : shadersPaths )
+    {
+        compileShader( inEt, shaderPath, assertOnErrors, errorMessage );
+    }
+}
+
+void ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath )
+{
+    CUL::String errorContent;
+    compileShader( inEt, shaderPath, true, errorContent );
+}
+
+void ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage )
+{
+    ShaderUnit* su = getDevice()->createShaderUnitForce( shaderPath, assertOnErrors, errorMessage );
     if( errorMessage.empty() )
     {
         m_shaders[su->Type] = su;
-        attachShader( su->ID );
+        attachShader( inEt, su->ID );
         su->State = EShaderUnitState::Loaded;
     }
     else
@@ -110,12 +198,33 @@ void ShaderProgram::compileShader( const String& shaderPath, bool assertOnErrors
 }
 
 
-void ShaderProgram::attachShader( std::uint32_t id )
+void ShaderProgram::attachShader( EExecuteType inEt, std::uint32_t id )
 {
-    getDevice()->attachShader( m_shaderProgramId, id );
+    switch( inEt )
+    {
+        case LOGLW::EExecuteType::None:
+            CUL::Assert::check( false, "ShaderProgram::attachShader: wrong execution type: None." );
+            break;
+        case LOGLW::EExecuteType::WaitForCompletion:
+            RunOnRenderThread::getInstance().RunWaitForResult(
+                [this, id]()
+                {
+                    getDevice()->attachShader( m_shaderProgramId, id );
+                } );
+            break;
+        case LOGLW::EExecuteType::ExecuteOnRenderThread:
+            CUL::Assert::check( false, "ShaderProgram::attachShader: cannot link in OnRenderThread mode." );
+            break;
+        case LOGLW::EExecuteType::Now:
+            getDevice()->attachShader( m_shaderProgramId, id );
+            break;
+        default:
+            CUL::Assert::check( false, "ShaderProgram::attachShader: wrong execution type." );
+            break;
+    }
 }
 
-void ShaderProgram::attachShaders()
+void ShaderProgram::attachShaders( EExecuteType /*inEt*/ )
 {
     for( const auto& su : m_shaders )
     {
@@ -123,27 +232,39 @@ void ShaderProgram::attachShaders()
     }
 }
 
-void ShaderProgram::detachShader( std::uint32_t id )
+void ShaderProgram::detachShader( EExecuteType /*inEt*/, std::uint32_t id )
 {
     getDevice()->dettachShader( m_shaderProgramId, id );
 }
 
-void ShaderProgram::link()
+void ShaderProgram::link( EExecuteType inEt )
 {
-    RunOnRenderThread::getInstance().Run(
-        [this]()
-        {
-            linkImpl();
-        } );
+    if( inEt == EExecuteType::Now )
+    {
+        linkImpl();
+    }
+    else if( inEt == EExecuteType::WaitForCompletion )
+    {
+        RunOnRenderThread::getInstance().RunWaitForResult(
+            [this]()
+            {
+                linkImpl();
+            } );
+    }
+    else
+    {
+        CUL::Assert::check( false, "ShaderProgram::link wrong execute type!" );
+    }
 }
 
 void ShaderProgram::linkImpl()
 {
     getDevice()->linkProgram( m_shaderProgramId );
+    getDevice()->useProgram( m_shaderProgramId );
     m_linked = true;
     m_uniformMapping.clear();  // Might have changed on link.
 
-    const auto attributes = getDevice()->fetchProgramAttributeInfo( m_shaderProgramId );
+    const auto attributes = getDevice()->fetchProgramAttributeInfo( static_cast<std::int32_t>( m_shaderProgramId ) );
     for( const auto& attribute : attributes )
     {
         ShaderVariable sv;
@@ -178,21 +299,9 @@ unsigned int ShaderProgram::getId() const
     return m_shaderProgramId;
 }
 
-void ShaderProgram::useShader() const
-{
-
-}
-
-void ShaderProgram::reload()
-{
-    //m_shaderCode->reload();
-    //release();
-    //create();
-}
-
 void ShaderProgram::create()
 {
-    RunOnRenderThread::getInstance().Run(
+    RunOnRenderThread::getInstance().RunWaitForResult(
         [this]()
         {
             m_shaderProgramId = getDevice()->createProgram( getName() );
@@ -204,14 +313,20 @@ CShaderTypes::ShaderType ShaderProgram::getType() const
     return m_type;
 }
 
-
-void ShaderProgram::setUniform( const String& inName, UniformValue inValue )
+void ShaderProgram::setUniform( EExecuteType inEt, const String& inName, UniformValue inValue, bool inIsRenderingThread )
 {
-    RunOnRenderThread::getInstance().Run(
-        [this, inName, inValue]()
-        {
-            setUniformImpl( inName, inValue );
-        } );
+    if( inIsRenderingThread )
+    {
+        setUniformImpl( inName, inValue );
+    }
+    else
+    {
+        m_tasks.addTask(
+            [this, inName, inValue]()
+            {
+                setUniformImpl( inName, inValue );
+            } );
+    }
 }
 
 void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
@@ -224,7 +339,6 @@ void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
 
     ShaderVariable& sv = it->second;
 
-    enable();
     switch( sv.Type )
     {
         case DataType::FLOAT:
@@ -291,10 +405,24 @@ int ShaderProgram::getAttributeI( const String& name )
 
 void ShaderProgram::enable()
 {
-    if( m_linked )
+    ZoneScoped;
+    CUL::Assert::check( m_shaderProgramId != 0u, "NO SHADER IS BEING USED." );
+    if( m_linked ) [[likely]]
     {
         getDevice()->useProgram( m_shaderProgramId );
+        m_tasks.executeAll();
     }
+    else
+    {
+        m_tasks.executeAll();
+    }
+
+    CUL::Assert::check( m_linked, "NO SHADER IS BEING USED." );
+}
+
+void ShaderProgram::runOnRenderingThread( std::function<void( void )> inFunction )
+{
+    m_tasks.addTask( inFunction );
 }
 
 void ShaderProgram::disable()

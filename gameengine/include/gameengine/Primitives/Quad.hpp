@@ -2,6 +2,7 @@
 
 #include "gameengine/IObject.hpp"
 #include "gameengine/IUtilityUser.hpp"
+#include "gameengine/AttributeMeta.hpp"
 
 #include "CUL/Graphics/Color.hpp"
 #include "CUL/IRegisteredObject.hpp"
@@ -16,7 +17,10 @@ class IGameEngine;
 class TransformComponent;
 class VertexArray;
 
-class Quad final: public IUtilityUser, public IObject, public CUL::IRegisterdObject
+class Quad final:
+    public IUtilityUser,
+    public IObject,
+    public CUL::IRegisterdObject
 {
 public:
     GAME_ENGINE_API Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
@@ -26,25 +30,29 @@ public:
     GAME_ENGINE_API ~Quad();
 
 protected:
+    void onNameChange( const CUL::String& newName ) override;
+
 private:
     void render() override;
     void init();
     void createBuffers();
     void createShaders();
-    void setTransformation();
-    void applyColor();
+    void setTransformationAndColor();
     void release();
+    void updateBuffers();
+    void updateBuffers_impl();
     void setSize( const glm::vec3& size );
 
     CUL::MATH::Primitives::Quad m_shape;
     glm::mat4 m_model;
+    VertexData m_vboData;
 
     TransformComponent* m_transformComponent{ nullptr };
-    std::atomic<bool> m_recreateBuffers = true;
 
     IGameEngine& m_engine;
 
     CUL::Graphics::ColorS m_color;
+    bool m_unbindBuffersAfterDraw{ false };
 
 // Deleted
 private:

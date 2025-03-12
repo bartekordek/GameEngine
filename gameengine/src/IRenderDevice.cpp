@@ -6,6 +6,7 @@
 
 #include "RunOnRenderThread.hpp"
 #include "CUL/CULInterface.hpp"
+#include "CUL/Log/ILogger.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
 
 using namespace LOGLW;
@@ -72,7 +73,7 @@ void IRenderDevice::log( const String& text, const CUL::LOG::Severity severity )
 
     if( m_lastLog != text )
     {
-        m_logger->log( text, severity );
+        CUL::LOG::ILogger::getInstance().logVariable( severity, *text );
         m_lastLog = text;
     }
 }
@@ -111,11 +112,6 @@ void IRenderDevice::setObjectName( EObjectType, std::uint32_t, const CUL::String
 void IRenderDevice::removeShader( unsigned shaderId )
 {
     throw std::logic_error( "Method not implemented." );
-}
-
-void IRenderDevice::setAttribValue( int /*attributeLocation*/, float /*value*/ )
-{
-    CUL::Assert::simple( false, "Method not implemented." );
 }
 
 void IRenderDevice::setAttribValue( int /*attributeLocation*/, int /*value*/ )
@@ -180,13 +176,20 @@ unsigned IRenderDevice::getGPUTotalAvailableMemoryKb()
 
 unsigned IRenderDevice::getGPUCurrentAvailableMemoryKb()
 {
-    throw std::logic_error( "Method not implemented" );
+    CUL::Assert::check( false, "IRenderDevice::getGPUCurrentAvailableMemoryKb: Method not implemented." );
     return 0u;
 }
 
 ShaderUnit* IRenderDevice::createShaderUnit( const CUL::FS::Path&, bool, CUL::String& )
 {
-    throw std::logic_error( "Method not implemented" );
+    CUL::Assert::check( false, "IRenderDevice::createShaderUnit: Method not implemented." );
+    return nullptr;
+}
+
+ShaderUnit* IRenderDevice::createShaderUnitForce(const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage)
+{
+    CUL::Assert::check( false, "IRenderDevice::createShaderUnitForce: Method not implemented." );
+    return nullptr;
 }
 
 void IRenderDevice::deleteShaderUnit( ShaderUnit* )
@@ -322,10 +325,10 @@ void IRenderDevice::drawElements( const PrimitiveType, const CUL::DataWrapper& )
     CUL::Assert::check( false, "IRenderDevice::drawElements - Method not implemented." );
 }
 
-LOGLW::UniformValue IRenderDevice::getUniformValue( std::int32_t, std::int32_t, DataType )
+UniformValue IRenderDevice::getUniformValue( std::int32_t, std::int32_t, DataType )
 {
     CUL::Assert::check( false, "IRenderDevice::getUniformValue - Method not implemented." );
-    return LOGLW::UniformValue();
+    return UniformValue();
 }
 
 void IRenderDevice::createQuad( float scale )

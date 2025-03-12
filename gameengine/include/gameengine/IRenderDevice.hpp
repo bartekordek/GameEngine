@@ -157,7 +157,8 @@ enum class EObjectType : uint8_t
     SAMPLER,
     TEXTURE,
     RENDERBUFFER,
-    FRAMEBUFFER
+    FRAMEBUFFER,
+    ELEMENT_ARRAY_BUFFER
 };
 
 class GAME_ENGINE_API IRenderDevice
@@ -179,6 +180,7 @@ public:
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up );
 
     virtual ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
+    virtual ShaderUnit* createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
     virtual void deleteShaderUnit( ShaderUnit* inShaderUnit );
 
     // General
@@ -201,7 +203,6 @@ public:
 
     virtual ContextInfo initContextVersion( LOGLW::IWindow* window ) = 0;
 
-    virtual void setAttribValue( int attributeLocation, float value );
     virtual void setAttribValue( int attributeLocation, int value );
     virtual void setAttribValue( int attributeLocation, unsigned value );
     virtual void setAttribValue( int attributeLocation, bool value );

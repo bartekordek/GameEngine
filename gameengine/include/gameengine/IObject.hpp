@@ -19,7 +19,9 @@ class ShaderProgram;
 class TransformComponent;
 class VertexArray;
 
-class IObject: public IRenderable, public CUL::IName
+class IObject:
+    public IRenderable,
+    public CUL::IName
 {
 public:
     GAME_ENGINE_API IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy );
@@ -51,6 +53,7 @@ public:
     GAME_ENGINE_API virtual ~IObject();
 
 protected:
+    GAME_ENGINE_API void onNameChange( const CUL::String& newName ) override;
     IGameEngine& getEngine();
 
     bool getForceLegacy() const;
@@ -58,7 +61,9 @@ protected:
 private:
     void addParent( IObject* parent );
     void removeChild( IObject* child, bool lock );
-
+    void createVaoImpl();
+    ShaderProgram* m_shaderProgram = nullptr;
+    VertexArray* m_vao = nullptr;
     bool m_removeByParent = false;
     IGameEngine& m_engine;
     bool m_forceLegacy = false;
@@ -72,8 +77,7 @@ private:
     std::mutex m_childrenMtx;
     std::set<IObject*> m_children;
 
-    ShaderProgram* m_shaderProgram{ nullptr };
-    VertexArray* m_vao{ nullptr };
+
 
     // Deleted:
     IObject( const IObject& value ) = delete;

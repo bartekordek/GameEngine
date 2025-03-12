@@ -2,82 +2,93 @@
 
 #include "gameengine/IObject.hpp"
 #include "gameengine/IUtilityUser.hpp"
-#include "gameengine/IRenderDevice.hpp"
+#include "gameengine/AttributeMeta.hpp"
 
-NAMESPACE_BEGIN( CUL )
-class CULInterface;
+#include "CUL/Graphics/Color.hpp"
+#include "CUL/IRegisteredObject.hpp"
+#include "CUL/Math/Primitives/Quad.hpp"
 
-NAMESPACE_BEGIN( Graphics )
-class IImageLoader;
+#include "CUL/STL_IMPORTS/STD_atomic.hpp"
+
+namespace CUL::Graphics
+{
 class IImage;
+class IImageLoader;
 class ImageInfo;
-NAMESPACE_END( Graphics )
-
-NAMESPACE_END( CUL )
+}
 
 NAMESPACE_BEGIN( LOGLW )
 
 class Camera;
+class IGameEngine;
 class TransformComponent;
 class VertexArray;
-class VertexBuffer;
-struct VertexData;
+struct TextureInfo;
 
-class Sprite final: public IObject, public IUtilityUser
+struct GAME_ENGINE_API UV
+{
+    float X;
+    float Y;
+};
+
+class Sprite final: public IUtilityUser, public IObject, public CUL::IRegisterdObject
 {
 public:
-    Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy = false );
+    GAME_ENGINE_API Sprite( IGameEngine& engine, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
     GAME_ENGINE_API void LoadImage( unsigned char* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader*,
                                     unsigned textureId );
-
-    GAME_ENGINE_API void setName( const CUL::String& name ) override;
-
-    GAME_ENGINE_API void render() override;
     GAME_ENGINE_API const CUL::Graphics::ImageInfo& getImageInfo() const;
     GAME_ENGINE_API unsigned char* getData() const;
+    GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
+
+    GAME_ENGINE_API const std::array<UV, 4>& getUV() const;
+    GAME_ENGINE_API void setUV( const UV& inUV, std::size_t index );
 
     GAME_ENGINE_API ~Sprite();
 
 protected:
+    void onNameChange( const CUL::String& newName ) override;
+
 private:
+    void render() override;
     void init();
-    bool m_initialized = false;
-
-    enum class TaskType : short
-    {
-        CREATE_VAO = 1,
-        CREATE_VBO,
-        CREATE_VAO_VBO
-    };
-
-    void renderModern();
-    void renderLegacy();
+    void createBuffers();
+    void createShaders();
+    void setTransformationAndColor();
     void release();
-    void fixAspectRatio();
+    void updateBuffers();
+    void updateBuffers_impl();
+    void setSize( const glm::vec3& size );
 
-    unsigned m_textureId = 0u;
-    std::unique_ptr<VertexData> m_vertexData;
 
-    TransformComponent* m_transformComponent = nullptr;
+    std::int32_t m_textureId{ 0 };
+    std::array<std::array<float,8>, 4> m_vertexData;
 
-    Camera* m_camera = nullptr;
-    CUL::CULInterface* m_cul = nullptr;
 
-    CUL::Graphics::IImage* m_image = nullptr;
 
-    TextureInfo m_textureInfo;
+    std::array<UV, 4> m_uvList;
+    glm::mat4 m_model;
 
-    unsigned m_elementBufferId = 0u;
-    VertexArray* m_vao = nullptr;
-    VertexBuffer* m_vbo = nullptr;
+    VertexData m_vboData;
 
-    // Deleted:
-    Sprite( const Sprite& arg ) = delete;
-    Sprite( Sprite&& arg ) = delete;
-    Sprite& operator=( const Sprite& rhv ) = delete;
-    Sprite& operator=( Sprite&& rhv ) = delete;
+    TransformComponent* m_transformComponent{ nullptr };
+
+    IGameEngine& m_engine;
+
+    CUL::Graphics::ColorS m_color;
+    bool m_unbindBuffersAfterDraw{ false };
+
+    CUL::Graphics::IImage* m_image{ nullptr };
+    std::unique_ptr<LOGLW::TextureInfo> m_textureInfo;
+
+    // Deleted
+private:
+    Sprite( Sprite& ) = delete;
+    Sprite( Sprite&& ) = delete;
+    Sprite& operator=( const Sprite& ) = delete;
+    Sprite& operator=( const Sprite&& ) = delete;
 };
 
 NAMESPACE_END( LOGLW )

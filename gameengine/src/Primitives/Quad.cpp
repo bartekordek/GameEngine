@@ -1,5 +1,6 @@
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Camera.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/IObject.hpp"
@@ -21,8 +22,6 @@ constexpr const char* g_defaultQuadName =  "Quad" ;
 Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy )
     : IObject( "", &engine, forceLegacy ), m_engine( engine )
 {
-    setName( "quad_" + CUL::String( getId() ) );
-
     m_transformComponent = getTransform();
     setParent( parent );
 
@@ -31,36 +30,22 @@ Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
     // TODO: add normals
     setSize( { size, size, 0 } );
-    createProgram();
 
-    RunOnRenderThread::getInstance().Run(
+    RunOnRenderThread::getInstance().RunWaitForResult(
         [this]()
         {
             init();
         } );
     m_transformComponent->changeSizeDelegate.addDelegate(
-        []()
+        [this]()
         {
-            //m_recreateBuffers = true;
+            updateBuffers();
         } );
+}
 
-
-    IName::AfterNameChangeCallback = [this]( const CUL::String& /*newName*/ )
-    {
-        RunOnRenderThread::getInstance().Run(
-            [this]()
-            {
-                if( auto program = getProgram() )
-                {
-                    program->setName( getName() + "::shader_program" );
-                }
-
-                if( VertexArray* vao = this->getVao() )
-                {
-                    vao->setName( getName() + "::vao" );
-                }
-            } );
-    };
+void Quad::onNameChange( const String& newName )
+{
+    IObject::onNameChange( newName );
 }
 
 void Quad::setColor( const CUL::Graphics::ColorS& color )
@@ -80,40 +65,69 @@ void Quad::init()
     }
     else
     {
+        getVao()->setProgram( getProgram() );
+
         createBuffers();
         createShaders();
 
-        setTransformation();
+        setTransformationAndColor();
     }
 }
 
 void Quad::createBuffers()
 {
-    createVao();
+    updateBuffers();
+}
 
+void Quad::updateBuffers()
+{
+    /*RunOnRenderThread::getInstance().RunWaitForResult(
+        [this]()
+        {
+            updateBuffers_impl();
+        } );*/
+    updateBuffers_impl();
+}
+
+void Quad::updateBuffers_impl()
+{
     const auto size = m_transformComponent->getSize();
 
     setSize( size.toGlmVec() );
 
-    VertexData vboData;
     std::vector<std::uint32_t> indices = {
         // note that we start from 0!
         0, 1, 3,  // first Triangle
         1, 2, 3   // second Triangle
     };
 
-    vboData.Indices.createFrom( indices );
+    m_vboData.Indices.createFrom( indices );
 
-    vboData.Data.createFrom( m_shape.toVectorOfFloat() );
-    vboData.Attributes.emplace_back( AttributeMeta( "pos", 0, 3, LOGLW::DataType::FLOAT, false, (int)CUL::MATH::Primitives::Quad::getStride(), nullptr ) );
-    vboData.Attributes.emplace_back( AttributeMeta( "nor", 1, 3, LOGLW::DataType::FLOAT, false, (int)CUL::MATH::Primitives::Quad::getStride(), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
+    m_vboData.Data.createFrom( m_shape.toVectorOfFloat() );
 
-    vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
+    m_vboData.Attributes.clear();
 
-    getVao()->setDisableRenderOnMyOwn( true );
-    vboData.VAO = getVao()->getId();
+    AttributeMeta am;
+    am.Name = "pos";
+    am.Index = 0;
+    am.Size = 3;
+    am.Type = LOGLW::DataType::FLOAT;
+    am.StrideBytes = (int)CUL::MATH::Primitives::Quad::getStride();
+    m_vboData.Attributes.emplace_back( am );
 
-    getVao()->addVertexBuffer( vboData );
+    am.Name = "nor";
+    am.Index = 1;
+    am.Size = 3;
+    am.Type = LOGLW::DataType::FLOAT;
+    am.StrideBytes = (int)CUL::MATH::Primitives::Quad::getStride();
+    am.DataOffset = reinterpret_cast<void*>( 3 * sizeof( float ) );
+    m_vboData.Attributes.emplace_back( am );
+
+    m_vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
+
+    m_vboData.VAO = getVao()->getId();
+
+    getVao()->updateVertexBuffer( m_vboData );
 }
 
 void Quad::setSize( const glm::vec3& size )
@@ -126,13 +140,12 @@ void Quad::setSize( const glm::vec3& size )
 
 void Quad::createShaders()
 {
-    getProgram()->setName( getName() + "::program" );
-
     CUL::String errorContent;
-    getProgram()->compileShader( "embedded_shaders/basic_color.frag" );
-    getProgram()->compileShader( "embedded_shaders/basic_pos.vert" );
-    getProgram()->link();
-    getProgram()->validate();
+    ShaderProgram::ShadersData sd;
+    sd.FragmentShader = "embedded_shaders/basic_color.frag";
+    sd.VertexShader = "embedded_shaders/basic_pos.vert";
+
+    getProgram()->createFrom( EExecuteType::ExecuteOnRenderThread, sd );
 }
 
 void Quad::render()
@@ -144,38 +157,35 @@ void Quad::render()
     }
     else
     {
-        if( m_recreateBuffers )
-        {
-            deleteVao();
-            createBuffers();
-            m_recreateBuffers = false;
-        }
+        setTransformationAndColor();
 
-        getProgram()->enable();
-        setTransformation();
-        applyColor();
         getVao()->render();
 
-        getProgram()->disable();
+        if( m_unbindBuffersAfterDraw == true )
+        {
+            getProgram()->disable();
+        }
     }
 }
 
-void Quad::setTransformation()
+void Quad::setTransformationAndColor()
 {
+    ZoneScoped;
     const Camera& camera = m_engine.getCamera();
     const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     const glm::mat4 viewMatrix = camera.getViewMatrix();
 
     const glm::mat4 model = m_transformComponent->getModel();
 
-    getProgram()->setUniform( "projection", projectionMatrix );
-    getProgram()->setUniform( "view", viewMatrix );
-    getProgram()->setUniform( "model", model );
-}
-
-void Quad::applyColor()
-{
-    getProgram()->setUniform( "color", m_color.getVec4() );
+    ShaderProgram* shaderProgram = getProgram();
+    shaderProgram->runOnRenderingThread(
+        [this, shaderProgram, projectionMatrix, viewMatrix, model]()
+        {
+            shaderProgram->setUniform( EExecuteType::Now , "projection", projectionMatrix, true );
+            shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix, true );
+            shaderProgram->setUniform( EExecuteType::Now, "model", model, true );
+            shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4(), true );
+        } );
 }
 
 Quad::~Quad()

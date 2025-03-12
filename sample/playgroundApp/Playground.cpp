@@ -91,12 +91,6 @@ void Playground::afterInit()
                                                  {
                                                  } );
 
-    const float size = 32.f;
-    LOGLW::TriangleData values;
-    values[0] = LOGLW::PointType( size, -size, 0.0f );
-    values[1] = LOGLW::PointType{ -size, -size, 0.0f };
-    values[2] = LOGLW::PointType{ -size, size, 0.0f };
-
     const float z = 26.f;
     const float x = 1.f;
     const float yTriangle = -1.f;

@@ -57,15 +57,14 @@ private:
     void validateProgram( std::uint32_t programId ) override;
 
     ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage ) override;
+    ShaderUnit* createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage ) override;
     void deleteShaderUnit( ShaderUnit* inShaderUnit ) override;
     bool attachShader( unsigned programId, unsigned shaderId ) override;
     void dettachShader( unsigned programId, unsigned shaderId ) override;
     void removeShader( unsigned shaderId ) override;
     void useProgram( int programId ) override;
     int getCurrentProgram() const override;
-    int m_currentProgram = 0;
 
-    void setAttribValue( int attributeLocation, float value ) override;
     void setAttribValue( int attributeLocation, int value ) override;
     void setAttribValue( int attributeLocation, unsigned value ) override;
     void setAttribValue( int attributeLocation, bool value ) override;

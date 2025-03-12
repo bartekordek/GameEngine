@@ -23,18 +23,17 @@ public:
     GAME_ENGINE_API Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
-    GAME_ENGINE_API ShaderProgram* getProgram() const;
-    GAME_ENGINE_API void setName( const CUL::String& name ) override;
     GAME_ENGINE_API ~Triangle();
 
 protected:
+    GAME_ENGINE_API void onNameChange( const CUL::String& newName ) override;
+
 private:
     void render() override;
     void init();
     void createBuffers();
     void createShaders();
-    void setTransformation();
-    void applyColor();
+    void setColorAndTransformation();
     void release();
     void deleteBuffers();
     void setSize( const glm::vec3& size );
@@ -44,13 +43,12 @@ private:
 
     TransformComponent* m_transformComponent = nullptr;
     std::atomic<bool> m_recreateBuffers = false;
-    ShaderProgram* m_shaderProgram = nullptr;
-    VertexArray* m_vao = nullptr;
 
     Camera& m_camera;
     IGameEngine& m_engine;
 
     CUL::Graphics::ColorS m_color;
+    bool m_unbindBuffersAfterDraw{ false };
 
     // Deleted
 private:

@@ -1,6 +1,7 @@
 #include "gameengine/Render/PointLight.hpp"
 #include "gameengine/AttributeMeta.hpp"
 #include "gameengine/Camera.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
@@ -54,13 +55,12 @@ void PointLight::init()
     m_vao = getEngine().createVAO();
     vboData.VAO = m_vao->getId();
     m_vao->addVertexBuffer( vboData );
-    m_vao->setDisableRenderOnMyOwn( true );
 
     getProgram()->setName( getName() + "::program" );
     CUL::String errorContent;
-    getProgram()->compileShader( "embedded_shaders/basic_color.frag" );
-    getProgram()->compileShader( "embedded_shaders/basic_pos.vert" );
-    getProgram()->link();
+    getProgram()->compileShader( EExecuteType::Now, "embedded_shaders/basic_color.frag" );
+    getProgram()->compileShader( EExecuteType::Now, "embedded_shaders/basic_pos.vert" );
+    getProgram()->link( EExecuteType::Now );
     constexpr float initialScale = 0.1f;
     getProgram()->validate();
     getTransform()->setScale( { initialScale, initialScale, initialScale } );
@@ -85,9 +85,9 @@ void PointLight::setTransformation()
 
     const glm::mat4 model = m_transformComponent->getModel();
 
-    getProgram()->setUniform( "projection", projectionMatrix );
-    getProgram()->setUniform( "view", viewMatrix );
-    getProgram()->setUniform( "model", model );
+    getProgram()->setUniform( EExecuteType::Now, "projection", projectionMatrix );
+    getProgram()->setUniform( EExecuteType::Now, "view", viewMatrix );
+    getProgram()->setUniform( EExecuteType::Now, "model", model );
 }
 
 void PointLight::setColor( const CUL::Graphics::ColorS& color )
@@ -102,7 +102,7 @@ void PointLight::setColor( const CUL::Graphics::ColorS& color )
 
 void PointLight::applyColor()
 {
-    getProgram()->setUniform( "color", m_color.getVec4() );
+    getProgram()->setUniform( EExecuteType::Now, "color", m_color.getVec4() );
 }
 
 PointLight::~PointLight()

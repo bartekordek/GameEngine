@@ -2,6 +2,7 @@
 
 #include "gameengine/Camera.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/Primitives/Triangle.hpp"
 #include "gameengine/VertexArray.hpp"
 
@@ -201,7 +202,7 @@ const ContextInfo& GameEngineConcrete::getContext() const
 
 Sprite* GameEngineConcrete::createSprite( const String& path, bool )
 {
-    auto sprite = new Sprite( &getCamera(), getCul(), this );
+    auto sprite = new Sprite( *this, nullptr, false );
 
     CUL::FS::Path fsPath = path;
     CUL::Assert::simple( fsPath.exists(), "File " + path + " does not exist.", m_logger );
@@ -213,7 +214,7 @@ Sprite* GameEngineConcrete::createSprite( const String& path, bool )
 
 Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width, unsigned height, bool )
 {
-    auto sprite = new Sprite( &getCamera(), getCul(), this );
+    auto sprite = new Sprite( *this, nullptr, false );
     auto textureId = m_renderDevice->generateTexture();
     sprite->LoadImage( (CUL::Graphics::DataType*)data, width, height, m_imageLoader, textureId );
     m_renderDevice->bindTexture( textureId );
@@ -320,7 +321,7 @@ void GameEngineConcrete::initialize()
     m_backgroundColor.setAlphaF( 0.0 );
     setBackgroundColor( m_backgroundColor );
 
-    showExtensions();
+    //showExtensions();
 
     getDevice()->toggleDebugOutput( true );
 
@@ -616,63 +617,8 @@ void GameEngineConcrete::renderInfo()
 #pragma warning( pop )
 #endif
 
-bool drawValues( glm::vec3& inOutValue, const CUL::String& inName )
-{
-    ImGui::Text( "%s", inName.cStr() );
-    constexpr float itemWidth{ 128.f };
 
-    bool changed{ false };
-
-    constexpr std::size_t stringBufferLength{ 32u };
-    static char stringBuffer[stringBufferLength];
-
-    constexpr std::size_t labelBufferLength{ 32u };
-    static char labelBuffer[labelBufferLength];
-
-    sprintf( labelBuffer, "##%s-xyz", inName.cStr() );
-
-    ImGuiInputTextFlags flags{ 0 };
-    changed = ImGui::InputFloat3( labelBuffer, &inOutValue.x, "%4.4f", flags );
-
-    sprintf( labelBuffer, "##%s-s", inName.cStr() );
-
-    constexpr float epsilon{0.00001};
-    if(
-        CUL::MATH::Utils::equals( inOutValue.x, inOutValue.y, epsilon ) &&
-        CUL::MATH::Utils::equals( inOutValue.x, inOutValue.z, epsilon ) )
-    {
-        float valueAsOne = inOutValue.x;
-        changed = ImGui::InputFloat( labelBuffer, &valueAsOne );
-        if( changed )
-        {
-            inOutValue.x = inOutValue.y = inOutValue.z = valueAsOne;
-        }
-    }
-
-    return changed;
-}
-
-void drawTransformData( LOGLW::TransformComponent* transform )
-{
-    glm::vec3 trans = transform->getPositionToParent();
-    if( drawValues( trans, "trans" ) )
-    {
-        transform->setPositionToParent( trans );
-    }
-
-    glm::vec3 scale = transform->getScale();
-    if( drawValues( scale, "scale" ) )
-    {
-        transform->setScale( scale );
-    }
-
-    ImGui::Text( "x: %4.2f y: %4.2f y: %4.2f", trans.x, trans.y, trans.z );
-
-    const CUL::MATH::Rotation rot = transform->getRotationToParent();
-    ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", rot.Pitch, rot.Yaw, rot.Roll );
-}
-
-void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name )
+void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name )
 {
     if( shownList.find( currentObject ) != shownList.end() )
     {
@@ -685,6 +631,13 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
     if( ImGui::TreeNode( name.cStr() ) )
     {
         ImGui::Text( "Name: %s", name.cStr() );
+
+        Sprite* spriteObject = dynamic_cast<Sprite*>( currentObject );
+
+        if( spriteObject )
+        {
+            drawSpriteData( spriteObject );
+        }
 
         LOGLW::TransformComponent* transform = currentObject->getTransform();
         if( transform != nullptr && ImGui::TreeNode( "Transform" ) )
@@ -753,7 +706,7 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
 
                             if( hasValueChanged )
                             {
-                                shaderProgram->setUniform( uniformName, value );
+                                shaderProgram->setUniform( EExecuteType::Now, uniformName, value );
                             }
                         }
                         else if( uniformVal.Type == LOGLW::DataType::FLOAT_MAT4 )
@@ -788,7 +741,7 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
                                             if( fString.isFloat() )
                                             {
                                                 f0 = fString.toFloat();
-                                                shaderProgram->setUniform( uniformName, currentValue );
+                                                shaderProgram->setUniform( EExecuteType::Now, uniformName, currentValue );
                                             }
                                         }
                                         ImGui::PopItemWidth();
@@ -815,8 +768,8 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
             LOGLW::VertexData& vertexData = vao->getVertexBuffer( i )->getData();
             const char* primitiveType = LOGLW::BasicTypes::toChar( vertexData.primitiveType );
             ImGui::Text( "Primitive type: %s", primitiveType );
-            ImGui::Text( "VAO ID: %d", vertexData.VAO );
-            ImGui::Text( "VBO ID: %d", vertexData.VBO );
+            ImGui::Text( "VAO: %d, %s", vertexData.VAO, vao->getName().cStr() );
+            ImGui::Text( "VBO: %d", vertexData.VBO );
 
             for( LOGLW::AttributeMeta& meta : vertexData.Attributes )
             {
@@ -918,6 +871,89 @@ void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const C
     }
 }
 
+void GameEngineConcrete::drawSpriteData( Sprite* inSprite )
+{
+    if( ImGui::TreeNode( "UV" ) )
+    {
+        constexpr std::size_t labelBufferLength{ 32u };
+        static char labelBuffer[labelBufferLength];
+
+        auto uvList = inSprite->getUV();
+        std::size_t i{ 0u };
+        for( UV& uv : uvList )
+        {
+            sprintf( labelBuffer, "##_uv_%d", i );
+            float values[2];
+            values[0] = uv.X;
+            values[1] = uv.Y;
+            if (ImGui::InputFloat2(labelBuffer, values))
+            {
+                uv.X = values[0];
+                uv.Y = values[1];
+
+                inSprite->setUV( uv, i );
+            }
+            ++i;
+        }
+
+        ImGui::TreePop();
+    }
+}
+
+void GameEngineConcrete::drawTransformData( LOGLW::TransformComponent* transform )
+{
+    glm::vec3 trans = transform->getPositionToParent();
+    if( drawValues( trans, "trans" ) )
+    {
+        transform->setPositionToParent( trans );
+    }
+
+    glm::vec3 scale = transform->getScale();
+    if( drawValues( scale, "scale" ) )
+    {
+        transform->setScale( scale );
+    }
+
+    ImGui::Text( "x: %4.2f y: %4.2f y: %4.2f", trans.x, trans.y, trans.z );
+
+    const CUL::MATH::Rotation rot = transform->getRotationToParent();
+    ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", rot.Pitch, rot.Yaw, rot.Roll );
+}
+
+bool GameEngineConcrete::drawValues( glm::vec3& inOutValue, const CUL::String& inName )
+{
+    ImGui::Text( "%s", inName.cStr() );
+    constexpr float itemWidth{ 128.f };
+
+    bool changed{ false };
+
+    constexpr std::size_t stringBufferLength{ 32u };
+    static char stringBuffer[stringBufferLength];
+
+    constexpr std::size_t labelBufferLength{ 32u };
+    static char labelBuffer[labelBufferLength];
+
+    sprintf( labelBuffer, "##%s-xyz", inName.cStr() );
+
+    ImGuiInputTextFlags flags{ 0 };
+    changed = ImGui::InputFloat3( labelBuffer, &inOutValue.x, "%4.4f", flags );
+
+    sprintf( labelBuffer, "##%s-s", inName.cStr() );
+
+    constexpr float epsilon{ 0.00001 };
+    if( CUL::MATH::Utils::equals( inOutValue.x, inOutValue.y, epsilon ) && CUL::MATH::Utils::equals( inOutValue.x, inOutValue.z, epsilon ) )
+    {
+        float valueAsOne = inOutValue.x;
+        changed = ImGui::InputFloat( labelBuffer, &valueAsOne );
+        if( changed )
+        {
+            inOutValue.x = inOutValue.y = inOutValue.z = valueAsOne;
+        }
+    }
+
+    return changed;
+}
+
 void GameEngineConcrete::prepareProjection()
 {
 }
@@ -950,7 +986,6 @@ void GameEngineConcrete::renderObjects()
     std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
     for( auto& renderableObject : m_objectsToRender )
     {
-        m_renderDevice->useProgram( 0u );
         const auto threadName = CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
         renderableObject->render();
     }

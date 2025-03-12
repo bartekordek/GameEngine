@@ -7,6 +7,7 @@
 #include "gameengine/Viewport.hpp"
 
 #include "gameengine/Events/ISDLEventObserver.hpp"
+#include "gameengine/IRenderDevice.hpp"
 
 #include "CUL/GenericUtils/LckPrim.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
@@ -117,6 +118,10 @@ private:
     void prepareProjection();
     void setEyePos( const glm::vec3& pos ) override;
     void renderObjects();
+    void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name );
+    void drawTransformData( LOGLW::TransformComponent* transform );
+    bool drawValues( glm::vec3& inOutValue, const CUL::String& inName );
+    void drawSpriteData( Sprite* inSprite );
 
     void release();
 

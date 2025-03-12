@@ -1,45 +1,76 @@
 #include "gameengine/Sprite.hpp"
-#include "gameengine/IRenderDevice.hpp"
-#include "gameengine/VertexArray.hpp"
-#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Camera.hpp"
-#include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/IGameEngine.hpp"
+#include "gameengine/IRenderDevice.hpp"
+#include "gameengine/IObject.hpp"
+#include "gameengine/VertexArray.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/AttributeMeta.hpp"
 #include "RunOnRenderThread.hpp"
-
 #include "CUL/Graphics/IImageLoader.hpp"
-#include "CUL/Math/Algorithms.hpp"
-#include "CUL/Filesystem/FileFactory.hpp"
-#include "CUL/Graphics/IImage.hpp"
+#include "CUL/IMPORT_tracy.hpp"
 
-#undef LoadImage
+#include "CUL/IMPORT_GLM.hpp"
+
 
 using namespace LOGLW;
 
-Sprite::Sprite( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy )
-    : IObject( "Sprite", engine, forceLegacy ), m_camera( camera ), m_cul( cul )
-{
-    m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-    m_transformComponent->setSize( CUL::MATH::Point( 2.f, 2.f, 2.f ) );
-    m_vertexData = std::make_unique<VertexData>();
+constexpr const char* g_defaultSpriteName = "Sprite";
 
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
-    {
-        getEngine().addPostRenderTask(
-            [this]()
-            {
-                getProgram()->setName( getName() + "::program" );
-                m_vao->setName( getName() + "::vao" );
-                m_vbo->setName( getName() + "::vbo" );
-                getDevice()->setObjectName( EObjectType::TEXTURE, m_textureId, getName() + "::texture" );
-            } );
-    };
+Sprite::Sprite( IGameEngine& engine, IObject* parent, bool forceLegacy )
+    : IObject( "", &engine, forceLegacy ), m_engine( engine )
+{
+    m_transformComponent = getTransform();
+    setParent( parent );
+
+    m_uvList[0] = { 0.f, 0.f };
+    m_uvList[1] = { 1.f, 0.f };
+    m_uvList[2] = { 1.f, 1.f };
+    m_uvList[3] = { 0.f, 1.f };
+
+    m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
+    constexpr float size = 4.f;
+    m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
+    // TODO: add normals
+    setSize( { size, size, 0 } );
+
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this]()
+        {
+            init();
+        } );
+    m_transformComponent->changeSizeDelegate.addDelegate(
+        [this]()
+        {
+            const auto size = m_transformComponent->getSize();
+            setSize( size.toGlmVec() );
+            updateBuffers();
+        } );
+
+    m_textureInfo = std::make_unique<LOGLW::TextureInfo>();
+}
+
+void Sprite::onNameChange( const String& newName )
+{
+    IObject::onNameChange( newName );
+    getDevice()->setObjectName( EObjectType::TEXTURE, static_cast<std::uint32_t>( m_textureId ), getName() + "/texture" );
 }
 
 void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader )
 {
     m_image = imageLoader->loadImage( imagePath );
+    const auto& ii = getImageInfo();
+    m_textureInfo->pixelFormat = CUL::Graphics::PixelFormat::RGBA;
+    m_textureInfo->size = ii.canvasSize;
+    m_textureInfo->data = getData();
+    m_textureInfo->textureId = m_textureId;
+    m_textureInfo->initialized = true;
+
+    getDevice()->setTextureData( m_textureId, *m_textureInfo );
+    getDevice()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
+    getDevice()->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
 }
 
 void Sprite::LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader* imageLoader,
@@ -47,44 +78,60 @@ void Sprite::LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned 
 {
     m_image = imageLoader->loadImage( (unsigned char*)data, width, height );
 
-    m_textureId = getDevice()->generateTexture();
+    m_textureId = static_cast<std::int32_t>( getDevice()->generateTexture() );
 
-    m_textureInfo.data = data;
-    m_textureInfo.level = 0;
-    m_textureInfo.border = 0;
-    m_textureInfo.dataType = DataType::UNSIGNED_BYTE;
-    m_textureInfo.pixelFormat = CUL::Graphics::PixelFormat::RGBA;
-    m_textureInfo.textureId = m_textureId;
-    m_textureInfo.size.width = width;
-    m_textureInfo.size.height = height;
-    m_textureInfo.initialized = true;
+    m_textureInfo->data = data;
+    m_textureInfo->level = 0;
+    m_textureInfo->border = 0;
+    m_textureInfo->dataType = DataType::UNSIGNED_BYTE;
+    m_textureInfo->pixelFormat = CUL::Graphics::PixelFormat::RGBA;
+    m_textureInfo->textureId = m_textureId;
+    m_textureInfo->size.width = width;
+    m_textureInfo->size.height = height;
+    m_textureInfo->initialized = true;
 
-    getDevice()->setTextureData( m_textureId, m_textureInfo );
+    getDevice()->setTextureData( m_textureId, *m_textureInfo );
 }
 
-void Sprite::render()
+void Sprite::setColor( const CUL::Graphics::ColorS& color )
+{
+    m_color = color;
+    glm::vec4 colorVec;
+    colorVec.x = m_color.getRF();
+    colorVec.y = m_color.getGF();
+    colorVec.z = m_color.getBF();
+    colorVec.w = m_color.getAF();
+}
+
+void Sprite::init()
 {
     if( getDevice()->isLegacy() )
     {
-        renderLegacy();
     }
     else
     {
-        renderModern();
+        getVao()->setProgram( getProgram() );
+        m_textureId = getDevice()->generateTexture();
+        createBuffers();
+        createShaders();
+
+        setTransformationAndColor();
     }
 }
 
-void Sprite::setName( const CUL::String& name )
+void Sprite::createBuffers()
 {
-    IObject::setName( name );
-    if( getProgram() )
-    {
-        getProgram()->setName( getName() + "::shader_program" );
-    }
-    if( m_vao )
-    {
-        m_vao->setName( getName() + "::shader_program::vao" );
-    }
+    updateBuffers();
+}
+
+void Sprite::updateBuffers()
+{
+    /*RunOnRenderThread::getInstance().RunWaitForResult(
+        [this]()
+        {
+            updateBuffers_impl();
+        } );*/
+    updateBuffers_impl();
 }
 
 const CUL::Graphics::ImageInfo& Sprite::getImageInfo() const
@@ -97,208 +144,132 @@ CUL::Graphics::DataType* Sprite::getData() const
     return m_image->getData();
 }
 
-void Sprite::renderModern()
+
+void Sprite::setUV( const UV& inUV, std::size_t index )
 {
-    if( !m_initialized )
+    m_uvList[index] = inUV;
+    const auto size = m_transformComponent->getSize();
+    setSize( size.toGlmVec() );
+    updateBuffers_impl();
+}
+
+void Sprite::updateBuffers_impl()
+{
+    std::vector<std::uint32_t> indices = {
+        // note that we start from 0!
+        0, 1, 2,  // first Triangle
+        2, 3, 0   // second Triangle
+    };
+    m_vboData.Indices.createFrom( indices );
+
+    FloatData fd;
+    for( const auto& data : m_vertexData )
     {
-        init();
+        for( const auto& dataRow: data )
+        {
+            fd.push_back( dataRow );
+        }
     }
+
+    m_vboData.Data.createFrom( fd );
+
+    m_vboData.Attributes.clear();
+
+    AttributeMeta am;
+    am.Name = "pos";
+    am.Index = 0;
+    am.Size = 3;
+    am.Type = LOGLW::DataType::FLOAT;
+    am.StrideBytes = 5 * sizeof( float );
+    m_vboData.Attributes.emplace_back( am );
+
+    am.Name = "tex";
+    am.Index = 1;
+    am.Size = 2;
+    am.DataOffset = reinterpret_cast<void*>( 3 * sizeof( float ) );
+    m_vboData.Attributes.emplace_back( am );
+
+    m_vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
+
+    m_vboData.VAO = getVao()->getId();
+
+    getVao()->updateVertexBuffer( m_vboData );
+}
+
+void Sprite::setSize( const glm::vec3& size )
+{
+    m_vertexData = { 
+        0.0f, size.y, 0.0f, m_uvList[0].X, m_uvList[0].Y,
+      size.x, size.y, 0.0f, m_uvList[1].X, m_uvList[1].Y,
+      size.x,   0.0f, 0.0f, m_uvList[2].X, m_uvList[2].Y,
+        0.0f,   0.0f, 0.0f, m_uvList[3].X, m_uvList[3].Y
+    };
+}
+
+const std::array<UV, 4>& Sprite::getUV() const
+{
+    return m_uvList;
+}
+
+void Sprite::createShaders()
+{
+    CUL::String errorContent;
+    ShaderProgram::ShadersData sd;
+    sd.FragmentShader = "embedded_shaders/camera.frag";
+    sd.VertexShader = "embedded_shaders/camera.vert";
+
+    getProgram()->createFrom( EExecuteType::ExecuteOnRenderThread, sd );
+}
+
+void Sprite::render()
+{
+    ZoneScoped;
 
     getDevice()->setActiveTextureUnit( ETextureUnitIndex::UNIT_0 );
     getDevice()->bindTexture( m_textureId );
 
-    getProgram()->enable();
-
-    const glm::mat4 model = m_transformComponent->getModel();
-
-    auto projectionMatrix = m_camera->getProjectionMatrix();
-    auto viewMatrix = m_camera->getViewMatrix();
-
-    getProgram()->setUniform( "projection", projectionMatrix );
-    getProgram()->setUniform( "view", viewMatrix );
-    getProgram()->setUniform( "model", model );
-
-    getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
-    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, m_vbo->getId() );
-
-    getDevice()->drawArrays( m_vao->getId(), PrimitiveType::TRIANGLES, 0, 6 );
-
-    getProgram()->disable();
-
-    getDevice()->bindBuffer( BufferTypes::ARRAY_BUFFER, 0 );
-    getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, 0 );
-    getDevice()->bindTexture( 0u );
-}
-
-void Sprite::renderLegacy()
-{
-    if( !m_initialized )
+    if( getDevice()->isLegacy() || getForceLegacy() )
     {
-        init();
-    }
-
-    QuadData values;
-    values[3] = { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f };
-    values[2] = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
-    values[1] = { 1.f, 1.f, 0.f, 0.f, 0.f, 1.f };
-    values[0] = { 0.f, 1.f, 0.f, 0.f, 0.f, 1.f };
-    QuadCUL colors = values;
-
-    const CUL::MATH::Point& size = m_transformComponent->getSize();
-    float x0 = -size.x() / 2.f;
-    float x1 = size.x() / 2.f;
-
-    float y0 = -size.y() / 2.f;
-    float y1 = size.y() / 2.f;
-
-    float z0 = -size.z() / 2.f;
-    //float z1 = size.z() / 2.f;
-
-    values[0] = { x0, y0, z0, 0.f, 0.f, 1.f };
-    values[1] = { x1, y0, z0, 0.f, 0.f, 1.f };
-    values[2] = { x1, y1, z0, 0.f, 0.f, 1.f };
-    values[3] = { x0, y1, z0, 0.f, 0.f, 1.f };
-    QuadCUL positions = values;
-
-    getDevice()->bindTexture( m_textureId );
-
-    const auto position = m_transformComponent->getPositionAbsolut();
-
-    getDevice()->matrixStackPush();
-    getDevice()->translate( position );
-    //static const auto type = CUL::MATH::Angle::Type::DEGREE;
-    const auto rotation = m_transformComponent->getRotationAbsolute();
-    getDevice()->rotate( rotation );
-    getDevice()->draw( positions, colors );
-    getDevice()->matrixStackPop();
-
-    getDevice()->bindTexture( 0 );
-}
-
-void Sprite::init()
-{
-    if( !getDevice()->isLegacy() )
-    {
-        createProgram();
-
-
-        getProgram()->compileShader( "embedded_shaders/camera.frag" );
-        getProgram()->compileShader( "embedded_shaders/camera.vert" );
-        getProgram()->link();
-        getProgram()->validate();
-    }
-
-    if( m_textureId == 0u )
-    {
-        m_textureId = getDevice()->generateTexture();
-    }
-
-    const auto& ii = getImageInfo();
-
-    if( !m_textureInfo.initialized )
-    {
-        m_textureInfo.pixelFormat = CUL::Graphics::PixelFormat::RGBA;
-        m_textureInfo.size = ii.canvasSize;
-        m_textureInfo.data = getData();
-        m_textureInfo.textureId = m_textureId;
-        m_textureInfo.initialized = true;
-
-        getDevice()->setTextureData( m_textureId, m_textureInfo );
-    }
-
-    getDevice()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
-    getDevice()->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
-
-    if( !getDevice()->isLegacy() )
-    {
-        m_vao = getEngine().createVAO();
-        m_vao->setDisableRenderOnMyOwn( true );
-        m_vertexData->VAO = m_vao->getId();
-        getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vao->getId() );
-        getDevice()->enableVertexAttribArray( 0 );
-        getDevice()->enableVertexAttribArray( 1 );
-        fixAspectRatio();
-        const CUL::MATH::Point& size = m_transformComponent->getSize();
-        float x0 = 0.f;
-        float x1 = size.x();
-
-        float y0 = 0.f;
-        float y1 = size.y();
-
-        float z0 = -size.z() / 2.f;
-        // float z1 = size.z() / 2.f;
-
-        std::array<std::array<float, 5>, 6> data;
-        data[0] = { x0, y1, z0, 0.0f, 0.0f };
-        data[1] = { x1, y1, z0, 1.0f, 0.0f };
-        data[2] = { x1, y0, z0, 1.0f, 1.0f };
-        data[3] = { x1, y0, z0, 1.0f, 1.0f };
-        data[4] = { x0, y0, z0, 0.0f, 1.0f };
-        data[5] = { x0, y1, z0, 0.0f, 0.0f };
-
-        std::vector<float> tmp;
-
-        for( size_t i = 0; i < data.size(); ++i )
-        {
-            for( size_t j = 0; j < data[i].size(); ++j )
-            {
-                tmp.push_back( data[i][j] );
-            }
-        }
-
-        m_vertexData->Data.createFrom( tmp );
-
-        m_vbo = getEngine().createVBO( *m_vertexData );
-        m_vbo->setDisableRenderOnMyOwn( true );
-        m_vertexData->VBO = m_vbo->getId();
-        getDevice()->bufferData( m_vbo->getId(), m_vertexData->Data, BufferTypes::ARRAY_BUFFER );
-
-        m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 5 * sizeof( float ), nullptr ) );
-        m_vertexData->Attributes.push_back( AttributeMeta( "uvs", 1, 2, DataType::FLOAT, false, 5 * sizeof( float ), reinterpret_cast<void*>( 3 * sizeof( float ) ) ) );
-
-        getDevice()->vertexAttribPointer( *m_vertexData );
-
-        getDevice()->unbindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
-        getDevice()->unbindBuffer( LOGLW::BufferTypes::ELEMENT_ARRAY_BUFFER );
-
-        getProgram()->enable();
-        getProgram()->setUniform( "texture1", 0 );
-        getProgram()->disable();
-    }
-    m_initialized = true;
-}
-
-void Sprite::fixAspectRatio()
-{
-    const auto size = m_transformComponent->getSize();
-    const auto maximumValue = std::max( size.x(), size.y() );
-
-    const auto imageSize = m_image->getImageInfo().size;
-    const auto imageRatio = static_cast<float>(imageSize.width) / static_cast<float>(imageSize.height);
-
-    LOGLW::TransformComponent::Pos newSize;
-    if( imageSize.width == imageSize.height )
-    {
-        newSize.x() = maximumValue;
-        newSize.y() = maximumValue;
-    }
-    else if( imageRatio > 1.f )
-    {
-        newSize.x() = maximumValue;
-        newSize.y() = maximumValue / imageRatio;
+        //getDevice()->draw( m_shape, m_transformComponent->getModel(), m_color );
     }
     else
     {
-        newSize.x() = maximumValue / imageRatio;
-        newSize.y() = maximumValue;
-    }
+        setTransformationAndColor();
+        getVao()->render();
 
-    m_transformComponent->setSize( newSize );
+        if( m_unbindBuffersAfterDraw == true )
+        {
+            getProgram()->disable();
+        }
+    }
+}
+
+void Sprite::setTransformationAndColor()
+{
+    ZoneScoped;
+    const Camera& camera = m_engine.getCamera();
+    const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
+    const glm::mat4 viewMatrix = camera.getViewMatrix();
+
+    const glm::mat4 model = m_transformComponent->getModel();
+
+    ShaderProgram* shaderProgram = getProgram();
+    shaderProgram->runOnRenderingThread(
+        [this, shaderProgram, projectionMatrix, viewMatrix, model]()
+        {
+            shaderProgram->setUniform( EExecuteType::Now, "projection", projectionMatrix, true );
+            shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix, true );
+            shaderProgram->setUniform( EExecuteType::Now, "model", model, true );
+            shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4(), true );
+            shaderProgram->setUniform( EExecuteType::Now, "texture1", 0, true );
+        } );
 }
 
 Sprite::~Sprite()
 {
-    release();
+    RunOnRenderThread::getInstance().RunWaitForResult( [this] (){
+            release();
+        });
 }
 
 void Sprite::release()

@@ -37,7 +37,7 @@ void DebugSystemOpenGLModern::frame()
     if( m_initialized )
     {
         ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplSDL2_NewFrame( m_params->SDLWindow );
+        ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
         {
             std::lock_guard<std::mutex> locker( m_callbacksMtx );

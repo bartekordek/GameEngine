@@ -34,7 +34,8 @@ struct TexPixel
     uint8_t Alpha = 0u;
 };
 
-class EditableTexture final: public IUtilityUser, public IObject
+class EditableTexture final: public IUtilityUser,
+    public IObject
 {
 public:
     EditableTexture() = delete;
@@ -46,12 +47,14 @@ public:
     GAME_ENGINE_API EditableTexture( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy );
     GAME_ENGINE_API void create( uint16_t width, uint16_t height );
 
-    GAME_ENGINE_API void setPixelValue( uint16_t x, uint16_t y, const TexPixel& color );
+    GAME_ENGINE_API void setPixelValue( std::int32_t x, std::int32_t y, const TexPixel& color );
     GAME_ENGINE_API const CUL::Graphics::ImageInfo& getImageInfo() const;
 
     GAME_ENGINE_API ~EditableTexture();
 
 protected:
+    void onNameChange( const CUL::String& newName ) override;
+
 private:
     void init();
     void render() override;
@@ -60,16 +63,14 @@ private:
     void renderLegacy();
     unsigned char* getData() const;
     ShaderProgram* m_shaderProgram = nullptr;
-    VertexArray* m_vao = nullptr;
-    VertexBuffer* m_vbo = nullptr;
     std::unique_ptr<TextureInfo> m_ti;
     Camera* m_camera = nullptr;
     CUL::CULInterface* m_cul = nullptr;
     TransformComponent* m_transformComponent = nullptr;
-    uint16_t m_width = 0u;
-    uint16_t m_height = 0u;
+    std::int32_t m_width = -1;
+    std::int32_t m_height = -1;
     std::vector<TexPixel> m_pixelData;
-    unsigned int m_textureId = 0u;
+    int32_t m_textureId = -1;
     bool m_create = false;
     bool m_needToApply = false;
 

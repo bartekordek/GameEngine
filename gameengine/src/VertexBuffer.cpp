@@ -7,37 +7,72 @@
 
 using namespace LOGLW;
 
-VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* engine ) : IRenderable( engine )
+VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* engine ):
+    m_vertexData( vertexData )
 {
-    setVertexData( vertexData );
-    setName( "vertex_buffer_" + CUL::String( getId() ) );
+    init();
+}
+
+void VertexBuffer::init()
+{
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this]()
+        {
+            createVboBuffer();
+            loadData();
+        } );
+}
+
+void VertexBuffer::onNameChange( const String& newName )
+{
+    IName::onNameChange( newName );
+
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this, newName]()
+        {
+            getDevice()->setObjectName( EObjectType::BUFFER, m_vertexData.VBO, newName );
+
+            if( m_indexBuffer )
+            {
+                constexpr std::size_t bufferSize{ 1024u };
+                char buffer[bufferSize];
+                snprintf( buffer, bufferSize, "%s/index_buffer", *newName );
+                getDevice()->setObjectName( EObjectType::BUFFER, m_indexBuffer->getObjID(), buffer );
+            }
+        } );
+}
+
+void VertexBuffer::createVboBuffer()
+{
+    CUL::Assert::check( m_vertexData.VBO == 0u, "VERTEX DATA ALREADY CREATED!" );
+    m_vertexData.VBO = getDevice()->generateBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
 }
 
 void VertexBuffer::setVertexData( const VertexData& vertexData )
 {
-    m_vertexData = vertexData;
-    loadData();
+    m_vertexData.Attributes = vertexData.Attributes;
+    m_vertexData.Data = vertexData.Data;
+    m_vertexData.Indices = vertexData.Indices;
 
-    IName::AfterNameChangeCallback = [this]( const CUL::String& newName )
-    {
-        RunOnRenderThread::getInstance().Run(
-            [this, newName]()
-            {
-                getDevice()->setObjectName( EObjectType::BUFFER, m_vertexData.VBO, newName );
-            } );
-    };
+    m_bufferTasks.addTask(
+        [this]()
+        {
+            loadData();
+        } );
 }
 
 void VertexBuffer::loadData()
 {
-    release();
-    m_vertexData.VBO = getDevice()->generateBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
-    updateVertexData();
+    updateVertexData( true );
     getDevice()->vertexAttribPointer( m_vertexData );
 
     if( m_vertexData.Indices.getIsEmpty() == false )
     {
-        m_indexBuffer = new IndexBuffer();
+        if( m_indexBuffer == nullptr )
+        {
+            m_indexBuffer = std::make_unique<IndexBuffer>();
+        }
+
         m_indexBuffer->loadData( m_vertexData.Indices );
     }
     else
@@ -50,13 +85,26 @@ void VertexBuffer::loadData()
 
 void VertexBuffer::updateVertexData( const VertexData& vertexData )
 {
-    m_vertexData = vertexData;
-    updateVertexData();
+    m_vertexData.Attributes = vertexData.Attributes;
+    m_vertexData.Data = vertexData.Data;
+    m_vertexData.Indices = vertexData.Indices;
+    updateVertexData( false );
 }
 
-void VertexBuffer::updateVertexData()
+void VertexBuffer::updateVertexData( bool isRenderThread )
 {
-    getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
+    if( isRenderThread )
+    {
+        getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
+    }
+    else
+    {
+        RunOnRenderThread::getInstance().RunWaitForResult(
+            [this]()
+            {
+                getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
+            } );
+    }
 }
 
 void VertexBuffer::render()
@@ -72,7 +120,8 @@ void VertexBuffer::render()
     else
     {
         // TODO! need to check if there are actual trianiangles or other types.
-        getDevice()->drawArrays( m_vertexData.VAO, m_vertexData.primitiveType, 0, m_vertexData.Data.getSize() );
+        getDevice()->drawArrays( m_vertexData.VAO, m_vertexData.primitiveType, 0,
+                                 static_cast<std::uint32_t>( m_vertexData.Data.getSize() ) );
     }
 }
 
@@ -89,6 +138,7 @@ int VertexBuffer::getSize() const
 void VertexBuffer::bind()
 {
     getDevice()->bindBuffer( LOGLW::BufferTypes::ARRAY_BUFFER, m_vertexData.VBO );
+    m_bufferTasks.executeAll();
 }
 
 const VertexData& VertexBuffer::getData() const
