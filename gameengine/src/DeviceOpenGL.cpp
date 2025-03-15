@@ -2505,6 +2505,36 @@ std::vector<UniformInfo> DeviceOpenGL::fetchProgramUniformsInfo( std::int32_t in
     return result;
 }
 
+bool DeviceOpenGL::fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const CUL::String& inUniformName )
+{
+    GLint size{ 0 };  // size of the variable
+
+    const GLsizei bufSize = 16;  // maximum name length
+    GLchar name[bufSize];        // variable name in GLSL
+
+    GLint count{ 0 };
+    glGetProgramiv( inProgramId, GL_ACTIVE_UNIFORMS, &count );
+
+    for( GLint i = 0; i < count; ++i )
+    {
+        GLsizei nameLength;
+        GLenum variableType;
+        glGetActiveUniform( inProgramId, (GLuint)i, bufSize, &nameLength, &size, &variableType, name );
+
+        if( inUniformName == name )
+        {
+            UniformInfo info;
+            info.ID = i;
+            info.Name = name;
+            info.Size = size;
+            info.TypeName = toString( variableType );
+            info.Type = (DataType)variableType;
+            return true;
+        }
+    }
+    return false;
+}
+
 void DeviceOpenGL::setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::String& name )
 {
     GLenum oglType = 0;

@@ -85,12 +85,6 @@ void Playground::afterInit()
     // m_engine->drawDebugInfo( true );
     // m_engine->drawOrigin( true );
 
-    // m_engine->getDebugOverlay()->addSliderValue( "Blue Z", &blueTriangleZ, -64.0f, 128.f, [] (){
-    // } );
-
-    // m_engine->getDebugOverlay()->addSliderValue( "Red Z", &redTriangleZ, -64.0f, 128.f, [] (){
-    // } );
-
     // const float size = 32.f;
     // LOGLW::TriangleData values;
     // values[0] = LOGLW::PointType( size, -size, 0.0f );

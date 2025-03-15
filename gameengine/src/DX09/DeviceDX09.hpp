@@ -38,7 +38,6 @@ private:
     void setScissorRect();
     void initInterfaces();
     void createDXDevice();
-    void setUniformValue( int uniformLocation, const glm::vec2& val ) override;
     void setUniformValue( int uniformLocation, const glm::vec3& val ) override;
     void setUniformValue( int uniformLocation, const glm::vec4& val ) override;
     void setUniformValue( int uniformLocation, const glm::mat2& val ) override;

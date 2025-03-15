@@ -81,16 +81,6 @@ void Playground::afterInit()
     m_engine->drawDebugInfo( true );
     m_engine->drawOrigin( true );
 
-    m_engine->getDebugOverlay()->addSliderValue( "Blue Z", &blueTriangleZ, -64.0f, 128.f,
-                                                 []()
-                                                 {
-                                                 } );
-
-    m_engine->getDebugOverlay()->addSliderValue( "Red Z", &redTriangleZ, -64.0f, 128.f,
-                                                 []()
-                                                 {
-                                                 } );
-
     const float z = 26.f;
     const float x = 1.f;
     const float yTriangle = -1.f;

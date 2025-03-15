@@ -72,10 +72,6 @@ void DeviceDX09::createDXDevice()
 {
 }
 
-void DeviceDX09::setUniformValue( int uniformLocation, const glm::vec2& val )
-{
-}
-
 void DeviceDX09::setUniformValue( int uniformLocation, const glm::vec3& val )
 {
 }

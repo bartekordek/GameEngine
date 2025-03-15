@@ -145,7 +145,7 @@ void Quad::createShaders()
     sd.FragmentShader = "embedded_shaders/basic_color.frag";
     sd.VertexShader = "embedded_shaders/basic_pos.vert";
 
-    getProgram()->createFrom( EExecuteType::ExecuteOnRenderThread, sd );
+    getProgram()->createFrom( EExecuteType::WaitForCompletion, sd );
 }
 
 void Quad::render()

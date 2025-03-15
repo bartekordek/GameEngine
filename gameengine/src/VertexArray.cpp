@@ -6,8 +6,33 @@
 #include "CUL/IMPORT_tracy.hpp"
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
+#include "CUL/STL_IMPORTS/STD_vector.hpp"
 
 using namespace LOGLW;
+
+std::vector<VertexArray*> g_vertexList;
+std::mutex g_vertexListMtx;
+
+void addVertex( VertexArray* inVertex )
+{
+    std::lock_guard<std::mutex> locker( g_vertexListMtx );
+    g_vertexList.push_back( inVertex );
+}
+
+void removeVertex( VertexArray* inVertex )
+{
+    std::lock_guard<std::mutex> locker( g_vertexListMtx );
+    const auto it = std::find_if( g_vertexList.begin(), g_vertexList.end(),
+                                  [inVertex]( VertexArray* current )
+                                  {
+                                      return inVertex == current;
+                                  } );
+
+    if( it != g_vertexList.end() )
+    {
+        g_vertexList.erase( it );
+    }
+}
 
 VertexArray::VertexArray( IGameEngine& engine ) : m_engine( engine )
 {
@@ -18,6 +43,7 @@ VertexArray::VertexArray( IGameEngine& engine ) : m_engine( engine )
         {
             createVAO();
         } );
+    addVertex( this );
 }
 
 void VertexArray::onNameChange( const String& newName )
@@ -225,6 +251,7 @@ void VertexArray::createVBOs( const VertexData& data )
     auto vbo = new VertexBuffer( data, &m_engine );
     m_vbos.emplace_back( vbo );
 }
+
 void VertexArray::createVAO()
 {
     CUL::Assert::check( m_vaoId == 0u, "VAO ALREADY CREATED!" );
@@ -269,6 +296,8 @@ VertexArray::~VertexArray()
             release();
         } );
     }
+
+    removeVertex( this );
 }
 
 void VertexArray::release()

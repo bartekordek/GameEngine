@@ -119,6 +119,7 @@ void ShaderProgram::releaseShaderUnits()
         detachShader( EExecuteType::Now, shaderUnit->ID );
         getDevice()->deleteShaderUnit( shaderUnit );
     }
+    m_shaders.clear();
 }
 
 void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString )
@@ -184,7 +185,7 @@ void ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath )
 
 void ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage )
 {
-    ShaderUnit* su = getDevice()->createShaderUnitForce( shaderPath, assertOnErrors, errorMessage );
+    ShaderUnit* su = getDevice()->createShaderUnit( shaderPath, assertOnErrors, errorMessage );
     if( errorMessage.empty() )
     {
         m_shaders[su->Type] = su;
@@ -332,51 +333,75 @@ void ShaderProgram::setUniform( EExecuteType inEt, const String& inName, Uniform
 void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
 {
     const auto it = m_uniformMapping.find( inName );
+
+    ShaderVariable* sv{ nullptr };
     if( it == m_uniformMapping.end() )
     {
-        return;
+        const std::int32_t location = getDevice()->getUniformLocation( m_shaderProgramId, inName );
+
+        if( location == -1 )
+        {
+            return;
+        }
+
+        
+        UniformInfo ui;
+        if (getDevice()->fetchUniformInfo(ui, m_shaderProgramId, inName))
+        {
+            ShaderVariable currentSV;
+            currentSV.Id = ui.ID;
+            currentSV.Name = inName;
+            currentSV.Size = ui.Size;
+            currentSV.Type = ui.Type;
+            currentSV.TypeName = ui.TypeName;
+            currentSV.Value = inValue;
+            m_uniformMapping[inName] = currentSV;
+            sv = &m_uniformMapping[inName];
+        }
+    }
+    else
+    {
+        sv = &it->second;
     }
 
-    ShaderVariable& sv = it->second;
-
-    switch( sv.Type )
+    switch( sv->Type )
     {
         case DataType::FLOAT:
         {
-            getDevice()->setUniformValue( sv.Id, std::get<float>( inValue ) );
+            getDevice()->setUniformValue( sv->Id, std::get<float>( inValue ) );
             break;
         }
         case DataType::FLOAT_MAT4:
         {
-            getDevice()->setUniformValue( sv.Id, std::get<glm::mat4>( inValue ) );
+            getDevice()->setUniformValue( sv->Id, std::get<glm::mat4>( inValue ) );
             break;
         }
         case DataType::FLOAT_VEC3:
         {
-            getDevice()->setUniformValue( sv.Id, std::get<glm::vec3>( inValue ) );
+            getDevice()->setUniformValue( sv->Id, std::get<glm::vec3>( inValue ) );
             break;
         }
         case DataType::FLOAT_VEC4:
         {
-            getDevice()->setUniformValue( sv.Id, std::get<glm::vec4>( inValue ) );
+            getDevice()->setUniformValue( sv->Id, std::get<glm::vec4>( inValue ) );
             break;
         }
         case DataType::SAMPLER_1D:
         {
-            getDevice()->setUniformValue( sv.Id, std::get<std::int32_t>( inValue ) );
+            getDevice()->setUniformValue( sv->Id, std::get<std::int32_t>( inValue ) );
             break;
         }
         case DataType::SAMPLER_2D:
         {
-            getDevice()->setUniformValue( sv.Id, std::get<std::int32_t>( inValue ) );
+            getDevice()->setUniformValue( sv->Id, std::get<std::int32_t>( inValue ) );
             break;
         }
         default:
             throw std::logic_error( "Method not implemented" );
     }
 
-    sv.Value = inValue;
-    sv.Applied = true;
+    sv->Value = inValue;
+    sv->Applied = true;
 }
 
 String ShaderProgram::getAttributeStr( const String& name )

@@ -67,6 +67,12 @@ std::vector<UniformInfo> IRenderDevice::fetchProgramUniformsInfo( std::int32_t i
     return result;
 }
 
+bool IRenderDevice::fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const CUL::String& name )
+{
+    CUL::Assert::check( false, "IRenderDevice::getUniformValue - Method not implemented." );
+    return false;
+}
+
 void IRenderDevice::log( const String& text, const CUL::LOG::Severity severity ) const
 {
     customAssert( m_logger != nullptr, "Logger utility is uninitialized inside of DeviceOpenGL." );
@@ -145,6 +151,11 @@ void IRenderDevice::setUniformValue( int /*uniformLocation*/, int /*value*/ )
 }
 
 void IRenderDevice::setUniformValue( int /*uniformLocation*/, unsigned /*value*/ )
+{
+    CUL::Assert::simple( false, "Method not implemented." );
+}
+
+void IRenderDevice::setUniformValue( int /*uniformLocation*/, const glm::vec2& /*val*/ )
 {
     CUL::Assert::simple( false, "Method not implemented." );
 }

@@ -2,6 +2,7 @@
 
 #include "gameengine/AttributeMeta.hpp"
 #include "gameengine/IGameEngine.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/EngineParams.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/IDebugOverlay.hpp"
@@ -58,6 +59,8 @@ void ShaderEditor::run()
     engineParams.WinDataVal.Name = "gameengineShaderEditorApp";
 
     m_engine = LOGLW::IGameEngine::createGameEngine( engineParams );
+    m_timer.reset( CUL::TimerFactory::getChronoTimerPtr( m_engine->getLoger() ) );
+    m_engine->startRenderingLoop();
 
     m_engine->addMouseEventCallback(
         [this]( const LOGLW::MouseData& mouseData )
@@ -81,10 +84,6 @@ void ShaderEditor::run()
         {
             onWindowEvent( type );
         } );
-    m_engine->drawOrigin( true );
-    m_engine->startRenderingLoop();
-
-    m_timer.reset( CUL::TimerFactory::getChronoTimer( m_engine->getLoger() ) );
 
     m_engine->runEventLoop();
 }
@@ -238,7 +237,7 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
 
     if( ImGui::Button( "Link" ) )
     {
-        m_vao->getProgram()->link();
+        m_vao->getProgram()->link( LOGLW::EExecuteType::Now );
     }
 
     if( ImGui::Button( "Validate" ) )
@@ -294,11 +293,8 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
         }
     }
 
-
-
-
-
-    ImGui::End();
+    float xx, yy;
+    m_engine->drawObjectsInfo( xx, yy );
 }
 
 void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
@@ -434,7 +430,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
             editorState.File->overwriteContents( editorState.CachedText );
             editorState.File->saveFile();
 
-            m_vao->getProgram()->reCompileShader( editorState.File->getPath(), false, compilerError );
+            m_vao->getProgram()->reCompileShader( LOGLW::EExecuteType::Now, editorState.File->getPath(), false, compilerError );
             if( compilerError.empty() )
             {
                 editorState.ShaderUnitState = EShaderUnitState::Compiled;
@@ -512,9 +508,9 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
 
         const auto targetModel = projectionMatrix * viewMatrix * model;
 
-        program->setUniform( "projection", projectionMatrix );
-        program->setUniform( "view", viewMatrix );
-        program->setUniform( "model", model );
+        program->setUniform( LOGLW::EExecuteType::Now, "projection", projectionMatrix );
+        program->setUniform( LOGLW::EExecuteType::Now, "view", viewMatrix );
+        program->setUniform( LOGLW::EExecuteType::Now, "model", model );
     }
 
     editorState.Editor.Render( name.cStr(), ImVec2( w, h ) );

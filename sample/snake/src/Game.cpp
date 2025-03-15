@@ -81,16 +81,6 @@ void Game::afterInit()
     m_oglw->drawDebugInfo( true );
     m_oglw->drawOrigin( true );
 
-    m_oglw->getDebugOverlay()->addSliderValue( "Blue Z", &blueTriangleZ, -64.0f, 128.f,
-                                               []()
-                                               {
-                                               } );
-
-    m_oglw->getDebugOverlay()->addSliderValue( "Red Z", &redTriangleZ, -64.0f, 128.f,
-                                               []()
-                                               {
-                                               } );
-
     m_mouseData = m_oglw->getMouseData();
 
     const float size = 32.f;

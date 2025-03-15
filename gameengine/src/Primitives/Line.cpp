@@ -10,7 +10,8 @@
 
 using namespace LOGLW;
 
-Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ) : IObject( "Line", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
+Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ):
+    IObject( "Line", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
 {
     m_vertexData = std::make_unique<VertexData>();
 
@@ -27,7 +28,6 @@ Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     m_line.data[1][2] = 0.f;
 
     m_transformComponent->changeSizeDelegate.addDelegate( [this]() {
-        m_recreateBuffers = true;
     } );
 
     if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
@@ -64,10 +64,9 @@ void Line::createBuffers()
     m_vertexData->primitiveType = LOGLW::PrimitiveType::LINE_STRIP;
     m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 3 * sizeof( float ), nullptr ) );
 
-    m_vao = m_engine.createVAO();
-    m_vertexData->VAO = m_vao->getId();
+    m_vertexData->VAO = getVao()->getId();
 
-    m_vao->addVertexBuffer( *m_vertexData );
+    getVao()->addVertexBuffer( *m_vertexData );
 }
 
 void Line::createShaders()
@@ -99,18 +98,11 @@ void Line::render()
     }
     else
     {
-        if( m_recreateBuffers )
-        {
-            deleteBuffers();
-            createBuffers();
-            m_recreateBuffers = false;
-        }
-
         m_shaderProgram->enable();
 
         setTransformation();
         applyColor();
-        m_vao->render();
+        getVao()->render();
 
         m_shaderProgram->disable();
     }

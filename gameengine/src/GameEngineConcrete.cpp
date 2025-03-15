@@ -406,16 +406,14 @@ void GameEngineConcrete::renderInfo()
     float debugInfoHeight{ 0.f };
     if( getDrawDebugInfo() )
     {
-        const auto& winSize = m_activeWindow->getSize();
-
         String name = "INFO LOG";
-        ImGui::Begin( name.cStr(), nullptr,
-                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
+        ImGui::Begin( name.cStr(), nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
         ImGui::SetWindowPos( { 0, 0 } );
 
+        const auto& winSize = m_activeWindow->getSize();
         debugInfoWidth = (float)winSize.W * 0.42f;
-        debugInfoHeight = (float)winSize.H * 1.f;
-        ImGui::SetWindowSize( { debugInfoWidth, debugInfoHeight } );
+        debugInfoWidth = (float)winSize.H * 1.f;
+        ImGui::SetWindowSize( { debugInfoWidth, debugInfoWidth } );
 
         ImGui::Text( "Legacy: %s", getDevice()->isLegacy() ? "true" : "false" );
         ImGui::Text( "Renderer: %s", getDevice()->getName().cStr() );
@@ -520,103 +518,56 @@ void GameEngineConcrete::renderInfo()
         text = "Bottom: " + String( getCamera().getBottom() );
         ImGui::Text( "%s", text.cStr() );
 
-        for( const auto& pair : m_debugValues )
-        {
-            ZoneScoped;
-            if( pair.second.type == DebugType::TEXT )
-            {
-                const size_t id = pair.second.value.index();
-                switch( id )
-                {
-                    case 0:
-                        ImGui::Text( pair.second.text.cStr(), *(const char*)std::get<String*>( pair.second.value ) );
-                        break;
-                    case 1:
-                        ImGui::Text( pair.second.text.cStr(), *std::get<float*>( pair.second.value ) );
-                        break;
-                    case 2:
-                        ImGui::Text( pair.second.text.cStr(), *std::get<int*>( pair.second.value ) );
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else if( pair.second.type == DebugType::SLIDER )
-            {
-                const size_t id = pair.second.value.index();
-                bool changed = false;
-                switch( id )
-                {
-                    case 0:
-                        // ImGui::Text( pair.second.text.cStr(),  );
-                        // const auto changed = ImGui::SliderFloat(
-                        // pair.second.text.cStr(), *std::get<String*>(
-                        // pair.second.value ) 0.0f, 192.0f );
-                        break;
-                    case 1:
-                        changed = ImGui::SliderFloat( pair.second.text.cStr(), std::get<float*>( pair.second.value ), pair.second.min,
-                                                      pair.second.max );
-                        break;
-                    case 2:
-                        changed = ImGui::SliderInt( pair.second.text.cStr(), std::get<int*>( pair.second.value ), (int)pair.second.min,
-                                                    (int)pair.second.max );
-                        break;
-                    default:
-                        break;
-                }
-
-                if( changed && pair.second.onChange )
-                {
-                    pair.second.onChange();
-                }
-            }
-        }
-
         ImGui::Text( "FPS (Imgui): %4.2f", ImGui::GetIO().Framerate );
         ImGui::Text( "FrameTime: %4.2f ms", 1000.f / ImGui::GetIO().Framerate );
-        //TODO:
-        //ImGui::Text( "FPS: %4.2f", m_activeWindow->getFpsCounter()->getCurrentFps() );
 
         ImGui::Text( "Averge frame ms: %d", FrameTimeManager::getInstance().geAvgFrameTimeMS() );
         ImGui::Text( "Target frame ms: %d", FrameTimeManager::getInstance().getTargetFrameTimeMS() );
         ImGui::Text( "Average FPS: %f", FrameTimeManager::getInstance().getAvgFPS() );
-        //ImGui::Text( "m_frameSleepNs: %d", m_frameSleepNs );
-        //ImGui::Text( "m_usDelta: %d", m_usDelta );
 
-        if( ImGui::TreeNode( "Objects" ) )
-        {
-            std::set<IObject*> shownList;
-
-            for( IRenderable* renderable : m_objectsToRender )
-            {
-                IObject* object = renderable->getObject()->getOuter();
-                if( object )
-                {
-                    drawObjects( shownList, object, object->getName() );
-                }
-            }
-
-            ImGui::TreePop();
-        }
-
-        ImGui::End();
-
-        {
-            std::lock_guard<std::mutex> locker( m_guiTasksMtx );
-            while( false == m_guiTasks.empty() )
-            {
-                auto task = m_guiTasks.front();
-                task();
-                m_guiTasks.pop();
-            }
-        }
+        drawObjectsInfo( debugInfoWidth, debugInfoHeight );
     }
     guiFrameDelegate.execute( debugInfoWidth, debugInfoWidth );
 }
+
 #if _MSC_VER
 #pragma warning( pop )
 #endif
 
+bool GameEngineConcrete::drawObjectsInfo( float& width, float& high )
+{
+    const auto& winSize = m_activeWindow->getSize();
+
+    if( ImGui::TreeNode( "Objects" ) )
+    {
+        std::set<IObject*> shownList;
+
+        for( IRenderable* renderable : m_objectsToRender )
+        {
+            IObject* object = renderable->getObject()->getOuter();
+            if( object )
+            {
+                drawObjects( shownList, object, object->getName() );
+            }
+        }
+
+        ImGui::TreePop();
+    }
+
+    ImGui::End();
+
+    {
+        std::lock_guard<std::mutex> locker( m_guiTasksMtx );
+        while( false == m_guiTasks.empty() )
+        {
+            auto task = m_guiTasks.front();
+            task();
+            m_guiTasks.pop();
+        }
+    }
+
+    return true;
+}
 
 void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name )
 {
@@ -984,9 +935,8 @@ void GameEngineConcrete::renderObjects()
 {
     ZoneScoped;
     std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
-    for( auto& renderableObject : m_objectsToRender )
+    for( IRenderable* renderableObject : m_objectsToRender )
     {
-        const auto threadName = CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
         renderableObject->render();
     }
 }
@@ -1069,42 +1019,6 @@ void GameEngineConcrete::handleEvent( const SDL_Event& event )
     {
         ImGui_ImplSDL2_ProcessEvent( &event );
     }
-}
-
-unsigned GameEngineConcrete::addSliderValue( const CUL::String& text, float* val, float min, float max,
-                                             const std::function<void( void )>& onUpdate )
-{
-    const unsigned size = (unsigned)m_debugValues.size();
-    const auto newId = size + 1u;
-
-    DebugValueRow row;
-    row.type = DebugType::SLIDER;
-    row.id = newId;
-    row.min = min;
-    row.max = max;
-    row.value = val;
-    row.text = text;
-    row.onChange = onUpdate;
-
-    m_debugValues[newId] = row;
-
-    return newId;
-}
-
-unsigned GameEngineConcrete::addText( const CUL::String& text, float* val )
-{
-    const auto size = (unsigned)m_debugValues.size();
-    const auto newId = size + 1u;
-
-    DebugValueRow row;
-    row.type = DebugType::TEXT;
-    row.id = newId;
-    row.value = val;
-    row.text = text;
-
-    m_debugValues[newId] = row;
-
-    return newId;
 }
 
 void GameEngineConcrete::runEventLoop()

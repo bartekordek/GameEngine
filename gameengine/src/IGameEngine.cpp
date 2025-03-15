@@ -303,7 +303,7 @@ void IGameEngine::setGuiContext( ImGuiContext* const inContext )
     m_ImGuiContext = inContext;
 }
 
-ShaderProgram* IGameEngine::createShader( const String& path, const String& source )
+ShaderProgram* IGameEngine::createShader( const String& /*path*/, const String& /*source*/ )
 {
     //ShaderProgram* result = findShader( path );
 

@@ -82,6 +82,7 @@ private:
     void showExtensions();
     void setupProjectionData( uint16_t width, uint16_t height );
     CUL::CULInterface* getCul() override;
+    bool drawObjectsInfo( float& width, float& high ) override;
 
     void finishFrame();
     void setViewport( const Viewport& viewport, const bool instant = false ) override;
@@ -136,10 +137,6 @@ private:
     IDebugOverlay* getDebugOverlay() override;
     void handleEvent( const SDL_Event& event ) override;
 
-    unsigned addSliderValue( const CUL::String& valName, float* value, float min, float max,
-                             const std::function<void( void )>& onUpdate = nullptr ) override;
-    unsigned addText( const CUL::String& text, float* value ) override;
-
     void runEventLoop() override;
     void stopEventLoop() override;
     LOGLW::IWindow* getMainWindow() override;
@@ -164,8 +161,6 @@ private:
     void registerWindowEventCallback( const LOGLW::WindowCallback& callback ) override;
 
     std::unique_ptr<DebugSystemBase> m_debugSystem;
-
-    std::map<unsigned, DebugValueRow> m_debugValues;
 
     std::atomic<bool> m_enableDebugDraw = false;
 

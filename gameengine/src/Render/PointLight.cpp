@@ -19,7 +19,6 @@ PointLight::PointLight( IObject* parent, IGameEngine* engine ):
     m_transformComponent = getTransform();
 
     setParent( parent );
-    createProgram();
 
     RunOnRenderThread::getInstance().Run(
         [this]()

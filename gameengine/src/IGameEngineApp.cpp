@@ -72,7 +72,7 @@ void IGameEngineApp::init( const LOGLW::WinData& windowData, bool fullscreen, co
     // g_projectionData.setEyePos( { 0.f, 0.f, 128.f } );
     // g_projectionData.m_projectionType = LOGLW::ProjectionType::PERSPECTIVE;
 
-    m_logicTimer.reset( CUL::TimerFactory::getChronoTimer( m_logger ) );
+    m_logicTimer.reset( CUL::TimerFactory::getChronoTimerPtr( m_logger ) );
     m_logicThread = std::thread( &IGameEngineApp::logicThread, this );
 }
 

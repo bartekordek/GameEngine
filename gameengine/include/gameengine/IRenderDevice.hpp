@@ -212,7 +212,7 @@ public:
     virtual void setUniformValue( int uniformLocation, int value );
     virtual void setUniformValue( int uniformLocation, unsigned value );
 
-    virtual void setUniformValue( int uniformLocation, const glm::vec2& val ) = 0;
+    virtual void setUniformValue( int uniformLocation, const glm::vec2& val );
     virtual void setUniformValue( int uniformLocation, const glm::vec3& val ) = 0;
     virtual void setUniformValue( int uniformLocation, const glm::vec4& val ) = 0;
 
@@ -327,6 +327,7 @@ public:
 
     virtual std::vector<AttributeInfo> fetchProgramAttributeInfo( std::int32_t inProgramId ) const;
     virtual std::vector<UniformInfo> fetchProgramUniformsInfo( std::int32_t inProgramId ) const;
+    virtual bool fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const CUL::String& name );
 
     virtual ~IRenderDevice();
 

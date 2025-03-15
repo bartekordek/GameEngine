@@ -222,6 +222,7 @@ private:
     ShaderUnit* findShader( const CUL::FS::Path& shaderPath ) const;
     std::vector<AttributeInfo> fetchProgramAttributeInfo( std::int32_t inProgramId ) const override;
     std::vector<UniformInfo> fetchProgramUniformsInfo( std::int32_t inProgramId ) const override;
+    bool fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const CUL::String& name ) override;
     std::unordered_map<String, std::unique_ptr<ShaderUnit>, CUL::StringHash> m_shadersUnits;
     mutable std::mutex m_shadersMtx;
 };
