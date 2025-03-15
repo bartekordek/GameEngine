@@ -12,7 +12,6 @@ NAMESPACE_END( CUL )
 
 NAMESPACE_BEGIN( LOGLW )
 
-
 enum class EShaderUnitState : std::int8_t
 {
     Unkown = 1,
@@ -25,18 +24,26 @@ enum class EShaderUnitState : std::int8_t
 #pragma warning( push, 0 )
 #pragma warning( disable : 4625 )
 #pragma warning( disable : 4626 )
-#endif // defined( _MSC_VER )
+#endif  // defined( _MSC_VER )
 
-struct GAME_ENGINE_API ShaderUnit
+struct GAME_ENGINE_API ShaderUnit final
 {
     std::unique_ptr<CUL::FS::IFile> File;
     CShaderTypes::ShaderType Type{ CShaderTypes::ShaderType::Unkown };
     std::uint32_t ID = 0u;
     EShaderUnitState State{ EShaderUnitState::Unkown };
+
+    ShaderUnit() = default;
+    ShaderUnit( const ShaderUnit& arg ) = delete;
+    ShaderUnit( ShaderUnit&& arg );
+    ShaderUnit& operator=( const ShaderUnit& arg ) = delete;
+    ShaderUnit& operator=( ShaderUnit&& arg );
+
+    ~ShaderUnit() = default;
 };
 
 #if defined( _MSC_VER )
 #pragma warning( pop )
-#endif // #if defined( _MSC_VER )
+#endif  // #if defined( _MSC_VER )
 
 NAMESPACE_END( LOGLW )
