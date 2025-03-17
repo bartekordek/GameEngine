@@ -413,7 +413,7 @@ void GameEngineConcrete::renderInfo()
         const auto& winSize = m_activeWindow->getSize();
         debugInfoWidth = (float)winSize.W * 0.42f;
         debugInfoWidth = (float)winSize.H * 1.f;
-        ImGui::SetWindowSize( { debugInfoWidth, debugInfoWidth } );
+        ImGui::SetNextWindowSize( { debugInfoWidth, debugInfoWidth } );
 
         ImGui::Text( "Legacy: %s", getDevice()->isLegacy() ? "true" : "false" );
         ImGui::Text( "Renderer: %s", getDevice()->getName().cStr() );

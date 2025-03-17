@@ -43,7 +43,8 @@ struct EditorState
     EShaderUnitState ShaderUnitState{ EShaderUnitState::Empty };
 };
 
-ShaderEditor::ShaderEditor( const LOGLW::WinSize& inWinSize, const LOGLW::WinPos& inWinPos ) : m_winSize( inWinSize ), m_winPos( inWinPos )
+ShaderEditor::ShaderEditor( const LOGLW::WinSize& inWinSize, const LOGLW::WinPos& inWinPos ):
+    m_winSize( inWinSize ), m_winPos( inWinPos )
 {
 }
 
@@ -186,6 +187,7 @@ void ShaderEditor::afterInit()
 
     m_vao->addVertexBuffer( vertData );
     m_vao->setProgram( m_engine->createProgram() );
+    m_vao->toggleRenderOnMyOwn( true );
     m_transformComponent = std::make_unique<LOGLW::TransformComponent>( nullptr );
 }
 

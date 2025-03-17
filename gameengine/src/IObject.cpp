@@ -9,7 +9,7 @@
 using namespace LOGLW;
 
 IObject::IObject( const CUL::String& /*name*/, IGameEngine* engine, bool forceLegacy ):
-    IRenderable( engine ),
+    IRenderable( engine, true ),
     m_engine( *engine ),
     m_forceLegacy( forceLegacy )
 {
@@ -99,7 +99,7 @@ void IObject::addChild( IObject* child )
     std::lock_guard<std::mutex> locker( m_childrenMtx );
     m_children.insert( child );
     child->addParent( this );
-    child->setDisableRenderOnMyOwn( true );
+    child->toggleRenderOnMyOwn( false );
 }
 
 IComponent* IObject::getComponent( const String& name )

@@ -40,7 +40,6 @@ private:
 
     CUL::MATH::Primitives::Line m_line;
     TransformComponent* m_transformComponent = nullptr;
-    ShaderProgram* m_shaderProgram{ nullptr };
     std::unique_ptr<VertexData> m_vertexData;
 
     Camera& m_camera;

@@ -9,13 +9,13 @@ class IObject;
 class GAME_ENGINE_API IRenderable: public IEngineUser
 {
 public:
-    IRenderable( IGameEngine* engine );
+    IRenderable( IGameEngine* engine, bool renderOnMyOwn );
     IRenderable( const IRenderable& value ) = delete;
     IRenderable( IRenderable&& value ) = delete;
     IRenderable& operator=( const IRenderable& value ) = delete;
     IRenderable& operator=( IRenderable&& value ) = delete;
 
-    void setDisableRenderOnMyOwn( bool disable );
+    void toggleRenderOnMyOwn( bool inEnable );
 
     virtual void render() = 0;
 
@@ -27,7 +27,7 @@ public:
 protected:
 private:
     IObject* m_object{ nullptr };
-
+    bool m_renderOnMyOwn{ true };
 
 };
 

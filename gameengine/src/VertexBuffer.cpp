@@ -7,7 +7,7 @@
 
 using namespace LOGLW;
 
-VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* engine ):
+VertexBuffer::VertexBuffer( const VertexData& vertexData, IGameEngine* /*engine*/ ):
     m_vertexData( vertexData )
 {
     init();

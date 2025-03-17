@@ -58,7 +58,7 @@ void Playground::run()
     m_engine->drawOrigin( true );
     m_engine->startRenderingLoop();
 
-    m_timer.reset( CUL::TimerFactory::getChronoTimer( m_engine->getLoger() ) );
+    m_timer.reset( CUL::TimerFactory::getChronoTimerPtr( m_engine->getLoger() ) );
 
     m_engine->runEventLoop();
 }

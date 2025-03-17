@@ -27,7 +27,7 @@ Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     m_line.data[1][1] = 0.f;
     m_line.data[1][2] = 0.f;
 
-    m_transformComponent->changeSizeDelegate.addDelegate( [this]() {
+    m_transformComponent->changeSizeDelegate.addDelegate( [/*this*/]() {
     } );
 
     if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
@@ -71,13 +71,12 @@ void Line::createBuffers()
 
 void Line::createShaders()
 {
-    m_shaderProgram = getEngine().createProgram();
-    m_shaderProgram->setName( getName() + "::program" );
-
-    m_shaderProgram->compileShader( EExecuteType::Now, "embedded_shaders/basic_color.frag" );
-    m_shaderProgram->compileShader( EExecuteType::Now, "embedded_shaders/basic_pos.vert" );
-    m_shaderProgram->link( EExecuteType::Now );
-    m_shaderProgram->validate();
+    getProgram()->setName( getName() + "/shader_program" );
+    ShaderProgram::ShadersData sd;
+    sd.FragmentShader = "embedded_shaders/basic_color.frag";
+    sd.VertexShader = "embedded_shaders/basic_pos.vert";
+    getProgram()->createFrom( EExecuteType::Now, sd );
+    getVao()->setProgram( getProgram() );
 }
 
 void Line::render()
@@ -98,13 +97,13 @@ void Line::render()
     }
     else
     {
-        m_shaderProgram->enable();
+        getProgram()->enable();
 
         setTransformation();
         applyColor();
         getVao()->render();
 
-        m_shaderProgram->disable();
+        getProgram()->disable();
     }
 }
 
@@ -116,14 +115,14 @@ void Line::setTransformation()
 
     glm::mat4 model = m_transformComponent->getModel();
 
-    m_shaderProgram->setUniform( EExecuteType::Now, "projection", projectionMatrix );
-    m_shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix );
-    m_shaderProgram->setUniform( EExecuteType::Now, "model", model );
+    getProgram()->setUniform( EExecuteType::Now, "projection", projectionMatrix );
+    getProgram()->setUniform( EExecuteType::Now, "view", viewMatrix );
+    getProgram()->setUniform( EExecuteType::Now, "model", model );
 }
 
 void Line::applyColor()
 {
-    m_shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4() );
+    getProgram()->setUniform( EExecuteType::Now, "color", m_color.getVec4() );
 }
 
 void Line::setValues( const CUL::MATH::Primitives::Line& values )
@@ -163,8 +162,6 @@ Line::~Line()
 void Line::release()
 {
     deleteBuffers();
-    m_engine.removeProgram( m_shaderProgram );
-    m_shaderProgram = nullptr;
 }
 
 void Line::deleteBuffers()

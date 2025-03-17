@@ -34,7 +34,9 @@ void removeVertex( VertexArray* inVertex )
     }
 }
 
-VertexArray::VertexArray( IGameEngine& engine ) : m_engine( engine )
+VertexArray::VertexArray( IGameEngine& engine ):
+    IRenderable( &engine, false ),
+    m_engine( engine )
 {
     m_vertexData = std::make_unique<VertexData>();
 
@@ -146,12 +148,15 @@ void VertexArray::render()
         m_vbos[i]->bind();
     }
 
-    if( m_shaderProgram )
+    CUL::Assert::check( m_shaderProgram != nullptr, "There is no shader matching this vbo." );
+
+    if( m_shaderProgram->getIsLinked() == false )
     {
-        m_shaderProgram->enable();
+        return;
     }
 
-    
+    m_shaderProgram->enable();
+
     for( size_t i = 0; i < vbosCount; ++i )
     {
         m_vbos[i]->render();

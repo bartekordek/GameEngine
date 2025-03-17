@@ -49,6 +49,8 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool f
         {
             m_recreateBuffers = true;
         } );
+
+    getVao()->setProgram( getProgram() );
 }
 
 void Triangle::setColor( const CUL::Graphics::ColorS& color )

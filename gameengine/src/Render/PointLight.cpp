@@ -19,8 +19,8 @@ PointLight::PointLight( IObject* parent, IGameEngine* engine ):
     m_transformComponent = getTransform();
 
     setParent( parent );
-
-    RunOnRenderThread::getInstance().Run(
+    getVao()->setProgram( getProgram() );
+    RunOnRenderThread::getInstance().RunWaitForResult(
         [this]()
         {
             init();
@@ -51,9 +51,8 @@ void PointLight::init()
     }
     vboData.Indices.createFrom( indices );
 
-    m_vao = getEngine().createVAO();
-    vboData.VAO = m_vao->getId();
-    m_vao->addVertexBuffer( vboData );
+    vboData.VAO = getVao()->getId();
+    getVao()->addVertexBuffer( vboData );
 
     getProgram()->setName( getName() + "::program" );
     CUL::String errorContent;
@@ -71,7 +70,7 @@ void PointLight::render()
     getProgram()->enable();
     setTransformation();
     applyColor();
-    m_vao->render();
+    getVao()->render();
 
     getProgram()->disable();
 }

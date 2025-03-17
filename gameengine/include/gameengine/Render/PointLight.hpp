@@ -29,7 +29,6 @@ private:
     void setTransformation();
     void applyColor();
     
-    VertexArray* m_vao{ nullptr };
     TransformComponent* m_transformComponent{ nullptr };
     CUL::Graphics::ColorS m_color;
 };

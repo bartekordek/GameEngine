@@ -73,7 +73,7 @@ void Cube::createPlaceHolders()
     // 0
     {
         Quad* quad = m_engine->createQuad( this, getForceLegacy() );
-        quad->setDisableRenderOnMyOwn( true );
+        quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
         transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, 1.f ) );
@@ -88,7 +88,7 @@ void Cube::createPlaceHolders()
     // 1
     {
         LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
-        quad->setDisableRenderOnMyOwn( true );
+        quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
         transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, -1.f ) );
@@ -102,7 +102,7 @@ void Cube::createPlaceHolders()
     // 2
     {
         LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
-        quad->setDisableRenderOnMyOwn( true );
+        quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
         transformCmp->setPositionAbsolute( CUL::MATH::Point( -1.f, 0.f, 0.f ) );
@@ -119,7 +119,7 @@ void Cube::createPlaceHolders()
     // 3
     {
         LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
-        quad->setDisableRenderOnMyOwn( true );
+        quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
         transformCmp->setPositionAbsolute( CUL::MATH::Point( 1.f, 0.f, 0.f ) );
@@ -136,7 +136,7 @@ void Cube::createPlaceHolders()
     // 4
     {
         LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
-        quad->setDisableRenderOnMyOwn( true );
+        quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
         transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, -1.f, 0.f ) );
@@ -153,7 +153,7 @@ void Cube::createPlaceHolders()
     // 5
     {
         LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
-        quad->setDisableRenderOnMyOwn( true );
+        quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
         transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 1.f, 0.f ) );

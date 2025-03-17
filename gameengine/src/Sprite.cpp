@@ -65,7 +65,7 @@ void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoa
     m_textureInfo->pixelFormat = CUL::Graphics::PixelFormat::RGBA;
     m_textureInfo->size = ii.canvasSize;
     m_textureInfo->data = getData();
-    m_textureInfo->textureId = m_textureId;
+    m_textureInfo->textureId = static_cast<decltype( m_textureInfo->textureId )>( m_textureId );
     m_textureInfo->initialized = true;
 
     getDevice()->setTextureData( m_textureId, *m_textureInfo );
@@ -218,7 +218,7 @@ void Sprite::createShaders()
     sd.FragmentShader = "embedded_shaders/camera.frag";
     sd.VertexShader = "embedded_shaders/camera.vert";
 
-    getProgram()->createFrom( EExecuteType::ExecuteOnRenderThread, sd );
+    getProgram()->createFrom( EExecuteType::Now, sd );
 }
 
 void Sprite::render()

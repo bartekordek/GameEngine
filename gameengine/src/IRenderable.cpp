@@ -3,20 +3,24 @@
 
 using namespace LOGLW;
 
-IRenderable::IRenderable( IGameEngine* engine ) : IEngineUser( engine )
+IRenderable::IRenderable( IGameEngine* engine, bool renderOnMyOwn ):
+    IEngineUser( engine ),
+    m_renderOnMyOwn( renderOnMyOwn )
 {
-    getEngine()->addObjectToRender( this );
+    toggleRenderOnMyOwn( renderOnMyOwn );
 }
 
-void IRenderable::setDisableRenderOnMyOwn( bool disable )
+void IRenderable::toggleRenderOnMyOwn( bool inEnable )
 {
-    if( disable )
-    {
-        getEngine()->removeObjectToRender( this );
-    }
-    else
+    if( inEnable )
     {
         getEngine()->addObjectToRender( this );
+        m_renderOnMyOwn = true;
+    }
+    else if( m_renderOnMyOwn )
+    {
+        getEngine()->removeObjectToRender( this );
+        m_renderOnMyOwn = false;
     }
 }
 
@@ -32,5 +36,8 @@ void IRenderable::setObject( IObject* inObject )
 
 IRenderable::~IRenderable()
 {
-    getEngine()->removeObjectToRender( this );
+    if( m_renderOnMyOwn )
+    {
+        getEngine()->removeObjectToRender( this );
+    }
 }

@@ -45,7 +45,8 @@ using BuffIDType = std::uint32_t;
 class GAME_ENGINE_API VertexArray final:
     public IUtilityUser,
     public CUL::IName,
-    public CUL::IRegisterdObject
+    public CUL::IRegisterdObject,
+    public IRenderable
 {
 public:
     explicit VertexArray( IGameEngine& engine );
