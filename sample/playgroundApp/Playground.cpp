@@ -55,7 +55,6 @@ void Playground::run()
         {
             onWindowEvent( type );
         } );
-    m_engine->drawOrigin( true );
     m_engine->startRenderingLoop();
 
     m_timer.reset( CUL::TimerFactory::getChronoTimerPtr( m_engine->getLoger() ) );
@@ -112,7 +111,7 @@ void Playground::afterInit()
 
     g_sprite = m_engine->createSprite( "../../media/texture.png" );
     g_sprite->setName( "g_sprite" );
-    g_sprite->getTransform()->setPositionToParent( { -0.2f, 0.f, 4.f } );
+    g_sprite->getTransform()->setPositionToParent( { -0.2f, 0.f, 24.f } );
 
     m_cubeModern = m_engine->createCube( false );
     m_cubeModern->getTransform()->setPositionAbsolute( { -x, yCube, z } );
@@ -274,6 +273,20 @@ void Playground::onKeyBoardEvent( const LOGLW::KeyboardState& key )
     {
         static bool toggle = true;
         toggle = !toggle;
+    }
+
+    if( key.at( "," ) )
+    {
+        glm::vec3 scale = g_sprite->getTransform()->getScale();
+        scale *= 0.2f;
+        g_sprite->getTransform()->setScale( scale );
+    }
+
+    if( key.at( "." ) )
+    {
+        glm::vec3 scale = g_sprite->getTransform()->getScale();
+        scale /= 0.2f;
+        g_sprite->getTransform()->setScale( scale );
     }
 }
 

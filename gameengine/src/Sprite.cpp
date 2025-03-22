@@ -71,6 +71,12 @@ void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoa
     getDevice()->setTextureData( m_textureId, *m_textureInfo );
     getDevice()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
     getDevice()->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
+
+    const float maxImensionSize = std::max( m_textureInfo->size.width, m_textureInfo->size.height );
+    const float newRectWidth = m_textureInfo->size.width / maxImensionSize;
+    const float newRectHeight = m_textureInfo->size.height / maxImensionSize;
+
+    m_transformComponent->setSize( { newRectWidth, newRectHeight, 0.f } );
 }
 
 void Sprite::LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader* imageLoader,
