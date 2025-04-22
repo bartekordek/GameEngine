@@ -39,11 +39,11 @@
 #undef LoadImage
 using namespace LOGLW;
 
-GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool )
-    : m_sdlW( sdl2w ),
-      m_activeWindow( sdl2w->getMainWindow() ),
-      m_cul( sdl2w->getCul() ),
-      m_logger( sdl2w->getCul()->getLogger() )
+GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool ):
+    m_sdlW( sdl2w ),
+    m_activeWindow( sdl2w->getMainWindow() ),
+    m_cul( sdl2w->getCul() ),
+    m_logger( sdl2w->getCul()->getLogger() )
 {
     CUL::Assert::simple( nullptr != sdl2w, "NO SDL WRAPPER." );
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );
@@ -321,7 +321,7 @@ void GameEngineConcrete::initialize()
     m_backgroundColor.setAlphaF( 0.0 );
     setBackgroundColor( m_backgroundColor );
 
-    //showExtensions();
+    // showExtensions();
 
     getDevice()->toggleDebugOutput( true );
 
@@ -575,6 +575,8 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
     {
         return;
     }
+
+    CUL::Assert::simple( name.empty() == false, "GameEngineConcrete::drawObjects: object has no name." );
 
     constexpr std::size_t stringBufferLength{ 32u };
     static char stringBuffer[stringBufferLength];
@@ -837,7 +839,7 @@ void GameEngineConcrete::drawSpriteData( Sprite* inSprite )
             float values[2];
             values[0] = uv.X;
             values[1] = uv.Y;
-            if (ImGui::InputFloat2(labelBuffer, values))
+            if( ImGui::InputFloat2( labelBuffer, values ) )
             {
                 uv.X = values[0];
                 uv.Y = values[1];
