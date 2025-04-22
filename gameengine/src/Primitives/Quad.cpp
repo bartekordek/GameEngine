@@ -181,10 +181,10 @@ void Quad::setTransformationAndColor()
     shaderProgram->runOnRenderingThread(
         [this, shaderProgram, projectionMatrix, viewMatrix, model]()
         {
-            shaderProgram->setUniform( EExecuteType::Now , "projection", projectionMatrix, true );
-            shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix, true );
-            shaderProgram->setUniform( EExecuteType::Now, "model", model, true );
-            shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4(), true );
+            shaderProgram->setUniform( EExecuteType::Now , "projection", projectionMatrix );
+            shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix );
+            shaderProgram->setUniform( EExecuteType::Now, "model", model );
+            shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4() );
         } );
 }
 

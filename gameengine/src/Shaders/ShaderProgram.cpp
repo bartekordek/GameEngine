@@ -314,19 +314,26 @@ CShaderTypes::ShaderType ShaderProgram::getType() const
     return m_type;
 }
 
-void ShaderProgram::setUniform( EExecuteType inEt, const String& inName, UniformValue inValue, bool inIsRenderingThread )
+void ShaderProgram::setUniform( EExecuteType inEt, const String& inName, UniformValue inValue )
 {
-    if( inIsRenderingThread )
+    switch( inEt )
     {
-        setUniformImpl( inName, inValue );
-    }
-    else
-    {
-        m_tasks.addTask(
-            [this, inName, inValue]()
-            {
-                setUniformImpl( inName, inValue );
-            } );
+        case EExecuteType::Now:
+        {
+            setUniformImpl( inName, inValue );
+            break;
+        }
+        case EExecuteType::ExecuteOnRenderThread:
+        {
+            m_tasks.addTask(
+                [this, inName, inValue]()
+                {
+                    setUniformImpl( inName, inValue );
+                } );
+            break;
+        }
+        default:
+            CUL::Assert::check( false, "ShaderProgram::setUniform, not implemented execution type." );
     }
 }
 

@@ -66,7 +66,7 @@ public:
     void reCompileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
     void reCompileWholeShader( EExecuteType inEt );
 
-    void setUniform( EExecuteType inEt, const String& inName, UniformValue inValue, bool inIsRenderingThread = false );
+    void setUniform( EExecuteType inEt, const String& inName, UniformValue inValue );
 
     String getAttributeStr( const String& name );
     float getAttributeF( const String& name );
