@@ -158,7 +158,9 @@ VertexArray* IGameEngine::createVAO( const CUL::String& name )
 
 Cube* IGameEngine::createCube( bool forceLegacy )
 {
-    return new Cube( &getCamera(), this, forceLegacy );
+    Cube* result = new Cube( &getCamera(), this, forceLegacy );
+    result->setName( "Default cube" );
+    return result;
 }
 
 void IGameEngine::drawOrigin( bool enable )
