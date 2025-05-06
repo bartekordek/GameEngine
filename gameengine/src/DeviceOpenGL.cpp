@@ -573,11 +573,13 @@ ShaderTypes DeviceOpenGL::getShaderType( const CUL::String& fileExtension )
     .frag - a fragment shader
     .comp - a compute shader
     */
-    if( fileExtension.equals( "frag" ) || fileExtension.equals( ".frag" ) )
+    if( fileExtension.equals( "frag" ) || fileExtension.equals( ".frag" ) || fileExtension.equals( ".fs" ) ||
+        fileExtension.equals( "fs" ) )
     {
         return static_cast<ShaderTypes>( GL_FRAGMENT_SHADER );
     }
-    else if( fileExtension.equals( "vert" ) || fileExtension.equals( ".vert" ) )
+    else if( fileExtension.equals( "vert" ) || fileExtension.equals( ".vert" ) || fileExtension.equals( ".vs" ) ||
+             fileExtension.equals( "vs" ) )
     {
         return static_cast<ShaderTypes>( GL_VERTEX_SHADER );
     }
@@ -2449,7 +2451,7 @@ std::vector<AttributeInfo> DeviceOpenGL::fetchProgramAttributeInfo( std::int32_t
 
     GLint size{ 0 };  // size of the variable
 
-    const GLsizei bufSize = 16;  // maximum name length
+    constexpr GLsizei bufSize = 64;  // maximum name length
     GLchar name[bufSize];        // variable name in GLSL
 
     GLint count{ 0 };
@@ -2480,7 +2482,7 @@ std::vector<UniformInfo> DeviceOpenGL::fetchProgramUniformsInfo( std::int32_t in
 
     GLint size{ 0 };  // size of the variable
 
-    const GLsizei bufSize = 16;  // maximum name length
+    constexpr GLsizei bufSize = 64;  // maximum name length
     GLchar name[bufSize];        // variable name in GLSL
 
     GLint count{ 0 };
@@ -2509,7 +2511,7 @@ bool DeviceOpenGL::fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t
 {
     GLint size{ 0 };  // size of the variable
 
-    const GLsizei bufSize = 16;  // maximum name length
+    constexpr GLsizei bufSize = 64;  // maximum name length
     GLchar name[bufSize];        // variable name in GLSL
 
     GLint count{ 0 };
@@ -2523,12 +2525,11 @@ bool DeviceOpenGL::fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t
 
         if( inUniformName == name )
         {
-            UniformInfo info;
-            info.ID = i;
-            info.Name = name;
-            info.Size = size;
-            info.TypeName = toString( variableType );
-            info.Type = (DataType)variableType;
+            inOutUniformInfo.ID = i;
+            inOutUniformInfo.Name = name;
+            inOutUniformInfo.Size = size;
+            inOutUniformInfo.TypeName = toString( variableType );
+            inOutUniformInfo.Type = (DataType)variableType;
             return true;
         }
     }
