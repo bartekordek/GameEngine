@@ -1,7 +1,6 @@
 #pragma once
-
-#include "sdl2wrapper/Input/IKeyboardObserver.hpp"
-#include "sdl2wrapper/Input/IMouseObserver.hpp"
+#include "gameengine/Input/IMouseObserver.hpp"
+#include "gameengine/Input/IKeyboardObserver.hpp"
 
 #include "CUL/ITimer.hpp"
 #include "CUL/Math/Angle.hpp"
