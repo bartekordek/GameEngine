@@ -521,8 +521,8 @@ void GameEngineConcrete::renderInfo()
         ImGui::Text( "FPS (Imgui): %4.2f", ImGui::GetIO().Framerate );
         ImGui::Text( "FrameTime: %4.2f ms", 1000.f / ImGui::GetIO().Framerate );
 
-        ImGui::Text( "Averge frame ms: %d", FrameTimeManager::getInstance().geAvgFrameTimeMS() );
-        ImGui::Text( "Target frame ms: %d", FrameTimeManager::getInstance().getTargetFrameTimeMS() );
+        ImGui::Text( "Average frame ms: %f", FrameTimeManager::getInstance().geAvgFrameTimeMS() );
+        ImGui::Text( "Target frame ms: %f", FrameTimeManager::getInstance().getTargetFrameTimeMS() );
         ImGui::Text( "Average FPS: %f", FrameTimeManager::getInstance().getAvgFPS() );
 
         drawObjectsInfo( debugInfoWidth, debugInfoHeight );
@@ -620,7 +620,48 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
                             ImGui::SameLine();
                             ImGui::Text( "val: %f", std::get<float>( uniformVal.Value ) );
                         }
-                        if( uniformVal.Type == LOGLW::DataType::FLOAT_VEC4 )
+                        if( uniformVal.Type == LOGLW::DataType::FLOAT_VEC3 )
+                        {
+                            glm::vec3 value = std::get<glm::vec3>( uniformVal.Value );
+
+                            auto ManagerValue = [&fString, shaderProgram]( float& inOutValue, const CUL::String& uniformName )
+                            {
+                                bool changed{ false };
+
+                                sprintf( stringBuffer, "%f", inOutValue );
+
+                                ImGui::PushItemWidth( -1 );
+
+                                if( ImGui::InputText( uniformName.cStr(), stringBuffer, stringBufferLength ) )
+                                {
+                                    fString = stringBuffer;
+                                    if( fString.isFloat() )
+                                    {
+                                        inOutValue = fString.toFloat();
+                                        changed = true;
+                                        // shaderProgram->setUniform( uniformName, currentValue );
+                                    }
+                                }
+                                else
+                                {
+                                    changed = false;
+                                }
+
+                                ImGui::PopItemWidth();
+                                return changed;
+                            };
+
+                            bool hasValueChanged{ false };
+                            hasValueChanged |= ManagerValue( value.x, uniformVal.Name + CUL::String( ".x" ) );
+                            hasValueChanged |= ManagerValue( value.y, uniformVal.Name + CUL::String( ".y" ) );
+                            hasValueChanged |= ManagerValue( value.z, uniformVal.Name + CUL::String( ".z" ) );
+
+                            if( hasValueChanged )
+                            {
+                                shaderProgram->setUniform( EExecuteType::Now, uniformName, value );
+                            }
+                        }
+                        else if( uniformVal.Type == LOGLW::DataType::FLOAT_VEC4 )
                         {
                             glm::vec4 value = std::get<glm::vec4>( uniformVal.Value );
 
