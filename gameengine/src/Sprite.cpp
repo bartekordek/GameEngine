@@ -14,10 +14,7 @@
 
 #include "CUL/IMPORT_GLM.hpp"
 
-
 using namespace LOGLW;
-
-constexpr const char* g_defaultSpriteName = "Sprite";
 
 Sprite::Sprite( IGameEngine& engine, IObject* parent, bool forceLegacy )
     : IObject( "", &engine, forceLegacy ), m_engine( engine )
