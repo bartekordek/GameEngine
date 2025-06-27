@@ -351,10 +351,14 @@ void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
             return;
         }
 
-        
         UniformInfo ui;
         if (getDevice()->fetchUniformInfo(ui, m_shaderProgramId, inName))
         {
+            if( ui.Type == DataType::NONE )
+            {
+                auto x = 0;
+            }
+
             ShaderVariable currentSV;
             currentSV.Id = ui.ID;
             currentSV.Name = inName;

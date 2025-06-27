@@ -27,7 +27,6 @@ set(OGLW_DEPS_ROOT ${OGLW_ROOT}/deps)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/deps/CUL/cmake_modules")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/deps")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules")
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules")
 
 set(FREEGLUT_REPLACE_GLUT ON CACHE BOOL "REPLACE GLUT" FORCE)
 set(FREEGLUT_BUILD_DEMOS OFF CACHE BOOL "DO NOT BUILD DEMOS" FORCE)
@@ -77,4 +76,5 @@ endif()
 
 add_subdirectory(sample/playgroundApp)
 add_subdirectory(sample/snake)
+add_subdirectory(TemplateApp)
 add_subdirectory(tools/shader_editor)

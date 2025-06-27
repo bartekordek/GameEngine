@@ -111,7 +111,7 @@ GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool ):
                 } );
         }
 
-        CUL::ThreeState drawDebugInfo = config->getValue( "DRAW_DEBUG_INFO" ).toBool();
+        CUL::ThreeState drawDebugInfo = config ? config->getValue( "DRAW_DEBUG_INFO" ).toBool() : CUL::ThreeState::Undetermined;
 
         toggleDrawDebugInfo( ( drawDebugInfo == CUL::ThreeState::True || drawDebugInfo == CUL::ThreeState::Undetermined ) ? true : false );
     };

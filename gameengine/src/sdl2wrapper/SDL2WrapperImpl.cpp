@@ -71,7 +71,7 @@ void SDL2WrapperImpl::init( const WinData& wd, const CUL::FS::Path& configPath )
 
     if( m_windowData.RendererType == RenderTypes::RendererType::NONE )
     {
-        const auto& rendererName = m_configFile->getValue( "RENDERER" );
+        const String rendererName = m_configFile ? m_configFile->getValue( "RENDERER" ) : "";
         if( rendererName.empty() )
         {
             m_windowData.RendererType = RenderTypes::RendererType::OPENGL_MODERN;
