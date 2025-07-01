@@ -14,6 +14,7 @@ private:
     void onInit() override;
     void customFrame() override;
     void customLogicThreadFrame( LOGLW::DurationType ) override;
+    void guiIteration( float x, float y );
 
 public:
     CUL_NONCOPYABLE( CApp )
