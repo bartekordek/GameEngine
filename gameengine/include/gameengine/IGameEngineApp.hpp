@@ -46,6 +46,7 @@ public:
     virtual ~IGameEngineApp();
 
 protected:
+    virtual void customLogicThreadFrame( DurationType inDeltaTime );
     class CUL::LOG::ILogger* m_logger = nullptr;
     class IRenderDevice* m_device = nullptr;
 
@@ -64,7 +65,6 @@ private:
     void onMouseEvent( const LOGLW::MouseData& md ) override;
     virtual void onInit() {};
     virtual void customFrame() {};
-    virtual void customLogicThreadFrame( DurationType ){};
 
     std::atomic<bool> m_runLogicThread = true;
     std::thread m_logicThread;

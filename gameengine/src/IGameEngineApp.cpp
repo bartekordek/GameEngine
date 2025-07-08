@@ -108,6 +108,10 @@ void IGameEngineApp::onMouseEvent( const LOGLW::MouseData& )
 {
 }
 
+void IGameEngineApp::customLogicThreadFrame( DurationType )
+{
+}
+
 void IGameEngineApp::close()
 {
     m_runLogicThread = false;
