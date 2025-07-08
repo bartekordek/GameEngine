@@ -8,8 +8,9 @@
 
 using namespace LOGLW;
 
-IObject::IObject( const CUL::String& /*name*/, IGameEngine* engine, bool forceLegacy ):
+IObject::IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy ):
     IRenderable( engine, true ),
+    IName( name ),
     m_engine( *engine ),
     m_forceLegacy( forceLegacy )
 {

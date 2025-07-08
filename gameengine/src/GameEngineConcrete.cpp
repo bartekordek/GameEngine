@@ -576,7 +576,10 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
         return;
     }
 
-    CUL::Assert::simple( name.empty() == false, "GameEngineConcrete::drawObjects: object has no name." );
+    if( name.empty() )
+    {
+        CUL::Assert::simple( false, "GameEngineConcrete::drawObjects: object has no name." );
+    }
 
     constexpr std::size_t stringBufferLength{ 32u };
     static char stringBuffer[stringBufferLength];
