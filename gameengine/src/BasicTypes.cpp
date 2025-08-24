@@ -1,4 +1,5 @@
 #include "gameengine/BasicTypes.hpp"
+#include "CUL/GenericUtils/SimpleAssert.hpp"
 
 using namespace LOGLW;
 
@@ -102,10 +103,27 @@ std::size_t BasicTypes::getSize( DataType inDataType )
             return sizeof( float ) * 2u;
         case DataType::FLOAT_VEC3:
             return sizeof( float ) * 3u;
+        case DataType::FLOAT_VEC4:
+            CUL::Assert::check( false, "DataType::FLOAT_VEC4 not implemented yet." );
+            return 0u;
         case DataType::FLOAT_MAT2:
             return sizeof( float ) * 4u;
         case DataType::FLOAT_MAT3:
             return sizeof( float ) * 9u;
+        case DataType::FLOAT_MAT4:
+            CUL::Assert::check( false, "DataType::FLOAT_MAT4 not implemented yet." );
+            return 0u;
+        case DataType::SAMPLER_1D:
+            CUL::Assert::check( false, "DataType::SAMPLER_1D not implemented yet." );
+            return 0u;
+        case DataType::SAMPLER_2D:
+            CUL::Assert::check( false, "DataType::SAMPLER_2D not implemented yet." );
+            return 0u;
+        case DataType::SAMPLER_3D:
+            CUL::Assert::check( false, "DataType::SAMPLER_3D not implemented yet." );
+            return 0u;
+        case DataType::NONE:
+            CUL::Assert::check( false, "DATA TYPE NONE!" );
         default:
             return 0u;
     }
