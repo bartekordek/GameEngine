@@ -9,11 +9,12 @@ project(${PROJECT_NAME_DYNAMIC} LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 
-include_directories( SYSTEM ${GLM_INCLUDE_DIR} )
 include_directories( SYSTEM ${GLEW_INCLUDE_DIR} )
 include_directories( SYSTEM ${GLFW_INCLUDE_DIR} )
-include_directories( SYSTEM $ENV{freeglut_INCLUDE_DIR} )
+include_directories( SYSTEM ${GLM_INCLUDE_DIR} )
+include_directories( SYSTEM ${OGLW_DEPS_ROOT}/CUL/libcul/inc )
 include_directories( SYSTEM ${OGLW_DEPS_ROOT}/SDL/include )
+include_directories( SYSTEM $ENV{freeglut_INCLUDE_DIR} )
 
 get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
 foreach(dir ${dirs})

@@ -19,7 +19,7 @@ using namespace LOGLW;
 
 constexpr const char* g_defaultQuadName =  "Quad" ;
 
-Quad::Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy )
+Quad::Quad( Camera& /*camera*/, IGameEngine& engine, IObject* parent, bool forceLegacy )
     : IObject( "", &engine, forceLegacy ), m_engine( engine )
 {
     m_transformComponent = getTransform();

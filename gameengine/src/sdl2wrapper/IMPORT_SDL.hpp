@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CUL/GenericUtils/DisableErros.hpp"
+CUL_MSVC_SKIP_DEFAULT_WARNING_BEGIN
 
 #define SDL_MAIN_HANDLED
 #include <SDL.h>

@@ -5,6 +5,7 @@
 #if defined(GAME_ENGINE_WINDOWS)
 
 #include "CUL/GenericUtils/DisableErros.hpp"
+CUL_MSVC_SKIP_DEFAULT_WARNING_BEGIN
 #include <windows.h>
 #include <windowsx.h>
 #include <wrl/client.h>
