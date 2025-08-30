@@ -3,7 +3,10 @@
 #include "gameengine/Windowing/IWindow.hpp"
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 
-int main( int argc, char* args[] )
+int main( int  // argc
+          ,
+          char**  // args
+)
 {
     CApp app( false, 1920, 1080, 256, 127, "TempalteApp", "" );
     app.run();
@@ -11,8 +14,8 @@ int main( int argc, char* args[] )
     return 0;
 }
 
-CApp::CApp( bool fullscreen, unsigned width, unsigned height, int x, int y, const char* winName, const char* configPath )
-    : LOGLW::IGameEngineApp( fullscreen, width, height, x, y, winName, configPath, false )
+CApp::CApp( bool fullscreen, unsigned width, unsigned height, int x, int y, const char* winName, const char* configPath ):
+    LOGLW::IGameEngineApp( fullscreen, width, height, x, y, winName, configPath, false )
 {
 }
 
@@ -31,13 +34,11 @@ void CApp::customFrame()
 {
 }
 
-void CApp::guiIteration( float x, float y )
+void CApp::guiIteration( float x, float /*y*/ )
 {
     CUL::String name = "MAIN";
     ImGui::Begin( name.cStr(), nullptr,
                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
-
-    auto winSize = IGameEngineApp::m_sdlw->getMainWindow()->getSize();
 
     ImGui::SetWindowPos( { x, 0 } );
 

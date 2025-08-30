@@ -27,8 +27,6 @@
 
 #include "CUL/STL_IMPORTS/STD_cmath.hpp"
 
-#define M_PI 3.14159265358979323846264338327950288
-
 CUL::MATH::Angle ang90( 90, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang180( 180, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
@@ -44,7 +42,8 @@ struct EditorState
 };
 
 ShaderEditor::ShaderEditor( const LOGLW::WinSize& inWinSize, const LOGLW::WinPos& inWinPos ):
-    m_winSize( inWinSize ), m_winPos( inWinPos )
+    m_winSize( inWinSize ),
+    m_winPos( inWinPos )
 {
 }
 
@@ -269,8 +268,9 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
                 if( uniformVal.Type == LOGLW::DataType::FLOAT_MAT4 )
                 {
                     const glm::mat4 currentValue = std::get<glm::mat4>( uniformVal.Value );
-                    char tableName[32];
-                    sprintf_s( tableName, "%s - %s", *m_vao->getProgram()->getName(), *uniformName );
+                    constexpr std::size_t bufferSize{ 32u };
+                    char tableName[bufferSize];
+                    snprintf( tableName, bufferSize, "%s - %s", *m_vao->getProgram()->getName(), *uniformName );
 
                     static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable |
                                                    ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV |
@@ -508,8 +508,6 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
         m_transformComponent->setPositionAbsolute( { 1.f, 1.f, 0.f } );
         const glm::mat4 model = m_transformComponent->getModel();
 
-        const auto targetModel = projectionMatrix * viewMatrix * model;
-
         program->setUniform( LOGLW::EExecuteType::Now, "projection", projectionMatrix );
         program->setUniform( LOGLW::EExecuteType::Now, "view", viewMatrix );
         program->setUniform( LOGLW::EExecuteType::Now, "model", model );
@@ -519,7 +517,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
 
     if( editorState.ShaderUnitState == EShaderUnitState::Error )
     {
-        ImGui::TextWrapped( compilerError.cStr() );
+        ImGui::TextWrapped( "%s", compilerError.cStr() );
     }
 }
 
