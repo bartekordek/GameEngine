@@ -5,6 +5,25 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "[Windows][Debug][shader_editor_static]",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Build-Windows/Debug/shader_editor_static.exe",
+            "cwd": "${workspaceFolder}/tools/shader_editor",
+            "symbolSearchPath": "${workspaceFolder}/Build-Windows/Debug/",
+            "args": [
+                "-w",
+                "1680",
+                "-h",
+                "900"
+            ],
+            "externalConsole": false,
+            "logging": {
+                "moduleLoad": false,
+                "trace": true,
+            }
+        },
+        {
             "name": "[RUN][WINDOWS][playgroundApp_static]",
             "type": "cppvsdbg",
             "request": "launch",
