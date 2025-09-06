@@ -11,12 +11,8 @@
             "includePath": [
                 "${workspaceFolder}/gameengine/include",
                 "${workspaceFolder}/gameengine/src",
-                "${workspaceFolder}/deps/SDL2Wrapper/libsdl2wrapper/inc",
-                "${workspaceFolder}/deps/SDL2Wrapper/libsdl2wrapper/src",
-                "${workspaceFolder}/deps/SDL2Wrapper/deps/SDL2/include",
-                "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/inc",
-                "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/src",
-                "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/deps/glm"
+                "${workspaceFolder}/deps/CUL/libcul/inc",
+                "${workspaceFolder}/deps/CUL/deps/glm"
             ],
             "defines": [
                 "_DEBUG",
@@ -39,14 +35,8 @@
             "includePath": [
                 "${workspaceFolder}/gameengine/include",
                 "${workspaceFolder}/gameengine/src",
-                "${workspaceFolder}/deps/SDL2Wrapper/libsdl2wrapper/inc",
-                "${workspaceFolder}/deps/SDL2Wrapper/libsdl2wrapper/src",
-                "${workspaceFolder}/deps/SDL2Wrapper/deps/SDL2/include",
-                "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/inc",
-                "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/libcul/src",
-                "${workspaceFolder}/deps/SDL2Wrapper/deps/CUL/deps/glm",
-                "${workspaceFolder}/deps/imgui",
-                "${workspaceFolder}/deps/ImGuiColorTextEdit"
+                "${workspaceFolder}/deps/CUL/libcul/inc",
+                "${workspaceFolder}/deps/CUL/deps/glm"
             ],
             "defines": [
                 "_DEBUG",
