@@ -74,7 +74,7 @@ IGameEngine* IGameEngine::getInstance()
 
 Sprite* IGameEngine::createSprite()
 {
-    auto sprite = new Sprite( *this, nullptr, false );
+    auto sprite = new Sprite( nullptr, false );
 
     // sprite->LoadImage( path, m_imageLoader );
 
@@ -85,7 +85,7 @@ Sprite* IGameEngine::createSprite()
 
 EditableTexture* IGameEngine::createEditableTexture( uint16_t width, uint16_t height )
 {
-    auto et = new EditableTexture( &getCamera(), getCul(), this, false );
+    auto et = new EditableTexture( &getCamera(), getCul(), false );
     et->create( width, height );
 
     return et;
@@ -93,41 +93,41 @@ EditableTexture* IGameEngine::createEditableTexture( uint16_t width, uint16_t he
 
 VertexBuffer* IGameEngine::createVBO( const VertexData& vertexData )
 {
-    VertexBuffer* result = new VertexBuffer( vertexData, this );
+    VertexBuffer* result = new VertexBuffer( vertexData );
 
     return result;
 }
 
 Line* IGameEngine::createLine( IObject* parent, bool forceLegacy )
 {
-    Line* line = new Line( getCamera(), *this, parent, forceLegacy );
+    Line* line = new Line( getCamera(), parent, forceLegacy );
     return line;
 }
 
 Triangle* IGameEngine::createTriangle( IObject* parent, bool forceLegacy )
 {
-    Triangle* result = new Triangle( getCamera(), *this, parent, forceLegacy );
+    Triangle* result = new Triangle( getCamera(), parent, forceLegacy );
 
     return result;
 }
 
 Quad* IGameEngine::createQuad( IObject* parent, bool forceLegacy )
 {
-    Quad* result = new Quad( getCamera(), *this, parent, forceLegacy );
+    Quad* result = new Quad( getCamera(), parent, forceLegacy );
 
     return result;
 }
 
 PointLight* IGameEngine::createPointLight( IObject* parent, bool /*forceLegacy*/ )
 {
-    PointLight* result = new PointLight( parent, this );
+    PointLight* result = new PointLight( parent );
 
     return result;
 }
 
 Anchor* IGameEngine::createAnchor( IObject* parent, bool forceLegacy )
 {
-    return new Anchor( getCamera(), *this, parent, forceLegacy );
+    return new Anchor( getCamera(), parent, forceLegacy );
 }
 
 void IGameEngine::addGuiTask( std::function<void( void )> task )
@@ -148,7 +148,7 @@ bool IGameEngine::getDrawDebugInfo()
 
 VertexArray* IGameEngine::createVAO( const CUL::String& name )
 {
-    auto result = new VertexArray( *this );
+    auto result = new VertexArray();
     if( name.empty() == false )
     {
         result->setName( name );
@@ -158,7 +158,7 @@ VertexArray* IGameEngine::createVAO( const CUL::String& name )
 
 Cube* IGameEngine::createCube( bool forceLegacy )
 {
-    Cube* result = new Cube( &getCamera(), this, forceLegacy );
+    Cube* result = new Cube( &getCamera(), forceLegacy );
     result->setName( "Default cube" );
     return result;
 }

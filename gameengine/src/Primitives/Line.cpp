@@ -10,8 +10,9 @@
 
 using namespace LOGLW;
 
-Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy ):
-    IObject( "Line", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
+Line::Line( Camera& camera, IObject* parent, bool forceLegacy ):
+    IObject( "Line", forceLegacy ),
+    m_camera( camera )
 {
     m_vertexData = std::make_unique<VertexData>();
 
@@ -27,8 +28,10 @@ Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     m_line.data[1][1] = 0.f;
     m_line.data[1][2] = 0.f;
 
-    m_transformComponent->changeSizeDelegate.addDelegate( [/*this*/]() {
-    } );
+    m_transformComponent->changeSizeDelegate.addDelegate(
+        [/*this*/]()
+        {
+        } );
 
     if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -36,7 +39,7 @@ Line::Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLega
     }
     else
     {
-        engine.addPreRenderTask(
+        getEngine().addPreRenderTask(
             [this]()
             {
                 init();
@@ -109,7 +112,7 @@ void Line::render()
 
 void Line::setTransformation()
 {
-    Camera& camera = m_engine.getCamera();
+    Camera& camera = getEngine().getCamera();
     auto projectionMatrix = camera.getProjectionMatrix();
     auto viewMatrix = camera.getViewMatrix();
 
@@ -151,7 +154,7 @@ Line::~Line()
     }
     else
     {
-        m_engine.addPreRenderTask(
+        getEngine().addPreRenderTask(
             [this]()
             {
                 release();

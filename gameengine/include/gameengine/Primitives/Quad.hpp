@@ -23,7 +23,7 @@ class Quad final:
     public CUL::IRegisterdObject
 {
 public:
-    GAME_ENGINE_API Quad( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
+    GAME_ENGINE_API Quad( Camera& camera, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
 
@@ -48,8 +48,6 @@ private:
     VertexData m_vboData;
 
     TransformComponent* m_transformComponent{ nullptr };
-
-    IGameEngine& m_engine;
 
     CUL::Graphics::ColorS m_color;
     bool m_unbindBuffersAfterDraw{ false };

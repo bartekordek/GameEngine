@@ -9,7 +9,7 @@ class IObject;
 class GAME_ENGINE_API IRenderable: public IEngineUser
 {
 public:
-    IRenderable( IGameEngine* engine, bool renderOnMyOwn );
+    IRenderable( bool renderOnMyOwn );
     IRenderable( const IRenderable& value ) = delete;
     IRenderable( IRenderable&& value ) = delete;
     IRenderable& operator=( const IRenderable& value ) = delete;

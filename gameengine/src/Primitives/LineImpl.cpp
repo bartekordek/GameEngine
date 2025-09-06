@@ -3,7 +3,7 @@
 
 using namespace LOGLW;
 
-LineImpl::LineImpl( IGameEngine* engine ) : ILine( engine, false )
+LineImpl::LineImpl( IGameEngine* engine ) : ILine( false )
 {
     m_data[0] = m_data[1] = { 0.0f, 0.0f, 0.0f };
 

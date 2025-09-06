@@ -7,7 +7,7 @@
 
 using namespace LOGLW;
 
-Cube::Cube( Camera* camera, IGameEngine* engine, bool forceLegacy ) : IObject( "Cube", engine, forceLegacy ), m_camera( camera ), m_engine( engine )
+Cube::Cube( Camera* camera, bool forceLegacy ) : IObject( "Cube", forceLegacy ), m_camera( camera )
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 

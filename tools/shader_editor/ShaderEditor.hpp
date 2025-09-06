@@ -21,6 +21,7 @@ namespace LOGLW
 {
 class IGameEngine;
 class Camera;
+class CSphere;
 class Triangle;
 class Sprite;
 class Cube;
@@ -97,4 +98,6 @@ private:
     CUL::MATH::SphericalCoord<float> m_cameraPosSp;
     std::int32_t m_lastMouseX{ 0 };
     std::int32_t m_lastMouseY{ 0 };
+
+    LOGLW::CSphere* m_sphere{ nullptr };
 };

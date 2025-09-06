@@ -3,8 +3,8 @@
 
 using namespace LOGLW;
 
-IRenderable::IRenderable( IGameEngine* engine, bool renderOnMyOwn ):
-    IEngineUser( engine ),
+IRenderable::IRenderable( bool renderOnMyOwn ):
+    IEngineUser(),
     m_renderOnMyOwn( renderOnMyOwn )
 {
     toggleRenderOnMyOwn( renderOnMyOwn );
@@ -14,12 +14,12 @@ void IRenderable::toggleRenderOnMyOwn( bool inEnable )
 {
     if( inEnable )
     {
-        getEngine()->addObjectToRender( this );
+        getEngine().addObjectToRender( this );
         m_renderOnMyOwn = true;
     }
     else if( m_renderOnMyOwn )
     {
-        getEngine()->removeObjectToRender( this );
+        getEngine().removeObjectToRender( this );
         m_renderOnMyOwn = false;
     }
 }
@@ -38,6 +38,6 @@ IRenderable::~IRenderable()
 {
     if( m_renderOnMyOwn )
     {
-        getEngine()->removeObjectToRender( this );
+        getEngine().removeObjectToRender( this );
     }
 }

@@ -44,7 +44,7 @@ public:
     EditableTexture& operator=( const EditableTexture&) = delete;
     EditableTexture& operator=( EditableTexture&& ) = delete;
 
-    GAME_ENGINE_API EditableTexture( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy );
+    GAME_ENGINE_API EditableTexture( Camera* camera, CUL::CULInterface* cul, bool forceLegacy );
     GAME_ENGINE_API void create( uint16_t width, uint16_t height );
 
     GAME_ENGINE_API void setPixelValue( std::int32_t x, std::int32_t y, const TexPixel& color );

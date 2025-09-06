@@ -3,15 +3,15 @@
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "RunOnRenderThread.hpp"
+#include <gameengine/IGameEngine.hpp>
 #include "gameengine/Components/TransformComponent.hpp"
 #include "CUL/Log/ILogger.hpp"
 
 using namespace LOGLW;
 
-IObject::IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy ):
-    IRenderable( engine, true ),
+IObject::IObject( const CUL::String& name, bool forceLegacy ):
+    IRenderable( true ),
     IName( name ),
-    m_engine( *engine ),
     m_forceLegacy( forceLegacy )
 {
     m_transform = new TransformComponent( this );
@@ -34,7 +34,7 @@ void IObject::createVao()
 void IObject::createVaoImpl()
 {
     CUL::Assert::check( m_vao == nullptr, "m_vao already created!" );
-    m_vao = m_engine.createVAO();
+    m_vao = getEngine().createVAO();
 }
 
 void IObject::createProgram()
@@ -173,7 +173,7 @@ IObject::~IObject()
 
     deleteVao();
 
-    m_engine.removeProgram( m_shaderProgram );
+    getEngine().removeProgram( m_shaderProgram );
     m_shaderProgram = nullptr;
 }
 
@@ -206,11 +206,6 @@ void IObject::removeChild( IObject* child, bool lock )
     {
         removeChildImpl( child );
     }
-}
-
-IGameEngine& IObject::getEngine()
-{
-    return m_engine;
 }
 
 bool IObject::getForceLegacy() const

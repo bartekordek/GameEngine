@@ -34,7 +34,7 @@ struct GAME_ENGINE_API UV
 class Sprite final: public IUtilityUser, public IObject, public CUL::IRegisterdObject
 {
 public:
-    GAME_ENGINE_API Sprite( IGameEngine& engine, IObject* parent, bool forceLegacy );
+    GAME_ENGINE_API Sprite( IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
     GAME_ENGINE_API void LoadImage( unsigned char* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader*,
@@ -66,16 +66,12 @@ private:
     std::int32_t m_textureId{ 0 };
     std::array<std::array<float,8>, 4> m_vertexData;
 
-
-
     std::array<UV, 4> m_uvList;
     glm::mat4 m_model;
 
     VertexData m_vboData;
 
     TransformComponent* m_transformComponent{ nullptr };
-
-    IGameEngine& m_engine;
 
     CUL::Graphics::ColorS m_color;
     bool m_unbindBuffersAfterDraw{ false };

@@ -49,7 +49,7 @@ class GAME_ENGINE_API VertexArray final:
     public IRenderable
 {
 public:
-    explicit VertexArray( IGameEngine& engine );
+    explicit VertexArray();
 
     VertexArray( const VertexArray& value ) = delete;
     VertexArray( VertexArray&& value ) = delete;
@@ -97,8 +97,6 @@ private:
 
     void createVAO();
     void createVBOs( const VertexData& data );
-
-    IGameEngine& m_engine;
 
     CUL::CTaskAccumulator m_bufferTasks;
 

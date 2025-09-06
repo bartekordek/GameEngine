@@ -19,8 +19,8 @@ using namespace LOGLW;
 
 constexpr const char* g_defaultQuadName =  "Quad" ;
 
-Quad::Quad( Camera& /*camera*/, IGameEngine& engine, IObject* parent, bool forceLegacy )
-    : IObject( "", &engine, forceLegacy ), m_engine( engine )
+Quad::Quad( Camera& /*camera*/, IObject* parent, bool forceLegacy ):
+    IObject( "", forceLegacy )
 {
     m_transformComponent = getTransform();
     setParent( parent );
@@ -171,7 +171,7 @@ void Quad::render()
 void Quad::setTransformationAndColor()
 {
     ZoneScoped;
-    const Camera& camera = m_engine.getCamera();
+    const Camera& camera = getEngine().getCamera();
     const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     const glm::mat4 viewMatrix = camera.getViewMatrix();
 
@@ -196,7 +196,7 @@ Quad::~Quad()
     }
     else
     {
-        m_engine.addPreRenderTask(
+        getEngine().addPreRenderTask(
             [this]()
             {
             release();

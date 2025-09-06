@@ -16,8 +16,8 @@
 
 using namespace LOGLW;
 
-Sprite::Sprite( IGameEngine& engine, IObject* parent, bool forceLegacy )
-    : IObject( "", &engine, forceLegacy ), m_engine( engine )
+Sprite::Sprite( IObject* parent, bool forceLegacy )
+    : IObject( "", forceLegacy )
 {
     m_transformComponent = getTransform();
     setParent( parent );
@@ -250,7 +250,7 @@ void Sprite::render()
 void Sprite::setTransformationAndColor()
 {
     ZoneScoped;
-    const Camera& camera = m_engine.getCamera();
+    const Camera& camera = getEngine().getCamera();
     const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     const glm::mat4 viewMatrix = camera.getViewMatrix();
 

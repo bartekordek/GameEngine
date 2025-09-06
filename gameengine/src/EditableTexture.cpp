@@ -10,8 +10,10 @@
 
 using namespace LOGLW;
 
-EditableTexture::EditableTexture( Camera* camera, CUL::CULInterface* cul, IGameEngine* engine, bool forceLegacy )
-    : IObject( "EditableTexture", engine, forceLegacy ), m_camera( camera ), m_cul( cul )
+EditableTexture::EditableTexture( Camera* camera, CUL::CULInterface* cul, bool forceLegacy ):
+    IObject( "EditableTexture", forceLegacy ),
+    m_camera( camera ),
+    m_cul( cul )
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     m_transformComponent->setSize( CUL::MATH::Point( 8.f, 6.f, 2.f ) );
@@ -120,7 +122,7 @@ void EditableTexture::init()
         m_ti->pixelFormat = CUL::Graphics::PixelFormat::RGBA;
         m_ti->size = { m_width, m_height };
         m_ti->data = getData();
-        m_ti->textureId = m_textureId;
+        m_ti->textureId = static_cast<decltype( m_ti->textureId )>( m_textureId );
         m_ti->initialized = true;
         
         getDevice()->setTextureData( m_textureId, *m_ti );

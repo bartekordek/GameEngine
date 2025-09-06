@@ -202,7 +202,7 @@ const ContextInfo& GameEngineConcrete::getContext() const
 
 Sprite* GameEngineConcrete::createSprite( const String& path, bool )
 {
-    auto sprite = new Sprite( *this, nullptr, false );
+    auto sprite = new Sprite( nullptr, false );
 
     CUL::FS::Path fsPath = path;
     CUL::Assert::simple( fsPath.exists(), "File " + path + " does not exist.", m_logger );
@@ -214,7 +214,7 @@ Sprite* GameEngineConcrete::createSprite( const String& path, bool )
 
 Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width, unsigned height, bool )
 {
-    auto sprite = new Sprite( *this, nullptr, false );
+    auto sprite = new Sprite( nullptr, false );
     auto textureId = m_renderDevice->generateTexture();
     sprite->LoadImage( (CUL::Graphics::DataType*)data, width, height, m_imageLoader, textureId );
     m_renderDevice->bindTexture( textureId );

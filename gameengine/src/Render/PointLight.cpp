@@ -13,8 +13,8 @@
 namespace LOGLW
 {
 
-PointLight::PointLight( IObject* parent, IGameEngine* engine ):
-    IObject( "PointLight", engine, false )
+PointLight::PointLight( IObject* parent ):
+    IObject( "PointLight", false )
 {
     m_transformComponent = getTransform();
 

@@ -24,7 +24,7 @@ class IObject:
     public CUL::IName
 {
 public:
-    GAME_ENGINE_API IObject( const CUL::String& name, IGameEngine* engine, bool forceLegacy );
+    GAME_ENGINE_API IObject( const CUL::String& name, bool forceLegacy );
 
     GAME_ENGINE_API virtual const std::vector<float> getVertices() const;
 
@@ -54,7 +54,6 @@ public:
 
 protected:
     GAME_ENGINE_API void onNameChange( const CUL::String& newName ) override;
-    IGameEngine& getEngine();
 
     bool getForceLegacy() const;
 
@@ -65,7 +64,6 @@ private:
     ShaderProgram* m_shaderProgram = nullptr;
     VertexArray* m_vao = nullptr;
     bool m_removeByParent = false;
-    IGameEngine& m_engine;
     bool m_forceLegacy = false;
 
     IObject* m_parent = nullptr;

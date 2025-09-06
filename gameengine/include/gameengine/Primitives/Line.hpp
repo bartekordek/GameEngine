@@ -19,7 +19,7 @@ struct VertexData;
 class Line final: public IObject, public IUtilityUser
 {
 public:
-    GAME_ENGINE_API Line( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
+    GAME_ENGINE_API Line( Camera& camera, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void setValues( const CUL::MATH::Primitives::Line& values );
     GAME_ENGINE_API void setColor( const ColorS& color );
@@ -43,7 +43,6 @@ private:
     std::unique_ptr<VertexData> m_vertexData;
 
     Camera& m_camera;
-    IGameEngine& m_engine;
     CUL::Graphics::ColorS m_color;
 
     Line( const Line& args ) = delete;

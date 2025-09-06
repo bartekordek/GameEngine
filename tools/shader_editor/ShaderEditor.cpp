@@ -16,6 +16,7 @@
 
 #include "gameengine/Windowing/IWindow.hpp"
 #include "gameengine/Input/MouseData.hpp"
+#include <gameengine/Primitives/Sphere.hpp>
 
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 
@@ -23,6 +24,7 @@
 #include "CUL/Filesystem/PathDialog.hpp"
 #include "CUL/Filesystem/RegularFile.hpp"
 #include "CUL/Math/Utils.hpp"
+#include "CUL/Math/Constants.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
 
 #include "CUL/STL_IMPORTS/STD_cmath.hpp"
@@ -188,6 +190,8 @@ void ShaderEditor::afterInit()
     m_vao->setProgram( m_engine->createProgram() );
     m_vao->toggleRenderOnMyOwn( true );
     m_transformComponent = std::make_unique<LOGLW::TransformComponent>( nullptr );
+
+    m_sphere = new LOGLW::CSphere( nullptr );
 }
 
 void ShaderEditor::timer()
@@ -318,7 +322,7 @@ void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
     glm::vec3 eyePos = camera.getEye();
 
     ImGui::Text( "Eye pos: x: %f, y: %f, z: %f", eyePos.x, eyePos.y, eyePos.z );
-    constexpr float toDeg = 180.f / static_cast<float>( M_PI );
+    constexpr float toDeg = 180.f / CUL::Math::PI_F;
     ImGui::Text( "Eye pos in spherical [rad]: theta: %f, phi: %f, r: %f", m_cameraPosSp.getTheta(), m_cameraPosSp.getPhi(),
                  m_cameraPosSp.getR() );
     ImGui::Text( "Eye pos in spherical [deg]: theta: %f, phi: %f, r: %f", m_cameraPosSp.getTheta() * toDeg, m_cameraPosSp.getPhi() * toDeg,

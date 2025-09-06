@@ -16,14 +16,15 @@
 
 using namespace LOGLW;
 
-Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy )
-    : IObject( "Triangle", &engine, forceLegacy ), m_camera( camera ), m_engine( engine )
+Triangle::Triangle( Camera& camera, IObject* parent, bool forceLegacy ):
+    IObject( "Triangle", forceLegacy ),
+    m_camera( camera )
 {
     m_transformComponent = getTransform();
     setParent( parent );
 
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
-   constexpr float size = 4.f;
+    constexpr float size = 4.f;
     m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
     // TODO: add normals
     setSize( { size, size, 0 } );
@@ -40,7 +41,9 @@ Triangle::Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool f
     m_shape.data[2][1] = 0.f;
     m_shape.data[2][2] = 0.f;
 
-    RunOnRenderThread::getInstance().RunWaitForResult( [this](){
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this]()
+        {
             init();
         } );
 
@@ -152,7 +155,7 @@ void Triangle::render()
 
 void Triangle::setColorAndTransformation()
 {
-    const Camera& camera = m_engine.getCamera();
+    const Camera& camera = getEngine().getCamera();
     const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     const glm::mat4 viewMatrix = camera.getViewMatrix();
 
@@ -173,7 +176,7 @@ Triangle::~Triangle()
     }
     else
     {
-        m_engine.addPreRenderTask(
+        getEngine().addPreRenderTask(
             [this]()
             {
                 release();

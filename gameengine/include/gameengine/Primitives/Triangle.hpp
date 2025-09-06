@@ -20,7 +20,7 @@ class VertexArray;
 class Triangle final: public IUtilityUser, public IObject
 {
 public:
-    GAME_ENGINE_API Triangle( Camera& camera, IGameEngine& engine, IObject* parent, bool forceLegacy );
+    GAME_ENGINE_API Triangle( Camera& camera, IObject* parent, bool forceLegacy );
 
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
     GAME_ENGINE_API ~Triangle();
@@ -45,7 +45,6 @@ private:
     std::atomic<bool> m_recreateBuffers = false;
 
     Camera& m_camera;
-    IGameEngine& m_engine;
 
     CUL::Graphics::ColorS m_color;
     bool m_unbindBuffersAfterDraw{ false };

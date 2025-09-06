@@ -34,9 +34,8 @@ void removeVertex( VertexArray* inVertex )
     }
 }
 
-VertexArray::VertexArray( IGameEngine& engine ):
-    IRenderable( &engine, false ),
-    m_engine( engine )
+VertexArray::VertexArray():
+    IRenderable( false )
 {
     m_vertexData = std::make_unique<VertexData>();
 
@@ -201,7 +200,7 @@ void VertexArray::runTasks()
         {
             if( !m_shaderProgram )
             {
-                m_shaderProgram = m_engine.createProgram();
+                m_shaderProgram = getEngine().createProgram();
             }
         }
         else if( task == TaskType::ADD_SHADER )
@@ -253,7 +252,7 @@ void VertexArray::registerTask( TaskType taskType )
 
 void VertexArray::createVBOs( const VertexData& data )
 {
-    auto vbo = new VertexBuffer( data, &m_engine );
+    auto vbo = new VertexBuffer( data );
     m_vbos.emplace_back( vbo );
 }
 
@@ -295,7 +294,7 @@ VertexArray::~VertexArray()
     }
     else
     {
-        m_engine.addPreRenderTask(
+        getEngine().addPreRenderTask(
             [this]()
             {
             release();

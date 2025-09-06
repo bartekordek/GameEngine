@@ -3,9 +3,9 @@
 
 using namespace LOGLW;
 
-Anchor::Anchor( Camera& camera, IGameEngine& engine, IObject* /*parent*/, bool forceLegacy )
-    : IObject( "Anchor", &engine, forceLegacy ),
-    m_camera( camera ), m_engine( engine )
+Anchor::Anchor( Camera& camera, IObject* /*parent*/, bool forceLegacy ):
+    IObject( "Anchor", forceLegacy ),
+    m_camera( camera )
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 }

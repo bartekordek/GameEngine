@@ -1,15 +1,15 @@
 #include "gameengine/IEngineUser.hpp"
+#include <gameengine/IGameEngine.hpp>
 
 using namespace LOGLW;
 
 
-IEngineUser::IEngineUser(IGameEngine* engine):
-m_engine(engine)
+IEngineUser::IEngineUser():
+    m_engine( *IGameEngine::getInstance() )
 {
-
 }
 
-IGameEngine* IEngineUser::getEngine()
+IGameEngine& IEngineUser::getEngine()
 {
     return m_engine;
 }

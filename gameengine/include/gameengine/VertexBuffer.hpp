@@ -53,7 +53,7 @@ class GAME_ENGINE_API VertexBuffer final:
     public CUL::IName
 {
 public:
-    VertexBuffer( const VertexData& vertexData, IGameEngine* engine );
+    VertexBuffer( const VertexData& vertexData );
     void setVertexData( const VertexData& vertexData );
     void updateVertexData( const VertexData& vertexData );
     void updateVertexData( bool isRenderThread );

@@ -11,7 +11,7 @@ class VertexArray;
 class PointLight final: public IObject
 {
 public:
-    GAME_ENGINE_API PointLight( IObject* parent, IGameEngine* engine );
+    GAME_ENGINE_API PointLight( IObject* parent );
 
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
 
