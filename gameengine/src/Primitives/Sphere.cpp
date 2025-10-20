@@ -1,5 +1,6 @@
 #include <gameengine/Primitives/Sphere.hpp>
 #include <CUL/Math/Constants.hpp>
+#include <CUL/STL_IMPORTS/STD_cmath.hpp>
 
 using namespace LOGLW;
 
@@ -73,8 +74,8 @@ void CSphere::fillVerticesNormalsTex()
     for( int i = 0; i <= m_stackCount; ++i )
     {
         stackAngle = CUL::Math::PI_F / 2 - i * stackStep;  // starting from pi/2 to -pi/2
-        xy = m_radius * cosf( stackAngle );     // r * cos(u)
-        z = m_radius * sinf( stackAngle );      // r * sin(u)
+        xy = m_radius * std::cosf( stackAngle );     // r * cos(u)
+        z = m_radius * std::sinf( stackAngle );      // r * sin(u)
 
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords

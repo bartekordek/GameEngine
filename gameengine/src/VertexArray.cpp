@@ -113,7 +113,10 @@ void VertexArray::createShader( const CUL::FS::Path& path )
 
 void VertexArray::addVertexBuffer( const VertexData& data )
 {
-    createVBOs( data );
+    bind();
+    *m_vertexData = data;
+    m_vertexData->VAO = m_vaoId;
+    createVBOs( *m_vertexData );
 }
 
 void VertexArray::updateVertexBuffer( const VertexData& data )
