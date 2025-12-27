@@ -10,14 +10,14 @@
 #include "gameengine/AttributeMeta.hpp"
 #include "RunOnRenderThread.hpp"
 #include "CUL/Graphics/IImageLoader.hpp"
-#include "CUL/IMPORT_tracy.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
 
 using namespace LOGLW;
 
-Sprite::Sprite( IObject* parent, bool forceLegacy )
-    : IObject( "", forceLegacy )
+Sprite::Sprite( IObject* parent, bool forceLegacy ):
+    IObject( "", forceLegacy )
 {
     m_transformComponent = getTransform();
     setParent( parent );
@@ -76,8 +76,7 @@ void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoa
     m_transformComponent->setSize( { newRectWidth, newRectHeight, 0.f } );
 }
 
-void Sprite::LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader* imageLoader,
-                        unsigned )
+void Sprite::LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader* imageLoader, unsigned )
 {
     m_image = imageLoader->loadImage( (unsigned char*)data, width, height );
 
@@ -147,7 +146,6 @@ CUL::Graphics::DataType* Sprite::getData() const
     return m_image->getData();
 }
 
-
 void Sprite::setUV( const UV& inUV, std::size_t index )
 {
     m_uvList[index] = inUV;
@@ -168,7 +166,7 @@ void Sprite::updateBuffers_impl()
     FloatData fd;
     for( const auto& data : m_vertexData )
     {
-        for( const auto& dataRow: data )
+        for( const auto& dataRow : data )
         {
             fd.push_back( dataRow );
         }
@@ -201,12 +199,8 @@ void Sprite::updateBuffers_impl()
 
 void Sprite::setSize( const glm::vec3& size )
 {
-    m_vertexData = { 
-        0.0f, size.y, 0.0f, m_uvList[0].X, m_uvList[0].Y,
-      size.x, size.y, 0.0f, m_uvList[1].X, m_uvList[1].Y,
-      size.x,   0.0f, 0.0f, m_uvList[2].X, m_uvList[2].Y,
-        0.0f,   0.0f, 0.0f, m_uvList[3].X, m_uvList[3].Y
-    };
+    m_vertexData = { 0.0f,   size.y, 0.0f, m_uvList[0].X, m_uvList[0].Y, size.x, size.y, 0.0f, m_uvList[1].X, m_uvList[1].Y,
+                     size.x, 0.0f,   0.0f, m_uvList[2].X, m_uvList[2].Y, 0.0f,   0.0f,   0.0f, m_uvList[3].X, m_uvList[3].Y };
 }
 
 const std::array<UV, 4>& Sprite::getUV() const
@@ -226,14 +220,14 @@ void Sprite::createShaders()
 
 void Sprite::render()
 {
-    ZoneScoped;
+    ProfilerScope( "Sprite::render" );
 
     getDevice()->setActiveTextureUnit( ETextureUnitIndex::UNIT_0 );
     getDevice()->bindTexture( m_textureId );
 
     if( getDevice()->isLegacy() || getForceLegacy() )
     {
-        //getDevice()->draw( m_shape, m_transformComponent->getModel(), m_color );
+        // getDevice()->draw( m_shape, m_transformComponent->getModel(), m_color );
     }
     else
     {
@@ -249,7 +243,8 @@ void Sprite::render()
 
 void Sprite::setTransformationAndColor()
 {
-    ZoneScoped;
+    ProfilerScope( "Sprite::setTransformationAndColor" );
+
     const Camera& camera = getEngine().getCamera();
     const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     const glm::mat4 viewMatrix = camera.getViewMatrix();
@@ -270,9 +265,11 @@ void Sprite::setTransformationAndColor()
 
 Sprite::~Sprite()
 {
-    RunOnRenderThread::getInstance().RunWaitForResult( [this] (){
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this]()
+        {
             release();
-        });
+        } );
 }
 
 void Sprite::release()

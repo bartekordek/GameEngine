@@ -10,26 +10,26 @@
 #include "CUL/ITimer.hpp"
 
 #include "sdl2wrapper/IMPORT_SDL.hpp"
-#include "CUL/IMPORT_tracy.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 
 using namespace LOGLW;
 
 using IPivot = CUL::MATH::IPivot;
 
 #ifdef _MSC_VER
-// Yes, I know that is a Spectre mitigation.
-// But for now, I let this as TODO, since i don't know
-// How to fix this.
-// TODO
-#pragma warning( push )
-#pragma warning( disable : 5045 )
+    // Yes, I know that is a Spectre mitigation.
+    // But for now, I let this as TODO, since i don't know
+    // How to fix this.
+    // TODO
+    #pragma warning( push )
+    #pragma warning( disable : 5045 )
 #endif
-RegularSDL2Window::RegularSDL2Window( const WinData& winData, ISDL2Wrapper* wrapper, CUL::CULInterface* culInterface )
-    : m_windowData( winData ),
-      m_wrapper( wrapper ),
-      m_culInterface( culInterface ),
-      m_fsApi( culInterface->getFS() ),
-      m_logger( culInterface->getLogger() )
+RegularSDL2Window::RegularSDL2Window( const WinData& winData, ISDL2Wrapper* wrapper, CUL::CULInterface* culInterface ):
+    m_windowData( winData ),
+    m_wrapper( wrapper ),
+    m_culInterface( culInterface ),
+    m_fsApi( culInterface->getFS() ),
+    m_logger( culInterface->getLogger() )
 {
     m_window = createWindow( winData );
 
@@ -39,7 +39,7 @@ RegularSDL2Window::RegularSDL2Window( const WinData& winData, ISDL2Wrapper* wrap
     m_il = m_culInterface->getImageLoader();
 }
 #ifdef _MSC_VER
-#pragma warning( pop )
+    #pragma warning( pop )
 #endif
 
 SDL_Window* RegularSDL2Window::createWindow( const WinData& winData )
@@ -149,7 +149,8 @@ const WinSize& RegularSDL2Window::getCurrentScreenNativeResolution() const
 
 void RegularSDL2Window::updateScreenBuffers()
 {
-    ZoneScoped;
+    ProfilerScope( "RegularSDL2Window::updateScreenBuffers" );
+
     if( ( m_windowData.RendererType == RenderTypes::RendererType::OPENGL_LEGACY ) ||
         ( m_windowData.RendererType == RenderTypes::RendererType::OPENGL_MODERN ) )
     {

@@ -30,7 +30,7 @@
 #include "CUL/ITimer.hpp"
 #include "CUL/Math/Utils.hpp"
 #include "CUL/JSON/INode.hpp"
-#include "CUL/IMPORT_tracy.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 
 #include "CUL/STL_IMPORTS/STD_iostream.hpp"
 #include "CUL/STL_IMPORTS/STD_condition_variable.hpp"
@@ -40,10 +40,7 @@
 using namespace LOGLW;
 
 GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool ):
-    m_sdlW( sdl2w ),
-    m_activeWindow( sdl2w->getMainWindow() ),
-    m_cul( sdl2w->getCul() ),
-    m_logger( sdl2w->getCul()->getLogger() )
+    m_sdlW( sdl2w ), m_activeWindow( sdl2w->getMainWindow() ), m_cul( sdl2w->getCul() ), m_logger( sdl2w->getCul()->getLogger() )
 {
     CUL::Assert::simple( nullptr != sdl2w, "NO SDL WRAPPER." );
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );
@@ -206,7 +203,6 @@ Sprite* GameEngineConcrete::createSprite( const String& path, bool )
 
     CUL::FS::Path fsPath = path;
     CUL::Assert::simple( fsPath.exists(), "File " + path + " does not exist.", m_logger );
-
     sprite->LoadImage( path, m_imageLoader );
 
     return sprite;
@@ -277,13 +273,14 @@ void GameEngineConcrete::renderLoop()
 
     while( m_runRenderLoop )
     {
-        ZoneScoped;
+        ProfilerScope( "GameEngineConcrete::renderLoop" );
+
         FrameTimeManager::getInstance().startFrame();
         runPreRenderTasks();
         renderFrame();
         runPostRenderTasks();
         FrameTimeManager::getInstance().endFrame();
-        FrameMark;
+        FrameEnd;
     }
 
     size_t objectToRenderLeft = m_objectsToRender.size();
@@ -351,7 +348,8 @@ void GameEngineConcrete::setupProjectionData( uint16_t width, uint16_t height )
 
 void GameEngineConcrete::renderFrame()
 {
-    ZoneScoped;
+    ProfilerScope( "GameEngineConcrete::renderFrame" );
+
     m_renderDevice->prepareFrame();
 
     if( m_clearEveryFrame )
@@ -396,12 +394,13 @@ void GameEngineConcrete::renderFrame()
 void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name );
 
 #if _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4061 )
+    #pragma warning( push )
+    #pragma warning( disable : 4061 )
 #endif
 void GameEngineConcrete::renderInfo()
 {
-    ZoneScoped;
+    ProfilerScope( "GameEngineConcrete::renderInfo" );
+
     float debugInfoWidth{ 0.f };
     float debugInfoHeight{ 0.f };
     if( getDrawDebugInfo() )
@@ -444,7 +443,6 @@ void GameEngineConcrete::renderInfo()
         // m_projectionData.m_depthTest.runIfChanged();
         String text;
         {
-            ZoneScoped;
             ImGui::Text( "Aspect Ratio: %f", getCamera().getAspectRatio() );
             ImGui::Text( "FOV-Y: %f", getCamera().getFov() );
 
@@ -531,7 +529,7 @@ void GameEngineConcrete::renderInfo()
 }
 
 #if _MSC_VER
-#pragma warning( pop )
+    #pragma warning( pop )
 #endif
 
 bool GameEngineConcrete::drawObjectsInfo( float& width, float& high )
@@ -979,7 +977,8 @@ void GameEngineConcrete::setEyePos( const glm::vec3& pos )
 
 void GameEngineConcrete::renderObjects()
 {
-    ZoneScoped;
+    ProfilerScope( "GameEngineConcrete::renderObjects" );
+
     std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
     for( IRenderable* renderableObject : m_objectsToRender )
     {
@@ -989,7 +988,8 @@ void GameEngineConcrete::renderObjects()
 
 void GameEngineConcrete::finishFrame()
 {
-    ZoneScoped;
+    ProfilerScope( "GameEngineConcrete::finishFrame" );
+
     m_renderDevice->finishFrame();
 
     if( m_updateBuffers )
@@ -1158,7 +1158,8 @@ float GameEngineConcrete::getFpsLimit() const
 
 void GameEngineConcrete::runPreRenderTasks()
 {
-    ZoneScoped;
+    ProfilerScope( "GameEngineConcrete::runPreRenderTasks" );
+
     std::lock_guard<std::mutex> lock( m_preRenderTasksMtx );
     while( !m_preRenderTasks.empty() )
     {
@@ -1170,7 +1171,8 @@ void GameEngineConcrete::runPreRenderTasks()
 
 void GameEngineConcrete::runPostRenderTasks()
 {
-    ZoneScoped;
+    ProfilerScope( "GameEngineConcrete::runPostRenderTasks" );
+
     std::lock_guard<std::mutex> lock( m_postRenderTasksMtx );
     while( !m_postRenderTasks.empty() )
     {

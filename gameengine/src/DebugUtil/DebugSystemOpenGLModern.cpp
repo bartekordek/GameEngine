@@ -2,7 +2,7 @@
 
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 #include "DebugUtil/DebugSystemParams.hpp"
-#include "CUL/IMPORT_tracy.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 
 using namespace LOGLW;
@@ -18,7 +18,7 @@ void DebugSystemOpenGLModern::init( const DebugSystemParams& params )
         CUL::Assert::simple( false, "Already initialized" );
     }
 
-    m_params = std::make_unique< DebugSystemParams>();
+    m_params = std::make_unique<DebugSystemParams>();
     *m_params = params;
 
     IMGUI_CHECKVERSION();
@@ -28,12 +28,12 @@ void DebugSystemOpenGLModern::init( const DebugSystemParams& params )
 
     ImGui_ImplOpenGL3_Init();
     m_initialized = true;
-
 }
 
 void DebugSystemOpenGLModern::frame()
 {
-    ZoneScoped;
+    ProfilerScope( "DebugSystemOpenGLModern::frame" );
+
     if( m_initialized )
     {
         ImGui_ImplOpenGL3_NewFrame();

@@ -14,12 +14,12 @@
 #include "CUL/ObjectRegistry.hpp"
 
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
-#include "CUL/IMPORT_tracy.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 
 using namespace LOGLW;
 
-ShaderProgram::ShaderProgram()
-    : m_engine( *IGameEngine::getInstance() )
+ShaderProgram::ShaderProgram():
+    m_engine( *IGameEngine::getInstance() )
 {
     create();
 }
@@ -70,12 +70,12 @@ void ShaderProgram::onNameChange( const String& newName )
 
 void ShaderProgram::compileLinkValidate( EExecuteType /*inEt*/ )
 {
-    //TODO:
-    //RunOnRenderThread::getInstance().Run(
-    //    [this]()
-    //    {
-    //        //TODO
-    //    } );
+    // TODO:
+    // RunOnRenderThread::getInstance().Run(
+    //     [this]()
+    //     {
+    //         //TODO
+    //     } );
 }
 
 void ShaderProgram::reCompileWholeShader( EExecuteType inEt )
@@ -153,7 +153,8 @@ void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPath
     }
 }
 
-void ShaderProgram::reCompileShaderImpl( EExecuteType inEt, const String& inShaderPathString, bool assertOnErrors, CUL::String& errorMessage )
+void ShaderProgram::reCompileShaderImpl( EExecuteType inEt, const String& inShaderPathString, bool assertOnErrors,
+                                         CUL::String& errorMessage )
 {
     const CUL::FS::Path inShaderPath( inShaderPathString );
     const auto extension = inShaderPath.getExtension();
@@ -197,7 +198,6 @@ void ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath, 
         su->State = EShaderUnitState::Error;
     }
 }
-
 
 void ShaderProgram::attachShader( EExecuteType inEt, std::uint32_t id )
 {
@@ -352,7 +352,7 @@ void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
         }
 
         UniformInfo ui;
-        if (getDevice()->fetchUniformInfo(ui, m_shaderProgramId, inName))
+        if( getDevice()->fetchUniformInfo( ui, m_shaderProgramId, inName ) )
         {
             if( ui.Type == DataType::NONE )
             {
@@ -441,7 +441,8 @@ int ShaderProgram::getAttributeI( const String& name )
 
 void ShaderProgram::enable()
 {
-    ZoneScoped;
+    ProfilerScope( "ShaderProgram::enable" );
+
     CUL::Assert::check( m_shaderProgramId != 0u, "NO SHADER IS BEING USED." );
     if( m_linked ) [[likely]]
     {

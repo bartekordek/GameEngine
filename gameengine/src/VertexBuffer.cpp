@@ -3,7 +3,7 @@
 #include "gameengine/AttributeMeta.hpp"
 #include "RunOnRenderThread.hpp"
 #include "gameengine/IRenderDevice.hpp"
-#include "CUL/IMPORT_tracy.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 
 using namespace LOGLW;
 
@@ -109,13 +109,14 @@ void VertexBuffer::updateVertexData( bool isRenderThread )
 
 void VertexBuffer::render()
 {
-    ZoneScoped;
+    ProfilerScope( "VertexBuffer::render" );
+
     bind();
     if( m_indexBuffer.get() )
     {
         m_indexBuffer->bind();
         getDevice()->drawElements( m_vertexData.primitiveType, m_indexBuffer->getData() );
-        //getDevice()->drawElementsFromLastBuffer( m_vertexData.primitiveType, DataType::UNSIGNED_INT, m_indexBuffer->getData().size() );
+        // getDevice()->drawElementsFromLastBuffer( m_vertexData.primitiveType, DataType::UNSIGNED_INT, m_indexBuffer->getData().size() );
     }
     else
     {

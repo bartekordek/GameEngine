@@ -1,5 +1,5 @@
 #include "gameengine/Render/FrameTimeManager.hpp"
-#include "CUL/IMPORT_tracy.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
 
 using namespace LOGLW;
@@ -64,7 +64,8 @@ void FrameTimeManager::startFrame()
 
 void FrameTimeManager::endFrame()
 {
-    ZoneScoped;
+    ProfilerScope( "FrameTimeManager::endFrame" );
+
     m_frameEnd = m_clock.now();
     const auto difference = m_frameEnd - m_frameStart;
     m_lastFrameTimeNs = std::chrono::duration_cast<std::chrono::nanoseconds>( difference ).count();

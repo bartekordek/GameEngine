@@ -20,7 +20,7 @@ TextureConcrete::TextureConcrete(
     m_texInfo.size.height = info.size.height;
     m_texInfo.pixelFormat = info.pixelFormat;
 
-    m_textureId = utility->generateTexture();
+    m_textureId = static_cast<decltype( m_textureId )>( utility->generateTexture() );
     utility->bindTexture(static_cast<const unsigned int>(m_textureId));
     utility->setTextureData(static_cast<std::uint8_t>(m_textureId), m_texInfo );
     utility->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );

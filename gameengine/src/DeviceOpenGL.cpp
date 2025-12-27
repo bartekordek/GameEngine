@@ -13,12 +13,12 @@
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
 #include "CUL/Filesystem/FileFactory.hpp"
+#include "CUL/Filesystem/RegularFile.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 
 #include "CUL/STL_IMPORTS/STD_iostream.hpp"
 #include "CUL/STL_IMPORTS/STD_sstream.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
-
-#include "CUL/IMPORT_tracy.hpp"
 
 using namespace LOGLW;
 
@@ -116,8 +116,7 @@ const char* toString( GLenum type )
 }
 
 void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message,
-                             const void* userParam
-)
+                             const void* userParam )
 {
     if( id == 131185 )
     {
@@ -257,7 +256,8 @@ void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum
 CUL::String enumToString( const GLenum val );
 GLuint toGluint( unsigned value );
 
-DeviceOpenGL::DeviceOpenGL( bool forceLegacy ) : IRenderDevice( forceLegacy )
+DeviceOpenGL::DeviceOpenGL( bool forceLegacy ):
+    IRenderDevice( forceLegacy )
 {
     log( "DeviceOpenGL::DeviceOpenGL();" );
 
@@ -427,8 +427,8 @@ void DeviceOpenGL::setPerspectiveProjection( const Camera& projectionData )
 
 // TODO: Remove:
 #if _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4100 )
+    #pragma warning( push )
+    #pragma warning( disable : 4100 )
 #endif
 
 void DeviceOpenGL::setViewport( const Viewport& viewport )
@@ -441,7 +441,7 @@ void DeviceOpenGL::setViewport( const Viewport& viewport )
 }
 
 #ifdef _MSC_VER
-#pragma warning( pop )
+    #pragma warning( pop )
 #endif
 void DeviceOpenGL::lookAt( const Camera& vp )
 {
@@ -507,7 +507,7 @@ void DeviceOpenGL::removeProgram( unsigned programId )
     }
     // TODO: find a correct way to check whether program was deleted.
     // assertOnProgramError( programId, GL_DELETE_STATUS );
-    //glCheckError_( "DeviceOpenGL.cpp", 180 );
+    // glCheckError_( "DeviceOpenGL.cpp", 180 );
 }
 
 void DeviceOpenGL::linkProgram( unsigned programId )
@@ -573,8 +573,7 @@ ShaderTypes DeviceOpenGL::getShaderType( const CUL::String& fileExtension )
     .frag - a fragment shader
     .comp - a compute shader
     */
-    if( fileExtension.equals( "frag" ) || fileExtension.equals( ".frag" ) || fileExtension.equals( ".fs" ) ||
-        fileExtension.equals( "fs" ) )
+    if( fileExtension.equals( "frag" ) || fileExtension.equals( ".frag" ) || fileExtension.equals( ".fs" ) || fileExtension.equals( "fs" ) )
     {
         return static_cast<ShaderTypes>( GL_FRAGMENT_SHADER );
     }
@@ -2212,7 +2211,8 @@ void* DeviceOpenGL::getNativeDevice()
 
 bool DeviceOpenGL::isLegacy()
 {
-    ZoneScoped;
+    ProfilerScope( "DeviceOpenGL::isLegacy" );
+
     if( m_forceLegacy )
     {
         return true;
@@ -2452,7 +2452,7 @@ std::vector<AttributeInfo> DeviceOpenGL::fetchProgramAttributeInfo( std::int32_t
     GLint size{ 0 };  // size of the variable
 
     constexpr GLsizei bufSize = 64;  // maximum name length
-    GLchar name[bufSize];        // variable name in GLSL
+    GLchar name[bufSize];            // variable name in GLSL
 
     GLint count{ 0 };
     glGetProgramiv( inProgramId, GL_ACTIVE_ATTRIBUTES, &count );
@@ -2483,7 +2483,7 @@ std::vector<UniformInfo> DeviceOpenGL::fetchProgramUniformsInfo( std::int32_t in
     GLint size{ 0 };  // size of the variable
 
     constexpr GLsizei bufSize = 64;  // maximum name length
-    GLchar name[bufSize];        // variable name in GLSL
+    GLchar name[bufSize];            // variable name in GLSL
 
     GLint count{ 0 };
     glGetProgramiv( inProgramId, GL_ACTIVE_UNIFORMS, &count );
@@ -2512,7 +2512,7 @@ bool DeviceOpenGL::fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t
     GLint size{ 0 };  // size of the variable
 
     constexpr GLsizei bufSize = 64;  // maximum name length
-    GLchar name[bufSize];        // variable name in GLSL
+    GLchar name[bufSize];            // variable name in GLSL
 
     GLint count{ 0 };
     glGetProgramiv( inProgramId, GL_ACTIVE_UNIFORMS, &count );

@@ -3,7 +3,7 @@
 #include "gameengine/IRenderDevice.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "RunOnRenderThread.hpp"
-#include "CUL/IMPORT_tracy.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -136,7 +136,8 @@ void VertexArray::updateVertexBuffer( const VertexData& data )
 
 void VertexArray::render()
 {
-    ZoneScoped;
+    ProfilerScope( "VertexArray::render" );
+
     runTasks();
     const size_t vbosCount = (size_t)m_vbos.size();
 
@@ -222,13 +223,13 @@ void VertexArray::runTasks()
 
                     auto shaderFile = CUL::CULInterface::getInstance()->getFF()->createFileFromPath( shaderPath );
                     shaderFile->load( true, true );
-                    //auto shader = new Shader( *getEngine(), shaderFile );
+                    // auto shader = new Shader( *getEngine(), shaderFile );
                     throw std::logic_error( "Method not implemented" );
-                    //m_shaderProgram->attachShader( shader );
+                    // m_shaderProgram->attachShader( shader );
 
                     m_shadersPaths.pop();
                 }
-                //m_shaderProgram->link();
+                // m_shaderProgram->link();
                 throw std::logic_error( "Method not implemented" );
             }
         }
@@ -297,8 +298,8 @@ VertexArray::~VertexArray()
         getEngine().addPreRenderTask(
             [this]()
             {
-            release();
-        } );
+                release();
+            } );
     }
 
     removeVertex( this );

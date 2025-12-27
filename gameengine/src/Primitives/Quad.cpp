@@ -9,7 +9,7 @@
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/AttributeMeta.hpp"
 #include "RunOnRenderThread.hpp"
-#include "CUL/IMPORT_tracy.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
 
@@ -17,7 +17,7 @@
 
 using namespace LOGLW;
 
-constexpr const char* g_defaultQuadName =  "Quad" ;
+constexpr const char* g_defaultQuadName = "Quad";
 
 Quad::Quad( Camera& /*camera*/, IObject* parent, bool forceLegacy ):
     IObject( "", forceLegacy )
@@ -133,9 +133,9 @@ void Quad::updateBuffers_impl()
 void Quad::setSize( const glm::vec3& size )
 {
     m_shape.data[0] = { size.x, size.y, 0.f, 0.f, 0.f, 1.f };
-    m_shape.data[1] = { size.x, 0.f,    0.f, 0.f, 0.f, 1.f };
-    m_shape.data[2] = { 0.f,    0.f,    0.f, 0.f, 0.f, 1.f };
-    m_shape.data[3] = { 0.f,    size.y, 0.f, 0.f, 0.f, 1.f };
+    m_shape.data[1] = { size.x, 0.f, 0.f, 0.f, 0.f, 1.f };
+    m_shape.data[2] = { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f };
+    m_shape.data[3] = { 0.f, size.y, 0.f, 0.f, 0.f, 1.f };
 }
 
 void Quad::createShaders()
@@ -150,7 +150,8 @@ void Quad::createShaders()
 
 void Quad::render()
 {
-    ZoneScoped;
+    ProfilerScope( "Quad::render" );
+
     if( getDevice()->isLegacy() || getForceLegacy() )
     {
         getDevice()->draw( m_shape, m_transformComponent->getModel(), m_color );
@@ -170,7 +171,8 @@ void Quad::render()
 
 void Quad::setTransformationAndColor()
 {
-    ZoneScoped;
+    ProfilerScope( "Quad::setTransformationAndColor" );
+
     const Camera& camera = getEngine().getCamera();
     const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
     const glm::mat4 viewMatrix = camera.getViewMatrix();
@@ -181,7 +183,7 @@ void Quad::setTransformationAndColor()
     shaderProgram->runOnRenderingThread(
         [this, shaderProgram, projectionMatrix, viewMatrix, model]()
         {
-            shaderProgram->setUniform( EExecuteType::Now , "projection", projectionMatrix );
+            shaderProgram->setUniform( EExecuteType::Now, "projection", projectionMatrix );
             shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix );
             shaderProgram->setUniform( EExecuteType::Now, "model", model );
             shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4() );
@@ -199,8 +201,8 @@ Quad::~Quad()
         getEngine().addPreRenderTask(
             [this]()
             {
-            release();
-        } );
+                release();
+            } );
     }
 }
 

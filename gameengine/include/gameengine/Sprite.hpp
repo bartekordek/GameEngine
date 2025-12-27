@@ -31,6 +31,8 @@ struct GAME_ENGINE_API UV
     float Y;
 };
 
+#undef LoadImage
+
 class Sprite final: public IUtilityUser, public IObject, public CUL::IRegisterdObject
 {
 public:
