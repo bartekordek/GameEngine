@@ -1,5 +1,6 @@
 #include <gameengine/Primitives/Sphere.hpp>
 #include <CUL/Math/Constants.hpp>
+#include "CUL/STL_IMPORTS/STD_cmath.hpp"
 
 using namespace LOGLW;
 
@@ -62,9 +63,9 @@ void CSphere::fillIndices()
 
 void CSphere::fillVerticesNormalsTex()
 {
-    float x, y, z, xy;                            // vertex position
+    float x, y, z, xy;                              // vertex position
     float nx, ny, nz, lengthInv = 1.0f / m_radius;  // vertex normal
-    float s, t;                                   // vertex texCoord
+    float s, t;                                     // vertex texCoord
 
     float sectorStep = 2 * CUL::Math::PI_F / static_cast<float>( m_sectorCount );
     float stackStep = CUL::Math::PI_F / m_stackCount;
@@ -73,8 +74,8 @@ void CSphere::fillVerticesNormalsTex()
     for( int i = 0; i <= m_stackCount; ++i )
     {
         stackAngle = CUL::Math::PI_F / 2 - i * stackStep;  // starting from pi/2 to -pi/2
-        xy = m_radius * cosf( stackAngle );     // r * cos(u)
-        z = m_radius * sinf( stackAngle );      // r * sin(u)
+        xy = m_radius * std::cosf( stackAngle );           // r * cos(u)
+        z = m_radius * std::sinf( stackAngle );            // r * sin(u)
 
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords
@@ -83,8 +84,8 @@ void CSphere::fillVerticesNormalsTex()
             sectorAngle = j * sectorStep;  // starting from 0 to 2pi
 
             // vertex position (x, y, z)
-            x = xy * cosf( sectorAngle );  // r * cos(u) * cos(v)
-            y = xy * sinf( sectorAngle );  // r * cos(u) * sin(v)
+            x = xy * std::cosf( sectorAngle );  // r * cos(u) * cos(v)
+            y = xy * std::sinf( sectorAngle );  // r * cos(u) * sin(v)
             m_vertices.push_back( x );
             m_vertices.push_back( y );
             m_vertices.push_back( z );
