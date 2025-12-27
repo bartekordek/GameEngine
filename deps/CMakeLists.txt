@@ -68,6 +68,12 @@ target_include_directories(${EXEC} PUBLIC ImGuiColorTextEdit)
 set(LIBS ${GLEW_LIBRARIES})
 
 if (MSVC)
+    add_compile_options("$<$<CONFIG:RelWithDebInfo>:/Ot>")
+    add_compile_options("$<$<CONFIG:RelWithDebInfo>:/Oi>")
+
+    add_compile_options("$<$<CONFIG:Release>:/Ot>")
+    add_compile_options("$<$<CONFIG:Release>:/Oi>")
+
     target_link_libraries(${EXEC} ${DEPENDENCIES})
 else()
     target_link_libraries(${EXEC} ${DEPENDENCIES} stdc++fs)
