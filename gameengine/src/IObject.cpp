@@ -103,9 +103,12 @@ void IObject::addChild( IObject* child )
     child->toggleRenderOnMyOwn( false );
 }
 
-IComponent* IObject::getComponent( const String& name )
+IComponent* IObject::getComponent( const String& name ) const
 {
-    const auto it = m_components.find( name );
+    const auto nameStr = name.string();
+
+    std::lock_guard<std::mutex> locker( m_componentsMtx );
+    const auto it = m_components.find( nameStr );
     if( it != m_components.end() )
     {
         return it->second;
@@ -113,9 +116,25 @@ IComponent* IObject::getComponent( const String& name )
     return nullptr;
 }
 
+std::vector<IComponent*> IObject::getComponents() const
+{
+    std::vector<IComponent*> result;
+
+    std::lock_guard<std::mutex> locker( m_componentsMtx );
+    for( auto& [_, currentComponent]: m_components )
+    {
+        result.push_back( currentComponent );
+    }
+
+    return result;
+}
+
 void IObject::addComponent(const String& name, IComponent* component)
 {
-    m_components[name] = component;
+    const auto nameStr = name.string();
+
+    std::lock_guard<std::mutex> locker( m_componentsMtx );
+    m_components[nameStr] = component;
 }
 
 TransformComponent* IObject::getTransform()
@@ -147,12 +166,15 @@ IObject::~IObject()
 {
     CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, "IObject::~IObject() [%s]", getName().cStr() );
 
-    for( const auto& componentPair : m_components )
     {
-        delete componentPair.second;
-    }
+        std::lock_guard<std::mutex> locker( m_componentsMtx );
+        for( const auto& componentPair : m_components )
+        {
+            delete componentPair.second;
+        }
 
-    m_components.clear();
+        m_components.clear();
+    }
 
     if( m_parent && m_removeByParent == false )
     {

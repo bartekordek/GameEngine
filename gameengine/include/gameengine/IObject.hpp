@@ -35,7 +35,9 @@ public:
     GAME_ENGINE_API const std::set<IObject*>& getChildren() const;
     GAME_ENGINE_API void addChild( IObject* child );
 
-    GAME_ENGINE_API IComponent* getComponent( const CUL::String& name );
+    GAME_ENGINE_API IComponent* getComponent( const CUL::String& name ) const;
+    GAME_ENGINE_API std::vector<IComponent*> getComponents() const;
+
     GAME_ENGINE_API void addComponent( const CUL::String& name, IComponent* component );
 
     GAME_ENGINE_API TransformComponent* getTransform();
@@ -68,13 +70,13 @@ private:
 
     IObject* m_parent = nullptr;
 
-    std::map<CUL::String, IComponent*> m_components;
+    mutable std::mutex m_componentsMtx;
+    std::unordered_map<std::string, IComponent*> m_components;
 
     TransformComponent* m_transform = nullptr;
 
     std::mutex m_childrenMtx;
     std::set<IObject*> m_children;
-
 
 
     // Deleted:
