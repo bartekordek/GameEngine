@@ -1,6 +1,15 @@
 #include <gameengine/Primitives/Sphere.hpp>
+#include <gameengine/VertexArray.hpp>
+#include "gameengine/AttributeMeta.hpp"
+#include "gameengine/IGameEngine.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/Camera.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
+#include "gameengine/ExecuteType.hpp"
+#include "RunOnRenderThread.hpp"
+#include <CUL/CULInterface.hpp>
+#include <CUL/Log/ILogger.hpp>
 #include <CUL/Math/Constants.hpp>
-#include "CUL/STL_IMPORTS/STD_cmath.hpp"
 
 using namespace LOGLW;
 
@@ -8,21 +17,84 @@ CSphere::CSphere( IObject* parent ):
     IObject( "Sphere", false )
 {
     setParent( parent );
-    init( 24, 72, 10.f );
+    init( 24, 72, 2.f );
 }
 
 void CSphere::init( std::int32_t inStackCount, std::int32_t inSectorCount, float inRadius )
 {
     m_stackCount = inStackCount;
     m_sectorCount = inSectorCount;
-    m_radius = inRadius;
+
+    m_transformComponent = getTransform();
+    m_transformComponent->setSize( { inRadius, 0.f, 0.f } );
 
     fillIndices();
     fillVerticesNormalsTex();
+
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this]()
+        {
+            init();
+        } );
+}
+
+void CSphere::init()
+{
+    VertexArray* vao = getVao();
+    vao->setProgram( getProgram() );
+    CUL::DataWrapper dw;
+    dw.createFrom( m_vertices );
+
+    VertexData vd;
+    vd.VAO = vao->getId();
+    vd.Data = dw;
+    vd.primitiveType = PrimitiveType::TRIANGLES;
+
+    AttributeMeta am;
+    am.Name = "pos";
+    am.Index = 0;
+    am.Size = 3;
+    am.Type = LOGLW::DataType::FLOAT;
+    am.StrideBytes = 3 * sizeof( float );
+    vd.Attributes.push_back(am);
+
+    CUL::DataWrapper indices;
+    indices.createFrom( m_indices );
+
+    vd.Indices = indices;
+    m_verticesVbo = vao->addVertexBuffer( vd );
+
+    CUL::String errorContent;
+    ShaderProgram::ShadersData sd;
+    sd.FragmentShader = "embedded_shaders/basic_color.frag";
+    sd.VertexShader = "embedded_shaders/basic_pos.vert";
+
+    getProgram()->createFrom( EExecuteType::WaitForCompletion, sd );
+    m_color = CUL::Graphics::ColorE::RED;
+
+    m_transformComponent->changeSizeDelegate.addDelegate(
+        [this]()
+        {
+            applySizeChange();
+        } );
+    setName( "CSphere" );
+}
+
+void CSphere::applySizeChange()
+{
+    fillIndices();
+    fillVerticesNormalsTex();
+    VertexData wd =  m_verticesVbo->getData();
+    wd.Data.createFrom( m_vertices );
+    getVao()->bind();
+    m_verticesVbo->updateVertexData( wd );
 }
 
 void CSphere::fillIndices()
 {
+    m_indices.clear();
+    m_lineIndices.clear();
+
     int k1, k2;
     for( int i = 0; i < m_stackCount; ++i )
     {
@@ -63,9 +135,17 @@ void CSphere::fillIndices()
 
 void CSphere::fillVerticesNormalsTex()
 {
-    float x, y, z, xy;                              // vertex position
-    float nx, ny, nz, lengthInv = 1.0f / m_radius;  // vertex normal
-    float s, t;                                     // vertex texCoord
+    m_vertices.clear();
+    m_normals.clear();
+    m_texCoords.clear();
+
+    CUL::CULInterface::getInstance()->getLogger()->logVariable( CUL::LOG::Severity::Warn, "CSphere::fillVerticesNormalsTex." );
+
+    const float radius = m_transformComponent->getSize().x();
+
+    float x, y, z, xy;                            // vertex position
+    float nx, ny, nz, lengthInv = 1.0f / radius;  // vertex normal
+    float s, t;                                   // vertex texCoord
 
     float sectorStep = 2 * CUL::Math::PI_F / static_cast<float>( m_sectorCount );
     float stackStep = CUL::Math::PI_F / m_stackCount;
@@ -74,8 +154,8 @@ void CSphere::fillVerticesNormalsTex()
     for( int i = 0; i <= m_stackCount; ++i )
     {
         stackAngle = CUL::Math::PI_F / 2 - i * stackStep;  // starting from pi/2 to -pi/2
-        xy = m_radius * std::cosf( stackAngle );           // r * cos(u)
-        z = m_radius * std::sinf( stackAngle );            // r * sin(u)
+        xy = radius * std::cosf( stackAngle );           // r * cos(u)
+        z = radius * std::sinf( stackAngle );            // r * sin(u)
 
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords
@@ -109,6 +189,27 @@ void CSphere::fillVerticesNormalsTex()
 
 void CSphere::render()
 {
+    setTransformationAndColor();
+    getVao()->render();
+}
+
+void CSphere::setTransformationAndColor()
+{
+    const Camera& camera = getEngine().getCamera();
+    const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
+    const glm::mat4 viewMatrix = camera.getViewMatrix();
+
+    const glm::mat4 model = m_transformComponent->getModel();
+
+    ShaderProgram* shaderProgram = getProgram();
+    shaderProgram->runOnRenderingThread(
+        [this, shaderProgram, projectionMatrix, viewMatrix, model]()
+        {
+            shaderProgram->setUniform( EExecuteType::Now, "projection", projectionMatrix );
+            shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix );
+            shaderProgram->setUniform( EExecuteType::Now, "model", model );
+            shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4() );
+        } );
 }
 
 CSphere::~CSphere()

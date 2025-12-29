@@ -1948,6 +1948,10 @@ void DeviceOpenGL::drawElements( const PrimitiveType type, const CUL::DataWrappe
     {
         glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( elementsCount ), GL_FLOAT, inData.getData() );
     }
+    else if( inData.getType() == CUL::ETypes::Int32 )
+    {
+        glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( elementsCount ), GL_INT, 0 );
+    }
     else if( inData.getType() == CUL::ETypes::Uint32 )
     {
         glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( elementsCount ), GL_UNSIGNED_INT, 0 );

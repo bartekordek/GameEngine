@@ -10,6 +10,8 @@
 
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
 
+#undef LoadImage
+
 namespace CUL::Graphics
 {
 class IImage;

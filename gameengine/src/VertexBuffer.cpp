@@ -102,6 +102,7 @@ void VertexBuffer::updateVertexData( bool isRenderThread )
         RunOnRenderThread::getInstance().RunWaitForResult(
             [this]()
             {
+                getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vertexData.VAO );
                 getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
             } );
     }
