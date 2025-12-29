@@ -1,14 +1,20 @@
 #pragma once
 
 #include "gameengine/Import.hpp"
+#include <CUL/String.hpp>
 
 NAMESPACE_BEGIN( LOGLW )
 class GAME_ENGINE_API IComponent
 {
 public:
-    IComponent() = default;
+    IComponent();
+    virtual const CUL::String& getName() const = 0;
 
-    virtual ~IComponent() = default;
+#if !CUL_SHIPPING_BUILD
+    virtual void drawDebug() = 0;
+#endif // !CUL_SHIPPING_BUILD
+
+    virtual ~IComponent();
 protected:
 private:
     // Deleted:
