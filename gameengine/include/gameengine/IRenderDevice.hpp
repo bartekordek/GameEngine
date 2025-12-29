@@ -145,6 +145,13 @@ enum class ETextureUnitIndex : int
 
 class Viewport;
 
+enum class EBufferType : std::int8_t
+{
+    None = -1,
+    VertexBuffer = 0,
+    IndexBuffer
+};
+
 enum class EObjectType : uint8_t
 {
     BUFFER = 0,

@@ -586,18 +586,21 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
     {
         ImGui::Text( "Name: %s", name.cStr() );
 
+        std::vector<LOGLW::IComponent*> objectComps = currentObject->getComponents();
+        for( LOGLW::IComponent* currentComponent : objectComps )
+        {
+            if( ImGui::TreeNode( currentComponent->getName().cStr() ) )
+            {
+                currentComponent->drawDebug();
+                ImGui::TreePop();
+            }
+        }
+
         Sprite* spriteObject = dynamic_cast<Sprite*>( currentObject );
 
         if( spriteObject )
         {
             drawSpriteData( spriteObject );
-        }
-
-        LOGLW::TransformComponent* transform = currentObject->getTransform();
-        if( transform != nullptr && ImGui::TreeNode( "Transform" ) )
-        {
-            drawTransformData( transform );
-            ImGui::TreePop();
         }
 
         constexpr std::size_t labelBufferLength{ 32u };
@@ -893,26 +896,6 @@ void GameEngineConcrete::drawSpriteData( Sprite* inSprite )
 
         ImGui::TreePop();
     }
-}
-
-void GameEngineConcrete::drawTransformData( LOGLW::TransformComponent* transform )
-{
-    glm::vec3 trans = transform->getPositionToParent();
-    if( drawValues( trans, "trans" ) )
-    {
-        transform->setPositionToParent( trans );
-    }
-
-    glm::vec3 scale = transform->getScale();
-    if( drawValues( scale, "scale" ) )
-    {
-        transform->setScale( scale );
-    }
-
-    ImGui::Text( "x: %4.2f y: %4.2f y: %4.2f", trans.x, trans.y, trans.z );
-
-    const CUL::MATH::Rotation rot = transform->getRotationToParent();
-    ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", rot.Pitch, rot.Yaw, rot.Roll );
 }
 
 bool GameEngineConcrete::drawValues( glm::vec3& inOutValue, const CUL::String& inName )
