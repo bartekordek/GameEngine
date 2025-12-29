@@ -57,7 +57,7 @@ public:
     VertexArray& operator=( VertexArray&& value ) = delete;
 
     BuffIDType getId() const;
-    void addVertexBuffer( const VertexData& data );
+    VertexBuffer* addVertexBuffer( const VertexData& data );
     void updateVertexBuffer( const VertexData& data );
     void createShader( const CUL::FS::Path& path );
     ShaderProgram* getProgram();
@@ -96,7 +96,7 @@ private:
 
 
     void createVAO();
-    void createVBOs( const VertexData& data );
+    VertexBuffer* createVBOs( const VertexData& data );
 
     CUL::CTaskAccumulator m_bufferTasks;
 

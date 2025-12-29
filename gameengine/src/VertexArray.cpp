@@ -111,9 +111,9 @@ void VertexArray::createShader( const CUL::FS::Path& path )
     }
 }
 
-void VertexArray::addVertexBuffer( const VertexData& data )
+VertexBuffer* VertexArray::addVertexBuffer( const VertexData& data )
 {
-    createVBOs( data );
+    return createVBOs( data );
 }
 
 void VertexArray::updateVertexBuffer( const VertexData& data )
@@ -251,10 +251,11 @@ void VertexArray::registerTask( TaskType taskType )
     m_preRenderTasks.push_back( taskType );
 }
 
-void VertexArray::createVBOs( const VertexData& data )
+VertexBuffer* VertexArray::createVBOs( const VertexData& data )
 {
     auto vbo = new VertexBuffer( data );
     m_vbos.emplace_back( vbo );
+    return vbo;
 }
 
 void VertexArray::createVAO()
