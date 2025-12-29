@@ -62,9 +62,14 @@ public:
 
 protected:
 private:
+    const CUL::String& getName() const override;
     glm::mat4 getTranslation() const;
     glm::mat4 getRotation() const;
     void printCurrentState() const;
+
+#if !CUL_SHIPPING_BUILD
+    void drawDebug() override;
+#endif  // !CUL_SHIPPING_BUILD
 
     IObject* m_owner{ nullptr };
 
@@ -72,8 +77,8 @@ private:
     glm::vec3 m_pos = { 0.f, 0.f, 0.f };
     glm::vec3 m_scale = { 1.f, 1.f, 1.f };
     CUL::MATH::Rotation m_rotation;
-    Pos m_pivot = Pos( 0.5f, 0.5f, 0.0f );
-    Pos m_pivotReal = { 0.f, 0.f, 0.f };
+    glm::vec3 m_pivot{ 0.5f, 0.5f, 0.0f };
+    glm::vec3 m_pivotReal{ 0.f, 0.f, 0.f };
 
     std::map<String, std::function<void( const glm::mat4 )> > m_onChangeCallbacks;
 

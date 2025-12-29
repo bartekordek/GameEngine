@@ -1,5 +1,6 @@
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/IObject.hpp"
+#include "LOGLWAdditionalDeps/ImportImgui.hpp"
 
 #include "CUL/Log/ILogger.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
@@ -105,10 +106,16 @@ const glm::mat4 TransformComponent::getModel() const
     return model;
 }
 
+const CUL::String& TransformComponent::getName() const
+{
+    static CUL::String s_name{ "Transform Component" };
+    return s_name;
+}
+
 glm::mat4 TransformComponent::getTranslation() const
 {
     glm::mat4 result( 1.f );
-    auto pivotTimesScale = m_pivotReal.toGlmVec() * m_scale;
+    auto pivotTimesScale = m_pivotReal * m_scale;
     result = glm::translate( result, m_pos - pivotTimesScale );
 
     return result;
@@ -146,7 +153,7 @@ glm::mat4 TransformComponent::getRotation() const
 
 glm::vec3 TransformComponent::getPivotReal() const
 {
-    return m_pivotReal.toGlmVec();
+    return m_pivotReal;
 }
 
 glm::vec3 TransformComponent::getPivotNormalized()
@@ -161,8 +168,8 @@ const TransformComponent::Pos& TransformComponent::getPivot() const
 
 void TransformComponent::setPivot( const TransformComponent::Pos& pivot )
 {
-    m_pivot = pivot;
-    m_pivotReal = m_size.toGlmVec() * m_pivot.toGlmVec();
+    m_pivot = pivot.toGlmVec();
+    m_pivotReal = m_size.toGlmVec() * m_pivot;
 
     changeSizeDelegate.execute();
 }
@@ -183,7 +190,7 @@ void TransformComponent::addOnChangeCallback( const String& callbackName, const 
 void TransformComponent::setSize( const Pos& size )
 {
     m_size = size;
-    m_pivotReal = m_size.toGlmVec() * m_pivot.toGlmVec();
+    m_pivotReal = m_size.toGlmVec() * m_pivot;
     changeSizeDelegate.execute();
 }
 
@@ -244,6 +251,27 @@ void TransformComponent::printCurrentState() const
     CUL::LOG::ILogger::getInstance().log( "Current Size: " + ToString( m_size.toGlmVec() ) );
     CUL::LOG::ILogger::getInstance().log( "Current Position: " + ToString( m_pos ) );
     CUL::LOG::ILogger::getInstance().log( "Current Scale: " + ToString( m_scale ) );
-    CUL::LOG::ILogger::getInstance().log( "Current Pivot Normalized: " + ToString( m_pivot.toGlmVec() ) );
-    CUL::LOG::ILogger::getInstance().log( "Current Pivot Real: " + ToString( m_pivotReal.toGlmVec() ) );
+    CUL::LOG::ILogger::getInstance().log( "Current Pivot Normalized: " + ToString( m_pivot ) );
+    CUL::LOG::ILogger::getInstance().log( "Current Pivot Real: " + ToString( m_pivotReal ) );
 }
+
+#if !CUL_SHIPPING_BUILD
+void TransformComponent::drawDebug()
+{
+    ImGui::InputFloat3( "Position", &m_pos.x );
+    ImGui::InputFloat( "Radius", &m_size.x() );
+    ImGui::SameLine();
+    if( ImGui::Button( "Apply Radius" ) )
+    {
+        changeSizeDelegate.execute();
+    }
+    ImGui::InputFloat3( "Scale", &m_scale.x );
+    ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", m_rotation.Pitch, m_rotation.Yaw, m_rotation.Roll );
+    ImGui::InputFloat3( "Pivot", &m_pivot.x );
+    ImGui::SameLine();
+    if( ImGui::Button( "Apply Pivot" ) )
+    {
+        changeSizeDelegate.execute();
+    }
+}
+#endif  // !CUL_SHIPPING_BUILD
