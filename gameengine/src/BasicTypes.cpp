@@ -124,6 +124,7 @@ std::size_t BasicTypes::getSize( DataType inDataType )
             return 0u;
         case DataType::NONE:
             CUL::Assert::check( false, "DATA TYPE NONE!" );
+            [[fallthrough]];
         default:
             return 0u;
     }
