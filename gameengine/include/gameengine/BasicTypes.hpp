@@ -63,7 +63,8 @@ enum class TextureFilterType : short
 {
     NONE = 0,
     NEAREST = 0x2600,
-    LINEAR = 0x2601
+    LINEAR = 0x2601,
+    REPEAT = 0x2901
 };
 
 enum class TextureParameters : short
