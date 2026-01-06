@@ -1,7 +1,7 @@
 #pragma once
 
 #include "gameengine/Import.hpp"
-
+#include "CUL/GenericUtils/NonCopyable.hpp"
 #include "CUL/Graphics/SimpleSize2D.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
@@ -15,18 +15,14 @@ public:
     ITexture();
 
     virtual void render() = 0;
-
     virtual const TexSize& getSize() const = 0;
-
     virtual TexID getID() const = 0;
+    virtual void unbind() {};
 
     virtual ~ITexture();
 protected:
 private:
-    ITexture( const ITexture& arg ) = delete;
-    ITexture( ITexture&& arg ) = delete;
-    ITexture& operator=( const ITexture& rhv ) = delete;
-    ITexture& operator=( ITexture&& rhv ) = delete;
+    CUL_NONCOPYABLE( ITexture )
 };
 
 NAMESPACE_END( LOGLW )
