@@ -72,6 +72,7 @@ void Quad::init()
 
         setTransformationAndColor();
     }
+    setName( "quad_default" );
 }
 
 void Quad::createBuffers()
@@ -133,9 +134,9 @@ void Quad::updateBuffers_impl()
 void Quad::setSize( const glm::vec3& size )
 {
     m_shape.data[0] = { size.x, size.y, 0.f, 0.f, 0.f, 1.f };
-    m_shape.data[1] = { size.x, 0.f, 0.f, 0.f, 0.f, 1.f };
-    m_shape.data[2] = { 0.f, 0.f, 0.f, 0.f, 0.f, 1.f };
-    m_shape.data[3] = { 0.f, size.y, 0.f, 0.f, 0.f, 1.f };
+    m_shape.data[1] = { size.x,    0.f, 0.f, 0.f, 0.f, 1.f };
+    m_shape.data[2] = { 0.f,       0.f, 0.f, 0.f, 0.f, 1.f };
+    m_shape.data[3] = { 0.f,    size.y, 0.f, 0.f, 0.f, 1.f };
 }
 
 void Quad::createShaders()
