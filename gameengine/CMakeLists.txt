@@ -73,7 +73,6 @@ PUBLIC cul_dynamic
 PUBLIC glew
 PUBLIC glfw
 PUBLIC freeglut_static
-PUBLIC SDL2main
 PUBLIC SDL2
 PRIVATE tinyobjloader
 PRIVATE rapidobj
@@ -96,7 +95,7 @@ if( MSVC )
     endif()
     add_custom_command( TARGET ${PROJECT_NAME_DYNAMIC}
         POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/${CMAKE_BUILD_TYPE}/${GLEW_BIN} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE} )
+            COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/$<CONFIG>" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>" )
 endif()
 
 target_include_directories(${PROJECT_NAME_DYNAMIC} PUBLIC include)
