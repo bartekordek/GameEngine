@@ -35,6 +35,12 @@ add_subdirectory(${OGLW_DEPS_ROOT}/freeglut-3.2.1)
 
 # Add sub directories
 set( SDL2_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/deps/SDL/include )
+
+
+set(SDL_SHARED ON CACHE BOOL "" FORCE)
+set(SDL_STATIC ON CACHE BOOL "" FORCE)
+set(SDL_TEST OFF CACHE BOOL "" FORCE)
+set(SDL2_DISABLE_SDL2MAIN ON CACHE BOOL "" FORCE)
 add_subdirectory( ${CMAKE_CURRENT_SOURCE_DIR}/deps/SDL )
 add_subdirectory(deps)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/deps/CUL)
