@@ -48,7 +48,7 @@ private:
     bool m_initialized = false;
 
     Camera* m_camera{ nullptr };
-    IGameEngine* m_engine{ nullptr };
+    IGameEngine& m_engine;
 
     std::mutex m_renderMutex;
 

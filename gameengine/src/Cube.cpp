@@ -7,7 +7,10 @@
 
 using namespace LOGLW;
 
-Cube::Cube( Camera* camera, bool forceLegacy ) : IObject( "Cube", forceLegacy ), m_camera( camera )
+Cube::Cube( Camera* camera, bool forceLegacy ):
+    IObject( "Cube", forceLegacy ),
+    m_camera( camera ),
+    m_engine( getEngine() )
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 
@@ -18,12 +21,12 @@ Cube::Cube( Camera* camera, bool forceLegacy ) : IObject( "Cube", forceLegacy ),
     }
     else
     {
-        m_engine->addPreRenderTask(
+        m_engine.addPreRenderTask(
             [this]()
             {
                 createPlaceHolders();
                 m_initialized = true;
-                m_engine->addObjectToRender( this );
+                m_engine.addObjectToRender( this );
             } );
     }
 }
@@ -72,7 +75,7 @@ void Cube::createPlaceHolders()
     TransformComponent::Pos pivot = { 0.5f, 0.5f, 0.f };
     // 0
     {
-        Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        Quad* quad = m_engine.createQuad( this, getForceLegacy() );
         quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -87,7 +90,7 @@ void Cube::createPlaceHolders()
 
     // 1
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        LOGLW::Quad* quad = m_engine.createQuad( this, getForceLegacy() );
         quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -101,7 +104,7 @@ void Cube::createPlaceHolders()
 
     // 2
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        LOGLW::Quad* quad = m_engine.createQuad( this, getForceLegacy() );
         quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -118,7 +121,7 @@ void Cube::createPlaceHolders()
 
     // 3
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        LOGLW::Quad* quad = m_engine.createQuad( this, getForceLegacy() );
         quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -135,7 +138,7 @@ void Cube::createPlaceHolders()
 
     // 4
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        LOGLW::Quad* quad = m_engine.createQuad( this, getForceLegacy() );
         quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -152,7 +155,7 @@ void Cube::createPlaceHolders()
 
     // 5
     {
-        LOGLW::Quad* quad = m_engine->createQuad( this, getForceLegacy() );
+        LOGLW::Quad* quad = m_engine.createQuad( this, getForceLegacy() );
         quad->toggleRenderOnMyOwn( false );
         addChild( quad );
         TransformComponent* transformCmp = quad->getTransform();
@@ -179,7 +182,7 @@ void Cube::render()
 
 Cube::~Cube()
 {
-    m_engine->removeObjectToRender( this );
+    m_engine.removeObjectToRender( this );
     release();
 }
 
