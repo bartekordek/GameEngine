@@ -153,8 +153,11 @@ void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPath
     }
 }
 
-void ShaderProgram::reCompileShaderImpl( EExecuteType inEt, const String& inShaderPathString, bool assertOnErrors,
-                                         CUL::String& errorMessage )
+void ShaderProgram::reCompileShaderImpl(
+    EExecuteType inEt,
+    const String& inShaderPathString,
+    bool assertOnErrors,
+    CUL::String& errorMessage )
 {
     const CUL::FS::Path inShaderPath( inShaderPathString );
     const auto extension = inShaderPath.getExtension();
