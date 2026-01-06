@@ -266,7 +266,11 @@ void TransformComponent::drawDebug()
         changeSizeDelegate.execute();
     }
     ImGui::InputFloat3( "Scale", &m_scale.x );
-    ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", m_rotation.Pitch, m_rotation.Yaw, m_rotation.Roll );
+    ImGui::Text(
+        "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f",
+        m_rotation.Pitch.getDeg(),
+        m_rotation.Yaw.getDeg(),
+        m_rotation.Roll.getDeg() );
     ImGui::InputFloat3( "Pivot", &m_pivot.x );
     ImGui::SameLine();
     if( ImGui::Button( "Apply Pivot" ) )
