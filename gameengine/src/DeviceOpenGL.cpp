@@ -115,8 +115,15 @@ const char* toString( GLenum type )
     }
 }
 
-void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message,
-                             const void* userParam )
+void APIENTRY glDebugOutput(
+    GLenum source,
+    GLenum type,
+    unsigned int id,
+    GLenum severity,
+    GLsizei length,
+    const char* message,
+    const void* userParam
+    )
 {
     if( id == 131185 )
     {
@@ -573,7 +580,11 @@ ShaderTypes DeviceOpenGL::getShaderType( const CUL::String& fileExtension )
     .frag - a fragment shader
     .comp - a compute shader
     */
-    if( fileExtension.equals( "frag" ) || fileExtension.equals( ".frag" ) || fileExtension.equals( ".fs" ) || fileExtension.equals( "fs" ) )
+    if(
+        fileExtension.equals( "frag" ) ||
+        fileExtension.equals( ".frag" ) ||
+        fileExtension.equals( ".fs" ) ||
+        fileExtension.equals( "fs" ) )
     {
         return static_cast<ShaderTypes>( GL_FRAGMENT_SHADER );
     }
@@ -2356,9 +2367,23 @@ ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
+    else if( shaderPath == "embedded_shaders/fbo.frag" )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/fbo.frag"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
+    else if( shaderPath == "embedded_shaders/fbo.vert" )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/fbo.vert"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
     else
     {
-        CUL::Assert::simple( shaderPath.exists(), "NOT IN THE RENDER THREAD." );
+        CUL::Assert::simple( shaderPath.exists(), "Cannot find shader." );
         newShader->File->load( true, true );
     }
 

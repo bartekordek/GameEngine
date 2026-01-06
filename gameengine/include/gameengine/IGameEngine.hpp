@@ -48,6 +48,8 @@ class IObject;
 class IRenderable;
 class IRenderDevice;
 class ITextureFactory;
+class ITexture;
+class ITextureFrameBuffer;
 class Line;
 class PointLight;
 class ProjectionData;
@@ -173,6 +175,8 @@ public:
     GAME_ENGINE_API void toggleDrawDebugInfo( bool inEnableDebugInfoDraw );
     GAME_ENGINE_API bool getDrawDebugInfo();
     GAME_ENGINE_API virtual bool drawObjectsInfo( float& width, float& high ) = 0;
+    GAME_ENGINE_API const ITextureFrameBuffer* getFrameBuffer() const;
+    GAME_ENGINE_API ITextureFrameBuffer* getFrameBuffer();
 
     GAME_ENGINE_API virtual ~IGameEngine();
 
@@ -222,6 +226,8 @@ private:
 
     ImGuiContext* m_ImGuiContext{ nullptr };
     bool m_drawDebugInfo{ false };
+
+    std::unique_ptr<ITextureFrameBuffer> m_frameBufferTexture;
 };
 
 NAMESPACE_END( LOGLW )

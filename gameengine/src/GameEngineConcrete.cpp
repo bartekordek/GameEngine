@@ -23,6 +23,7 @@
 #include "gameengine/Windowing/WinData.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Render/FrameTimeManager.hpp"
+#include "gameengine/Render/ITextureFrameBuffer.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/GenericUtils/ConsoleUtilities.hpp"
@@ -40,7 +41,10 @@
 using namespace LOGLW;
 
 GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool ):
-    m_sdlW( sdl2w ), m_activeWindow( sdl2w->getMainWindow() ), m_cul( sdl2w->getCul() ), m_logger( sdl2w->getCul()->getLogger() )
+    m_sdlW( sdl2w ),
+    m_activeWindow( sdl2w->getMainWindow() ),
+    m_cul( sdl2w->getCul() ),
+    m_logger( sdl2w->getCul()->getLogger() )
 {
     CUL::Assert::simple( nullptr != sdl2w, "NO SDL WRAPPER." );
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );
@@ -375,7 +379,21 @@ void GameEngineConcrete::renderFrame()
         m_renderDevice->setViewport( m_viewport );
         m_viewportChanged = false;
     }
+
+    ITextureFrameBuffer* fbo = getFrameBuffer();
+
+    if( fbo )
+    {
+        fbo->beginCapture();
+    }
+
     renderObjects();
+
+    if( fbo )
+    {
+        fbo->endCapture();
+        fbo->drawCapture();
+    }
 
     if( !m_renderDevice->isLegacy() )
     {

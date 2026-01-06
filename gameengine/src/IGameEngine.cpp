@@ -15,8 +15,11 @@
 #include "gameengine/EngineParams.hpp"
 #include "gameengine/VertexBuffer.hpp"
 #include "gameengine/EditableTexture.h"
+#include "gameengine/Windowing/IWindow.hpp"
 #include "gameengine/Windowing/WinData.hpp"
+
 #include "gameengine/ISDL2Wrapper.hpp"
+#include "Render/TextureFrameBufferOpenGL.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/Log/ILogger.hpp"
@@ -59,6 +62,14 @@ void IGameEngine::initialize()
             m_initTasks.pop();
             task();
         }
+    }
+
+    IWindow* mainWindow = getMainWindow();
+
+    if( mainWindow->getCurrentRendererType() == RenderTypes::RendererType::OPENGL_MODERN )
+    {
+        const WinSize winSize = mainWindow->getSize();
+        m_frameBufferTexture = std::make_unique<TextureFrameBufferOpenGL>( *getDevice(), winSize.W, winSize.H );
     }
 }
 
@@ -343,6 +354,16 @@ void IGameEngine::removeShader( const String& path )
         delete shader;
         m_shaders.erase( shaderIt );
     }
+}
+
+const ITextureFrameBuffer* IGameEngine::getFrameBuffer() const
+{
+    return m_frameBufferTexture.get();
+}
+
+ITextureFrameBuffer* IGameEngine::getFrameBuffer()
+{
+    return m_frameBufferTexture.get();
 }
 
 ShaderProgram* IGameEngine::findShader( const String& path ) const
