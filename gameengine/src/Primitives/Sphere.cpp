@@ -10,6 +10,7 @@
 #include <CUL/CULInterface.hpp>
 #include <CUL/Log/ILogger.hpp>
 #include <CUL/Math/Constants.hpp>
+#include <CUL/STL_IMPORTS/STD_cmath.hpp>
 
 using namespace LOGLW;
 
