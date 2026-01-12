@@ -28,7 +28,6 @@ private:
     void setProjectionAndModelToIdentity() override;
     void clearColorAndDepthBuffer() override;
     void clearColorTo( const ColorS color ) override;
-    void clearBuffer( const ClearMasks mask ) override;
     unsigned int generateVertexArray( const int size = 1 ) override;
     void setClientState( ClientStateTypes cs, bool enabled ) override;
     void texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer ) override;
@@ -43,7 +42,6 @@ private:
     void unbindBuffer( const BufferTypes bufferType ) override;
     void bindBuffer( const BufferTypes bufferType, unsigned bufferId ) override;
     unsigned int generateBuffer( const BufferTypes type, const int size = 1 ) override;
-    void drawElements( const PrimitiveType type, const std::vector<float>& data ) override;
     void drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count ) override;
     void drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count ) override;
     void vertexAttribPointer( const VertexData& meta ) override;

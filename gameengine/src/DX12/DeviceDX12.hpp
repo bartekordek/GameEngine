@@ -4,8 +4,8 @@
 
 #if defined( GAME_ENGINE_WINDOWS )
 
-#include "gameengine/IRenderDevice.hpp"
-#include "DX12/CommandWrapper.hpp"
+    #include "gameengine/IRenderDevice.hpp"
+    #include "DX12/CommandWrapper.hpp"
 
 struct ImGuiContext;
 
@@ -67,8 +67,6 @@ private:
     void setAttribValue( int attributeLocation, bool value ) override;
     void setAttribValue( int attributeLocation, const CUL::String& value ) override;
     void setUniformValue( int uniformLocation, float value ) override;
-    void setUniformValue( int uniformLocation, int value ) override;
-    void setUniformValue( int uniformLocation, unsigned value ) override;
     void setUniformValue( int uniformLocation, const glm::vec2& val ) override;
     void setUniformValue( int uniformLocation, const glm::vec3& val ) override;
     void setUniformValue( int uniformLocation, const glm::vec4& val ) override;

@@ -98,8 +98,8 @@ private:
     void updateTextureData( const TextureInfo& ti, void* data ) override;
 
     void setUniformValue( int uniformLocation, float value ) override;
-    void setUniformValue( int uniformLocation, int value ) override;
-    void setUniformValue( int uniformLocation, unsigned value ) override;
+    void setUniformValue( int uniformLocation, std::int32_t value ) override;
+    void setUniformValue( int uniformLocation, std::uint32_t value ) override;
 
     unsigned int generateAndBindBuffer( const BufferTypes bufferType, const int size = 1 ) override;
     void deleteBuffer( BufferTypes bufferType, unsigned& id ) override;

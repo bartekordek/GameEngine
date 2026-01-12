@@ -1062,7 +1062,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, float value )
     glUniform1f( static_cast<GLfloat>( uniformLocation ), value );
 }
 
-void DeviceOpenGL::setUniformValue( int uniformLocation, int value )
+void DeviceOpenGL::setUniformValue( int uniformLocation, std::int32_t value )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -1072,7 +1072,7 @@ void DeviceOpenGL::setUniformValue( int uniformLocation, int value )
     log( "glUniform1i( " + String( uniformLocation ) + ", " + String( value ) + " );" );
     glUniform1i( static_cast<GLint>( uniformLocation ), value );
 }
-void DeviceOpenGL::setUniformValue( int uniformLocation, unsigned value )
+void DeviceOpenGL::setUniformValue( int uniformLocation, std::uint32_t value )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {

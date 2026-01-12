@@ -209,8 +209,8 @@ public:
     virtual void setAttribValue( int attributeLocation, const CUL::String& value );
 
     virtual void setUniformValue( int uniformLocation, float value );
-    virtual void setUniformValue( int uniformLocation, int value );
-    virtual void setUniformValue( int uniformLocation, unsigned value );
+    virtual void setUniformValue( int uniformLocation, std::int32_t value );
+    virtual void setUniformValue( int uniformLocation, std::uint32_t value );
 
     virtual void setUniformValue( int uniformLocation, const glm::vec2& val );
     virtual void setUniformValue( int uniformLocation, const glm::vec3& val ) = 0;
@@ -226,7 +226,7 @@ public:
     virtual void clearColorAndDepthBuffer() = 0;
     virtual void createQuad( float scale = 1.0f );
     virtual void clearColorTo( const ColorS color ) = 0;
-    virtual void clearBuffer( const ClearMasks mask ) = 0;
+    virtual void clearBuffer( const ClearMasks mask );
 
     virtual unsigned int generateVertexArray( const int size = 1 ) = 0;
 
@@ -258,7 +258,7 @@ public:
     virtual unsigned int generateBuffer( const BufferTypes type, const int size = 1 ) = 0;
 
     virtual void drawElements( const PrimitiveType type, const CUL::DataWrapper& inData );
-    virtual void drawElements( const PrimitiveType type, const std::vector<float>& data ) = 0;
+    virtual void drawElements( const PrimitiveType type, const std::vector<float>& data );
     virtual void drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count ) = 0;
     virtual void drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count ) = 0;
     virtual void vertexAttribPointer( const VertexData& meta ) = 0;

@@ -1,4 +1,6 @@
 #include "OpenGL_Legacy/DeviceOpenGL_Legacy.hpp"
+#include "IMPORT_glew.hpp"
+#include "ImportFreeglut.hpp"
 
 using namespace LOGLW;
 
@@ -48,18 +50,19 @@ void DeviceOpenGL_Legacy::clearColorAndDepthBuffer()
 
 void DeviceOpenGL_Legacy::clearColorTo( const ColorS color )
 {
+    glClearColor(
+        static_cast<GLclampf>( color.getRF() ),
+        static_cast<GLclampf>( color.getGF() ),
+        static_cast<GLclampf>( color.getBF() ),
+        static_cast<GLclampf>( color.getAF() ) );
 }
 
-void DeviceOpenGL_Legacy::clearBuffer( const ClearMasks mask )
-{
-}
-
-unsigned int DeviceOpenGL_Legacy::generateVertexArray( const int size )
+unsigned int DeviceOpenGL_Legacy::generateVertexArray( const int /*size*/ )
 {
     return 0;
 }
 
-void DeviceOpenGL_Legacy::setClientState( ClientStateTypes cs, bool enabled )
+void DeviceOpenGL_Legacy::setClientState( ClientStateTypes /*cs*/, bool /*enabled*/ )
 {
 }
 
@@ -112,10 +115,6 @@ void DeviceOpenGL_Legacy::bindBuffer( const BufferTypes bufferType, unsigned buf
 unsigned int DeviceOpenGL_Legacy::generateBuffer( const BufferTypes type, const int size )
 {
     return 0;
-}
-
-void DeviceOpenGL_Legacy::drawElements( const PrimitiveType type, const std::vector<float>& data )
-{
 }
 
 void DeviceOpenGL_Legacy::drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count )

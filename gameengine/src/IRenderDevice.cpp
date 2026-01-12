@@ -145,12 +145,12 @@ void IRenderDevice::setUniformValue( int /*uniformLocation*/, float /*value*/ )
     CUL::Assert::simple( false, "Method not implemented." );
 }
 
-void IRenderDevice::setUniformValue( int /*uniformLocation*/, int /*value*/ )
+void IRenderDevice::setUniformValue( int /*uniformLocation*/, std::int32_t /*value*/ )
 {
     CUL::Assert::simple( false, "Method not implemented." );
 }
 
-void IRenderDevice::setUniformValue( int /*uniformLocation*/, unsigned /*value*/ )
+void IRenderDevice::setUniformValue( int /*uniformLocation*/, std::uint32_t /*value*/ )
 {
     CUL::Assert::simple( false, "Method not implemented." );
 }
@@ -158,6 +158,11 @@ void IRenderDevice::setUniformValue( int /*uniformLocation*/, unsigned /*value*/
 void IRenderDevice::setUniformValue( int /*uniformLocation*/, const glm::vec2& /*val*/ )
 {
     CUL::Assert::simple( false, "Method not implemented." );
+}
+
+void IRenderDevice::clearBuffer( const ClearMasks /*mask*/ )
+{
+    throw std::logic_error( "Method not implemented" );
 }
 
 unsigned int IRenderDevice::generateElementArrayBuffer( const std::vector<unsigned int>&/* data*/, const int /*size*/ /*= 1 */ )
@@ -332,6 +337,11 @@ void IRenderDevice::freeTexture(std::uint32_t textureId)
 }
 
 void IRenderDevice::drawElements( const PrimitiveType, const CUL::DataWrapper& )
+{
+    CUL::Assert::check( false, "IRenderDevice::drawElements - Method not implemented." );
+}
+
+void IRenderDevice::drawElements( const PrimitiveType, const std::vector<float>& )
 {
     CUL::Assert::check( false, "IRenderDevice::drawElements - Method not implemented." );
 }

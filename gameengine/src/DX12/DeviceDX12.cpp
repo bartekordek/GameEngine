@@ -1,17 +1,18 @@
 #include "DX12/DeviceDX12.hpp"
 
 #if defined( GAME_ENGINE_WINDOWS )
-#include "gameengine/IGameEngine.hpp"
-#include "gameengine/Windowing/IWindow.hpp"
-#include "gameengine/Windowing/WinSize.hpp"
-#include "LOGLWAdditionalDeps/ImportImgui.hpp"
+    #include "gameengine/IGameEngine.hpp"
+    #include "gameengine/Windowing/IWindow.hpp"
+    #include "gameengine/Windowing/WinSize.hpp"
+    #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 
 using namespace LOGLW;
 
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-DeviceDX12::DeviceDX12() : IRenderDevice( false )
+DeviceDX12::DeviceDX12():
+    IRenderDevice( false )
 {
 }
 
@@ -276,8 +277,13 @@ void DeviceDX12::createVertexBuffer()
     CD3DX12_HEAP_PROPERTIES heapProps( D3D12_HEAP_TYPE_UPLOAD );
 
     CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer( vertexBufferSize );
-    ThrowIfFailed( m_device->CreateCommittedResource( &heapProps, D3D12_HEAP_FLAG_NONE, &desc,
-                                                      D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS( &m_vertexBuffer ) ) );
+    ThrowIfFailed( m_device->CreateCommittedResource(
+        &heapProps,
+        D3D12_HEAP_FLAG_NONE,
+        &desc,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        nullptr,
+        IID_PPV_ARGS( &m_vertexBuffer ) ) );
 
     // Copy the triangle data to the vertex buffer.
     UINT8* pVertexDataBegin;
@@ -494,14 +500,6 @@ void DeviceDX12::setAttribValue( int attributeLocation, const CUL::String& value
 }
 
 void DeviceDX12::setUniformValue( int uniformLocation, float value )
-{
-}
-
-void DeviceDX12::setUniformValue( int uniformLocation, int value )
-{
-}
-
-void DeviceDX12::setUniformValue( int uniformLocation, unsigned value )
 {
 }
 
