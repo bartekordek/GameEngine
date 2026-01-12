@@ -3,11 +3,11 @@
 
 using namespace LOGLW;
 
-LineImpl::LineImpl( IGameEngine* engine ) : ILine( false )
+LineImpl::LineImpl():
+    ILine( false )
 {
-    m_data[0] = m_data[1] = { 0.0f, 0.0f, 0.0f };
-
-    m_transform = static_cast < TransformComponent*>( getComponent( "TransformComponent" ) );
+    m_data[0] = m_data[1] = { { 0.0f, 0.0f, 0.0f } };
+    m_transform = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 }
 
 void LineImpl::setValues( const LineData& values )

@@ -7,24 +7,22 @@ NAMESPACE_BEGIN( LOGLW )
 
 class TransformComponent;
 
-class LineImpl final:
-    public ILine,
-    public IUtilityUser
+class LineImpl final: public ILine, public IUtilityUser
 {
 public:
     LineData m_data;
 
-    LineImpl() = delete;
-    LineImpl( const LineImpl &) = delete;
+    LineImpl( const LineImpl& ) = delete;
     LineImpl( LineImpl&& ) = delete;
     LineImpl& operator=( const LineImpl& ) = delete;
     LineImpl& operator=( LineImpl&& ) = delete;
-    LineImpl( IGameEngine* engine );
+    LineImpl();
 
     void setColor( const LineColors& colors ) override;
     void setColor( const ColorS& color ) override;
 
     ~LineImpl();
+
 protected:
 private:
     void setValues( const LineData& values ) override;
@@ -32,7 +30,6 @@ private:
 
     TransformComponent* m_transform = nullptr;
     LineColors m_colors;
-
 };
 
 NAMESPACE_END( LOGLW )
