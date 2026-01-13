@@ -47,8 +47,8 @@ public:
     void setProjectionType( const ProjectionType type );
     ProjectionType getProjectionType() const;
 
-    glm::mat4 getViewMatrix() const;
-    glm::mat4 getProjectionMatrix() const;
+    GAME_ENGINE_API glm::mat4 getViewMatrix() const;
+    GAME_ENGINE_API glm::mat4 getProjectionMatrix() const;
 
     float getLeft() const;
     float getRight() const;
