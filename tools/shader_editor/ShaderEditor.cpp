@@ -108,7 +108,7 @@ void ShaderEditor::afterInit()
     m_mainWindow->toggleFpsCounter( true, 8u );
 
     m_engine->drawDebugInfo( true );
-    m_engine->toggleDrawDebugInfo( false );
+    m_engine->toggleDrawDebugInfo( true );
     m_engine->drawOrigin( true );
 
     m_timer->runEveryPeriod(

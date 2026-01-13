@@ -44,10 +44,9 @@ public:
     const Pos& getSize() const;
 
     const Pos& getPivot() const;
-    void setPivot( const Pos& pivot );
-
-    glm::vec3 getPivotReal() const;
     glm::vec3 getPivotNormalized();
+    void setPivot( const Pos& pivot );
+    void setPivotNormalized( const Pos& pivot );
 
     void addOnChangeCallback( const String& callbackName, const std::function<void( const glm::mat4& model )> callback );
     void removeCallback( const String& callbackName );
@@ -73,12 +72,12 @@ private:
 
     IObject* m_owner{ nullptr };
 
-    Pos m_size;
-    glm::vec3 m_pos = { 0.f, 0.f, 0.f };
+    glm::vec3 m_size{ 0.f, 0.f, 0.f };
+    glm::vec3 m_pos{ 0.f, 0.f, 0.f };
     glm::vec3 m_scale = { 1.f, 1.f, 1.f };
     CUL::MATH::Rotation m_rotation;
-    glm::vec3 m_pivot{ 0.5f, 0.5f, 0.0f };
-    glm::vec3 m_pivotReal{ 0.f, 0.f, 0.f };
+    glm::vec3 m_pivotNormalized{ 0.5f, 0.5f, 0.0f };
+    glm::vec3 m_pivot{ 0.f, 0.f, 0.f };
 
     std::map<String, std::function<void( const glm::mat4 )> > m_onChangeCallbacks;
 

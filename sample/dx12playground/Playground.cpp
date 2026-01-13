@@ -11,7 +11,7 @@
 #include "gameengine/Sprite.hpp"
 
 #include "gameengine/Windowing/IWindow.hpp"
-#include "sdl2wrapper/Input/MouseData.hpp"
+#include "gameengine/Input/MouseData.hpp"
 
 #include "CUL/ITimer.hpp"
 
@@ -28,11 +28,11 @@ void Playground::run()
     LOGLW::WinSize winSize = { width, height };
 
     LOGLW::EngineParams engineParams;
-    engineParams.configPath = "Config.txt";
+    engineParams.ConfigPath = "Config.txt";
     engineParams.legacy = false;
-    engineParams.windowPosition = winPos;
-    engineParams.winSize = winSize;
-    engineParams.winName = "gameenginePlaygroundApp";
+    engineParams.WinDataVal.Pos = { winPos.getX(), winPos.getY() };
+    engineParams.WinDataVal.CurrentRes = winSize;
+    engineParams.WinDataVal.Name = "gameenginePlaygroundApp";
 
     m_engine = LOGLW::IGameEngine::createGameEngine( engineParams );
 
@@ -62,7 +62,7 @@ void Playground::run()
     m_engine->drawDebugInfo( true );
     m_engine->startRenderingLoop();
 
-    m_timer.reset( CUL::TimerFactory::getChronoTimer( m_engine->getLoger() ) );
+    m_timer.reset( CUL::TimerFactory::getChronoTimerPtr( m_engine->getLoger() ) );
 
     m_engine->runEventLoop();
 }
@@ -217,8 +217,8 @@ void Playground::onMouseEvent( const LOGLW::MouseData& mouseData )
     {
         const auto& md = m_engine->getMouseData();
         const auto& winSize = m_engine->getMainWindow()->getSize();
-        const auto winW = winSize.getWidth();
-        const auto winH = winSize.getHeight();
+        const auto winW = winSize.W;
+        const auto winH = winSize.H;
         const auto mouseX = md.getX();
         const auto mouseY = md.getY();
         const auto centerX = winW / 2 - mouseX;

@@ -28,7 +28,6 @@ class ITimer;
 namespace LOGLW
 {
 class IGameEngine;
-class KeyboardState;
 class Camera;
 class Triangle;
 class Sprite;

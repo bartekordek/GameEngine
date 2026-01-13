@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gameengine/IGameEngineApp.hpp"
+#include "CUL/GenericUtils/NonCopyable.hpp"
 
 class CApp final: public LOGLW::IGameEngineApp
 {

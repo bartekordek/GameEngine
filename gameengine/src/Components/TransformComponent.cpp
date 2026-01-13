@@ -4,6 +4,7 @@
 
 #include "CUL/Log/ILogger.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
+#include "CUL/Math/Utils.hpp"
 
 using namespace LOGLW;
 
@@ -74,16 +75,14 @@ const CUL::MATH::Rotation TransformComponent::getRotationAbsolute() const
 
 const glm::mat4 TransformComponent::getModel() const
 {
-    glm::vec3 pivotReal = getPivotReal();
-
-    glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), pivotReal );
-    glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), -pivotReal );
+    glm::mat4 trans_to_pivot = glm::translate( glm::mat4( 1.0f ), m_pivot );
+    glm::mat4 trans_from_pivot = glm::translate( glm::mat4( 1.0f ), -m_pivot );
 
     glm::mat4 rotationMat = getRotation();
 
     glm::mat4 scale = glm::scale( glm::mat4( 1.f ), m_scale );
 
-    glm::mat4 model = getTranslation();
+    glm::mat4 model = glm::translate( glm::mat4( 1.0f ), m_pos );
 
     model = model * trans_to_pivot;
     model = model * rotationMat;
@@ -115,7 +114,7 @@ const CUL::String& TransformComponent::getName() const
 glm::mat4 TransformComponent::getTranslation() const
 {
     glm::mat4 result( 1.f );
-    auto pivotTimesScale = m_pivotReal * m_scale;
+    auto pivotTimesScale = m_pivot * m_scale;
     result = glm::translate( result, m_pos - pivotTimesScale );
 
     return result;
@@ -151,14 +150,9 @@ glm::mat4 TransformComponent::getRotation() const
     return model;
 }
 
-glm::vec3 TransformComponent::getPivotReal() const
-{
-    return m_pivotReal;
-}
-
 glm::vec3 TransformComponent::getPivotNormalized()
 {
-    return m_pivot;
+    return m_pivotNormalized;
 }
 
 const TransformComponent::Pos& TransformComponent::getPivot() const
@@ -169,9 +163,17 @@ const TransformComponent::Pos& TransformComponent::getPivot() const
 void TransformComponent::setPivot( const TransformComponent::Pos& pivot )
 {
     m_pivot = pivot.toGlmVec();
-    m_pivotReal = m_size.toGlmVec() * m_pivot;
+    m_pivotNormalized.x = CUL::MATH::Utils::floatIsZero( m_size.x ) ? 0.f : m_pivot.x / m_size.x;
+    m_pivotNormalized.y = CUL::MATH::Utils::floatIsZero( m_size.y ) ? 0.f : m_pivot.y / m_size.y;
+    m_pivotNormalized.z = CUL::MATH::Utils::floatIsZero( m_size.z ) ? 0.f : m_pivot.z / m_size.z;
 
     changeSizeDelegate.execute();
+}
+
+void TransformComponent::setPivotNormalized( const Pos& pivot )
+{
+    m_pivotNormalized = pivot.toGlmVec();
+    m_pivot = m_size * m_pivotNormalized;
 }
 
 void TransformComponent::addOnChangeCallback( const String& callbackName, const std::function<void( const glm::mat4& model )> callback )
@@ -189,8 +191,8 @@ void TransformComponent::addOnChangeCallback( const String& callbackName, const 
 
 void TransformComponent::setSize( const Pos& size )
 {
-    m_size = size;
-    m_pivotReal = m_size.toGlmVec() * m_pivot;
+    m_size = size.toGlmVec();
+    m_pivot = m_size * m_pivotNormalized;
     changeSizeDelegate.execute();
 }
 
@@ -248,18 +250,18 @@ const CUL::String ToString( const glm::vec3& val )
 void TransformComponent::printCurrentState() const
 {
     CUL::LOG::ILogger::getInstance().log( m_owner->getName() + ": " );
-    CUL::LOG::ILogger::getInstance().log( "Current Size: " + ToString( m_size.toGlmVec() ) );
+    CUL::LOG::ILogger::getInstance().log( "Current Size: " + ToString( m_size ) );
     CUL::LOG::ILogger::getInstance().log( "Current Position: " + ToString( m_pos ) );
     CUL::LOG::ILogger::getInstance().log( "Current Scale: " + ToString( m_scale ) );
-    CUL::LOG::ILogger::getInstance().log( "Current Pivot Normalized: " + ToString( m_pivot ) );
-    CUL::LOG::ILogger::getInstance().log( "Current Pivot Real: " + ToString( m_pivotReal ) );
+    CUL::LOG::ILogger::getInstance().log( "Current Pivot Normalized: " + ToString( m_pivotNormalized ) );
+    CUL::LOG::ILogger::getInstance().log( "Current Pivot Real: " + ToString( m_pivot ) );
 }
 
 #if !CUL_SHIPPING_BUILD
 void TransformComponent::drawDebug()
 {
     ImGui::InputFloat3( "Position", &m_pos.x );
-    ImGui::InputFloat( "Radius", &m_size.x() );
+    ImGui::InputFloat( "Radius", &m_size.x );
     ImGui::SameLine();
     if( ImGui::Button( "Apply Radius" ) )
     {
