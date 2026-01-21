@@ -29,9 +29,8 @@ void Playground::run()
 
     LOGLW::EngineParams engineParams;
     engineParams.ConfigPath = "Config.txt";
-    engineParams.legacy = false;
     engineParams.WinDataVal.Pos = { winPos.getX(), winPos.getY() };
-    engineParams.WinDataVal.CurrentRes = winSize;
+    engineParams.WinDataVal.WindowRes = winSize;
     engineParams.WinDataVal.Name = "gameenginePlaygroundApp";
 
     m_engine = LOGLW::IGameEngine::createGameEngine( engineParams );
@@ -58,8 +57,7 @@ void Playground::run()
         {
             onWindowEvent( type );
         } );
-    m_engine->drawOrigin( true );
-    m_engine->drawDebugInfo( true );
+
     m_engine->startRenderingLoop();
 
     m_timer.reset( CUL::TimerFactory::getChronoTimerPtr( m_engine->getLoger() ) );
@@ -69,6 +67,9 @@ void Playground::run()
 
 void Playground::afterInit()
 {
+    //m_engine->drawOrigin( true );
+    m_engine->drawDebugInfo( true );
+
     // m_mainWindow = m_engine->getMainWindow();
     // m_mainWindow->setBackgroundColor( LOGLW::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
     // const auto& winSize = m_mainWindow->getSize();
