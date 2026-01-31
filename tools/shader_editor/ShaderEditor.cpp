@@ -35,17 +35,16 @@ CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 
 struct EditorState
 {
-    CUL::String Name;
+    String Name;
     TextEditor Editor;
-    CUL::String Extension;
+    String Extension;
     std::unique_ptr<CUL::FS::RegularFile> File;
-    CUL::String CachedText;
+    String CachedText;
     EShaderUnitState ShaderUnitState{ EShaderUnitState::Empty };
 };
 
 ShaderEditor::ShaderEditor( const LOGLW::WinSize& inWinSize, const LOGLW::WinPos& inWinPos ):
-    m_winSize( inWinSize ),
-    m_winPos( inWinPos )
+    m_winSize( inWinSize ), m_winPos( inWinPos )
 {
 }
 
@@ -206,7 +205,7 @@ void ShaderEditor::guiIteration( float x, float y )
 
 void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
 {
-    const static CUL::String name = "Left";
+    const static String name = "Left";
     ImGui::Begin( name.cStr(), nullptr,
                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
 
@@ -254,8 +253,8 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
     {
         if( ImGui::TreeNode( "Uniforms" ) )
         {
-            const std::vector<CUL::String> uniformNames = m_vao->getProgram()->getUniformsNames();
-            for( const CUL::String& uniformName : uniformNames )
+            const std::vector<String> uniformNames = m_vao->getProgram()->getUniformsNames();
+            for( const String& uniformName : uniformNames )
             {
                 const auto& uniformVal = m_vao->getProgram()->getUniformValue( uniformName );
                 ImGui::Text( "ID: %d, Name: %s, Type: %s", uniformVal.Id, uniformVal.Name.cStr(), uniformVal.TypeName.cStr() );
@@ -305,7 +304,7 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
 
 void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
 {
-    const static CUL::String name = "Right";
+    const static String name = "Right";
     ImGui::Begin( name.cStr(), nullptr,
                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
 
@@ -372,7 +371,7 @@ void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
     ImGui::End();
 }
 
-void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::String& name )
+void ShaderEditor::drawEditor( float x, float y, float w, float h, const String& name )
 {
     (void)x;
     (void)y;
@@ -389,7 +388,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
         CUL::FS::PathDialog::Filter filter;
         filter.Name = editorState.Name;
         filter.Spec = editorState.Extension;
-        const CUL::String choosenShader = CUL::FS::PathDialog::getInstance().openDialog( filter );
+        const String choosenShader = CUL::FS::PathDialog::getInstance().openDialog( filter );
         if( choosenShader.empty() == false )
         {
             editorState.Editor.SetReadOnly( true );
@@ -415,7 +414,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
     }
     else
     {
-        const CUL::String filePath = editorState.File->getPath().getPath();
+        const String filePath = editorState.File->getPath().getPath();
         const char* tempChar = filePath.cStr();
         ImGui::Text( "%s", tempChar );
     }
@@ -428,7 +427,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
 
     ImGui::SameLine();
 
-    static CUL::String compilerError;
+    static String compilerError;
     if( ImGui::Button( "Compile" ) )
     {
         if( editorState.File )
@@ -455,7 +454,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
     ImVec4 color;
     color.w = 0.5f;
     const float colorAmp = 1.0f;
-    CUL::String status;
+    String status;
 
     if( editorState.ShaderUnitState == EShaderUnitState::Empty )
     {
@@ -486,7 +485,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
 
     if( editorState.CachedText.empty() == false )
     {
-        CUL::String editorText = editorState.Editor.GetText();
+        String editorText = editorState.Editor.GetText();
         editorText.removeTrailingLineEnd();
         if( editorText != editorState.CachedText )
         {

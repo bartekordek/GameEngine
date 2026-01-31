@@ -9,8 +9,8 @@
 
 #include "CUL/ITimer.hpp"
 
-Game::Game( int rows, int cols, const LOGLW::WinPos& windowPos, const LOGLW::WinSize& winSize )
-    : m_windowPos( windowPos ), m_windowSize( winSize ), m_rowsCount( rows ), m_colsCount( cols )
+Game::Game( int rows, int cols, const LOGLW::WinPos& windowPos, const LOGLW::WinSize& winSize ):
+    m_windowPos( windowPos ), m_windowSize( winSize ), m_rowsCount( rows ), m_colsCount( cols )
 {
     m_background.resize( rows );
     for( auto& row : m_background )
@@ -305,7 +305,7 @@ void Game::onMouseEvent( const LOGLW::MouseData& mouseData )
         {
             m_eyePos.z -= mouseData.getWheelY() * 1.f;
             m_oglw->setEyePos( m_eyePos );
-            m_logger->log( "setting m_eyePos.z to: " + CUL::String( m_eyePos.z ) );
+            m_logger->log( "setting m_eyePos.z to: " + String( m_eyePos.z ) );
         }
     }
 }

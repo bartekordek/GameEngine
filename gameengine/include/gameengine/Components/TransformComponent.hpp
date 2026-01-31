@@ -4,7 +4,7 @@
 
 #include "CUL/Math/Point.hpp"
 #include "CUL/Math/Rotation.hpp"
-#include "CUL/String.hpp"
+#include "CUL/String/StringWrapper.hpp"
 #include "CUL/GenericUtils/SimpleDelegate.hpp"
 
 #include "CUL/STL_IMPORTS/STD_functional.hpp"
@@ -15,8 +15,6 @@
 NAMESPACE_BEGIN( LOGLW )
 
 class IObject;
-
-using String = CUL::String;
 
 class GAME_ENGINE_API TransformComponent final: public IComponent
 {
@@ -49,8 +47,8 @@ public:
     glm::vec3 getPivotReal() const;
     glm::vec3 getPivotNormalized();
 
-    void addOnChangeCallback( const String& callbackName, const std::function<void( const glm::mat4& model )> callback );
-    void removeCallback( const String& callbackName );
+    void addOnChangeCallback( const CUL::StringWr& callbackName, const std::function<void( const glm::mat4& model )> callback );
+    void removeCallback( const CUL::StringWr& callbackName );
 
     CUL::GUTILS::SimpleDelegate changeSizeDelegate;
     void decomposeAndLogData( const glm::mat4& data ) const;
@@ -62,7 +60,7 @@ public:
 
 protected:
 private:
-    const CUL::String& getName() const override;
+    const CUL::StringWr& getName() const override;
     glm::mat4 getTranslation() const;
     glm::mat4 getRotation() const;
     void printCurrentState() const;
@@ -80,7 +78,7 @@ private:
     glm::vec3 m_pivot{ 0.5f, 0.5f, 0.0f };
     glm::vec3 m_pivotReal{ 0.f, 0.f, 0.f };
 
-    std::map<String, std::function<void( const glm::mat4 )> > m_onChangeCallbacks;
+    std::map<CUL::StringWr, std::function<void( const glm::mat4 )> > m_onChangeCallbacks;
 
     // Deleted:
     TransformComponent( const TransformComponent& value ) = delete;

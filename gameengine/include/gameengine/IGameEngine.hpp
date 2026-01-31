@@ -11,7 +11,6 @@
 #include "CUL/GenericUtils/ITask.hpp"
 #include "CUL/Graphics/IImageLoader.hpp"
 #include "CUL/Math/Vector3D.hpp"
-#include "CUL/String.hpp"
 #include "CUL/GenericUtils/DelegateTemplate.hpp"
 
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
@@ -64,7 +63,7 @@ struct ContextInfo;
 struct EngineParams;
 struct VertexData;
 
-using String = CUL::String;
+using String = CUL::StringWr;
 
 using ColorS = CUL::Graphics::ColorS;
 using ColorE = CUL::Graphics::ColorE;
@@ -142,7 +141,7 @@ public:
     GAME_ENGINE_API Quad* createQuad( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API PointLight* createPointLight( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API Anchor* createAnchor( IObject* parent, bool forceLegacy = false );
-    GAME_ENGINE_API VertexArray* createVAO( const CUL::String& name = CUL::String( "" ) );
+    GAME_ENGINE_API VertexArray* createVAO( const String& name = String( "" ) );
     GAME_ENGINE_API Cube* createCube( bool forceLegacy = false );
 
     GAME_ENGINE_API void addObjectToRender( IRenderable* renderable );

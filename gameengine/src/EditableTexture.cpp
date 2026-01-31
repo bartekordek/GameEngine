@@ -29,7 +29,8 @@ void EditableTexture::onNameChange( const String& newName )
     RunOnRenderThread::getInstance().RunWaitForResult(
         [this, newName]()
         {
-            getDevice()->setObjectName( EObjectType::TEXTURE, static_cast<std::uint32_t>( m_textureId ), newName + "::texture" );
+            const String fullName = String::createFromPrintf( "%s::texture", newName.getUtfChar() );
+            getDevice()->setObjectName( EObjectType::TEXTURE, static_cast<std::uint32_t>( m_textureId ), fullName );
         } );
 }
 

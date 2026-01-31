@@ -53,7 +53,7 @@ public:
     GAME_ENGINE_API ~Sprite();
 
 protected:
-    void onNameChange( const CUL::String& newName ) override;
+    void onNameChange( const String& newName ) override;
 
 private:
     void render() override;

@@ -11,8 +11,8 @@
 #include "CUL/Threading/ThreadUtil.hpp"
 
 #ifdef _MSC_VER
-#pragma warning( push, 0 )
-#pragma warning( disable : 4710 )
+    #pragma warning( push, 0 )
+    #pragma warning( disable : 4710 )
 #endif
 
 using namespace LOGLW;
@@ -27,12 +27,12 @@ SDL2WrapperImpl::SDL2WrapperImpl()
 }
 
 #ifdef _MSC_VER
-// Yes, I know that is a Spectre mitigation.
-// But for now, I let this as TODO, since i don't know
-// How to fix this.
-// TODO
-#pragma warning( push )
-#pragma warning( disable : 5045 )
+    // Yes, I know that is a Spectre mitigation.
+    // But for now, I let this as TODO, since i don't know
+    // How to fix this.
+    // TODO
+    #pragma warning( push )
+    #pragma warning( disable : 5045 )
 #endif
 
 void SDL2WrapperImpl::init( const WinData& wd, const CUL::FS::Path& configPath )
@@ -53,17 +53,16 @@ void SDL2WrapperImpl::init( const WinData& wd, const CUL::FS::Path& configPath )
     m_logger->log( "Initializing SDL... Done." );
 
     const std::int32_t cpuCount = SDL_GetCPUCount();
-    const String count( cpuCount );
-    m_logger->log( "Available cpu cores: " + count );
+    m_logger->logVariable( CUL::LOG::Severity::Info, "Available cpu cores: %d", cpuCount );
 
     const auto cpuCacheSize = SDL_GetCPUCacheLineSize();
-    m_logger->log( "Available cache size: " + String( cpuCacheSize ) );
+    m_logger->logVariable( CUL::LOG::Severity::Info, "Available cache size: %d", cpuCacheSize );
 
     const auto hasRDTSC = SDLBoolToCppBool( SDL_HasRDTSC() );
-    m_logger->log( "CPU has the RDTSC instruction: " + String( hasRDTSC ) );
+    m_logger->logVariable( CUL::LOG::Severity::Info, "CPU has the RDTSC instruction: %s", hasRDTSC ? "true" : "false" );
 
     const size_t renderDriversCount = fetchRenderTypes();
-    m_logger->log( "Available render drivers count: " + String( (int)renderDriversCount ) + "\n" );
+    m_logger->logVariable( CUL::LOG::Severity::Info, "Available render drivers count: %d\n", renderDriversCount );
 
     m_logger->log( "#################################################################################" );
     m_logger->log( "#################################################################################" );
@@ -71,14 +70,14 @@ void SDL2WrapperImpl::init( const WinData& wd, const CUL::FS::Path& configPath )
 
     if( m_windowData.RendererType == RenderTypes::RendererType::NONE )
     {
-        const String rendererName = m_configFile ? m_configFile->getValue( "RENDERER" ) : "";
+        const auto rendererName = m_configFile ? m_configFile->getValue( "RENDERER" ) : "";
         if( rendererName.empty() )
         {
             m_windowData.RendererType = RenderTypes::RendererType::OPENGL_MODERN;
         }
         else
         {
-            m_windowData.RendererType = RenderTypes::convertToEnum( rendererName );
+            m_windowData.RendererType = RenderTypes::convertToEnum( rendererName.getString() );
         }
     }
 
@@ -114,16 +113,15 @@ size_t SDL2WrapperImpl::fetchRenderTypes()
     for( size_t i = 0; i < renderDriversCount; ++i )
     {
         m_logger->log( "#################################################################################" );
-        String cannotGet = "Cannnot get driver info for index = " + String( (int)i );
-        CUL::Assert::simple( SDL_GetRenderDriverInfo( i, &renderInfo ) == 0, cannotGet );
+        CUL::Assert::check( SDL_GetRenderDriverInfo( i, &renderInfo ) == 0, "Cannnot get driver info for index = %d", i );
         String rendererName( renderInfo.name );
-        m_logger->log( "Renderer name: " + rendererName );
-        m_logger->log( "Max texture width = " + CUL::String( renderInfo.max_texture_width ) );
-        m_logger->log( "Max texture height = " + CUL::String( renderInfo.max_texture_width ) );
+        m_logger->logVariable( CUL::LOG::Severity::Info, "Renderer name: %s", rendererName.getUtfChar() );
+        m_logger->logVariable( CUL::LOG::Severity::Info, "Max texture size: %d, %d", renderInfo.max_texture_width,
+                               renderInfo.max_texture_height );
         m_logger->log( "Available texture formats: " );
         for( Uint32 iTexFormat = 0; iTexFormat < renderInfo.num_texture_formats; ++iTexFormat )
         {
-            m_logger->log( String( SDL_GetPixelFormatName( renderInfo.texture_formats[iTexFormat] ) ) );
+            m_logger->logVariable( CUL::LOG::Severity::Info, "%s", SDL_GetPixelFormatName( renderInfo.texture_formats[iTexFormat] ) );
         }
 
         m_logger->log( "#################################################################################\n" );
@@ -163,9 +161,9 @@ void SDL2WrapperImpl::createKeys()
     auto getKeyName = []( size_t index )
     {
         SDL_Scancode scanCode = static_cast<SDL_Scancode>( index );
-        CUL::String result = SDL_GetScancodeName( scanCode );
+        String result = SDL_GetScancodeName( scanCode );
         return result;
-    };
+    };  
 
     m_logger->log( "SDL2WrapperImpl::createKeys()::Begin" );
     size_t keyCount = 0;
@@ -177,13 +175,15 @@ void SDL2WrapperImpl::createKeys()
         if( !keyName.empty() )
         {
             m_keys[keyName] = isKeyDown( kbrdState, i );
-            m_logger->log( "Name:" + keyName + ", id: " + CUL::String( (int)i ) );
+            const char* keyNameChar = keyName.getUtfChar();
+            const String txt = String::createFromPrintf( "Name: %s, id: %d", keyNameChar, i );
+            m_logger->logInfo( txt.getUtfChar() );
         }
     }
     m_logger->log( "SDL2WrapperImpl::createKeys()::End" );
 }
 #ifdef _MSC_VER
-#pragma warning( pop )
+    #pragma warning( pop )
 #endif
 
 CUL::LOG::ILogger* SDL2WrapperImpl::getLogger() const
@@ -222,7 +222,7 @@ void SDL2WrapperImpl::printAvailableRenderers() const
     m_logger->log( "SDL2WrapperImpl::printAvailableRenderers():" );
     for( const auto& renderer : m_renderers )
     {
-        m_logger->log( "Name: " + RenderTypes::convertToString( renderer.first ) + ", id: " + String( renderer.second ) );
+        m_logger->logInfo( "Name: %s, id: %d", RenderTypes::convertToString( renderer.first ).getUtfChar(), renderer.second );
     }
 }
 
@@ -547,5 +547,5 @@ SDL2WrapperImpl::~SDL2WrapperImpl()
 }
 
 #ifdef _MSC_VER
-#pragma warning( pop )
+    #pragma warning( pop )
 #endif

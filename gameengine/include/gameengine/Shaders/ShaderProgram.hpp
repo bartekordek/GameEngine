@@ -23,7 +23,7 @@ enum class EExecuteType : std::int8_t;
 enum class EShaderUnitState : std::int8_t;
 struct ShaderUnit;
 
-using String = CUL::String;
+using String = CUL::StringWr;
 enum class EShaderProgramState : std::int8_t
 {
     Unkown = -1,
@@ -50,8 +50,8 @@ public:
 
     struct ShadersData
     {
-        CUL::String VertexShader;
-        CUL::String FragmentShader;
+        String VertexShader;
+        String FragmentShader;
     };
 
     ShaderProgram();
@@ -61,9 +61,9 @@ public:
 
     void compileLinkValidate( EExecuteType inEt );
     void compileShader( EExecuteType inEt, const String& shaderPath );
-    void compileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
+    void compileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, String& errorMessage );
     void reCompileShader( EExecuteType inEt, const String& shaderPath );
-    void reCompileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
+    void reCompileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, String& errorMessage );
     void reCompileWholeShader( EExecuteType inEt );
 
     void setUniform( EExecuteType inEt, const String& inName, UniformValue inValue );
@@ -86,21 +86,21 @@ public:
     void disable();
 
     EShaderUnitState getShaderUnitState( CShaderTypes::ShaderType inType ) const;
-    const ShaderVariable& getUniformValue( const CUL::String& name );
-    std::vector<CUL::String> getUniformsNames();
+    const ShaderVariable& getUniformValue( const String& name );
+    std::vector<String> getUniformsNames();
     void runOnRenderingThread( std::function<void( void )> inFunction );
 
     ~ShaderProgram();
 
 protected:
-    void onNameChange( const CUL::String& newName ) override;
+    void onNameChange( const String& newName ) override;
 
 private:
     void create();
     void createFromImpl( EExecuteType inEt, const ShadersData& inShaderData );
     void reCompileWholeShaderImpl( EExecuteType inEt );
     void releaseShaderUnits();
-    void reCompileShaderImpl( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
+    void reCompileShaderImpl( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, String& errorMessage );
     void setUniformImpl( const String& inName, UniformValue inValue );
     void linkImpl();
     void release();
@@ -114,8 +114,8 @@ private:
 
     IGameEngine& m_engine;
 
-    mutable std::unordered_map<String, ShaderVariable, CUL::StringHash> m_uniformMapping;
-    mutable std::unordered_map<String, ShaderVariable, CUL::StringHash> m_attributeMapping;
+    mutable std::unordered_map<std::string, ShaderVariable> m_uniformMapping;
+    mutable std::unordered_map<std::string, ShaderVariable> m_attributeMapping;
 
     bool m_linked{ false };
     CUL::CTaskAccumulator m_tasks;

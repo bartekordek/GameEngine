@@ -1,17 +1,18 @@
 #include "DX12/DeviceDX12.hpp"
 
 #if defined( GAME_ENGINE_WINDOWS )
-#include "gameengine/IGameEngine.hpp"
-#include "gameengine/Windowing/IWindow.hpp"
-#include "gameengine/Windowing/WinSize.hpp"
-#include "LOGLWAdditionalDeps/ImportImgui.hpp"
+    #include "gameengine/IGameEngine.hpp"
+    #include "gameengine/Windowing/IWindow.hpp"
+    #include "gameengine/Windowing/WinSize.hpp"
+    #include "gameengine/UI/ImGuiHelper.hpp"
 
 using namespace LOGLW;
 
 template <typename T>
 using ComPtr = Microsoft::WRL::ComPtr<T>;
 
-DeviceDX12::DeviceDX12() : IRenderDevice( false )
+DeviceDX12::DeviceDX12():
+    IRenderDevice( false )
 {
 }
 
@@ -103,7 +104,7 @@ void DeviceDX12::setScissorRect()
 void DeviceDX12::initInterfaces()
 {
     UINT dxgiFactoryFlags = 0;
-#if defined( _DEBUG )
+    #if defined( _DEBUG )
     // Enable the debug layer (requires the Graphics Tools "optional feature").
     // NOTE: Enabling the debug layer after device creation will invalidate the active device.
     {
@@ -116,7 +117,7 @@ void DeviceDX12::initInterfaces()
             dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
         }
     }
-#endif
+    #endif
     ThrowIfFailed( CreateDXGIFactory2( dxgiFactoryFlags, IID_PPV_ARGS( m_factory.ReleaseAndGetAddressOf() ) ) );
 }
 
@@ -226,12 +227,12 @@ void DeviceDX12::createShaders()
     ComPtr<ID3DBlob> vertexShader;
     ComPtr<ID3DBlob> pixelShader;
 
-#if defined( _DEBUG )
+    #if defined( _DEBUG )
     // Enable better shader debugging with the graphics debugging tools.
     UINT compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
-#else
+    #else
     UINT compileFlags = 0;
-#endif
+    #endif
 
     ThrowIfFailed( D3DCompileFromFile( L"shaders.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr ) );
     ThrowIfFailed( D3DCompileFromFile( L"shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr ) );
@@ -276,8 +277,8 @@ void DeviceDX12::createVertexBuffer()
     CD3DX12_HEAP_PROPERTIES heapProps( D3D12_HEAP_TYPE_UPLOAD );
 
     CD3DX12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer( vertexBufferSize );
-    ThrowIfFailed( m_device->CreateCommittedResource( &heapProps, D3D12_HEAP_FLAG_NONE, &desc,
-                                                      D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS( &m_vertexBuffer ) ) );
+    ThrowIfFailed( m_device->CreateCommittedResource( &heapProps, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr,
+                                                      IID_PPV_ARGS( &m_vertexBuffer ) ) );
 
     // Copy the triangle data to the vertex buffer.
     UINT8* pVertexDataBegin;
@@ -294,14 +295,14 @@ void DeviceDX12::createVertexBuffer()
 
 void DeviceDX12::enableDebugLayers()
 {
-#if defined( _DEBUG )
+    #if defined( _DEBUG )
     // Always enable the debug layer before doing anything DX12 related
     // so all possible errors generated while creating DX12 objects
     // are caught by the debug layer.
     Microsoft::WRL::ComPtr<ID3D12Debug> debugInterface;
     WindowsUtils::ThrowIfFailed( D3D12GetDebugInterface( IID_PPV_ARGS( &debugInterface ) ) );
     debugInterface->EnableDebugLayer();
-#endif
+    #endif
 }
 
 void DeviceDX12::GetHardwareAdapter( IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, bool requestHighPerformanceAdapter )
@@ -431,7 +432,7 @@ Microsoft::WRL::ComPtr<ID3D12Device2> DeviceDX12::CreateDevice( Microsoft::WRL::
     //    NAME_D3D12_OBJECT(d3d12Device2);
 
     // Enable debug messages in debug mode.
-#if defined( _DEBUG )
+    #if defined( _DEBUG )
     Microsoft::WRL::ComPtr<ID3D12InfoQueue> pInfoQueue;
     if( SUCCEEDED( d3d12Device2.As( &pInfoQueue ) ) )
     {
@@ -462,7 +463,7 @@ Microsoft::WRL::ComPtr<ID3D12Device2> DeviceDX12::CreateDevice( Microsoft::WRL::
 
         WindowsUtils::ThrowIfFailed( pInfoQueue->PushStorageFilter( &NewFilter ) );
     }
-#endif
+    #endif
 
     return d3d12Device2;
 }
@@ -489,7 +490,7 @@ void DeviceDX12::setAttribValue( int attributeLocation, bool value )
 {
 }
 
-void DeviceDX12::setAttribValue( int attributeLocation, const CUL::String& value )
+void DeviceDX12::setAttribValue( int attributeLocation, const String& value )
 {
 }
 
@@ -784,13 +785,7 @@ const String& DeviceDX12::getName() const
 
 void DeviceDX12::initDebugUI()
 {
-    IMGUI_CHECKVERSION();
-    m_imguiContext = ImGui::CreateContext();
-    ImGui::StyleColorsDark();
-
-    ImGui_ImplSDL2_InitForD3D( m_window->getSDLWindow() );
-    ImGui_ImplDX12_Init( m_device.Get(), FrameCount, DXGI_FORMAT_R8G8B8A8_UNORM, m_srvDescHeap.Get(),
-                         m_srvDescHeap->GetCPUDescriptorHandleForHeapStart(), m_srvDescHeap->GetGPUDescriptorHandleForHeapStart() );
+    CImguiHelper::getInstance().initDX12( m_window->getSDLWindow(), FrameCount, m_device.Get(), m_srvDescHeap.Get() );
 }
 
 LOGLW::RenderTypes::RendererType DeviceDX12::getType() const

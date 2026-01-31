@@ -50,8 +50,9 @@ SDL_Window* RegularSDL2Window::createWindow( const WinData& winData )
     auto& winName = winData.Name;
 
     m_logger->log( "Creating window with:", CUL::LOG::Severity::Info );
-    m_logger->log( "Pos.x = " + CUL::String( pos.X ) + ", Pos.y = " + CUL::String( pos.Y ), CUL::LOG::Severity::Info );
-    m_logger->log( "Width = " + CUL::String( currentRes.W ) + ", height = " + CUL::String( currentRes.H ), CUL::LOG::Severity::Info );
+    m_logger->logInfo( "Pos: ( %d, %d )", pos.X, pos.Y );
+    m_logger->logInfo( "Size: ( %d, %d )", currentRes.W, currentRes.H );
+
     SDL_Window* result = nullptr;
     Uint32 windowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_ALLOW_HIGHDPI;
     if( getCurrentRendererType() == RenderTypes::RendererType::OPENGL_LEGACY ||
@@ -69,12 +70,11 @@ SDL_Window* RegularSDL2Window::createWindow( const WinData& winData )
         winTargetName = "Window: " + std::to_string( currentRes.W ) + "x" + std::to_string( currentRes.H );
     }
 
-    result = SDL_CreateWindow( winTargetName.cStr(), pos.X, pos.Y, targetWidth, targetHeight, windowFlags );
+    result = SDL_CreateWindow( winTargetName.getUtfChar(), pos.X, pos.Y, targetWidth, targetHeight, windowFlags );
     if( nullptr == result )
     {
         auto sdlError = SDL_GetError();
-        CUL::String s_sdlError( sdlError );
-        m_logger->log( "SDL ERROR: [ " + s_sdlError + " ] ", CUL::LOG::Severity::Critical );
+        m_logger->logVariable( CUL::LOG::Severity::Critical, "SDL ERROR: [ %s ]", sdlError );
         CUL::Assert::simple( false, "The Window has not been initialized." );
     }
     else
@@ -263,7 +263,7 @@ ISprite* RegularSDL2Window::createSprite( const CUL::FS::Path& objPath )
 {
     ISprite* result = nullptr;
     CUL::Assert::simple( objPath.getPath() != "", "EMTPY PATH." );
-    auto it = m_textures.find( objPath.getPath().string() );
+    auto it = m_textures.find( objPath.getPath().getSTDString() );
     if( m_textures.end() == it )
     {
         auto tex = createTexture( objPath );
@@ -281,7 +281,7 @@ CUL::Graphics::ITexture* RegularSDL2Window::createTexture( const CUL::FS::Path& 
 {
     CUL::Graphics::ITexture* result = nullptr;
     CUL::Assert::simple( objPath.getPath() != "", "EMTPY PATH." );
-    auto it = m_textures.find( objPath.getPath().string() );
+    auto it = m_textures.find( objPath.getPath().getSTDString() );
     if( m_textures.end() == it )
     {
         auto surface = createSurface( objPath );
@@ -300,7 +300,7 @@ CUL::Graphics::ITexture* RegularSDL2Window::createTexture( const CUL::FS::Path& 
     return result;
 }
 
-ISprite* RegularSDL2Window::createSprite( CUL::Graphics::ITexture* tex )
+ISprite* RegularSDL2Window::createSprite( [[maybe_unused]] CUL::Graphics::ITexture* tex )
 {
 #if SDL2WRAPPER_SPRITE
     auto spritePtr = new Sprite();
@@ -308,7 +308,6 @@ ISprite* RegularSDL2Window::createSprite( CUL::Graphics::ITexture* tex )
     addObject( spritePtr );
     return spritePtr;
 #else   // #if SDL2WRAPPER_SPRITE
-    (void*)tex;
     return nullptr;
 #endif  // #if SDL2WRAPPER_SPRITE
 }
@@ -317,17 +316,17 @@ SurfaceImage RegularSDL2Window::createSurface( const CUL::FS::Path& path )
 {
     SurfaceImage surfaceImage;
 
-    m_logger->log( "Current dir: " + m_fsApi->getCurrentDir() );
+    m_logger->logInfo( "Current dir: %s", m_fsApi->getCurrentDir().getUtfChar() );
 
     if( false == path.exists() )
     {
         m_logger->log( "Checking for path FAILED: ", CUL::LOG::Severity::Critical );
-        CUL::Assert::simple( false, "File " + path.getPath() + " does not exist." );
+        CUL::Assert::check( false, "File %s does not exist.", path.getPath().getUtfChar() );
     }
 
-    m_logger->log( "Loading: " + path );
+    m_logger->logInfo( "Loading: %s", path.getPath().getUtfChar() );
     auto image = m_il->loadImage( path );
-    CUL::Assert::simple( nullptr != image, "Cannot load: " + path.getPath() );
+    CUL::Assert::check( nullptr != image, "Cannot load: %s", path.getPath().getUtfChar() );
 
     const auto& imageInfo = image->getImageInfo();
 
@@ -363,8 +362,7 @@ SurfaceImage RegularSDL2Window::createSurface( const CUL::FS::Path& path )
     surfaceImage.first = SDL_CreateRGBSurfaceWithFormatFrom( (void*)image->getData(), imageInfo.size.width, imageInfo.size.height,
                                                              imageInfo.depth, imageInfo.pitch, pixelFormat );
 
-    CUL::Assert::simple( nullptr != surfaceImage.first, "Cannot create surf: " + path.getPath() );
-    CUL::Assert::simple( 0 != surfaceImage.first->pixels, "Cannot create surf: " + path.getPath() );
+    CUL::Assert::check( nullptr != surfaceImage.first, "Cannot create surf: %s", path.getPath().getUtfChar() );
 
     surfaceImage.second = image;
 
@@ -373,7 +371,7 @@ SurfaceImage RegularSDL2Window::createSurface( const CUL::FS::Path& path )
 
 CUL::Graphics::ITexture* RegularSDL2Window::createTexture( SDL_Surface* surface, const CUL::FS::Path& path )
 {
-    m_logger->log( "Creating texture from: " + path );
+    m_logger->logInfo( "Creating texture from: %s", path.getPath().getUtfChar() );
     // CUL::Assert::simple( nullptr != m_renderer, "RENDERER NOT READY!\n" );
     CUL::Assert::simple( nullptr != surface, "SURFACE IS NULL!\n" );
 

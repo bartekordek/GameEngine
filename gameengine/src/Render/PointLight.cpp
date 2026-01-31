@@ -33,7 +33,8 @@ void PointLight::init()
     if( result.error )
     {
         const auto errorString = result.error.code.message();
-        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Error, "res/sphere.obj reading object error: %s", errorString.c_str() );
+        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Error, "res/sphere.obj reading object error: %s",
+                                                      errorString.c_str() );
     }
 
     const auto& positions = result.attributes.positions;
@@ -41,11 +42,10 @@ void PointLight::init()
     VertexData vboData;
     vboData.Data.createFrom( positions.data(), pointsCount );
     vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
-    vboData.Attributes.emplace_back(
-        AttributeMeta( "pos", 0, 3, LOGLW::DataType::FLOAT, false, 0, nullptr ) );
+    vboData.Attributes.emplace_back( AttributeMeta( "pos", 0, 3, LOGLW::DataType::FLOAT, false, 0, nullptr ) );
 
     std::vector<std::uint32_t> indices;
-    for (const auto& indice : result.shapes[0].mesh.indices)
+    for( const auto& indice : result.shapes[0].mesh.indices )
     {
         indices.push_back( static_cast<std::uint32_t>( indice.position_index ) );
     }
@@ -55,14 +55,14 @@ void PointLight::init()
     getVao()->addVertexBuffer( vboData );
 
     getProgram()->setName( getName() + "::program" );
-    CUL::String errorContent;
+    String errorContent;
     getProgram()->compileShader( EExecuteType::Now, "embedded_shaders/basic_color.frag" );
     getProgram()->compileShader( EExecuteType::Now, "embedded_shaders/basic_pos.vert" );
     getProgram()->link( EExecuteType::Now );
     constexpr float initialScale = 0.1f;
     getProgram()->validate();
     getTransform()->setScale( { initialScale, initialScale, initialScale } );
-    getTransform()->setPositionToParent( {2.f, 2.f, 1.f} );
+    getTransform()->setPositionToParent( { 2.f, 2.f, 1.f } );
 }
 
 void PointLight::render()

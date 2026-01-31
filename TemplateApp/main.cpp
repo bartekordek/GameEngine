@@ -36,7 +36,7 @@ void CApp::customFrame()
 
 void CApp::guiIteration( float x, float /*y*/ )
 {
-    CUL::String name = "MAIN";
+    String name = "MAIN";
     ImGui::Begin( name.cStr(), nullptr,
                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
 

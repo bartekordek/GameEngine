@@ -50,7 +50,7 @@ struct ShaderUnit;
 struct VertexData;
 
 using Angle = CUL::MATH::Angle;
-using String = CUL::String;
+using String = CUL::StringWr;
 using ColorS = CUL::Graphics::ColorS;
 using ColorE = CUL::Graphics::ColorE;
 using Pos3Dd = CUL::Graphics::Pos3Dd;
@@ -76,15 +76,15 @@ using BufferDataId = std::uint32_t;
 struct GAME_ENGINE_API ContextInfo
 {
     void* glContext = nullptr;
-    String glVersion;
+    CUL::StringWr glVersion;
 };
 
 struct GAME_ENGINE_API ShaderParameterInfo
 {
     std::int32_t ID{ -1 };
-    CUL::String Name;
+    CUL::StringWr Name;
     DataType Type{ DataType::NONE };
-    String TypeName;
+    CUL::StringWr TypeName;
     std::int32_t Size{ 0 };
 };
 
@@ -179,17 +179,17 @@ public:
     virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec );
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up );
 
-    virtual ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
-    virtual ShaderUnit* createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
+    virtual ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::StringWr& errorMessage );
+    virtual ShaderUnit* createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::StringWr& errorMessage );
     virtual void deleteShaderUnit( ShaderUnit* inShaderUnit );
 
     // General
-    virtual void setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::String& name );
+    virtual void setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::StringWr& name );
 
     virtual void prepareFrame();
     virtual void finishFrame() = 0;
 
-    virtual std::uint32_t createProgram( const CUL::String& name );
+    virtual std::uint32_t createProgram( const CUL::StringWr& name );
     virtual void removeProgram( unsigned programId );
     virtual void useProgram( int programId );
     virtual void linkProgram( unsigned programId );
@@ -206,7 +206,7 @@ public:
     virtual void setAttribValue( int attributeLocation, int value );
     virtual void setAttribValue( int attributeLocation, unsigned value );
     virtual void setAttribValue( int attributeLocation, bool value );
-    virtual void setAttribValue( int attributeLocation, const CUL::String& value );
+    virtual void setAttribValue( int attributeLocation, const CUL::StringWr& value );
 
     virtual void setUniformValue( int uniformLocation, float value );
     virtual void setUniformValue( int uniformLocation, int value );
@@ -248,10 +248,10 @@ public:
     virtual unsigned int generateAndBindBuffer( const BufferTypes bufferType, const int size = 1 );
     virtual void deleteBuffer( BufferTypes bufferType, unsigned& id ) = 0;
 
-    virtual void enableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
-    virtual void disableVertexAttribiute( unsigned programId, const String& attribName ) = 0;
-    virtual int getAttribLocation( unsigned programId, const String& attribName ) = 0;
-    virtual int getUniformLocation( unsigned programId, const String& attribName ) = 0;
+    virtual void enableVertexAttribiute( unsigned programId, const CUL::StringWr& attribName ) = 0;
+    virtual void disableVertexAttribiute( unsigned programId, const CUL::StringWr& attribName ) = 0;
+    virtual int getAttribLocation( unsigned programId, const CUL::StringWr& attribName ) = 0;
+    virtual int getUniformLocation( unsigned programId, const CUL::StringWr& attribName ) = 0;
     virtual void unbindBuffer( const BufferTypes bufferType ) = 0;
     virtual void bindBuffer( const BufferTypes bufferType, unsigned bufferId ) = 0;
     // virtual void bindBuffer( VertexArray* vao )  = 0;
@@ -327,13 +327,15 @@ public:
 
     virtual std::vector<AttributeInfo> fetchProgramAttributeInfo( std::int32_t inProgramId ) const;
     virtual std::vector<UniformInfo> fetchProgramUniformsInfo( std::int32_t inProgramId ) const;
-    virtual bool fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const CUL::String& name );
+    virtual bool fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const CUL::StringWr& name );
 
     virtual ~IRenderDevice();
 
 protected:
     void log( const String& text, const CUL::LOG::Severity severity = CUL::LOG::Severity::Info ) const;
-    void customAssert( const bool value, const CUL::String& message ) const;
+    void logInfo( const char* msg... );
+    void logVariables( CUL::LOG::Severity severity, const char* msg... );
+    void customAssert( const bool value, const CUL::StringWr& message ) const;
 
     bool m_forceLegacy = false;
     bool m_isEmbeddedSystems = false;

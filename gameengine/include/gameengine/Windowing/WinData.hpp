@@ -18,7 +18,7 @@ public:
     WinSize CurrentRes{ .W = 640u, .H = 480u };
     WinSize NativeRes;
     WinSize WindowRes;
-    CUL::String Name;
+    String Name;
     RenderTypes::RendererType RendererType{ RenderTypes::RendererType::NONE };
 
     WinData();
@@ -32,6 +32,5 @@ public:
 protected:
 private:
     // Deleted:
-
 };
 }  // namespace LOGLW

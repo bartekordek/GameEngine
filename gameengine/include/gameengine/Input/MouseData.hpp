@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gameengine/Import.hpp"
+#include "gameengine/String.hpp"
 
 #include "CUL/ISerializable.hpp"
 #include "CUL/GenericUtils/DumbPtr.hpp"
@@ -58,7 +58,7 @@ public:
 
 protected:
 private:
-    CUL::String getSerializationContent( CUL::CounterType tabsSize, const bool = false ) const override;
+    String getSerializationContent( CUL::CounterType tabsSize, const bool = false ) const override;
 
     std::map<MouseButtonIndex, bool> m_buttonStates;
     int m_x = 0;

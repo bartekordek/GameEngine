@@ -2,6 +2,7 @@
 
 #include "gameengine/Render/IRender.hpp"
 #include "gameengine/Render/RendererTypes.hpp"
+#include "gameengine/String.hpp"
 #include "gameengine/IMPORT_Windows.hpp"
 
 #include "CUL/Graphics/IObjectRegister.hpp"
@@ -50,13 +51,12 @@ using Vector3Du = CUL::MATH::Vector3Du;
 using ColorS = CUL::Graphics::ColorS;
 using ColorE = CUL::Graphics::ColorE;
 using IName = CUL::IName;
-using String = CUL::String;
 
-using TextureMap = std::map<CUL::String, std::unique_ptr<CUL::Graphics::ITexture>>;
+using TextureMap = std::map<String, std::unique_ptr<CUL::Graphics::ITexture>>;
 
 #ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4820 )
+    #pragma warning( push )
+    #pragma warning( disable : 4820 )
 #endif
 
 enum class GLProfileMask : short
@@ -159,7 +159,7 @@ private:
 };
 
 #ifdef _MSC_VER
-#pragma warning( pop )
+    #pragma warning( pop )
 #endif
 
 NAMESPACE_END( LOGLW )

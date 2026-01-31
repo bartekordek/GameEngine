@@ -3,13 +3,12 @@
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "RunOnRenderThread.hpp"
-#include <gameengine/IGameEngine.hpp>
 #include "gameengine/Components/TransformComponent.hpp"
 #include "CUL/Log/ILogger.hpp"
 
 using namespace LOGLW;
 
-IObject::IObject( const CUL::String& name, bool forceLegacy ):
+IObject::IObject( const String& name, bool forceLegacy ):
     IRenderable( true ),
     IName( name ),
     m_forceLegacy( forceLegacy )
@@ -43,7 +42,7 @@ void IObject::createProgram()
     m_shaderProgram = getEngine().createProgram();
 }
 
-void IObject::onNameChange( const CUL::String& newName )
+void IObject::onNameChange( const String& newName )
 {
     CUL::IName::onNameChange( newName );
 
@@ -105,7 +104,7 @@ void IObject::addChild( IObject* child )
 
 IComponent* IObject::getComponent( const String& name ) const
 {
-    const auto nameStr = name.string();
+    const auto nameStr = name.getSTDString();
 
     std::lock_guard<std::mutex> locker( m_componentsMtx );
     const auto it = m_components.find( nameStr );
@@ -131,7 +130,7 @@ std::vector<IComponent*> IObject::getComponents() const
 
 void IObject::addComponent(const String& name, IComponent* component)
 {
-    const auto nameStr = name.string();
+    const auto nameStr = name.getSTDString();
 
     std::lock_guard<std::mutex> locker( m_componentsMtx );
     m_components[nameStr] = component;
@@ -164,7 +163,7 @@ void IObject::setVao( VertexArray* inVao )
 
 IObject::~IObject()
 {
-    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, "IObject::~IObject() [%s]", getName().cStr() );
+    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, "IObject::~IObject() [%s]", getName().getUtfChar() );
 
     {
         std::lock_guard<std::mutex> locker( m_componentsMtx );

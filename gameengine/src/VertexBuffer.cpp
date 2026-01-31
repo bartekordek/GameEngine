@@ -36,7 +36,7 @@ void VertexBuffer::onNameChange( const String& newName )
             {
                 constexpr std::size_t bufferSize{ 1024u };
                 char buffer[bufferSize];
-                snprintf( buffer, bufferSize, "%s/index_buffer", *newName );
+                snprintf( buffer, bufferSize, "%s/index_buffer", *newName.getUtfChar() );
                 getDevice()->setObjectName( EObjectType::BUFFER, m_indexBuffer->getObjID(), buffer );
             }
         } );

@@ -57,7 +57,7 @@ void CSphere::init()
     am.Size = 3;
     am.Type = LOGLW::DataType::FLOAT;
     am.StrideBytes = 3 * sizeof( float );
-    vd.Attributes.push_back(am);
+    vd.Attributes.push_back( am );
 
     CUL::DataWrapper indices;
     indices.createFrom( m_indices );
@@ -65,7 +65,7 @@ void CSphere::init()
     vd.Indices = indices;
     m_verticesVbo = vao->addVertexBuffer( vd );
 
-    CUL::String errorContent;
+    String errorContent;
     ShaderProgram::ShadersData sd;
     sd.FragmentShader = "embedded_shaders/basic_color.frag";
     sd.VertexShader = "embedded_shaders/basic_pos.vert";
@@ -85,7 +85,7 @@ void CSphere::applySizeChange()
 {
     fillIndices();
     fillVerticesNormalsTex();
-    VertexData wd =  m_verticesVbo->getData();
+    VertexData wd = m_verticesVbo->getData();
     wd.Data.createFrom( m_vertices );
     getVao()->bind();
     m_verticesVbo->updateVertexData( wd );
@@ -155,8 +155,8 @@ void CSphere::fillVerticesNormalsTex()
     for( int i = 0; i <= m_stackCount; ++i )
     {
         stackAngle = CUL::Math::PI_F / 2 - i * stackStep;  // starting from pi/2 to -pi/2
-        xy = radius * std::cosf( stackAngle );           // r * cos(u)
-        z = radius * std::sinf( stackAngle );            // r * sin(u)
+        xy = radius * std::cosf( stackAngle );             // r * cos(u)
+        z = radius * std::sinf( stackAngle );              // r * sin(u)
 
         // add (sectorCount+1) vertices per stack
         // first and last vertices have same position and normal, but different tex coords

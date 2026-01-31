@@ -54,13 +54,14 @@ void Cube::setColor( const CUL::Graphics::ColorS& color )
     }
 }
 
-void Cube::setName( const CUL::String& name )
+void Cube::setName( const String& name )
 {
     IObject::setName( name );
     std::uint32_t i{ 0u };
     for( Quad* quad : m_walls )
     {
-        quad->setName( getName() + "::wall_" + String( i++ ) );
+        const String value = String::createFromPrintf( "%s::wall_%d", getName().getUtfChar(), i++ );
+        quad->setName( value );
     }
 }
 
@@ -83,7 +84,7 @@ void Cube::createPlaceHolders()
         //transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, 3.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
-        quad->setName( getName() + "::wall_00" );
+        quad->setName( String::createFromPrintf( "%s::wall_00", getName().getUtfChar() ) );
         quad->setColor( CUL::Graphics::ColorE::GREEN );
         m_walls[0] = quad;
     }
@@ -97,7 +98,7 @@ void Cube::createPlaceHolders()
         transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, -1.f ) );
         transformCmp->setSize( quadSize );
         transformCmp->setPivot( pivot );
-        quad->setName( getName() + "::wall_01" );
+        quad->setName( String::createFromPrintf( "%s::wall_01", getName().getUtfChar() ) );
         quad->setColor( m_color );
         m_walls[1] = quad;
     }
@@ -114,7 +115,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setRotationToParent( rotation );
-        quad->setName( getName() + "::wall_02" );
+        quad->setName( String::createFromPrintf( "%s::wall_02", getName().getUtfChar() ) );
         quad->setColor( m_color );
         m_walls[2] = quad;
     }
@@ -131,7 +132,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setRotationToParent( rotation );
-        quad->setName( getName() + "::wall_03" );
+        quad->setName( String::createFromPrintf( "%s::wall_03", getName().getUtfChar() ) );
         quad->setColor( m_color );
         m_walls[3] = quad;
     }
@@ -148,7 +149,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setRotationToParent( rotation );
-        quad->setName( getName() + "::wall_04" );
+        quad->setName( String::createFromPrintf( "%s::wall_04", getName().getUtfChar() ) );
         quad->setColor( m_color );
         m_walls[4] = quad;
     }
@@ -165,7 +166,7 @@ void Cube::createPlaceHolders()
         CUL::MATH::Rotation rotation;
         rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
         transformCmp->setRotationToParent( rotation );
-        quad->setName( getName() + "::wall_05" );
+        quad->setName( String::createFromPrintf( "%s::wall_05", getName().getUtfChar() ) );
         quad->setColor( m_color );
         m_walls[5] = quad;
     }

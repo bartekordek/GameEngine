@@ -96,7 +96,7 @@ void ShaderProgram::reCompileWholeShader( EExecuteType inEt )
 
 void ShaderProgram::reCompileWholeShaderImpl( EExecuteType inEt )
 {
-    std::vector<CUL::String> shadersPaths( m_shaders.size() );
+    std::vector<String> shadersPaths( m_shaders.size() );
     std::size_t shaderIndex{ 0 };
     for( const auto& [shaderType, shaderUnit] : m_shaders )
     {
@@ -105,7 +105,7 @@ void ShaderProgram::reCompileWholeShaderImpl( EExecuteType inEt )
 
     releaseShaderUnits();
 
-    for( const CUL::String& path : shadersPaths )
+    for( const String& path : shadersPaths )
     {
         compileShader( inEt, path );
     }
@@ -124,11 +124,11 @@ void ShaderProgram::releaseShaderUnits()
 
 void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString )
 {
-    CUL::String errorContent;
+    String errorContent;
     reCompileShader( inEt, shaderPathString, true, errorContent );
 }
 
-void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString, bool assertOnErrors, CUL::String& errorMessage )
+void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString, bool assertOnErrors, String& errorMessage )
 {
     if( inEt == EExecuteType::WaitForCompletion )
     {
@@ -143,7 +143,7 @@ void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPath
         m_tasks.addTask(
             [this, inEt, shaderPathString, assertOnErrors]()
             {
-                CUL::String errorMessage;
+                String errorMessage;
                 reCompileShaderImpl( inEt, shaderPathString, assertOnErrors, errorMessage );
             } );
     }
@@ -157,13 +157,13 @@ void ShaderProgram::reCompileShaderImpl(
     EExecuteType inEt,
     const String& inShaderPathString,
     bool assertOnErrors,
-    CUL::String& errorMessage )
+    String& errorMessage )
 {
     const CUL::FS::Path inShaderPath( inShaderPathString );
     const auto extension = inShaderPath.getExtension();
-    CShaderTypes::ShaderType type = CShaderTypes::getShaderType( extension );
+    CShaderTypes::ShaderType type = CShaderTypes::getShaderType( extension.getValue() );
 
-    std::unordered_map<CShaderTypes::ShaderType, CUL::String> shadersPaths;
+    std::unordered_map<CShaderTypes::ShaderType, String> shadersPaths;
     for( auto& [shaderType, shaderUnit] : m_shaders )
     {
         shadersPaths[shaderType] = shaderUnit->File->getPath();
@@ -183,11 +183,11 @@ void ShaderProgram::reCompileShaderImpl(
 
 void ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath )
 {
-    CUL::String errorContent;
+    String errorContent;
     compileShader( inEt, shaderPath, true, errorContent );
 }
 
-void ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage )
+void ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, String& errorMessage )
 {
     ShaderUnit* su = getDevice()->createShaderUnit( shaderPath, assertOnErrors, errorMessage );
     if( errorMessage.empty() )
@@ -263,8 +263,8 @@ void ShaderProgram::link( EExecuteType inEt )
 
 void ShaderProgram::linkImpl()
 {
-    getDevice()->linkProgram( m_shaderProgramId );
-    getDevice()->useProgram( m_shaderProgramId );
+    getDevice()->linkProgram( (std::int32_t)m_shaderProgramId );
+    getDevice()->useProgram( (std::int32_t)m_shaderProgramId );
     m_linked = true;
     m_uniformMapping.clear();  // Might have changed on link.
 
@@ -277,7 +277,7 @@ void ShaderProgram::linkImpl()
         sv.Size = attribute.Size;
         sv.TypeName = attribute.TypeName;
         sv.Type = attribute.Type;
-        m_attributeMapping[attribute.Name] = sv;
+        m_attributeMapping[attribute.Name.getSTDString()] = sv;
     }
 
     const auto uniforms = getDevice()->fetchProgramUniformsInfo( m_shaderProgramId );
@@ -289,7 +289,7 @@ void ShaderProgram::linkImpl()
         sv.Size = uniform.Size;
         sv.TypeName = uniform.TypeName;
         sv.Type = uniform.Type;
-        m_uniformMapping[uniform.Name] = sv;
+        m_uniformMapping[uniform.Name.getSTDString()] = sv;
     }
 }
 
@@ -342,7 +342,7 @@ void ShaderProgram::setUniform( EExecuteType inEt, const String& inName, Uniform
 
 void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
 {
-    const auto it = m_uniformMapping.find( inName );
+    const auto it = m_uniformMapping.find( inName.getSTDString() );
 
     ShaderVariable* sv{ nullptr };
     if( it == m_uniformMapping.end() )
@@ -369,8 +369,8 @@ void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
             currentSV.Type = ui.Type;
             currentSV.TypeName = ui.TypeName;
             currentSV.Value = inValue;
-            m_uniformMapping[inName] = currentSV;
-            sv = &m_uniformMapping[inName];
+            m_uniformMapping[inName.getSTDString()] = currentSV;
+            sv = &m_uniformMapping[inName.getSTDString()];
         }
     }
     else
@@ -427,19 +427,19 @@ String ShaderProgram::getAttributeStr( const String& name )
 float ShaderProgram::getAttributeF( const String& name )
 {
     const std::int32_t uniformId = getUniformLocation( name );
-    return std::get<float>( m_uniformMapping[name].Value );
+    return std::get<float>( m_uniformMapping[name.getSTDString()].Value );
 }
 
 unsigned int ShaderProgram::getAttributeUi( const String& name )
 {
     const std::int32_t uniformId = getUniformLocation( name );
-    return std::get<std::uint32_t>( m_uniformMapping[name].Value );
+    return std::get<std::uint32_t>( m_uniformMapping[name.getSTDString()].Value );
 }
 
 int ShaderProgram::getAttributeI( const String& name )
 {
     const std::int32_t uniformId = getUniformLocation( name );
-    return std::get<std::int32_t>( m_uniformMapping[name].Value );
+    return std::get<std::int32_t>( m_uniformMapping[name.getSTDString()].Value );
 }
 
 void ShaderProgram::enable()
@@ -484,9 +484,9 @@ EShaderUnitState ShaderProgram::getShaderUnitState( CShaderTypes::ShaderType inT
     return it->second->State;
 }
 
-const ShaderProgram::ShaderVariable& ShaderProgram::getUniformValue( const CUL::String& name )
+const ShaderProgram::ShaderVariable& ShaderProgram::getUniformValue( const String& name )
 {
-    const auto it = m_uniformMapping.find( name );
+    const auto it = m_uniformMapping.find( name.getSTDString() );
     ShaderVariable& result = it->second;
 
     if( result.Applied )
@@ -500,9 +500,9 @@ const ShaderProgram::ShaderVariable& ShaderProgram::getUniformValue( const CUL::
     return result;
 }
 
-std::vector<CUL::String> ShaderProgram::getUniformsNames()
+std::vector<String> ShaderProgram::getUniformsNames()
 {
-    std::vector<CUL::String> result;
+    std::vector<String> result;
 
     for( const auto& uniform : m_uniformMapping )
     {
@@ -560,7 +560,7 @@ std::int32_t ShaderProgram::getUniformLocation( const String& name ) const
 {
     getDevice()->useProgram( m_shaderProgramId );
 
-    const auto it = m_uniformMapping.find( name );
+    const auto it = m_uniformMapping.find( name.getSTDString() );
     if( it == m_uniformMapping.end() )
 
     {

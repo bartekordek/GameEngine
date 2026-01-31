@@ -74,7 +74,7 @@ void Line::createBuffers()
 
 void Line::createShaders()
 {
-    getProgram()->setName( getName() + "/shader_program" );
+    const String name = String::createFromPrintf( "%s/shader_program", getName().getUtfChar() );
     ShaderProgram::ShadersData sd;
     sd.FragmentShader = "embedded_shaders/basic_color.frag";
     sd.VertexShader = "embedded_shaders/basic_pos.vert";

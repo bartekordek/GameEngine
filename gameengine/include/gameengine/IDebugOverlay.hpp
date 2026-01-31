@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gameengine/Import.hpp"
-#include "CUL/String.hpp"
 
 #include "CUL/STL_IMPORTS/STD_functional.hpp"
 

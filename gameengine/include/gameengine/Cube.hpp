@@ -32,7 +32,7 @@ public:
 
     GAME_ENGINE_API void setImage( unsigned wallIndex, const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
-    GAME_ENGINE_API void setName( const CUL::String& name ) override;
+    GAME_ENGINE_API void setName( const String& name ) override;
 
     GAME_ENGINE_API ~Cube();
 

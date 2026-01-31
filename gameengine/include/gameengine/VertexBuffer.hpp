@@ -71,7 +71,7 @@ public:
     VertexBuffer& operator=( VertexBuffer&& value ) = delete;
 
 protected:
-    void onNameChange( const CUL::String& newName ) override;
+    void onNameChange( const String& newName ) override;
 
 private:
     void init();

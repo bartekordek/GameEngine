@@ -53,7 +53,7 @@ public:
     GAME_ENGINE_API ~EditableTexture();
 
 protected:
-    void onNameChange( const CUL::String& newName ) override;
+    void onNameChange( const String& newName ) override;
 
 private:
     void init();

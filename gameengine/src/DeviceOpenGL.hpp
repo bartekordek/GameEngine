@@ -49,15 +49,15 @@ private:
     void lookAt( const std::array<Pos3Dd, 3>& lookAtVec ) override;
     void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up ) override;
 
-    static ShaderTypes getShaderType( const CUL::String& fileExtension );
+    static ShaderTypes getShaderType( const String& fileExtension );
 
-    std::uint32_t createProgram( const CUL::String& name ) override;
+    std::uint32_t createProgram( const String& name ) override;
     void removeProgram( unsigned programId ) override;
     void linkProgram( unsigned programId ) override;
     void validateProgram( std::uint32_t programId ) override;
 
-    ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage ) override;
-    ShaderUnit* createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage ) override;
+    ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, String& errorMessage ) override;
+    ShaderUnit* createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, String& errorMessage ) override;
     void deleteShaderUnit( ShaderUnit* inShaderUnit ) override;
     bool attachShader( unsigned programId, unsigned shaderId ) override;
     void dettachShader( unsigned programId, unsigned shaderId ) override;
@@ -68,7 +68,7 @@ private:
     void setAttribValue( int attributeLocation, int value ) override;
     void setAttribValue( int attributeLocation, unsigned value ) override;
     void setAttribValue( int attributeLocation, bool value ) override;
-    void setAttribValue( int attributeLocation, const CUL::String& value ) override;
+    void setAttribValue( int attributeLocation, const String& value ) override;
 
     UniformValue getUniformValue( std::int32_t inProgramId, std::int32_t inUniformId, DataType inDataType ) override;
 
@@ -204,7 +204,7 @@ private:
     void prepareFrame() override;
     void finishFrame() override;
 
-    void setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::String& name ) override;
+    void setObjectName( EObjectType objectType, std::uint32_t objectId, const String& name ) override;
 
     DeviceOpenGL( const DeviceOpenGL& arg ) = delete;
     DeviceOpenGL( DeviceOpenGL&& arg ) = delete;
@@ -222,8 +222,8 @@ private:
     ShaderUnit* findShader( const CUL::FS::Path& shaderPath ) const;
     std::vector<AttributeInfo> fetchProgramAttributeInfo( std::int32_t inProgramId ) const override;
     std::vector<UniformInfo> fetchProgramUniformsInfo( std::int32_t inProgramId ) const override;
-    bool fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const CUL::String& name ) override;
-    std::unordered_map<String, std::unique_ptr<ShaderUnit>, CUL::StringHash> m_shadersUnits;
+    bool fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const String& name ) override;
+    std::unordered_map<std::string, std::unique_ptr<ShaderUnit>> m_shadersUnits;
     mutable std::mutex m_shadersMtx;
 };
 

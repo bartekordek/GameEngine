@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gameengine/Import.hpp"
+#include "gameengine/String.hpp"
 
 #include "CUL/Graphics/Pos2D.hpp"
 #include "CUL/Graphics/Size2D.hpp"
@@ -31,7 +31,7 @@ public:
 
 protected:
 private:
-    CUL::String getSerializationContent( CUL::CounterType tabsSize, const bool separator = false ) const override;
+    String getSerializationContent( CUL::CounterType tabsSize, const bool separator = false ) const override;
 
     Viewport( const Viewport& rhv ) = delete;
     Viewport( Viewport&& rhv ) = delete;

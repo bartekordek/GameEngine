@@ -4,6 +4,7 @@
 #include "gameengine/IDebugOverlay.hpp"
 #include "gameengine/ITextureFactory.hpp"
 #include "gameengine/Sprite.hpp"
+#include "gameengine/String.hpp"
 #include "gameengine/Viewport.hpp"
 
 #include "gameengine/Events/ISDLEventObserver.hpp"
@@ -119,8 +120,8 @@ private:
     void prepareProjection();
     void setEyePos( const glm::vec3& pos ) override;
     void renderObjects();
-    void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const CUL::String& name );
-    bool drawValues( glm::vec3& inOutValue, const CUL::String& inName );
+    void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const String& name );
+    bool drawValues( glm::vec3& inOutValue, const String& inName );
     void drawSpriteData( Sprite* inSprite );
 
     void release();

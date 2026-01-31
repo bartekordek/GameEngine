@@ -219,7 +219,7 @@ const std::array<UV, 4>& Sprite::getUV() const
 
 void Sprite::createShaders()
 {
-    CUL::String errorContent;
+    String errorContent;
     ShaderProgram::ShadersData sd;
     sd.FragmentShader = "embedded_shaders/camera.frag";
     sd.VertexShader = "embedded_shaders/camera.vert";

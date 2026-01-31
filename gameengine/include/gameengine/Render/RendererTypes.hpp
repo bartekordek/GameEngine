@@ -1,7 +1,6 @@
 #pragma once
 
-#include "gameengine/Import.hpp"
-#include "CUL/String.hpp"
+#include "gameengine/String.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
 
@@ -20,8 +19,8 @@ public:
         DIRECTX_12
     };
 
-    static RendererType convertToEnum( const CUL::String& name );
-    static const CUL::String convertToString( RendererType type );
+    static RendererType convertToEnum( const String& name );
+    static const String convertToString( RendererType type );
 };
 
 NAMESPACE_END( LOGLW )

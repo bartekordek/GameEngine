@@ -14,33 +14,27 @@ using namespace LOGLW;
 static CUL::LOG::ILogger* g_logger = nullptr;
 
 #if _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4800 )
-#endif // #if _MSC_VER
+    #pragma warning( push )
+    #pragma warning( disable : 4800 )
+#endif  // #if _MSC_VER
 const String TextureInfo::toString() const
 {
-    String result;
-
-    result = "textureId: " + String( textureId );
-    result += ", level: " + String( level );
-    result += ", pixelFormat = " + String( (unsigned)pixelFormat );
-    result += ", border = " + String( border );
-    result += ", dataType = " + String( (int)dataType );
-    result += ", data = " + String( (void*)data );
-    result += ", size = " + size.toString();
+    const String result =
+        String::createFromPrintf( "TextueId: %d\nLevel: %d\npixelFormat: %d\nBorder: %d\nDataType: %d\nData: %d\nSize: %s", textureId,
+                                    level, pixelFormat, border, dataType, data, size.toString().getUtfChar() );
 
     return result;
 }
 #if _MSC_VER
-#pragma warning( pop )
-#endif // #if _MSC_VER
+    #pragma warning( pop )
+#endif  // #if _MSC_VER
 
-IRenderDevice::IRenderDevice( bool forceLegacy )
-    : m_forceLegacy( forceLegacy ), m_logger( CUL::CULInterface::getInstance()->getLogger() )
+IRenderDevice::IRenderDevice( bool forceLegacy ):
+    m_forceLegacy( forceLegacy ), m_logger( CUL::CULInterface::getInstance()->getLogger() )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
-        //CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+        // CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
     g_logger = m_logger;
@@ -67,26 +61,54 @@ std::vector<UniformInfo> IRenderDevice::fetchProgramUniformsInfo( std::int32_t i
     return result;
 }
 
-bool IRenderDevice::fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const CUL::String& name )
+bool IRenderDevice::fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const String& name )
 {
     CUL::Assert::check( false, "IRenderDevice::getUniformValue - Method not implemented." );
     return false;
+}
+
+void IRenderDevice::logInfo( const char* msg... )
+{
+    va_list args;
+    va_start( args, msg );
+    char buffer[1024];
+    vsnprintf( buffer, 1024, msg, args );
+    if( !m_lastLog.equals( buffer ) )
+    {
+        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, buffer );
+        m_lastLog = buffer;
+    }
+    va_end( args );
+}
+
+void IRenderDevice::logVariables( CUL::LOG::Severity severity, const char* msg... )
+{
+    va_list args;
+    va_start( args, msg );
+    char buffer[1024];
+    vsnprintf( buffer, 1024, msg, args );
+    if( !m_lastLog.equals( buffer ) )
+    {
+        CUL::LOG::ILogger::getInstance().logVariable( severity, buffer );
+        m_lastLog = buffer;
+    }
+    va_end( args );
 }
 
 void IRenderDevice::log( const String& text, const CUL::LOG::Severity severity ) const
 {
     customAssert( m_logger != nullptr, "Logger utility is uninitialized inside of DeviceOpenGL." );
 
-    if( m_lastLog != text )
+    if( !m_lastLog.equals( text ) )
     {
-        CUL::LOG::ILogger::getInstance().logVariable( severity, *text );
+        CUL::LOG::ILogger::getInstance().logVariable( severity, text.getUtfChar() );
         m_lastLog = text;
     }
 }
 
-void IRenderDevice::customAssert( const bool value, const CUL::String& message ) const
+void IRenderDevice::customAssert( const bool value, const String& message ) const
 {
-    CUL::Assert::simple( value, message );
+    CUL::Assert::simple( value, message.getUtfChar() );
 }
 
 CUL::GUTILS::Version IRenderDevice::getVersion() const
@@ -110,7 +132,7 @@ unsigned int IRenderDevice::generateAndBindBuffer( const BufferTypes /* bufferTy
     return 0u;
 }
 
-void IRenderDevice::setObjectName( EObjectType, std::uint32_t, const CUL::String& )
+void IRenderDevice::setObjectName( EObjectType, std::uint32_t, const CUL::StringWr& )
 {
     throw std::logic_error( "Method not implemented." );
 }
@@ -135,7 +157,7 @@ void IRenderDevice::setAttribValue( int /*attributeLocation*/, bool /*value*/ )
     CUL::Assert::simple( false, "Method not implemented." );
 }
 
-void IRenderDevice::setAttribValue( int /*attributeLocation*/, const CUL::String& /*value*/ )
+void IRenderDevice::setAttribValue( int /*attributeLocation*/, const String& /*value*/ )
 {
     CUL::Assert::simple( false, "Method not implemented." );
 }
@@ -160,7 +182,7 @@ void IRenderDevice::setUniformValue( int /*uniformLocation*/, const glm::vec2& /
     CUL::Assert::simple( false, "Method not implemented." );
 }
 
-unsigned int IRenderDevice::generateElementArrayBuffer( const std::vector<unsigned int>&/* data*/, const int /*size*/ /*= 1 */ )
+unsigned int IRenderDevice::generateElementArrayBuffer( const std::vector<unsigned int>& /* data*/, const int /*size*/ /*= 1 */ )
 {
     throw std::logic_error( "Method not implemented" );
     return 0u;
@@ -191,13 +213,13 @@ unsigned IRenderDevice::getGPUCurrentAvailableMemoryKb()
     return 0u;
 }
 
-ShaderUnit* IRenderDevice::createShaderUnit( const CUL::FS::Path&, bool, CUL::String& )
+ShaderUnit* IRenderDevice::createShaderUnit( const CUL::FS::Path&, bool, String& )
 {
     CUL::Assert::check( false, "IRenderDevice::createShaderUnit: Method not implemented." );
     return nullptr;
 }
 
-ShaderUnit* IRenderDevice::createShaderUnitForce(const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage)
+ShaderUnit* IRenderDevice::createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, String& errorMessage )
 {
     CUL::Assert::check( false, "IRenderDevice::createShaderUnitForce: Method not implemented." );
     return nullptr;
@@ -228,7 +250,7 @@ void IRenderDevice::bufferData( BufferDataId, const std::vector<float>&, const B
     throw std::logic_error( "Method not implemented" );
 }
 
-void IRenderDevice::bufferData( BufferDataId, const CUL::DataWrapper& , const BufferTypes )
+void IRenderDevice::bufferData( BufferDataId, const CUL::DataWrapper&, const BufferTypes )
 {
     throw std::logic_error( "Method not implemented" );
 }
@@ -243,7 +265,7 @@ void IRenderDevice::prepareFrame()
     throw std::logic_error( "Method not implemented" );
 }
 
-std::uint32_t IRenderDevice::createProgram( const CUL::String& name )
+std::uint32_t IRenderDevice::createProgram( const String& name )
 {
     throw std::logic_error( "Method not implemented" );
     return 0u;
@@ -251,7 +273,7 @@ std::uint32_t IRenderDevice::createProgram( const CUL::String& name )
 
 void IRenderDevice::removeProgram( unsigned )
 {
-    throw std::logic_error("Method not implemented");
+    throw std::logic_error( "Method not implemented" );
 }
 
 void IRenderDevice::useProgram( int programId )
@@ -266,7 +288,7 @@ void IRenderDevice::linkProgram( unsigned programId )
 
 void IRenderDevice::validateProgram( std::uint32_t programId )
 {
-    throw std::logic_error("Method not implemented");
+    throw std::logic_error( "Method not implemented" );
 }
 
 int IRenderDevice::getCurrentProgram() const
@@ -306,29 +328,29 @@ void IRenderDevice::setPerspectiveProjection( const Camera& )
     throw std::logic_error( "Method not implemented" );
 }
 
-void IRenderDevice::lookAt(const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up)
+void IRenderDevice::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up )
 {
-    throw std::logic_error("Method not implemented");
+    throw std::logic_error( "Method not implemented" );
 }
 
-void IRenderDevice::lookAt(const std::array<Pos3Dd, 3>& lookAtVec)
+void IRenderDevice::lookAt( const std::array<Pos3Dd, 3>& lookAtVec )
 {
-    throw std::logic_error("Method not implemented");
+    throw std::logic_error( "Method not implemented" );
 }
 
-void IRenderDevice::lookAt(const Camera& vp)
+void IRenderDevice::lookAt( const Camera& vp )
 {
-    throw std::logic_error("Method not implemented");
+    throw std::logic_error( "Method not implemented" );
 }
 
-void IRenderDevice::setTextureData(std::uint32_t, const TextureInfo& )
+void IRenderDevice::setTextureData( std::uint32_t, const TextureInfo& )
 {
-    throw std::logic_error("Method not implemented");
+    throw std::logic_error( "Method not implemented" );
 }
 
-void IRenderDevice::freeTexture(std::uint32_t textureId)
+void IRenderDevice::freeTexture( std::uint32_t textureId )
 {
-    throw std::logic_error("Method not implemented");
+    throw std::logic_error( "Method not implemented" );
 }
 
 void IRenderDevice::drawElements( const PrimitiveType, const CUL::DataWrapper& )
@@ -350,4 +372,3 @@ void IRenderDevice::createQuad( float scale )
 IRenderDevice::~IRenderDevice()
 {
 }
-

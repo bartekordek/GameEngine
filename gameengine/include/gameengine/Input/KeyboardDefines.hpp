@@ -1,11 +1,10 @@
 #pragma once
 
-#include "gameengine/Import.hpp"
 
-#include "CUL/String.hpp"
+#include "gameengine/String.hpp"
 
 #include "CUL/STL_IMPORTS/STD_map.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
-using KeyboardState = std::map<CUL::String, bool>;
+using KeyboardState = std::map<String, bool>;
 NAMESPACE_END( LOGLW )

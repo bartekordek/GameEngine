@@ -1,14 +1,14 @@
 #pragma once
 
 #include "gameengine/Import.hpp"
-#include <CUL/String.hpp>
+#include <CUL/String/StringWrapper.hpp>
 
 NAMESPACE_BEGIN( LOGLW )
 class GAME_ENGINE_API IComponent
 {
 public:
     IComponent();
-    virtual const CUL::String& getName() const = 0;
+    virtual const CUL::StringWr& getName() const = 0;
 
 #if !CUL_SHIPPING_BUILD
     virtual void drawDebug() = 0;

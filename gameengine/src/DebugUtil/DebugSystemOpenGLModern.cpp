@@ -1,5 +1,5 @@
 #include "DebugUtil/DebugSystemOpenGLModern.hpp"
-
+#include "gameengine/UI/ImGuiHelper.hpp"
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 #include "DebugUtil/DebugSystemParams.hpp"
 #include "CUL/Proifling/Profiler.hpp"
@@ -21,12 +21,7 @@ void DebugSystemOpenGLModern::init( const DebugSystemParams& params )
     m_params = std::make_unique<DebugSystemParams>();
     *m_params = params;
 
-    IMGUI_CHECKVERSION();
-    m_imguiContext = ImGui::CreateContext();
-    ImGui::StyleColorsDark();
-    ImGui_ImplSDL2_InitForOpenGL( params.SDLWindow, params.SDL_GL_Context );
-
-    ImGui_ImplOpenGL3_Init();
+    CImguiHelper::getInstance().initOpenGL( params.SDLWindow, params.SDL_GL_Context );
     m_initialized = true;
 }
 

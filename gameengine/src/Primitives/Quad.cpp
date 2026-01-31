@@ -141,7 +141,7 @@ void Quad::setSize( const glm::vec3& size )
 
 void Quad::createShaders()
 {
-    CUL::String errorContent;
+    String errorContent;
     ShaderProgram::ShadersData sd;
     sd.FragmentShader = "embedded_shaders/basic_color.frag";
     sd.VertexShader = "embedded_shaders/basic_pos.vert";
