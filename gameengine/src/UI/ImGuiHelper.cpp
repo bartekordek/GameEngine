@@ -40,6 +40,7 @@ void CImguiHelper::initOpenGL( SDL_Window* inWindow, void* inGLContext )
 
 void CImguiHelper::buildFontAtlasses()
 {
+#if defined(CUL_WINDOWS)
     ImGuiIO& io = ImGui::GetIO();
 
     ImFontConfig cfg;
@@ -47,6 +48,8 @@ void CImguiHelper::buildFontAtlasses()
     cfg.OversampleV = 2;
 
     static const ImWchar ranges[] = {
+        0x0020, 0x00FF,  // Basic Latin + Latin-1 Supplement
+        0x0100, 0x017F,  // Latin Extended-A (Polish lives here)
         0x0020, 0x00FF,  // Latin
         0x3040, 0x309F,  // Hiragana
         0x30A0, 0x30FF,  // Katakana
@@ -54,7 +57,8 @@ void CImguiHelper::buildFontAtlasses()
         0,
     };
 
-    io.Fonts->AddFontFromFileTTF( "C:/Windows/Fonts/yugothm.ttc", 16.0f, &cfg, ranges );
+    io.Fonts->AddFontFromFileTTF( "C:/Windows/Fonts/Arial.ttf", 16.0f, &cfg, ranges );
+#endif  // #if CUL_WINDOWS
 }
 
 CImguiHelper::~CImguiHelper()
