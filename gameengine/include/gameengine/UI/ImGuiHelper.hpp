@@ -15,8 +15,10 @@ class CImguiHelper
 {
 public:
     GAME_ENGINE_API static CImguiHelper& getInstance();
+#if defined( CUL_WINDOWS )
     GAME_ENGINE_API void initDX12( SDL_Window* inWindow, std::int32_t inFrameCount, ID3D12Device* inDevice,
                                    ID3D12DescriptorHeap* inDescriptorHeap );
+#endif  // #if defined(CUL_WINDOWS)
     GAME_ENGINE_API void initOpenGL( SDL_Window* inWindow, void* inGLContext );
     GAME_ENGINE_API ImGuiContext* getContext() const;
 

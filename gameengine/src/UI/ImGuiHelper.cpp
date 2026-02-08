@@ -13,6 +13,7 @@ CImguiHelper::CImguiHelper()
 {
 }
 
+#if defined( CUL_WINDOWS )
 void CImguiHelper::initDX12( SDL_Window* inWindow, std::int32_t inFrameCount, ID3D12Device* inDevice,
                              ID3D12DescriptorHeap* inDescriptorHeap )
 {
@@ -25,6 +26,7 @@ void CImguiHelper::initDX12( SDL_Window* inWindow, std::int32_t inFrameCount, ID
                          inDescriptorHeap->GetCPUDescriptorHandleForHeapStart(), inDescriptorHeap->GetGPUDescriptorHandleForHeapStart() );
     buildFontAtlasses();
 }
+#endif  // #if defined(CUL_WINDOWS)
 
 void CImguiHelper::initOpenGL( SDL_Window* inWindow, void* inGLContext )
 {
@@ -40,7 +42,6 @@ void CImguiHelper::initOpenGL( SDL_Window* inWindow, void* inGLContext )
 
 void CImguiHelper::buildFontAtlasses()
 {
-#if defined(CUL_WINDOWS)
     ImGuiIO& io = ImGui::GetIO();
 
     ImFontConfig cfg;
@@ -57,7 +58,10 @@ void CImguiHelper::buildFontAtlasses()
         0,
     };
 
+#if defined( CUL_WINDOWS )
     io.Fonts->AddFontFromFileTTF( "C:/Windows/Fonts/Arial.ttf", 16.0f, &cfg, ranges );
+#else   // #if defined( CUL_WINDOWS )
+    io.Fonts->AddFontFromFileTTF( "Media/OpenSans-Regular.ttf", 16.0f, &cfg, ranges );
 #endif  // #if CUL_WINDOWS
 }
 

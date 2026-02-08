@@ -10,10 +10,9 @@ IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width, unsigned height
                                 bool legacy )
 {
     LOGLW::WinData windowData;
-    windowData.Name = "Test";
+    windowData.Name = winName;
     windowData.Pos = { x, y };
     windowData.CurrentRes = { (std::uint16_t)width, (std::uint16_t)height };
-    windowData.Name = winName;
 
     init( windowData, fullscreen, configPath, legacy );
 }
