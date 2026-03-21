@@ -12,6 +12,7 @@
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Sprite.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
+#include "gameengine/Shaders/ShaderState.hpp"
 #include "gameengine/VertexArray.hpp"
 
 #include "gameengine/Windowing/IWindow.hpp"
@@ -35,17 +36,16 @@ CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 
 struct EditorState
 {
-    CUL::String Name;
+    String Name;
     TextEditor Editor;
-    CUL::String Extension;
+    String Extension;
     std::unique_ptr<CUL::FS::RegularFile> File;
-    CUL::String CachedText;
+    String CachedText;
     EShaderUnitState ShaderUnitState{ EShaderUnitState::Empty };
 };
 
 ShaderEditor::ShaderEditor( const LOGLW::WinSize& inWinSize, const LOGLW::WinPos& inWinPos ):
-    m_winSize( inWinSize ),
-    m_winPos( inWinPos )
+    m_winSize( inWinSize ), m_winPos( inWinPos )
 {
 }
 
@@ -130,13 +130,13 @@ void ShaderEditor::afterInit()
     pixelShader->Extension = "frag";
     pixelShader->Name = "pixel_shader";
     pixelShader->Editor.SetReadOnly( true );
-    m_editors.insert( { pixelShader->Name.string(), std::move( pixelShader ) } );
+    m_editors.insert( { pixelShader->Name.getSTDString(), std::move( pixelShader ) } );
 
     std::unique_ptr<EditorState> vertexShader = std::make_unique<EditorState>();
     vertexShader->Extension = "vert";
     vertexShader->Name = "vertex_shader";
     vertexShader->Editor.SetReadOnly( true );
-    m_editors.insert( { vertexShader->Name.string(), std::move( vertexShader ) } );
+    m_editors.insert( { vertexShader->Name.getSTDString(), std::move( vertexShader ) } );
 
     for( auto& [currentName, currentPtr] : m_editors )
     {
@@ -206,8 +206,8 @@ void ShaderEditor::guiIteration( float x, float y )
 
 void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
 {
-    const static CUL::String name = "Left";
-    ImGui::Begin( name.cStr(), nullptr,
+    const static String name = "Left";
+    ImGui::Begin( *name, nullptr,
                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
 
     auto winSize = m_engine->getMainWindow()->getSize();
@@ -254,11 +254,11 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
     {
         if( ImGui::TreeNode( "Uniforms" ) )
         {
-            const std::vector<CUL::String> uniformNames = m_vao->getProgram()->getUniformsNames();
-            for( const CUL::String& uniformName : uniformNames )
+            const std::vector<String> uniformNames = m_vao->getProgram()->getUniformsNames();
+            for( const String& uniformName : uniformNames )
             {
                 const auto& uniformVal = m_vao->getProgram()->getUniformValue( uniformName );
-                ImGui::Text( "ID: %d, Name: %s, Type: %s", uniformVal.Id, uniformVal.Name.cStr(), uniformVal.TypeName.cStr() );
+                ImGui::Text( "ID: %d, Name: %s, Type: %s", uniformVal.Id, *uniformVal.Name, *uniformVal.TypeName );
                 if( uniformVal.Type == LOGLW::DataType::FLOAT )
                 {
                     ImGui::SameLine();
@@ -305,8 +305,8 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
 
 void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
 {
-    const static CUL::String name = "Right";
-    ImGui::Begin( name.cStr(), nullptr,
+    const static String name = "Right";
+    ImGui::Begin( *name, nullptr,
                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
 
     auto winSize = m_engine->getMainWindow()->getSize();
@@ -372,12 +372,12 @@ void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
     ImGui::End();
 }
 
-void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::String& name )
+void ShaderEditor::drawEditor( float x, float y, float w, float h, const String& name )
 {
     (void)x;
     (void)y;
 
-    EditorState& editorState = *m_editors[name.string()];
+    EditorState& editorState = *m_editors[name.getSTDString()];
 
     ImGuiWindowFlags window_flags{ 0 };
     window_flags |= ImGuiWindowFlags_NoTitleBar;
@@ -387,9 +387,9 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
     if( ImGui::Button( "Press to find file." ) )
     {
         CUL::FS::PathDialog::Filter filter;
-        filter.Name = editorState.Name;
-        filter.Spec = editorState.Extension;
-        const CUL::String choosenShader = CUL::FS::PathDialog::getInstance().openDialog( filter );
+        filter.Name = *editorState.Name;
+        filter.Spec = *editorState.Extension;
+        const CUL::StringWr choosenShader = CUL::FS::PathDialog::getInstance().openDialog( filter ).getString();
         if( choosenShader.empty() == false )
         {
             editorState.Editor.SetReadOnly( true );
@@ -398,10 +398,9 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
             editorState.File->loadBackground( true, true,
                                               [&editorState, this]()
                                               {
-                                                  editorState.CachedText = editorState.File->getAsOneString().string();
-                                                  editorState.CachedText.removeTrailingLineEnd();
+                                                  editorState.CachedText = editorState.File->getAsOneString().getValue();
                                                   editorState.Editor.SetReadOnly( false );
-                                                  editorState.Editor.SetText( editorState.CachedText.string() );
+                                                  editorState.Editor.SetText( editorState.CachedText.getSTDString() );
                                                   editorState.ShaderUnitState = EShaderUnitState::Loaded;
                                               } );
         }
@@ -415,8 +414,8 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
     }
     else
     {
-        const CUL::String filePath = editorState.File->getPath().getPath();
-        const char* tempChar = filePath.cStr();
+        const String filePath = editorState.File->getPath().getPath();
+        const char* tempChar = *filePath;
         ImGui::Text( "%s", tempChar );
     }
 
@@ -428,7 +427,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
 
     ImGui::SameLine();
 
-    static CUL::String compilerError;
+    static String compilerError;
     if( ImGui::Button( "Compile" ) )
     {
         if( editorState.File )
@@ -436,15 +435,15 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
             editorState.File->overwriteContents( editorState.CachedText );
             editorState.File->saveFile();
 
-            m_vao->getProgram()->reCompileShader( LOGLW::EExecuteType::Now, editorState.File->getPath(), false, compilerError );
-            if( compilerError.empty() )
+            auto result = m_vao->getProgram()->reCompileShader( LOGLW::EExecuteType::Now, editorState.File->getPath(), false );
+            if( result.State == LOGLW::EShaderUnitState::Error )
             {
-                editorState.ShaderUnitState = EShaderUnitState::Compiled;
-                compilerError.clear();
+                editorState.ShaderUnitState = EShaderUnitState::Error;
+                compilerError = result.ErrorInfo;
             }
             else
             {
-                editorState.ShaderUnitState = EShaderUnitState::Error;
+                editorState.ShaderUnitState = EShaderUnitState::Compiled;
             }
         }
     }
@@ -455,7 +454,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
     ImVec4 color;
     color.w = 0.5f;
     const float colorAmp = 1.0f;
-    CUL::String status;
+    String status;
 
     if( editorState.ShaderUnitState == EShaderUnitState::Empty )
     {
@@ -481,23 +480,15 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
     ImGui::PushStyleColor( ImGuiCol_Button, color );
     ImGui::PushStyleColor( ImGuiCol_ButtonHovered, color );
     ImGui::PushStyleColor( ImGuiCol_ButtonActive, color );
-    ImGui::Button( status.cStr() );
+    ImGui::Button( *status );
     ImGui::PopStyleColor( 3 );
 
     if( editorState.CachedText.empty() == false )
     {
-        CUL::String editorText = editorState.Editor.GetText();
-        editorText.removeTrailingLineEnd();
+        String editorText = editorState.Editor.GetText();
+        editorText.trim( CUL::TrimType::End );
         if( editorText != editorState.CachedText )
         {
-            m_engine->getLoger()->log( "editorText:" );
-            m_engine->getLoger()->log( editorText );
-            m_engine->getLoger()->log( "--------" );
-
-            m_engine->getLoger()->log( "editorState.CachedText:" );
-            m_engine->getLoger()->log( editorState.CachedText );
-            m_engine->getLoger()->log( "--------" );
-
             editorState.CachedText = editorText;
         }
     }
@@ -517,11 +508,11 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const CUL::St
         program->setUniform( LOGLW::EExecuteType::Now, "model", model );
     }
 
-    editorState.Editor.Render( name.cStr(), ImVec2( w, h ) );
+    editorState.Editor.Render( *name, ImVec2( w, h ) );
 
     if( editorState.ShaderUnitState == EShaderUnitState::Error )
     {
-        ImGui::TextWrapped( "%s", compilerError.cStr() );
+        ImGui::TextWrapped( "%s", *compilerError );
     }
 }
 

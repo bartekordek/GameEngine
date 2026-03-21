@@ -70,11 +70,11 @@ public:
     void unbind();
     void release();
 
-    void setName( const CUL::String& name ) override;
+    void setName( const CUL::StringWr& name ) override;
 
     ~VertexArray();
 protected:
-    void onNameChange( const CUL::String& newName ) override;
+    void onNameChange( const CUL::StringWr& newName ) override;
 
 private:
     enum class TaskType : short

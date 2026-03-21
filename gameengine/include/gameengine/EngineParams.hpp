@@ -11,7 +11,7 @@ struct GAME_ENGINE_API EngineParams
 {
     bool legacy = false;
     WinData WinDataVal;
-    CUL::String ConfigPath;
+    String ConfigPath;
 };
 
 NAMESPACE_END( LOGLW )

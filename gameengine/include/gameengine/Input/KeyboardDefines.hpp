@@ -2,10 +2,10 @@
 
 #include "gameengine/Import.hpp"
 
-#include "CUL/String.hpp"
+#include <CUL/String/StringWrapper.hpp>
 
 #include "CUL/STL_IMPORTS/STD_map.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
-using KeyboardState = std::map<CUL::String, bool>;
+using KeyboardState = std::map<CUL::StringWr, bool>;
 NAMESPACE_END( LOGLW )

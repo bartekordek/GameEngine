@@ -65,7 +65,7 @@ private:
     void setAttribValue( int attributeLocation, int value ) override;
     void setAttribValue( int attributeLocation, unsigned value ) override;
     void setAttribValue( int attributeLocation, bool value ) override;
-    void setAttribValue( int attributeLocation, const CUL::String& value ) override;
+    void setAttribValue( int attributeLocation, const String& value ) override;
     void setUniformValue( int uniformLocation, float value ) override;
     void setUniformValue( int uniformLocation, const glm::vec2& val ) override;
     void setUniformValue( int uniformLocation, const glm::vec3& val ) override;

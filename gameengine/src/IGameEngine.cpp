@@ -20,6 +20,7 @@
 
 #include "gameengine/ISDL2Wrapper.hpp"
 #include "Render/TextureFrameBufferOpenGL.hpp"
+#include "CUL/GenericUtils/ConsoleUtilities.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/Log/ILogger.hpp"
@@ -42,6 +43,10 @@ IGameEngine* IGameEngine::createGameEngine( const EngineParams& engineParam )
 {
     LOGLW::WinData windowData;
     windowData = engineParam.WinDataVal;
+
+    auto& cu = CUL::GUTILS::ConsoleUtilities::getInstance();
+
+    windowData.Resizable = cu.getDoesFlagExist( "-resizable" );
 
     auto sdlWrap = LOGLW::ISDL2Wrapper::createSDL2Wrapper();
     sdlWrap->init( windowData, engineParam.ConfigPath );
@@ -157,7 +162,7 @@ bool IGameEngine::getDrawDebugInfo()
     return m_drawDebugInfo;
 }
 
-VertexArray* IGameEngine::createVAO( const CUL::String& name )
+VertexArray* IGameEngine::createVAO( const String& name )
 {
     auto result = new VertexArray();
     if( name.empty() == false )
@@ -318,23 +323,23 @@ void IGameEngine::setGuiContext( ImGuiContext* const inContext )
 
 ShaderProgram* IGameEngine::createShader( const String& /*path*/, const String& /*source*/ )
 {
-    //ShaderProgram* result = findShader( path );
+    // ShaderProgram* result = findShader( path );
 
-    //if( result )
+    // if( result )
     //{
-    //    return result;
-    //}
+    //     return result;
+    // }
 
-    //auto shaderFile = getCul()->getFF()->createRegularFileRawPtr( path );
-    //if( !source.empty() )
+    // auto shaderFile = getCul()->getFF()->createRegularFileRawPtr( path );
+    // if( !source.empty() )
     //{
-    //    shaderFile->loadFromString( source );
-    //}
+    //     shaderFile->loadFromString( source );
+    // }
 
-    //throw std::logic_error( "Method not implemented" );
+    // throw std::logic_error( "Method not implemented" );
     //// result = new ShaderProgram( *this, shaderFile );
-    //m_shaders[path] = result;
-    //return result;
+    // m_shaders[path] = result;
+    // return result;
     CUL::Assert::check( false, "Method not implemented" );
     return nullptr;
 }

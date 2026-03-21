@@ -17,7 +17,7 @@ namespace CUL::Graphics
 class IImage;
 class IImageLoader;
 class ImageInfo;
-}
+}  // namespace CUL::Graphics
 
 NAMESPACE_BEGIN( LOGLW )
 
@@ -53,7 +53,7 @@ public:
     GAME_ENGINE_API ~Sprite();
 
 protected:
-    void onNameChange( const CUL::String& newName ) override;
+    void onNameChange( const String& newName ) override;
 
 private:
     void render() override;
@@ -66,9 +66,8 @@ private:
     void updateBuffers_impl();
     void setSize( const glm::vec3& size );
 
-
     std::int32_t m_textureId{ 0 };
-    std::array<std::array<float,8>, 4> m_vertexData;
+    std::array<std::array<float, 8>, 4> m_vertexData;
 
     std::array<UV, 4> m_uvList;
     glm::mat4 m_model;

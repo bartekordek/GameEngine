@@ -4,7 +4,7 @@
 
 int main( int argc, char** argv )
 {
-    CUL::GUTILS::ConsoleUtilities cu;
+    auto& cu = CUL::GUTILS::ConsoleUtilities::getInstance();
     cu.setArgs( argc, argv );
 
     std::uint16_t width = 1280u;

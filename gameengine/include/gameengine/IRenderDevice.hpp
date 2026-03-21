@@ -50,7 +50,6 @@ struct ShaderUnit;
 struct VertexData;
 
 using Angle = CUL::MATH::Angle;
-using String = CUL::String;
 using ColorS = CUL::Graphics::ColorS;
 using ColorE = CUL::Graphics::ColorE;
 using Pos3Dd = CUL::Graphics::Pos3Dd;
@@ -82,7 +81,7 @@ struct GAME_ENGINE_API ContextInfo
 struct GAME_ENGINE_API ShaderParameterInfo
 {
     std::int32_t ID{ -1 };
-    CUL::String Name;
+    String Name;
     DataType Type{ DataType::NONE };
     String TypeName;
     std::int32_t Size{ 0 };
@@ -179,17 +178,17 @@ public:
     virtual void lookAt( const std::array<Pos3Dd, 3>& lookAtVec );
     virtual void lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd& up );
 
-    virtual ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
-    virtual ShaderUnit* createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, CUL::String& errorMessage );
+    virtual ShaderUnit* createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, String& errorMessage );
+    virtual ShaderUnit* createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, String& errorMessage );
     virtual void deleteShaderUnit( ShaderUnit* inShaderUnit );
 
     // General
-    virtual void setObjectName( EObjectType objectType, std::uint32_t objectId, const CUL::String& name );
+    virtual void setObjectName( EObjectType objectType, std::uint32_t objectId, const String& name );
 
     virtual void prepareFrame();
     virtual void finishFrame() = 0;
 
-    virtual std::uint32_t createProgram( const CUL::String& name );
+    virtual std::uint32_t createProgram( const String& name );
     virtual void removeProgram( unsigned programId );
     virtual void useProgram( int programId );
     virtual void linkProgram( unsigned programId );
@@ -206,7 +205,7 @@ public:
     virtual void setAttribValue( int attributeLocation, int value );
     virtual void setAttribValue( int attributeLocation, unsigned value );
     virtual void setAttribValue( int attributeLocation, bool value );
-    virtual void setAttribValue( int attributeLocation, const CUL::String& value );
+    virtual void setAttribValue( int attributeLocation, const String& value );
 
     virtual void setUniformValue( int uniformLocation, float value );
     virtual void setUniformValue( int uniformLocation, std::int32_t value );
@@ -327,13 +326,13 @@ public:
 
     virtual std::vector<AttributeInfo> fetchProgramAttributeInfo( std::int32_t inProgramId ) const;
     virtual std::vector<UniformInfo> fetchProgramUniformsInfo( std::int32_t inProgramId ) const;
-    virtual bool fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const CUL::String& name );
+    virtual bool fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const String& name );
 
     virtual ~IRenderDevice();
 
 protected:
     void log( const String& text, const CUL::LOG::Severity severity = CUL::LOG::Severity::Info ) const;
-    void customAssert( const bool value, const CUL::String& message ) const;
+    void customAssert( const bool value, const String& message ) const;
 
     bool m_forceLegacy = false;
     bool m_isEmbeddedSystems = false;

@@ -9,7 +9,7 @@
 
 #include "CUL/GenericUtils/IConfigFile.hpp"
 #include "CUL/Graphics/ITexture.hpp"
-#include "CUL/String.hpp"
+#include "CUL/String/StringWrapper.hpp"
 
 #include "CUL/STL_IMPORTS/STD_map.hpp"
 #include "CUL/STL_IMPORTS/STD_functional.hpp"

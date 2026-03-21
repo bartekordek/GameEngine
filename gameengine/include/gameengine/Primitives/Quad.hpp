@@ -30,7 +30,7 @@ public:
     GAME_ENGINE_API ~Quad();
 
 protected:
-    void onNameChange( const CUL::String& newName ) override;
+    void onNameChange( const String& newName ) override;
 
 private:
     void render() override;

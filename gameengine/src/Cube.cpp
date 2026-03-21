@@ -54,13 +54,14 @@ void Cube::setColor( const CUL::Graphics::ColorS& color )
     }
 }
 
-void Cube::setName( const CUL::String& name )
+void Cube::setName( const CUL::StringWr& name )
 {
     IObject::setName( name );
     std::uint32_t i{ 0u };
     for( Quad* quad : m_walls )
     {
-        quad->setName( getName() + "::wall_" + String( i++ ) );
+        const char* currentName = getName().getUtfChar();
+        const auto name = String::createFromPrintf( "%s::wall_%d", currentName, i++ );
     }
 }
 

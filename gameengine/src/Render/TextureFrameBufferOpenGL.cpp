@@ -8,9 +8,7 @@
 namespace LOGLW
 {
 TextureFrameBufferOpenGL::TextureFrameBufferOpenGL( IRenderDevice& inRd, std::int32_t inWidth, std::int32_t inHeight ):
-    m_engine( *IGameEngine::getInstance() ),
-    m_renderDevice( inRd ),
-    m_size( inWidth, inHeight )
+    m_engine( *IGameEngine::getInstance() ), m_renderDevice( inRd ), m_size( inWidth, inHeight )
 {
     glGenFramebuffers( 1, &m_framebufferColor );
     glBindFramebuffer( GL_FRAMEBUFFER, m_framebufferColor );
@@ -20,13 +18,13 @@ TextureFrameBufferOpenGL::TextureFrameBufferOpenGL( IRenderDevice& inRd, std::in
     m_renderDevice.setObjectName( EObjectType::TEXTURE, m_textureColor, "Main Frame Buffer Texture" );
     m_renderDevice.bindTexture( m_textureColor );
 
-    const std::size_t pixelCount{ static_cast<std::size_t>(inWidth * inHeight) };
+    const std::size_t pixelCount{ static_cast<std::size_t>( inWidth * inHeight ) };
     m_fboData.resize( pixelCount );
     std::memset( m_fboData.data(), 0u, pixelCount );
 
     m_ti.size = m_size;
     m_ti.textureId = m_textureColor;
-    //m_ti.data = m_fboData.data();
+    // m_ti.data = m_fboData.data();
     m_ti.pixelFormat = CUL::Graphics::PixelFormat::RGB;
     m_renderDevice.setTextureData( m_textureColor, m_ti );
 
@@ -41,14 +39,14 @@ TextureFrameBufferOpenGL::TextureFrameBufferOpenGL( IRenderDevice& inRd, std::in
     glBindRenderbuffer( GL_RENDERBUFFER, m_framebufferDepthStencil );
     glRenderbufferStorage( GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_size.width, m_size.height );
     glFramebufferRenderbuffer( GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_framebufferDepthStencil );
-                  // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
+    // now that we actually created the framebuffer and added all attachments we want to check if it is actually complete now
     if( glCheckFramebufferStatus( GL_FRAMEBUFFER ) != GL_FRAMEBUFFER_COMPLETE )
     {
-        CUL::Assert::check(false, "ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+        CUL::Assert::check( false, "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" );
     }
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
-    CUL::String errorContent;
+    String errorContent;
     ShaderProgram::ShadersData sd;
     sd.FragmentShader = "embedded_shaders/fbo.frag";
     sd.VertexShader = "embedded_shaders/fbo.vert";
@@ -60,13 +58,8 @@ TextureFrameBufferOpenGL::TextureFrameBufferOpenGL( IRenderDevice& inRd, std::in
     m_vao->toggleRenderOnMyOwn( false );
 
     const float tr{ 0.5f };
-    std::vector<float> quadVertices = { 
-        -tr, tr, 0.0f, 1.0f,
-        -tr,-tr, 0.0f, 0.0f,
-         tr,-tr, 1.0f, 0.0f,
-         tr, tr, 1.0f, 1.0f,
-        -tr, tr, 0.0f, 1.0f,
-         tr,-tr, 1.0f, 0.0f };
+    std::vector<float> quadVertices = { -tr, tr, 0.0f, 1.0f, -tr, -tr, 0.0f, 0.0f, tr, -tr, 1.0f, 0.0f,
+                                        tr,  tr, 1.0f, 1.0f, -tr, tr,  0.0f, 1.0f, tr, -tr, 1.0f, 0.0f };
 
     m_vboData.Data.createFrom( quadVertices );
 
@@ -75,7 +68,7 @@ TextureFrameBufferOpenGL::TextureFrameBufferOpenGL( IRenderDevice& inRd, std::in
     am.Index = 0;
     am.Size = 2;
     am.Type = LOGLW::DataType::FLOAT;
-    am.StrideBytes = sizeof(float) * 4u;
+    am.StrideBytes = sizeof( float ) * 4u;
     m_vboData.Attributes.emplace_back( am );
 
     am.Name = "aTexCoords";

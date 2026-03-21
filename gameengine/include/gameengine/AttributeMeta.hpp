@@ -1,7 +1,8 @@
 #pragma once
 
 #include "gameengine/BasicTypes.hpp"
-#include "CUL/String.hpp"
+#include "gameengine/Defines.hpp"
+#include "CUL/String/StringWrapper.hpp"
 #include "CUL/Memory/DataWrapper.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
 
@@ -11,7 +12,7 @@ class VertexArray;
 
 struct AttributeMeta
 {
-    CUL::String Name;
+    String Name;
     std::int32_t Index = 0;
     std::int32_t Size = 0;
     DataType Type = DataType::NONE;
@@ -21,16 +22,15 @@ struct AttributeMeta
 
     AttributeMeta() = default;
 
-    AttributeMeta( const CUL::String& inName, std::int32_t inIndex, std::int32_t inSize, DataType inType, bool inNormalized,
-                   std::int32_t inStrideBytes,
-                   void* inDataOffset )
-        : Name( inName ),
-          Index( inIndex ),
-          Size( inSize ),
-          Type( inType ),
-          Normalized( inNormalized ),
-          StrideBytes( inStrideBytes ),
-          DataOffset( inDataOffset )
+    AttributeMeta( const String& inName, std::int32_t inIndex, std::int32_t inSize, DataType inType, bool inNormalized,
+                   std::int32_t inStrideBytes, void* inDataOffset ):
+        Name( inName ),
+        Index( inIndex ),
+        Size( inSize ),
+        Type( inType ),
+        Normalized( inNormalized ),
+        StrideBytes( inStrideBytes ),
+        DataOffset( inDataOffset )
     {
     }
 };

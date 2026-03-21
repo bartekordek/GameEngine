@@ -37,6 +37,8 @@ class ISDL2Wrapper;
 class IWindow;
 NAMESPACE_END( LOGLW )
 
+using String = LOGLW::String;
+
 class Game final: public LOGLW::IMouseObserver, public LOGLW::IKeyboardObserver
 {
 public:

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "gameengine/Import.hpp"
-#include "CUL/String.hpp"
+#include "gameengine/Defines.hpp"
+#include "CUL/String/StringWrapper.hpp"
 
 #include "CUL/STL_IMPORTS/STD_cstdint.hpp"
 
@@ -18,8 +18,7 @@ public:
         Geometry
     };
 
-    static ShaderType getShaderType( const CUL::String& extension );
+    static ShaderType getShaderType( const String& extension );
 };
-
 
 NAMESPACE_END( LOGLW )

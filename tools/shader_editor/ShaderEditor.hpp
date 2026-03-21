@@ -55,6 +55,8 @@ enum class EShaderUnitState : std::uint8_t
     Error
 };
 
+using String = LOGLW::String;
+
 class ShaderEditor final: public LOGLW::IMouseObserver, public LOGLW::IKeyboardObserver
 {
 public:
@@ -75,7 +77,7 @@ private:
     void guiIteration( float x, float y );
     void drawLeftWindow( float x, float y );
     void drawRightWindow( float x, float y );
-    void drawEditor( float x, float y, float w, float h, const CUL::String& name );
+    void drawEditor( float x, float y, float w, float h, const String& name );
 
     LOGLW::IGameEngine* m_engine{ nullptr };
     LOGLW::IWindow* m_mainWindow{ nullptr };

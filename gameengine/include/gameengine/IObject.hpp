@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gameengine/IRenderable.hpp"
+#include "gameengine/Defines.hpp"
 
 #include "CUL/Filesystem/IFile.hpp"
 #include "CUL/IName.hpp"
@@ -19,12 +20,10 @@ class ShaderProgram;
 class TransformComponent;
 class VertexArray;
 
-class IObject:
-    public IRenderable,
-    public CUL::IName
+class IObject: public IRenderable, public CUL::IName
 {
 public:
-    GAME_ENGINE_API IObject( const CUL::String& name, bool forceLegacy );
+    GAME_ENGINE_API IObject( const String& name, bool forceLegacy );
 
     GAME_ENGINE_API virtual const std::vector<float> getVertices() const;
 
@@ -35,10 +34,10 @@ public:
     GAME_ENGINE_API const std::set<IObject*>& getChildren() const;
     GAME_ENGINE_API void addChild( IObject* child );
 
-    GAME_ENGINE_API IComponent* getComponent( const CUL::String& name ) const;
+    GAME_ENGINE_API IComponent* getComponent( const String& name ) const;
     GAME_ENGINE_API std::vector<IComponent*> getComponents() const;
 
-    GAME_ENGINE_API void addComponent( const CUL::String& name, IComponent* component );
+    GAME_ENGINE_API void addComponent( const String& name, IComponent* component );
 
     GAME_ENGINE_API TransformComponent* getTransform();
 
@@ -55,7 +54,7 @@ public:
     GAME_ENGINE_API virtual ~IObject();
 
 protected:
-    GAME_ENGINE_API void onNameChange( const CUL::String& newName ) override;
+    GAME_ENGINE_API void onNameChange( const CUL::StringWr& newName ) override;
 
     bool getForceLegacy() const;
 
@@ -78,13 +77,11 @@ private:
     std::mutex m_childrenMtx;
     std::set<IObject*> m_children;
 
-
     // Deleted:
     IObject( const IObject& value ) = delete;
     IObject( IObject&& value ) = delete;
     IObject& operator=( const IObject& value ) = delete;
     IObject& operator=( IObject&& value ) = delete;
 };
-
 
 NAMESPACE_END( LOGLW )

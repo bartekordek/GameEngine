@@ -87,7 +87,7 @@ void VertexArray::setProgram( ShaderProgram* inProgram )
 
 void VertexArray::createShader( const CUL::FS::Path& path )
 {
-    CUL::Assert::simple( path.exists(), "File does not exist: " + path.getPath() );
+    CUL::Assert::check( path.exists(), "File %s does not exist.", path.getPath().getUtfChar() );
 
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
@@ -275,7 +275,7 @@ void VertexArray::unbind()
     getDevice()->bindBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, 0 );
 }
 
-void VertexArray::setName( const CUL::String& name )
+void VertexArray::setName( const String& name )
 {
     CUL::IName::setName( name );
     std::uint16_t id{ 0u };

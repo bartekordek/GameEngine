@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gameengine/Import.hpp"
+#include "gameengine/Defines.hpp"
 
 #include "CUL/Graphics/Pos2D.hpp"
 #include "CUL/Graphics/Size2D.hpp"
@@ -11,8 +11,7 @@ NAMESPACE_BEGIN( LOGLW )
 using Pos2Di = CUL::Graphics::Pos2Di;
 using Size2Di = CUL::Graphics::Size2Di;
 
-class GAME_ENGINE_API Viewport final:
-    public CUL::ISerializable
+class GAME_ENGINE_API Viewport final: public CUL::ISerializable
 {
 public:
     Viewport();
@@ -31,7 +30,7 @@ public:
 
 protected:
 private:
-    CUL::String getSerializationContent( CUL::CounterType tabsSize, const bool separator = false ) const override;
+    String getSerializationContent( CUL::CounterType tabsSize, const bool separator = false ) const override;
 
     Viewport( const Viewport& rhv ) = delete;
     Viewport( Viewport&& rhv ) = delete;

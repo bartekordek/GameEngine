@@ -1,6 +1,7 @@
 #include "main.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/Windowing/IWindow.hpp"
+#include "gameengine/Defines.hpp"
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 
 int main( int  // argc
@@ -36,8 +37,7 @@ void CApp::customFrame()
 
 void CApp::guiIteration( float x, float /*y*/ )
 {
-    CUL::String name = "MAIN";
-    ImGui::Begin( name.cStr(), nullptr,
+    ImGui::Begin( "MAIN", nullptr,
                   ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
 
     ImGui::SetWindowPos( { x, 0 } );

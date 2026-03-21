@@ -96,16 +96,16 @@ void ShaderProgram::reCompileWholeShader( EExecuteType inEt )
 
 void ShaderProgram::reCompileWholeShaderImpl( EExecuteType inEt )
 {
-    std::vector<CUL::String> shadersPaths( m_shaders.size() );
+    std::vector<String> shadersPaths( m_shaders.size() );
     std::size_t shaderIndex{ 0 };
-    for( const auto& [shaderType, shaderUnit] : m_shaders )
+    for( const auto& [shaderType, shaderInfo] : m_shaders )
     {
-        shadersPaths[shaderIndex++] = shaderUnit->File->getPath().getPath();
+        shadersPaths[shaderIndex++] = shaderInfo.Path;
     }
 
     releaseShaderUnits();
 
-    for( const CUL::String& path : shadersPaths )
+    for( const String& path : shadersPaths )
     {
         compileShader( inEt, path );
     }
@@ -114,28 +114,29 @@ void ShaderProgram::reCompileWholeShaderImpl( EExecuteType inEt )
 
 void ShaderProgram::releaseShaderUnits()
 {
-    for( auto& [shaderType, shaderUnit] : m_shaders )
+    for( auto& [shaderType, si] : m_shaders )
     {
-        detachShader( EExecuteType::Now, shaderUnit->ID );
-        getDevice()->deleteShaderUnit( shaderUnit );
+        detachShader( EExecuteType::Now, si.SU->ID );
+        getDevice()->deleteShaderUnit( si.SU );
     }
     m_shaders.clear();
 }
 
-void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString )
+SCompilationResult ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString )
 {
-    CUL::String errorContent;
-    reCompileShader( inEt, shaderPathString, true, errorContent );
+    return reCompileShader( inEt, shaderPathString, true );
 }
 
-void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString, bool assertOnErrors, CUL::String& errorMessage )
+SCompilationResult ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString, bool assertOnErrors )
 {
+    SCompilationResult result;
+
     if( inEt == EExecuteType::WaitForCompletion )
     {
         RunOnRenderThread::getInstance().RunWaitForResult(
-            [this, inEt, &shaderPathString, assertOnErrors, &errorMessage]()
+            [this, inEt, &shaderPathString, &result, assertOnErrors]()
             {
-                reCompileShaderImpl( inEt, shaderPathString, assertOnErrors, errorMessage );
+                result = reCompileShaderImpl( inEt, shaderPathString, assertOnErrors );
             } );
     }
     else if( inEt == EExecuteType::ExecuteOnRenderThread )
@@ -143,63 +144,68 @@ void ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPath
         m_tasks.addTask(
             [this, inEt, shaderPathString, assertOnErrors]()
             {
-                CUL::String errorMessage;
-                reCompileShaderImpl( inEt, shaderPathString, assertOnErrors, errorMessage );
+                String errorMessage;
+                reCompileShaderImpl( inEt, shaderPathString, assertOnErrors );
             } );
+        result.State = EShaderUnitState::WaitingForResult;
     }
     else
     {
-        reCompileShaderImpl( inEt, shaderPathString, assertOnErrors, errorMessage );
+        result = reCompileShaderImpl( inEt, shaderPathString, assertOnErrors );
     }
+
+    return result;
 }
 
-void ShaderProgram::reCompileShaderImpl(
-    EExecuteType inEt,
-    const String& inShaderPathString,
-    bool assertOnErrors,
-    CUL::String& errorMessage )
+SCompilationResult ShaderProgram::reCompileShaderImpl( EExecuteType inEt, const String& inShaderPathString, bool assertOnErrors )
 {
+    SCompilationResult result;
+
     const CUL::FS::Path inShaderPath( inShaderPathString );
     const auto extension = inShaderPath.getExtension();
     CShaderTypes::ShaderType type = CShaderTypes::getShaderType( extension );
 
-    std::unordered_map<CShaderTypes::ShaderType, CUL::String> shadersPaths;
-    for( auto& [shaderType, shaderUnit] : m_shaders )
+    ShaderInfo& si = m_shaders[type];
+    si.Path = inShaderPath;
+    if( si.SU )
     {
-        shadersPaths[shaderType] = shaderUnit->File->getPath();
-        const std::uint32_t shaderId = shaderUnit->ID;
-        getDevice()->deleteShaderUnit( shaderUnit );
+        const std::uint32_t shaderId = si.SU->ID;
+        getDevice()->deleteShaderUnit( si.SU );
         detachShader( inEt, shaderId );
-        shaderUnit = nullptr;
+        si.SU = nullptr;
     }
 
-    shadersPaths[type] = inShaderPath;
+    result = compileShader( inEt, si.Path, assertOnErrors );
 
-    for( const auto& [shaderType, shaderPath] : shadersPaths )
-    {
-        compileShader( inEt, shaderPath, assertOnErrors, errorMessage );
-    }
+    return result;
 }
 
-void ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath )
+SCompilationResult ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath )
 {
-    CUL::String errorContent;
-    compileShader( inEt, shaderPath, true, errorContent );
+    return compileShader( inEt, shaderPath, true );
 }
 
-void ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors, CUL::String& errorMessage )
+SCompilationResult ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors )
 {
-    ShaderUnit* su = getDevice()->createShaderUnit( shaderPath, assertOnErrors, errorMessage );
-    if( errorMessage.empty() )
+    SCompilationResult result;
+
+    const CUL::FS::Path path = shaderPath;
+    const auto extension = path.getExtension();
+    CShaderTypes::ShaderType type = CShaderTypes::getShaderType( extension );
+
+    ShaderInfo si;
+    si.Path = shaderPath;
+    String erorrMessage;
+    si.SU = getDevice()->createShaderUnit( shaderPath, assertOnErrors, erorrMessage );
+    if( si.SU->State == EShaderUnitState::Loaded )
     {
-        m_shaders[su->Type] = su;
-        attachShader( inEt, su->ID );
-        su->State = EShaderUnitState::Loaded;
+        attachShader( inEt, si.SU->ID );
     }
-    else
-    {
-        su->State = EShaderUnitState::Error;
-    }
+    m_shaders[type] = si;
+    result.State = si.SU->State;
+
+
+    return result;
 }
 
 void ShaderProgram::attachShader( EExecuteType inEt, std::uint32_t id )
@@ -232,7 +238,7 @@ void ShaderProgram::attachShaders( EExecuteType /*inEt*/ )
 {
     for( const auto& su : m_shaders )
     {
-        getDevice()->attachShader( m_shaderProgramId, su.second->ID );
+        getDevice()->attachShader( m_shaderProgramId, su.second.SU->ID );
     }
 }
 
@@ -319,6 +325,7 @@ CShaderTypes::ShaderType ShaderProgram::getType() const
 
 void ShaderProgram::setUniform( EExecuteType inEt, const String& inName, UniformValue inValue )
 {
+    getDevice()->useProgram( m_shaderProgramId );
     switch( inEt )
     {
         case EExecuteType::Now:
@@ -481,10 +488,10 @@ EShaderUnitState ShaderProgram::getShaderUnitState( CShaderTypes::ShaderType inT
         return EShaderUnitState::Unloaded;
     }
 
-    return it->second->State;
+    return it->second.SU->State;
 }
 
-const ShaderProgram::ShaderVariable& ShaderProgram::getUniformValue( const CUL::String& name )
+const ShaderProgram::ShaderVariable& ShaderProgram::getUniformValue( const String& name )
 {
     const auto it = m_uniformMapping.find( name );
     ShaderVariable& result = it->second;
@@ -500,9 +507,9 @@ const ShaderProgram::ShaderVariable& ShaderProgram::getUniformValue( const CUL::
     return result;
 }
 
-std::vector<CUL::String> ShaderProgram::getUniformsNames()
+std::vector<String> ShaderProgram::getUniformsNames()
 {
-    std::vector<CUL::String> result;
+    std::vector<String> result;
 
     for( const auto& uniform : m_uniformMapping )
     {

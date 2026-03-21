@@ -1,10 +1,11 @@
 #pragma once
 
 #include "gameengine/Components/IComponent.hpp"
+#include "gameengine/Defines.hpp"
 
 #include "CUL/Math/Point.hpp"
 #include "CUL/Math/Rotation.hpp"
-#include "CUL/String.hpp"
+#include <CUL/String/StringWrapper.hpp>
 #include "CUL/GenericUtils/SimpleDelegate.hpp"
 
 #include "CUL/STL_IMPORTS/STD_functional.hpp"
@@ -15,8 +16,6 @@
 NAMESPACE_BEGIN( LOGLW )
 
 class IObject;
-
-using String = CUL::String;
 
 class GAME_ENGINE_API TransformComponent final: public IComponent
 {
@@ -61,7 +60,7 @@ public:
 
 protected:
 private:
-    const CUL::String& getName() const override;
+    const CUL::StringWr& getName() const override;
     glm::mat4 getTranslation() const;
     glm::mat4 getRotation() const;
     void printCurrentState() const;

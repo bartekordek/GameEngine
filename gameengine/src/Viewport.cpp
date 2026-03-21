@@ -1,7 +1,7 @@
 #include "gameengine/Viewport.hpp"
 
 using namespace LOGLW;
-using String = CUL::String;
+using String = String;
 
 Viewport::Viewport()
 {
@@ -15,7 +15,7 @@ void Viewport::set( const Pos2Di& newPos, const Size2Di newSize )
 
 bool Viewport::operator!=( const Viewport& arg ) const
 {
-    return !(*this == arg);
+    return !( *this == arg );
 }
 
 bool Viewport::operator==( const Viewport& arg ) const
@@ -29,21 +29,7 @@ bool Viewport::operator==( const Viewport& arg ) const
 
 String Viewport::getSerializationContent( CUL::CounterType tabsSize, const bool ) const
 {
-    String tabs = getTab( tabsSize );
-
-    String result;
-    result.append(tabs);
-    result.append( "    \"name\": \"Viewport\",\n" );
-
-    result.append( tabs );
-    result.append( "    \"Position\": \n" + pos.serialize( tabsSize + 1, true ) );
-
-    result.append( tabs );
-    result.append( "    \"Size\": \n" );
-
-    result.append( size.serialize( tabsSize + 1 ) );
-
-    return result;
+    return String( CUL_STR( "" ) );
 }
 
 Viewport& Viewport::operator=( const Viewport& rhv )

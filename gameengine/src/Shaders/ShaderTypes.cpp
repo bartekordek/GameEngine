@@ -2,8 +2,7 @@
 
 using namespace LOGLW;
 
-
-CShaderTypes::ShaderType CShaderTypes::getShaderType( const CUL::String& extension )
+CShaderTypes::ShaderType CShaderTypes::getShaderType( const String& extension )
 {
     if( extension.equals( ".vs" ) || extension.equals( "vs" ) || extension == ".vert" || extension == "vert" )
     {

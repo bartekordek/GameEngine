@@ -26,7 +26,7 @@ public:
     GAME_ENGINE_API ~Triangle();
 
 protected:
-    GAME_ENGINE_API void onNameChange( const CUL::String& newName ) override;
+    GAME_ENGINE_API void onNameChange( const CUL::StringWr& newName ) override;
 
 private:
     void render() override;

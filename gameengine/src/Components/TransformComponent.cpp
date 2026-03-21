@@ -8,13 +8,14 @@
 
 using namespace LOGLW;
 
-TransformComponent::TransformComponent( IObject* owner ) : m_owner( owner )
+TransformComponent::TransformComponent( IObject* owner ):
+    m_owner( owner )
 {
-    //changeSizeDelegate.addDelegate(
-    //    [this]()
-    //    {
-    //        // printCurrentState();
-    //    } );
+    // changeSizeDelegate.addDelegate(
+    //     [this]()
+    //     {
+    //         // printCurrentState();
+    //     } );
 }
 
 void TransformComponent::setPositionToParent( const glm::vec3& position )
@@ -45,7 +46,7 @@ void TransformComponent::setPositionAbsolute( const glm::vec3& position )
 
 const glm::vec3 TransformComponent::getPositionAbsolut() const
 {
-    //return m_pos - m_pivotReal.toGlmVec();
+    // return m_pos - m_pivotReal.toGlmVec();
     return m_pos;
 }
 
@@ -61,8 +62,8 @@ const CUL::MATH::Rotation TransformComponent::getRotationToParent() const
 
 void TransformComponent::setRotationAbsolute( const CUL::MATH::Rotation& rotation )
 {
-    //rotation = absolute + delta;
-    //delta = rotation - absolute;
+    // rotation = absolute + delta;
+    // delta = rotation - absolute;
     const auto rot = getRotationAbsolute();
     const auto delta = rotation - rot;
     m_rotation = delta;
@@ -105,9 +106,9 @@ const glm::mat4 TransformComponent::getModel() const
     return model;
 }
 
-const CUL::String& TransformComponent::getName() const
+const String& TransformComponent::getName() const
 {
-    static CUL::String s_name{ "Transform Component" };
+    static String s_name{ "Transform Component" };
     return s_name;
 }
 
@@ -126,11 +127,10 @@ glm::mat4 TransformComponent::getRotation() const
 
     const CUL::MATH::Rotation& rotation = m_rotation;
     // PITCH - X
-// YAW - Y
-// ROLL - Z
+    // YAW - Y
+    // ROLL - Z
 
-
-        // Pitch
+    // Pitch
     {
         glm::vec3 normal( 1.f, 0.f, 0.f );
         model = glm::rotate( model, rotation.Pitch.getRad(), normal );
@@ -185,7 +185,7 @@ void TransformComponent::addOnChangeCallback( const String& callbackName, const 
     }
     else
     {
-        CUL::Assert::simple( false, ( CUL::String( "Callback already places: " ) + callbackName ).cStr() );
+        CUL::Assert::simple( false, ( String( "Callback already places: " ) + callbackName ).getUtfChar() );
     }
 }
 
@@ -201,9 +201,9 @@ const TransformComponent::Pos& TransformComponent::TransformComponent::getSize()
     return m_size;
 }
 
-void TransformComponent::removeCallback(const String& callbackName)
+void TransformComponent::removeCallback( const String& callbackName )
 {
-    m_onChangeCallbacks.erase(callbackName);
+    m_onChangeCallbacks.erase( callbackName );
 }
 
 void TransformComponent::decomposeAndLogData( const glm::mat4& data ) const
@@ -220,7 +220,8 @@ void TransformComponent::decomposeAndLogData( const glm::mat4& data ) const
 
     const auto name = m_owner->getName();
 
-    CUL::LOG::ILogger::getInstance().log( name + ", translation: " + translationString + ", rotation: " + rotationString );
+    CUL::LOG::ILogger::getInstance().logInfo( "%s, translation: %s, rotation: %s", name.getUtfChar(), translationString.c_str(),
+                                              rotationString.c_str() );
 }
 
 const glm::vec3& TransformComponent::getScale() const
@@ -238,9 +239,9 @@ TransformComponent::~TransformComponent()
 {
 }
 
-const CUL::String ToString( const glm::vec3& val )
+const String ToString( const glm::vec3& val )
 {
-    CUL::String result;
+    String result;
 
     result = "( " + std::to_string( val.x ) + ", " + std::to_string( val.y ) + ", " + std::to_string( val.z ) + " )";
 
@@ -249,12 +250,13 @@ const CUL::String ToString( const glm::vec3& val )
 
 void TransformComponent::printCurrentState() const
 {
-    CUL::LOG::ILogger::getInstance().log( m_owner->getName() + ": " );
-    CUL::LOG::ILogger::getInstance().log( "Current Size: " + ToString( m_size ) );
-    CUL::LOG::ILogger::getInstance().log( "Current Position: " + ToString( m_pos ) );
-    CUL::LOG::ILogger::getInstance().log( "Current Scale: " + ToString( m_scale ) );
-    CUL::LOG::ILogger::getInstance().log( "Current Pivot Normalized: " + ToString( m_pivotNormalized ) );
-    CUL::LOG::ILogger::getInstance().log( "Current Pivot Real: " + ToString( m_pivot ) );
+    //TODO:
+    //CUL::LOG::ILogger::getInstance().log( m_owner->getName() + ": " );
+    //CUL::LOG::ILogger::getInstance().log( "Current Size: " + ToString( m_size ) );
+    //CUL::LOG::ILogger::getInstance().log( "Current Position: " + ToString( m_pos ) );
+    //CUL::LOG::ILogger::getInstance().log( "Current Scale: " + ToString( m_scale ) );
+    //CUL::LOG::ILogger::getInstance().log( "Current Pivot Normalized: " + ToString( m_pivotNormalized ) );
+    //CUL::LOG::ILogger::getInstance().log( "Current Pivot Real: " + ToString( m_pivot ) );
 }
 
 #if !CUL_SHIPPING_BUILD
@@ -268,11 +270,7 @@ void TransformComponent::drawDebug()
         changeSizeDelegate.execute();
     }
     ImGui::InputFloat3( "Scale", &m_scale.x );
-    ImGui::Text(
-        "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f",
-        m_rotation.Pitch.getDeg(),
-        m_rotation.Yaw.getDeg(),
-        m_rotation.Roll.getDeg() );
+    ImGui::Text( "Pitch: %4.2f Yaw: %4.2f Roll: %4.2f", m_rotation.Pitch.getDeg(), m_rotation.Yaw.getDeg(), m_rotation.Roll.getDeg() );
     ImGui::InputFloat3( "Pivot", &m_pivot.x );
     ImGui::SameLine();
     if( ImGui::Button( "Apply Pivot" ) )

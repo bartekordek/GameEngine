@@ -2,33 +2,34 @@
 
 using namespace LOGLW;
 
-RenderTypes::RendererType RenderTypes::convertToEnum( const CUL::String& name )
+RenderTypes::RendererType RenderTypes::convertToEnum( const String& name )
 {
-    if( name.toLowerR() == "software" )
+    const String lowerStr = name.getLower();
+    if( lowerStr.equals( "software" ) )
     {
         return RendererType::SOFTWARE;
     }
-    else if( name.toLowerR() == "directx_9" || name.toLowerR() == "direct3d" )
+    else if( lowerStr.equals( "directx_9" ) || lowerStr.equals( "direct3d" ) )
     {
         return RendererType::DIRECTX_9;
     }
-    else if( ( name.toLowerR() == "directx_11" ) || ( name.toLowerR() == "direct3d11" ) )
+    else if( lowerStr.equals( "directx_11" ) || lowerStr.equals( "direct3d11" ) )
     {
         return RendererType::DIRECTX_11;
     }
-    else if( name.toLowerR() == "directx_12" )
+    else if( lowerStr.equals( "directx_12" ) )
     {
         return RendererType::DIRECTX_12;
     }
-    else if( name.toLowerR() == "opengl_legacy" )
+    else if( lowerStr.equals( "opengl_legacy" ) )
     {
         return RendererType::OPENGL_LEGACY;
     }
-    else if( ( name.toLowerR() == "opengl_modern" ) || ( name.toLowerR() == "opengl" ) )
+    else if( lowerStr.equals( "opengl_modern" ) || lowerStr.equals( "opengl" ) )
     {
         return RendererType::OPENGL_MODERN;
     }
-    else if( name.toLowerR() == "opengl_es2" )
+    else if( lowerStr.equals( "opengl_es2" ) )
     {
         return RendererType::OPENGL_ES2;
     }
@@ -36,7 +37,7 @@ RenderTypes::RendererType RenderTypes::convertToEnum( const CUL::String& name )
     return RendererType::NONE;
 }
 
-const CUL::String RenderTypes::convertToString( RendererType type )
+const String RenderTypes::convertToString( RendererType type )
 {
     switch( type )
     {

@@ -18,8 +18,8 @@ enum class WheelDirection : short
 };
 
 #if _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4820 )
+    #pragma warning( push )
+    #pragma warning( disable : 4820 )
 #endif
 class GAME_ENGINE_API MouseData: public CUL::ISerializable
 {
@@ -58,7 +58,7 @@ public:
 
 protected:
 private:
-    CUL::String getSerializationContent( CUL::CounterType tabsSize, const bool = false ) const override;
+    CUL::StringWr getSerializationContent( CUL::CounterType tabsSize, const bool = false ) const override;
 
     std::map<MouseButtonIndex, bool> m_buttonStates;
     int m_x = 0;
@@ -69,7 +69,7 @@ private:
     EventType m_eventType = EventType::NONE;
 };
 #ifdef _MSC_VER
-#pragma warning( pop )
+    #pragma warning( pop )
 #endif
 
 NAMESPACE_END( LOGLW )

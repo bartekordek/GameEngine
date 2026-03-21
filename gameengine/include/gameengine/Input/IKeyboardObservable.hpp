@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gameengine/Input/KeyboardDefines.hpp"
+#include "gameengine/Defines.hpp"
 
 #include "CUL/STL_IMPORTS/STD_functional.hpp"
 
@@ -18,7 +19,7 @@ public:
     virtual void registerKeyboardEventListener( IKeyboardObserver* observer ) = 0;
     virtual void unregisterKeyboardEventListener( IKeyboardObserver* observer ) = 0;
 
-    virtual bool isKeyUp( const CUL::String& keyName ) const = 0;
+    virtual bool isKeyUp( const String& keyName ) const = 0;
 
     virtual ~IKeyboardObservable() = default;
 

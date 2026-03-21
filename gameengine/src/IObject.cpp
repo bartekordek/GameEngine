@@ -9,10 +9,8 @@
 
 using namespace LOGLW;
 
-IObject::IObject( const CUL::String& name, bool forceLegacy ):
-    IRenderable( true ),
-    IName( name ),
-    m_forceLegacy( forceLegacy )
+IObject::IObject( const String& name, bool forceLegacy ):
+    IRenderable( true ), IName( name ), m_forceLegacy( forceLegacy )
 {
     m_transform = new TransformComponent( this );
     addComponent( "TransformComponent", m_transform );
@@ -43,7 +41,7 @@ void IObject::createProgram()
     m_shaderProgram = getEngine().createProgram();
 }
 
-void IObject::onNameChange( const CUL::String& newName )
+void IObject::onNameChange( const String& newName )
 {
     CUL::IName::onNameChange( newName );
 
@@ -105,7 +103,7 @@ void IObject::addChild( IObject* child )
 
 IComponent* IObject::getComponent( const String& name ) const
 {
-    const auto nameStr = name.string();
+    const auto nameStr = name.getSTDString();
 
     std::lock_guard<std::mutex> locker( m_componentsMtx );
     const auto it = m_components.find( nameStr );
@@ -121,7 +119,7 @@ std::vector<IComponent*> IObject::getComponents() const
     std::vector<IComponent*> result;
 
     std::lock_guard<std::mutex> locker( m_componentsMtx );
-    for( auto& [_, currentComponent]: m_components )
+    for( auto& [_, currentComponent] : m_components )
     {
         result.push_back( currentComponent );
     }
@@ -129,9 +127,9 @@ std::vector<IComponent*> IObject::getComponents() const
     return result;
 }
 
-void IObject::addComponent(const String& name, IComponent* component)
+void IObject::addComponent( const String& name, IComponent* component )
 {
-    const auto nameStr = name.string();
+    const auto nameStr = name.getSTDString();
 
     std::lock_guard<std::mutex> locker( m_componentsMtx );
     m_components[nameStr] = component;
@@ -164,7 +162,7 @@ void IObject::setVao( VertexArray* inVao )
 
 IObject::~IObject()
 {
-    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, "IObject::~IObject() [%s]", getName().cStr() );
+    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, "IObject::~IObject() [%s]", getName().getUtfChar() );
 
     {
         std::lock_guard<std::mutex> locker( m_componentsMtx );
@@ -234,7 +232,6 @@ bool IObject::getForceLegacy() const
 {
     return m_forceLegacy;
 }
-
 
 void IObject::deleteVao()
 {

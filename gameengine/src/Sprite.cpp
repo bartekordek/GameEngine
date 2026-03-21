@@ -76,12 +76,7 @@ void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoa
     m_transformComponent->setSize( { newRectWidth, newRectHeight, 0.f } );
 }
 
-void Sprite::LoadImage(
-    CUL::Graphics::DataType* data,
-    unsigned width,
-    unsigned height,
-    CUL::Graphics::IImageLoader* imageLoader,
-    unsigned )
+void Sprite::LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader* imageLoader, unsigned )
 {
     m_image = imageLoader->loadImage( (unsigned char*)data, width, height );
 
@@ -171,7 +166,7 @@ void Sprite::updateBuffers_impl()
     FloatData fd;
     for( const auto& data : m_vertexData )
     {
-        for( const auto& dataRow: data )
+        for( const auto& dataRow : data )
         {
             fd.push_back( dataRow );
         }
@@ -204,12 +199,8 @@ void Sprite::updateBuffers_impl()
 
 void Sprite::setSize( const glm::vec3& size )
 {
-    m_vertexData = { 
-        0.0f, size.y, 0.0f, m_uvList[0].X, m_uvList[0].Y,
-      size.x, size.y, 0.0f, m_uvList[1].X, m_uvList[1].Y,
-      size.x,   0.0f, 0.0f, m_uvList[2].X, m_uvList[2].Y,
-        0.0f,   0.0f, 0.0f, m_uvList[3].X, m_uvList[3].Y
-    };
+    m_vertexData = { 0.0f,   size.y, 0.0f, m_uvList[0].X, m_uvList[0].Y, size.x, size.y, 0.0f, m_uvList[1].X, m_uvList[1].Y,
+                     size.x, 0.0f,   0.0f, m_uvList[2].X, m_uvList[2].Y, 0.0f,   0.0f,   0.0f, m_uvList[3].X, m_uvList[3].Y };
 }
 
 const std::array<UV, 4>& Sprite::getUV() const
@@ -219,7 +210,7 @@ const std::array<UV, 4>& Sprite::getUV() const
 
 void Sprite::createShaders()
 {
-    CUL::String errorContent;
+    String errorContent;
     ShaderProgram::ShadersData sd;
     sd.FragmentShader = "embedded_shaders/camera.frag";
     sd.VertexShader = "embedded_shaders/camera.vert";

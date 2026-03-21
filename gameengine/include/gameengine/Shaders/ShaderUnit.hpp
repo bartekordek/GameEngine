@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gameengine/Shaders/ShaderTypes.hpp"
+#include "gameengine/Shaders/ShaderState.hpp"
 
 #include "CUL/STL_IMPORTS/STD_memory.hpp"
 
@@ -12,13 +13,7 @@ NAMESPACE_END( CUL )
 
 NAMESPACE_BEGIN( LOGLW )
 
-enum class EShaderUnitState : std::int8_t
-{
-    Unkown = 1,
-    Loaded,
-    Unloaded,
-    Error
-};
+
 
 #if defined( _MSC_VER )
 #pragma warning( push, 0 )

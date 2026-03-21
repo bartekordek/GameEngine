@@ -2,6 +2,7 @@
 
 #include "gameengine/Render/RendererTypes.hpp"
 #include "gameengine/Windowing/WinSize.hpp"
+#include "gameengine/Defines.hpp"
 
 namespace LOGLW
 {
@@ -18,16 +19,9 @@ public:
     WinSize CurrentRes{ .W = 640u, .H = 480u };
     WinSize NativeRes;
     WinSize WindowRes;
-    CUL::String Name;
+    String Name;
     RenderTypes::RendererType RendererType{ RenderTypes::RendererType::NONE };
-
-    WinData();
-    WinData( const WinData& arg );
-    WinData( WinData&& arg ) noexcept;
-    WinData& operator=( WinData&& rhv ) noexcept;
-    WinData& operator=( const WinData& rhv );
-
-    ~WinData();
+    bool Resizable{ false };
 
 protected:
 private:
