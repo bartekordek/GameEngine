@@ -17,8 +17,6 @@
 
 using namespace LOGLW;
 
-constexpr const char* g_defaultQuadName = "Quad";
-
 Quad::Quad( Camera& /*camera*/, IObject* parent, bool forceLegacy ):
     IObject( "", forceLegacy )
 {
