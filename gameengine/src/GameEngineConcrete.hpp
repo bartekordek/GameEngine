@@ -38,8 +38,6 @@ class DebugSystemBase;
 using SafeBool = CUL::GUTILS::LckPrim<bool>;
 template <typename Type>
 using DumbPtr = CUL::GUTILS::DumbPtr<Type>;
-template <typename Type>
-using Safe = CUL::GUTILS::LckPrim<Type>;
 
 enum class DebugType
 {
@@ -193,8 +191,6 @@ private:
     float getFpsLimit() const override;
 
     DumbPtr<CUL::ITimer> m_customTimer;
-
-    Safe<int> m_waitTimeUs = 0.0f;
 
     bool m_hasBeenInitialized = false;
     bool m_userInitialized = false;
