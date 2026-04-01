@@ -4,10 +4,13 @@
 #include "gameengine/IDebugOverlay.hpp"
 #include "gameengine/ITextureFactory.hpp"
 #include "gameengine/Sprite.hpp"
+#include "gameengine/UI/UIService.hpp"
 #include "gameengine/Viewport.hpp"
 
 #include "gameengine/Events/ISDLEventObserver.hpp"
 #include "gameengine/IRenderDevice.hpp"
+
+#include "UI/UIServiceConcrete.hpp"
 
 #include "CUL/GenericUtils/LckPrim.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
@@ -76,6 +79,9 @@ public:
 protected:
 private:
     void initialize() override;
+
+    IUIService& getUIService() override;
+
     void loadDebugDraw();
     void showExtensions();
     void setupProjectionData( uint16_t width, uint16_t height );
@@ -169,6 +175,8 @@ private:
     CUL::LOG::ILogger* m_logger = nullptr;
 
     IImageLoader* m_imageLoader = nullptr;
+
+    CUIServiceConcrete m_uiService;
 
     std::thread m_renderingLoopThread;
     std::thread m_taskLoopThread;

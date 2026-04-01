@@ -55,6 +55,7 @@ class Quad;
 class ShaderProgram;
 class Sprite;
 class Triangle;
+class IUIService;
 class VertexArray;
 class VertexBuffer;
 class Viewport;
@@ -79,6 +80,8 @@ public:
     GAME_ENGINE_API virtual void renderFrame() = 0;
     GAME_ENGINE_API virtual void runEventLoop() = 0;
     GAME_ENGINE_API virtual void stopEventLoop() = 0;
+
+    GAME_ENGINE_API virtual IUIService& getUIService() = 0;
 
     GAME_ENGINE_API virtual LOGLW::IWindow* getMainWindow() = 0;
 

@@ -42,7 +42,11 @@
 using namespace LOGLW;
 
 GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool ):
-    m_sdlW( sdl2w ), m_activeWindow( sdl2w->getMainWindow() ), m_cul( sdl2w->getCul() ), m_logger( sdl2w->getCul()->getLogger() )
+    m_sdlW( sdl2w ),
+    m_activeWindow( sdl2w->getMainWindow() ),
+    m_cul( sdl2w->getCul() ),
+    m_logger( sdl2w->getCul()->getLogger() ),
+    m_uiService( *this )
 {
     CUL::Assert::simple( nullptr != sdl2w, "NO SDL WRAPPER." );
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );
@@ -322,6 +326,11 @@ void GameEngineConcrete::initialize()
 
     m_hasBeenInitialized = true;
     m_logger->log( "GameEngineConcrete::initialize() Done." );
+}
+
+IUIService& GameEngineConcrete::getUIService()
+{
+    return m_uiService;
 }
 
 void GameEngineConcrete::showExtensions()
