@@ -84,6 +84,6 @@ endif()
 
 add_subdirectory(sample/playgroundApp)
 add_subdirectory(sample/snake)
-add_subdirectory(sample/UI2d)
+add_subdirectory(sample/UI2D)
 add_subdirectory(TemplateApp)
 add_subdirectory(tools/shader_editor)
