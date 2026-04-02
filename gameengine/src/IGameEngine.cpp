@@ -212,7 +212,7 @@ void IGameEngine::drawOrigin( bool enable )
             lineZ->getTransform()->setRotationToParent( rotation );
             lineZ->setLength( originLinesLength );
             lineZ->setName( "Line::z" );
-            m_axis[0] = lineZ;
+            m_axis[2] = lineZ;
         }
     }
     else

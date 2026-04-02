@@ -22,10 +22,12 @@ TextureFrameBufferOpenGL::TextureFrameBufferOpenGL( IRenderDevice& inRd, std::in
     m_fboData.resize( pixelCount );
     std::memset( m_fboData.data(), 0u, pixelCount );
 
-    m_ti.size = m_size;
+    const auto xd = glm::vec2( static_cast<float>( inWidth ), static_cast<float>( inHeight ) );
+    m_ti.size = xd;
     m_ti.textureId = m_textureColor;
     // m_ti.data = m_fboData.data();
-    m_ti.pixelFormat = CUL::Graphics::PixelFormat::RGB;
+    m_ti.internalFormat = CUL::Graphics::PixelFormat::RGBA;
+    m_ti.dataFormat = CUL::Graphics::PixelFormat::RGBA;
     m_renderDevice.setTextureData( m_textureColor, m_ti );
 
     m_renderDevice.setTextureParameter( m_textureColor, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
@@ -89,7 +91,8 @@ void TextureFrameBufferOpenGL::beginCapture()
     glBindFramebuffer( GL_FRAMEBUFFER, m_framebufferColor );
     glEnable( GL_DEPTH_TEST );
 
-    glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    //glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+    glClearColor( 1.f, 0.f, 1.f, 1.f );  // bright pink
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 

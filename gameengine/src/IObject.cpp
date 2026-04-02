@@ -47,12 +47,12 @@ void IObject::onNameChange( const String& newName )
 
     if( m_vao )
     {
-        m_vao->setName( newName + "/vao" );
+        m_vao->setName( "%s/vao", *newName );
     }
 
     if( m_shaderProgram )
     {
-        m_shaderProgram->setName( newName + "/shaderProgram" );
+        m_shaderProgram->setName( "%s/shaderProgram", *newName );
     }
 }
 

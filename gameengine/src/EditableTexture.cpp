@@ -54,7 +54,7 @@ void EditableTexture::create( uint16_t width, uint16_t height )
     m_imageInfo->size = { width, height };
 }
 
-void EditableTexture::setPixelValue( std::int32_t inX, std::int32_t inY, const TexPixel& color )
+void EditableTexture::setPixelValue( std::int32_t inX, std::int32_t inY, const S_RGBA& color )
 {
     const auto offset =
          inX + inY * m_width;
@@ -92,7 +92,8 @@ void EditableTexture::init()
 {
     if( !getDevice()->isLegacy() )
     {
-        m_shaderProgram = getEngine().createProgram();
+        auto* gameEngine = IGameEngine::getInstance();
+        m_shaderProgram = gameEngine->createProgram();
 
         const std::string vertexShaderSource =
 #include "embedded_shaders/camera.vert"
@@ -102,8 +103,8 @@ void EditableTexture::init()
 #include "embedded_shaders/camera.frag"
             ;
 
-        auto fragmentShader = getEngine().createShader( "embedded_shaders/camera.frag", fragmentShaderSource );
-        auto vertexShader = getEngine().createShader( "embedded_shaders/camera.vert", vertexShaderSource );
+        auto fragmentShader = gameEngine->createShader( "embedded_shaders/camera.frag", fragmentShaderSource );
+        auto vertexShader = gameEngine->createShader( "embedded_shaders/camera.vert", vertexShaderSource );
 
         throw std::logic_error( "Method not implemented" );
         /*m_shaderProgram->attachShader( vertexShader );
@@ -119,7 +120,8 @@ void EditableTexture::init()
 
     if( !m_ti->initialized )
     {
-        m_ti->pixelFormat = CUL::Graphics::PixelFormat::RGBA;
+        m_ti->internalFormat = CUL::Graphics::PixelFormat::RGBA;
+        m_ti->dataFormat = CUL::Graphics::PixelFormat::RGBA;
         m_ti->size = { m_width, m_height };
         m_ti->data = getData();
         m_ti->textureId = static_cast<decltype( m_ti->textureId )>( m_textureId );

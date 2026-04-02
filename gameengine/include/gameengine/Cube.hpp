@@ -38,23 +38,20 @@ public:
 
 protected:
 private:
-    void createPlaceHolders();
-
+    void init();
     void render() override;
-
+    void setTransformationAndColor();
     void release();
 
     TransformComponent* m_transformComponent{ nullptr };
     bool m_initialized = false;
 
+    
     Camera* m_camera{ nullptr };
     IGameEngine& m_engine;
 
     std::mutex m_renderMutex;
 
-    std::array<CUL::MATH::Point, 6> m_wallsPositions;
-    std::array<class Quad*, 6> m_walls = {};
-    std::array<CUL::MATH::Rotation, 6> m_rotations;
 
     CUL::Graphics::ColorS m_color;
 

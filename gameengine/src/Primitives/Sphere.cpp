@@ -65,7 +65,6 @@ void CSphere::init()
     vd.Indices = indices;
     m_verticesVbo = vao->addVertexBuffer( vd );
 
-    String errorContent;
     ShaderProgram::ShadersData sd;
     sd.FragmentShader = "embedded_shaders/basic_color.frag";
     sd.VertexShader = "embedded_shaders/basic_pos.vert";

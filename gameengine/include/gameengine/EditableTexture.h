@@ -3,6 +3,7 @@
 #include "gameengine/IObject.hpp"
 #include "gameengine/IUtilityUser.hpp"
 #include "gameengine/IRenderDevice.hpp"
+#include "gameengine/Render/PixelFormats.hpp"
 
 NAMESPACE_BEGIN( CUL )
 class CULInterface;
@@ -26,13 +27,6 @@ class VertexBuffer;
 struct TextureInfo;
 struct VertexData;
 
-struct TexPixel
-{
-    uint8_t Red = 0u;
-    uint8_t Green = 0u;
-    uint8_t Blue = 0u;
-    uint8_t Alpha = 0u;
-};
 
 class EditableTexture final: public IUtilityUser,
     public IObject
@@ -47,7 +41,7 @@ public:
     GAME_ENGINE_API EditableTexture( Camera* camera, CUL::CULInterface* cul, bool forceLegacy );
     GAME_ENGINE_API void create( uint16_t width, uint16_t height );
 
-    GAME_ENGINE_API void setPixelValue( std::int32_t x, std::int32_t y, const TexPixel& color );
+    GAME_ENGINE_API void setPixelValue( std::int32_t x, std::int32_t y, const S_RGBA& color );
     GAME_ENGINE_API const CUL::Graphics::ImageInfo& getImageInfo() const;
 
     GAME_ENGINE_API ~EditableTexture();
@@ -69,8 +63,8 @@ private:
     TransformComponent* m_transformComponent = nullptr;
     std::int32_t m_width = -1;
     std::int32_t m_height = -1;
-    std::vector<TexPixel> m_pixelData;
-    int32_t m_textureId = -1;
+    std::vector<S_RGBA> m_pixelData;
+    std::int32_t m_textureId = -1;
     bool m_create = false;
     bool m_needToApply = false;
 

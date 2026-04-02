@@ -4,7 +4,6 @@
 using namespace LOGLW;
 
 IRenderable::IRenderable( bool renderOnMyOwn ):
-    IEngineUser(),
     m_renderOnMyOwn( renderOnMyOwn )
 {
     toggleRenderOnMyOwn( renderOnMyOwn );

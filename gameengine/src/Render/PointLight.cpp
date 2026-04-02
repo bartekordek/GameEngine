@@ -29,6 +29,7 @@ PointLight::PointLight( IObject* parent ):
 
 void PointLight::init()
 {
+    //rapidobj::
     rapidobj::Result result = rapidobj::ParseFile( "res/sphere.obj" );
     if( result.error )
     {

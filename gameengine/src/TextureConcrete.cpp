@@ -16,9 +16,9 @@ TextureConcrete::TextureConcrete(
     auto info = m_image->getImageInfo();
 
     m_texInfo.data = m_image->getData();
-    m_texInfo.size.width = info.size.width;
-    m_texInfo.size.height = info.size.height;
-    m_texInfo.pixelFormat = info.pixelFormat;
+    m_texInfo.size = glm::vec2( static_cast<float>( info.size.width ), static_cast<float>( info.size.height ) );
+    m_texInfo.internalFormat = info.pixelFormat;
+    m_texInfo.dataFormat = info.pixelFormat;
 
     m_textureId = static_cast<decltype( m_textureId )>( utility->generateTexture() );
     utility->bindTexture(static_cast<const unsigned int>(m_textureId));
@@ -32,7 +32,10 @@ TextureConcrete::TextureConcrete(
 
 const TexSize& TextureConcrete::getSize() const
 {
-    return m_texInfo.size;
+    static TexSize result;
+    result.width = static_cast<std::uint32_t>( m_texInfo.size.x );
+    result.height = static_cast<std::uint32_t>( m_texInfo.size.y );
+    return result;
 }
 
 TexID TextureConcrete::getID() const
@@ -44,12 +47,11 @@ void TextureConcrete::calculateQuads()
 {
     if( m_textureId )
     {
-        auto imageWidth = m_texInfo.size.width;
-        auto imageHeight = m_texInfo.size.height;
+        auto imageWidth = m_texInfo.size.x;
+        auto imageHeight = m_texInfo.size.y;
 
-        auto textureWidth = m_texInfo.size.width;
-        auto textureHeight = m_texInfo.size.height;
-
+        auto textureWidth = m_texInfo.size.x;
+        auto textureHeight = m_texInfo.size.y;  
         auto texTop = (float) imageHeight / (float) textureHeight;
         auto texBottom = 0.f;
 

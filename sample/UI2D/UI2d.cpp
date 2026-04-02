@@ -9,6 +9,7 @@
 #include "gameengine/Cube.hpp"
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Sprite.hpp"
+#include "gameengine/UI/UIService.hpp"
 
 #include "gameengine/Windowing/IWindow.hpp"
 #include "gameengine/Input/MouseData.hpp"
@@ -18,6 +19,8 @@
 CUL::MATH::Angle ang90( 90, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang180( 180, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
+
+LOGLW::Triangle* g_triangle{ nullptr };
 
 UI2d::UI2d( const LOGLW::WinData& inWinData ) : m_winData( inWinData )
 {
@@ -79,8 +82,9 @@ void UI2d::afterInit()
 
     m_engine->drawDebugInfo( false );
     m_engine->drawOrigin( false );
+    m_widget = m_engine->getUIService().createWidget();
 
-
+    g_triangle = m_engine->createTriangle( nullptr );
     m_timer->runEveryPeriod(
         [this]()
         {

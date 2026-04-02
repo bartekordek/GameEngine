@@ -35,7 +35,7 @@ class ILogger;
 NAMESPACE_END( LOG )
 
 NAMESPACE_BEGIN( Graphics )
-enum class PixelFormat : short;
+enum class PixelFormat : std::int32_t;
 NAMESPACE_END( Graphics )
 NAMESPACE_END( CUL )
 
@@ -104,11 +104,12 @@ struct GAME_ENGINE_API TextureInfo
 
     unsigned int textureId = 0;
     int level = 0;
-    CUL::Graphics::PixelFormat pixelFormat = CUL::Graphics::PixelFormat::NONE;
+    CUL::Graphics::PixelFormat internalFormat = CUL::Graphics::PixelFormat::NONE;
+    CUL::Graphics::PixelFormat dataFormat = CUL::Graphics::PixelFormat::NONE;
     int border = 0;
     DataType dataType = DataType::UNSIGNED_BYTE;
     void* data = nullptr;
-    CUL::Graphics::SSize2Di size;
+    glm::vec2 size;
 
     const String toString() const;
 };

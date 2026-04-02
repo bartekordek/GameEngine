@@ -18,8 +18,9 @@ class ITimer;
 
 namespace LOGLW
 {
-class IGameEngine;
 class Camera;
+class IGameEngine;
+class IWidget;
 }  // namespace LOGLW
 
 namespace LOGLW
@@ -64,4 +65,5 @@ private:
 
     float m_time = 0.f;
     LOGLW::WinData m_winData;
+    LOGLW::IWidget* m_widget{ nullptr };
 };

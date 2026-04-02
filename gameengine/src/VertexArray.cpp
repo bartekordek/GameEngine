@@ -47,14 +47,14 @@ VertexArray::VertexArray():
     addVertex( this );
 }
 
-void VertexArray::onNameChange( const String& newName )
+void VertexArray::onNameChange( const CUL::StringWr& inName )
 {
-    CUL::IName::onNameChange( newName );
+    CUL::IName::onNameChange( inName );
 
     RunOnRenderThread::getInstance().RunWaitForResult(
-        [this, &newName]()
+        [this, &inName]()
         {
-            getDevice()->setObjectName( EObjectType::VERTEX_ARRAY, m_vaoId, newName );
+            getDevice()->setObjectName( EObjectType::VERTEX_ARRAY, m_vaoId, inName );
             std::uint8_t index = 0u;
             for( auto& vbo : m_vbos )
             {
@@ -275,9 +275,20 @@ void VertexArray::unbind()
     getDevice()->bindBuffer( LOGLW::BufferTypes::VERTEX_ARRAY, 0 );
 }
 
-void VertexArray::setName( const String& name )
+void VertexArray::setName( const char* name, ... )
 {
-    CUL::IName::setName( name );
+    constexpr std::size_t bufferSize{ 1024u };
+    char buffer[bufferSize];
+    va_list args;
+    va_start( args, name );
+    vsnprintf( buffer, bufferSize, name, args );
+    va_end( args );
+    setName( CUL::StringWr( buffer ) );
+}
+
+void VertexArray::setName( const CUL::StringWr& inName )
+{
+    CUL::IName::setName( inName );
     std::uint16_t id{ 0u };
     for( std::unique_ptr<VertexBuffer>& vbo : m_vbos )
     {

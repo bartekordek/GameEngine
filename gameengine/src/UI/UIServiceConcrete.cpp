@@ -1,4 +1,5 @@
 #include "UI/UIServiceConcrete.hpp"
+#include "gameengine/IGameEngine.hpp"
 #include "UI/WidgetTexture.hpp"
 
 namespace LOGLW

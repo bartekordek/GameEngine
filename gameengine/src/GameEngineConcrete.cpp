@@ -223,8 +223,10 @@ Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width, unsign
     const auto& ii = sprite->getImageInfo();
 
     TextureInfo td;
-    td.pixelFormat = CUL::Graphics::PixelFormat::RGBA;
-    td.size = ii.size;
+    td.internalFormat = CUL::Graphics::PixelFormat::RGBA;
+    td.dataFormat = CUL::Graphics::PixelFormat::RGBA;
+    td.size.x = ii.size.width;
+    td.size.y = ii.size.height;
     td.data = sprite->getData();
     m_renderDevice->setTextureData( textureId, td );
 

@@ -853,7 +853,7 @@ void DeviceOpenGL::setTextureData( std::uint32_t textureId, const TextureInfo& t
     }
 
     bindTexture( textureId );
-    glTexImage2D( GL_TEXTURE_2D, ti.level, (GLint)ti.pixelFormat, ti.size.width, ti.size.height, ti.border, (GLenum)ti.pixelFormat,
+    glTexImage2D( GL_TEXTURE_2D, ti.level, (GLint)ti.internalFormat, static_cast<GLsizei>(ti.size.x), static_cast<GLsizei>(ti.size.y), ti.border, (GLenum)ti.dataFormat,
                   (GLenum)GL_UNSIGNED_BYTE, ti.data );
 }
 
@@ -2360,6 +2360,20 @@ ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
+    else if( shaderPath == "embedded_shaders/camera_orto.frag" )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/camera_orto.frag"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
+    else if( shaderPath == "embedded_shaders/camera_orto.vert" )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/camera_orto.vert"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
     else
     {
         CUL::Assert::simple( shaderPath.exists(), "Cannot find shader." );
@@ -2451,7 +2465,7 @@ LOGLW::RenderTypes::RendererType DeviceOpenGL::getType() const
 
 void DeviceOpenGL::updateTextureData( const TextureInfo& ti, void* data )
 {
-    glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, ti.size.width, ti.size.height, GL_RGBA, GL_UNSIGNED_BYTE, data );
+    glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, static_cast<GLsizei>(ti.size.x), static_cast<GLsizei>(ti.size.y), GL_RGBA, GL_UNSIGNED_BYTE, data );
 }
 
 std::vector<AttributeInfo> DeviceOpenGL::fetchProgramAttributeInfo( std::int32_t inProgramId ) const

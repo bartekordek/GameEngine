@@ -1,8 +1,12 @@
 #include "gameengine/Cube.hpp"
+#include "gameengine/Camera.hpp"
+#include "gameengine/Components/TransformComponent.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/Primitives/Quad.hpp"
-#include "gameengine/Components/TransformComponent.hpp"
-
+#include "gameengine/Shaders/ShaderProgram.hpp"
+#include "gameengine/VertexArray.hpp"
+#include "IMPORT_rapidobj.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
 
 using namespace LOGLW;
@@ -14,9 +18,10 @@ Cube::Cube( Camera* camera, bool forceLegacy ):
 {
     m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 
+    getVao()->setProgram( getProgram() );
     if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
     {
-        createPlaceHolders();
+        init();
         m_initialized = true;
     }
     else
@@ -24,14 +29,68 @@ Cube::Cube( Camera* camera, bool forceLegacy ):
         m_engine.addPreRenderTask(
             [this]()
             {
-                createPlaceHolders();
+                init();
                 m_initialized = true;
                 m_engine.addObjectToRender( this );
             } );
     }
 }
 
-// void Cube::setImage(unsigned wallIndex, const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader)
+void Cube::init()
+{
+    const std::string fragmentShaderSource =
+#include "models/cube.obj"
+        ;
+
+    std::istringstream ss( fragmentShaderSource ); 
+    rapidobj::Result result = rapidobj::ParseStream( ss );
+    if( result.error )
+    {
+        const auto errorString = result.error.code.message();
+        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Error, "res/sphere.obj reading object error: %s", errorString.c_str() );
+        CUL::Assert::check( false, "Failed to load cube model cube.obj." );
+    }
+
+    struct Vertex
+    {
+        float pos[3];
+        float uv[2];
+        float nor[3];
+    };
+
+    const std::size_t dataSize = result.attributes.positions.size();
+    std::vector<float> dataVec;
+    std::size_t positionId{ 0u };
+    std::size_t uvId{ 0u };
+    std::size_t texId{ 0u };
+
+    const auto& positions = result.attributes.positions;
+    const std::size_t pointsCount = positions.size();
+    VertexData vboData;
+    vboData.Data.createFrom( positions.data(), pointsCount );
+    vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
+    vboData.Attributes.emplace_back( AttributeMeta( "pos", 0, 3, LOGLW::DataType::FLOAT, false, 0, nullptr ) );
+
+    std::vector<std::uint32_t> indices;
+    for( const auto& indice : result.shapes[0].mesh.indices )
+    {
+        indices.push_back( static_cast<std::uint32_t>( indice.position_index ) );
+    }
+    vboData.Indices.createFrom( indices );
+
+    vboData.VAO = getVao()->getId();
+    getVao()->addVertexBuffer( vboData );
+
+    getProgram()->setName( "%s/program", *getName() );
+    getProgram()->compileShader( EExecuteType::Now, "embedded_shaders/basic_color.frag" );
+    getProgram()->compileShader( EExecuteType::Now, "embedded_shaders/basic_pos.vert" );
+    getProgram()->link( EExecuteType::Now );
+    constexpr float initialScale = 0.1f;
+    getProgram()->validate();
+    getTransform()->setScale( { initialScale, initialScale, initialScale } );
+    getTransform()->setPositionToParent( { 2.f, 2.f, 1.f } );
+}
+
 void Cube::setImage( unsigned, const CUL::FS::Path&, CUL::Graphics::IImageLoader* )
 {
 }
@@ -44,141 +103,36 @@ void Cube::setColor( const CUL::Graphics::ColorS& color )
     {
         return;
     }
-
-    std::lock_guard<std::mutex> renderLock( m_renderMutex );
-
-    static const size_t wallsSize = m_walls.size();
-    for( size_t i = 0; i < wallsSize; ++i )
-    {
-        m_walls[i]->setColor( m_color );
-    }
 }
 
 void Cube::setName( const CUL::StringWr& name )
 {
     IObject::setName( name );
-    std::uint32_t i{ 0u };
-    for( Quad* quad : m_walls )
-    {
-        const char* currentName = getName().getUtfChar();
-        const auto name = String::createFromPrintf( "%s::wall_%d", currentName, i++ );
-    }
-}
-
-void Cube::createPlaceHolders()
-{
-    const TransformComponent::Pos cubeSize( 2.f, 2.f, 2.f );
-    const TransformComponent::Pos quadSize( 2.f, 2.f, 0.f );
-
-    m_transformComponent->setSize( cubeSize );
-    m_transformComponent->setPivot( { 0.0f, 0.f, 0.f } );
-
-    TransformComponent::Pos pivot = { 0.5f, 0.5f, 0.f };
-    // 0
-    {
-        Quad* quad = m_engine.createQuad( this, getForceLegacy() );
-        quad->toggleRenderOnMyOwn( false );
-        addChild( quad );
-        TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, 1.f ) );
-        //transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, 3.f ) );
-        transformCmp->setSize( quadSize );
-        transformCmp->setPivot( pivot );
-        quad->setName( getName() + "::wall_00" );
-        quad->setColor( CUL::Graphics::ColorE::GREEN );
-        m_walls[0] = quad;
-    }
-
-    // 1
-    {
-        LOGLW::Quad* quad = m_engine.createQuad( this, getForceLegacy() );
-        quad->toggleRenderOnMyOwn( false );
-        addChild( quad );
-        TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 0.f, -1.f ) );
-        transformCmp->setSize( quadSize );
-        transformCmp->setPivot( pivot );
-        quad->setName( getName() + "::wall_01" );
-        quad->setColor( m_color );
-        m_walls[1] = quad;
-    }
-
-    // 2
-    {
-        LOGLW::Quad* quad = m_engine.createQuad( this, getForceLegacy() );
-        quad->toggleRenderOnMyOwn( false );
-        addChild( quad );
-        TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setPositionAbsolute( CUL::MATH::Point( -1.f, 0.f, 0.f ) );
-        transformCmp->setSize( quadSize );
-        transformCmp->setPivot( pivot );
-        CUL::MATH::Rotation rotation;
-        rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-        transformCmp->setRotationToParent( rotation );
-        quad->setName( getName() + "::wall_02" );
-        quad->setColor( m_color );
-        m_walls[2] = quad;
-    }
-
-    // 3
-    {
-        LOGLW::Quad* quad = m_engine.createQuad( this, getForceLegacy() );
-        quad->toggleRenderOnMyOwn( false );
-        addChild( quad );
-        TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setPositionAbsolute( CUL::MATH::Point( 1.f, 0.f, 0.f ) );
-        transformCmp->setSize( quadSize );
-        transformCmp->setPivot( pivot );
-        CUL::MATH::Rotation rotation;
-        rotation.Yaw.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-        transformCmp->setRotationToParent( rotation );
-        quad->setName( getName() + "::wall_03" );
-        quad->setColor( m_color );
-        m_walls[3] = quad;
-    }
-
-    // 4
-    {
-        LOGLW::Quad* quad = m_engine.createQuad( this, getForceLegacy() );
-        quad->toggleRenderOnMyOwn( false );
-        addChild( quad );
-        TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, -1.f, 0.f ) );
-        transformCmp->setSize( quadSize );
-        transformCmp->setPivot( pivot );
-        CUL::MATH::Rotation rotation;
-        rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-        transformCmp->setRotationToParent( rotation );
-        quad->setName( getName() + "::wall_04" );
-        quad->setColor( m_color );
-        m_walls[4] = quad;
-    }
-
-    // 5
-    {
-        LOGLW::Quad* quad = m_engine.createQuad( this, getForceLegacy() );
-        quad->toggleRenderOnMyOwn( false );
-        addChild( quad );
-        TransformComponent* transformCmp = quad->getTransform();
-        transformCmp->setPositionAbsolute( CUL::MATH::Point( 0.f, 1.f, 0.f ) );
-        transformCmp->setSize( quadSize );
-        transformCmp->setPivot( pivot );
-        CUL::MATH::Rotation rotation;
-        rotation.Pitch.setValue( 90.f, CUL ::MATH::Angle::Type::DEGREE );
-        transformCmp->setRotationToParent( rotation );
-        quad->setName( getName() + "::wall_05" );
-        quad->setColor( m_color );
-        m_walls[5] = quad;
-    }
+    getVao()->setName( "%s/vao", *name );
+    getProgram()->setName( "%s/program", *name );
 }
 
 void Cube::render()
 {
-    const auto children = getChildren();
-    for( const auto child : children )
-    {
-        child->render();
-    }
+    getProgram()->enable();
+    setTransformationAndColor();
+    getVao()->render();
+
+    getProgram()->disable();
+}
+
+void Cube::setTransformationAndColor()
+{
+    const Camera& camera = getEngine().getCamera();
+    const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
+    const glm::mat4 viewMatrix = camera.getViewMatrix();
+
+    const glm::mat4 model = m_transformComponent->getModel();
+
+    getProgram()->setUniform( EExecuteType::Now, "projection", projectionMatrix );
+    getProgram()->setUniform( EExecuteType::Now, "view", viewMatrix );
+    getProgram()->setUniform( EExecuteType::Now, "model", model );
+    getProgram()->setUniform( EExecuteType::Now, "color", m_color.getVec4() );
 }
 
 Cube::~Cube()
@@ -189,9 +143,4 @@ Cube::~Cube()
 
 void Cube::release()
 {
-    for( size_t i = 0; i < 6; ++i )
-    {
-        delete m_walls[i];
-        m_walls[i] = nullptr;
-    }
 }

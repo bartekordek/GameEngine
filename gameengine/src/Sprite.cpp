@@ -59,8 +59,10 @@ void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoa
 {
     m_image = imageLoader->loadImage( imagePath );
     const auto& ii = getImageInfo();
-    m_textureInfo->pixelFormat = CUL::Graphics::PixelFormat::RGBA;
-    m_textureInfo->size = ii.canvasSize;
+    m_textureInfo->internalFormat = CUL::Graphics::PixelFormat::RGBA;
+    m_textureInfo->dataFormat = CUL::Graphics::PixelFormat::RGBA;
+    m_textureInfo->size.x = ii.canvasSize.width;
+    m_textureInfo->size.y = ii.canvasSize.height;
     m_textureInfo->data = getData();
     m_textureInfo->textureId = static_cast<decltype( m_textureInfo->textureId )>( m_textureId );
     m_textureInfo->initialized = true;
@@ -69,9 +71,9 @@ void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoa
     getDevice()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
     getDevice()->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
 
-    const float maxImensionSize = std::max( m_textureInfo->size.width, m_textureInfo->size.height );
-    const float newRectWidth = m_textureInfo->size.width / maxImensionSize;
-    const float newRectHeight = m_textureInfo->size.height / maxImensionSize;
+    const float maxImensionSize = std::max( m_textureInfo->size.x, m_textureInfo->size.y );
+    const float newRectWidth = m_textureInfo->size.x / maxImensionSize;
+    const float newRectHeight = m_textureInfo->size.y / maxImensionSize;
 
     m_transformComponent->setSize( { newRectWidth, newRectHeight, 0.f } );
 }
@@ -86,10 +88,11 @@ void Sprite::LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned 
     m_textureInfo->level = 0;
     m_textureInfo->border = 0;
     m_textureInfo->dataType = DataType::UNSIGNED_BYTE;
-    m_textureInfo->pixelFormat = CUL::Graphics::PixelFormat::RGBA;
+    m_textureInfo->internalFormat = CUL::Graphics::PixelFormat::RGBA;
+    m_textureInfo->dataFormat = CUL::Graphics::PixelFormat::RGBA;
     m_textureInfo->textureId = m_textureId;
-    m_textureInfo->size.width = width;
-    m_textureInfo->size.height = height;
+    m_textureInfo->size.x = width;
+    m_textureInfo->size.y = height;
     m_textureInfo->initialized = true;
 
     getDevice()->setTextureData( m_textureId, *m_textureInfo );
@@ -199,7 +202,8 @@ void Sprite::updateBuffers_impl()
 
 void Sprite::setSize( const glm::vec3& size )
 {
-    m_vertexData = { 0.0f,   size.y, 0.0f, m_uvList[0].X, m_uvList[0].Y, size.x, size.y, 0.0f, m_uvList[1].X, m_uvList[1].Y,
+    m_vertexData = {
+        0.0f,   size.y, 0.0f, m_uvList[0].X, m_uvList[0].Y, size.x, size.y, 0.0f, m_uvList[1].X, m_uvList[1].Y,
                      size.x, 0.0f,   0.0f, m_uvList[2].X, m_uvList[2].Y, 0.0f,   0.0f,   0.0f, m_uvList[3].X, m_uvList[3].Y };
 }
 
