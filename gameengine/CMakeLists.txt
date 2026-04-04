@@ -63,7 +63,6 @@ PUBLIC glew_s
 PUBLIC glfw
 PUBLIC freeglut_static
 PUBLIC SDL2-static
-PRIVATE tinyobjloader
 PRIVATE rapidobj
 )
 
@@ -74,7 +73,6 @@ PUBLIC glew
 PUBLIC glfw
 PUBLIC freeglut_static
 PUBLIC SDL2
-PRIVATE tinyobjloader
 PRIVATE rapidobj
 )
 

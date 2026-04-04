@@ -9,10 +9,6 @@
 	path = deps/imgui
 	url = git@github.com:ocornut/imgui.git
 	ignore = dirty
-[submodule "deps/tinyobjloader"]
-	path = deps/tinyobjloader
-	url = git@github.com:tinyobjloader/tinyobjloader.git
-	ignore = dirty
 [submodule "deps/ImGuiColorTextEdit"]
 	path = deps/ImGuiColorTextEdit
 	url = git@github.com:bartekordek/ImGuiColorTextEdit.git
