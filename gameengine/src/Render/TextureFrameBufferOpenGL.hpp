@@ -17,6 +17,8 @@ class TextureFrameBufferOpenGL: public ITextureFrameBuffer
 public:
     TextureFrameBufferOpenGL( IRenderDevice& inRd, std::int32_t inWidth, std::int32_t inHeight );
 
+    void setSize( std::int32_t inWidth, std::int32_t inHeight ) override;
+
     void beginCapture() override;
     void endCapture() override;
     void drawCapture() override;

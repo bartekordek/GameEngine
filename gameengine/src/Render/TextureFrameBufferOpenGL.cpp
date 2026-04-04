@@ -2,6 +2,8 @@
 #include "gameengine/ExecuteType.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/VertexArray.hpp"
+#include "gameengine/Windowing/IWindow.hpp"
+#include "gameengine/Windowing/WinSize.hpp"
 #include "DeviceOpenGL.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 
@@ -22,8 +24,7 @@ TextureFrameBufferOpenGL::TextureFrameBufferOpenGL( IRenderDevice& inRd, std::in
     m_fboData.resize( pixelCount );
     std::memset( m_fboData.data(), 0u, pixelCount );
 
-    const auto xd = glm::vec2( static_cast<float>( inWidth ), static_cast<float>( inHeight ) );
-    m_ti.size = xd;
+    m_ti.size = glm::vec2( static_cast<float>( inWidth ), static_cast<float>( inHeight ) );
     m_ti.textureId = m_textureColor;
     // m_ti.data = m_fboData.data();
     m_ti.internalFormat = CUL::Graphics::PixelFormat::RGBA;
@@ -59,9 +60,20 @@ TextureFrameBufferOpenGL::TextureFrameBufferOpenGL( IRenderDevice& inRd, std::in
     m_vao = m_engine.createVAO();
     m_vao->toggleRenderOnMyOwn( false );
 
-    const float tr{ 0.5f };
-    std::vector<float> quadVertices = { -tr, tr, 0.0f, 1.0f, -tr, -tr, 0.0f, 0.0f, tr, -tr, 1.0f, 0.0f,
-                                        tr,  tr, 1.0f, 1.0f, -tr, tr,  0.0f, 1.0f, tr, -tr, 1.0f, 0.0f };
+    setSize( m_size.width, m_size.height );
+}
+
+void TextureFrameBufferOpenGL::setSize( std::int32_t inWidth, std::int32_t inHeight )
+{
+    const LOGLW::WinSize winSize = m_engine.getMainWindow()->getSize();
+    const glm::vec2 tr{ inWidth / static_cast<float>( winSize.W ), inHeight / static_cast<float>( winSize.H ) };
+    std::vector<float> quadVertices = {
+        -tr.x, tr.y, 0.0f, 1.0f,
+        -tr.x, -tr.y, 0.0f, 0.0f,
+        tr.x, -tr.y, 1.0f, 0.0f,
+        tr.x,  tr.y, 1.0f, 1.0f,
+        -tr.x, tr.y,  0.0f, 1.0f,
+        tr.x, -tr.y, 1.0f, 0.0f };
 
     m_vboData.Data.createFrom( quadVertices );
 
