@@ -7,9 +7,12 @@
 #include "gameengine/Primitives/Triangle.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Cube.hpp"
+#include "gameengine/Render/ITextureFrameBuffer.hpp"
 #include "gameengine/Primitives/Quad.hpp"
+#include "gameengine/Render/PixelFormats.hpp"
 #include "gameengine/Sprite.hpp"
 #include "gameengine/UI/UIService.hpp"
+#include "gameengine/UI/WidgetEditable.hpp"
 
 #include "gameengine/Windowing/IWindow.hpp"
 #include "gameengine/Input/MouseData.hpp"
@@ -82,7 +85,7 @@ void UI2d::afterInit()
 
     m_engine->drawDebugInfo( false );
     m_engine->drawOrigin( false );
-    m_widget = m_engine->getUIService().createWidget();
+    m_widget = dynamic_cast<LOGLW::IWidgetEditable*>( m_engine->getUIService().createWidget() );
 
     g_triangle = m_engine->createTriangle( nullptr );
     m_timer->runEveryPeriod(
@@ -91,6 +94,8 @@ void UI2d::afterInit()
             timer();
         },
         40000 );
+    auto fb = m_engine->getFrameBuffer();
+    fb->setSize( m_mainWindow->getSize().W * 0.5f, m_mainWindow->getSize().H );
 }
 
 void UI2d::timer()
@@ -100,7 +105,13 @@ void UI2d::timer()
 
 void UI2d::onMouseEvent( const LOGLW::MouseData& mouseData )
 {
-    if( mouseData.isButtonDown( 3 ) )
+    if (mouseData.isButtonDown(1))
+    {
+        m_engine->getLoger()->logInfo( "Mouse: %d, %d", mouseData.getX(), mouseData.getY() );
+        m_widget->updatePixel( static_cast<std::size_t>( mouseData.getX() ), static_cast<std::size_t>( mouseData.getY() ),
+                               LOGLW::S_RGBA( 1.f, 0.f, 0.f, 1.f ) );
+    }
+    else if( mouseData.isButtonDown( 3 ) )
     {
         const auto& md = m_engine->getMouseData();
         const auto& winSize = m_engine->getMainWindow()->getSize();

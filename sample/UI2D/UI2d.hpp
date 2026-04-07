@@ -20,7 +20,7 @@ namespace LOGLW
 {
 class Camera;
 class IGameEngine;
-class IWidget;
+class IWidgetEditable;
 }  // namespace LOGLW
 
 namespace LOGLW
@@ -65,5 +65,5 @@ private:
 
     float m_time = 0.f;
     LOGLW::WinData m_winData;
-    LOGLW::IWidget* m_widget{ nullptr };
+    LOGLW::IWidgetEditable* m_widget{ nullptr };
 };

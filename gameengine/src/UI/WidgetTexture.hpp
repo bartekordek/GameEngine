@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gameengine/UI/Widget.hpp"
+#include "gameengine/UI/WidgetEditable.hpp"
 #include "gameengine/Render/PixelFormats.hpp"
 #include "CUL/STL_IMPORTS/STD_memory.hpp"
 
@@ -11,13 +11,13 @@ class ShaderProgram;
 struct TextureInfo;
 struct VertexData;
 
-class CWidgetTexture: public IWidget
+class CWidgetTexture: public IWidgetEditable
 {
 public:
     CWidgetTexture();
     void render();
 
-    void updatePixel( std::size_t x, std::size_t y, const S_RGBA& color );
+    void updatePixel( std::size_t x, std::size_t y, const S_RGBA& color ) override;
 
     ~CWidgetTexture();
 
