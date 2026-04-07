@@ -4,6 +4,52 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "[Windows][Build][Debug][RayTracingPlayground_static]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build-Windows",
+                "--config",
+                "DEBUG",
+                "--target",
+                "RayTracingPlayground_static"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {
+            "label": "[Windows][Build][Debug][All]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build-Windows",
+                "--config",
+                "DEBUG"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {
             "label": "[WINDOWS][CMAKE][CREATE][DEBUG]",
             "type": "shell",
             "command": "cmake",
@@ -48,31 +94,6 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             }
-        },
-        {
-            "label": "[WINDOWS][DEBUG][BUILLD][libsdl2wrapper_dynamic]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build-Windows",
-                "--config",
-                "DEBUG",
-                "-j16",
-                "--target",
-                "libsdl2wrapper_dynamic"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ]
         },
         {
             "label": "[Windows][Build][shader_editor_static][Debug]",
