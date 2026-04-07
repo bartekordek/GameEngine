@@ -22,7 +22,7 @@ CWidgetTexture::CWidgetTexture()
         } );
 }
 
-    std::uint8_t generate_byte()
+std::uint8_t generate_byte()
 {
     static std::random_device rd;     // seed source
     static std::mt19937 gen( rd() );  // Mersenne Twister engine
@@ -67,9 +67,9 @@ void CWidgetTexture::init()
     m_ti->textureId = static_cast<decltype( m_ti->textureId )>( m_textureId );
     m_ti->initialized = true;
 
-    m_device->setTextureData( m_textureId, *m_ti );
-    m_device->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
-    m_device->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
+    m_device->setTextureData( static_cast<std::uint32_t>( m_textureId ), *m_ti );
+    m_device->setTextureParameter( static_cast<std::uint32_t>( m_textureId ), TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
+    m_device->setTextureParameter( static_cast<std::uint32_t>( m_textureId ), TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
 
     m_vertexData->VAO = getVao()->getId();
     m_device->bindBuffer( BufferTypes::VERTEX_ARRAY, getVao()->getId() );
@@ -92,11 +92,8 @@ void CWidgetTexture::init()
     const float max = 1.f;
     const float zVal = 0.f;
     std::array<std::array<float, 5>, 4> vertexData;
-    vertexData = {
-        min, max, 0.f, m_uvList[0].X, m_uvList[0].Y,
-        max, max, 0.f, m_uvList[1].X, m_uvList[1].Y,
-        max, min, 0.f, m_uvList[2].X, m_uvList[2].Y,
-        min, min, 0.f, m_uvList[3].X, m_uvList[3].Y };
+    vertexData = { min, max, 0.f, m_uvList[0].X, m_uvList[0].Y, max, max, 0.f, m_uvList[1].X, m_uvList[1].Y,
+                   max, min, 0.f, m_uvList[2].X, m_uvList[2].Y, min, min, 0.f, m_uvList[3].X, m_uvList[3].Y };
 
     std::vector<std::uint32_t> indices = {
         // note that we start from 0!
@@ -141,10 +138,15 @@ void CWidgetTexture::init()
     getVao()->updateVertexBuffer( m_vboData );
     getVao()->setProgram( m_shaderProgram );
 
-    getVao()->setName("WidgetTexture");
+    getVao()->setName( "WidgetTexture" );
 }
 
-void CWidgetTexture::updatePixel( std::size_t x, std::size_t y, const S_RGBA& color )
+void CWidgetTexture::updatePixel( std::size_t x, std::size_t y, const S_RGBA_F& color )
+{
+    updatePixel( x, y, convertToRGBAI( color ) );
+}
+
+void CWidgetTexture::updatePixel( std::size_t x, std::size_t y, const S_RGBA_I& color )
 {
     const auto winSize = getEngine().getMainWindow()->getSize();
     if( x >= static_cast<std::size_t>( winSize.W ) || y >= static_cast<std::size_t>( winSize.H ) )
@@ -160,7 +162,7 @@ void CWidgetTexture::render()
 {
     m_shaderProgram->enable();
     m_device->setActiveTextureUnit( ETextureUnitIndex::UNIT_0 );
-    m_device->bindTexture( m_textureId );
+    m_device->bindTexture( static_cast<std::uint32_t>( m_textureId ) );
 
     if( m_updateData )
     {

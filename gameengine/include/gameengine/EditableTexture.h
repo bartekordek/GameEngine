@@ -41,7 +41,8 @@ public:
     GAME_ENGINE_API EditableTexture( Camera* camera, CUL::CULInterface* cul, bool forceLegacy );
     GAME_ENGINE_API void create( uint16_t width, uint16_t height );
 
-    GAME_ENGINE_API void setPixelValue( std::int32_t x, std::int32_t y, const S_RGBA& color );
+    GAME_ENGINE_API void setPixelValue( std::int32_t x, std::int32_t y, const S_RGBA_I& color );
+    GAME_ENGINE_API void setPixelValue( std::int32_t x, std::int32_t y, const S_RGBA_F& color );
     GAME_ENGINE_API const CUL::Graphics::ImageInfo& getImageInfo() const;
 
     GAME_ENGINE_API ~EditableTexture();
@@ -63,7 +64,7 @@ private:
     TransformComponent* m_transformComponent = nullptr;
     std::int32_t m_width = -1;
     std::int32_t m_height = -1;
-    std::vector<S_RGBA> m_pixelData;
+    std::vector<S_RGBA_I> m_pixelData;
     std::int32_t m_textureId = -1;
     bool m_create = false;
     bool m_needToApply = false;

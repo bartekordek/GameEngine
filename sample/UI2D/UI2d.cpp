@@ -108,8 +108,8 @@ void UI2d::onMouseEvent( const LOGLW::MouseData& mouseData )
     if (mouseData.isButtonDown(1))
     {
         m_engine->getLoger()->logInfo( "Mouse: %d, %d", mouseData.getX(), mouseData.getY() );
-        m_widget->updatePixel( static_cast<std::size_t>( mouseData.getX() ), static_cast<std::size_t>( mouseData.getY() ),
-                               LOGLW::S_RGBA( 1.f, 0.f, 0.f, 1.f ) );
+        static LOGLW::S_RGBA_F color{ 1.f, 0.f, 0.f, 1.f };
+        m_widget->updatePixel( static_cast<std::size_t>( mouseData.getX() ), static_cast<std::size_t>( mouseData.getY() ), color );
     }
     else if( mouseData.isButtonDown( 3 ) )
     {

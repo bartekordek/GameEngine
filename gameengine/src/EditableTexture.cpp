@@ -54,12 +54,20 @@ void EditableTexture::create( uint16_t width, uint16_t height )
     m_imageInfo->size = { width, height };
 }
 
-void EditableTexture::setPixelValue( std::int32_t inX, std::int32_t inY, const S_RGBA& color )
+void EditableTexture::setPixelValue( std::int32_t inX, std::int32_t inY, const S_RGBA_F& color )
+{
+    const S_RGBA_I intColor{
+        static_cast<std::uint8_t>( color.Red * 255.f ),
+        static_cast<std::uint8_t>( color.Green * 255.f ),
+        static_cast<std::uint8_t>( color.Blue * 255.f ),
+        static_cast<std::uint8_t>( color.Alpha * 255.f ) };
+    setPixelValue( inX, inY, intColor );
+}
+
+void EditableTexture::setPixelValue( std::int32_t inX, std::int32_t inY, const S_RGBA_I& color )
 {
     const auto offset =
          inX + inY * m_width;
-    // TexPixel* targetValue = (TexPixel*)( (size_t)m_ti->data + offset );
-    //*targetValue = color;
     m_pixelData[static_cast<std::size_t>( offset )] = color;
     m_needToApply = true;
 }

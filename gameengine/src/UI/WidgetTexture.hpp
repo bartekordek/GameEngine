@@ -17,7 +17,8 @@ public:
     CWidgetTexture();
     void render();
 
-    void updatePixel( std::size_t x, std::size_t y, const S_RGBA& color ) override;
+    void updatePixel( std::size_t x, std::size_t y, const S_RGBA_I& color ) override;
+    void updatePixel( std::size_t x, std::size_t y, const S_RGBA_F& color ) override;
 
     ~CWidgetTexture();
 
@@ -29,7 +30,7 @@ private:
     ShaderProgram* m_shaderProgram{ nullptr };
     std::int32_t m_textureId{ -1 };
     std::unique_ptr<TextureInfo> m_ti;
-    std::vector<S_RGBA> m_pixelData;
+    std::vector<S_RGBA_I> m_pixelData;
     std::unique_ptr<VertexData> m_vertexData;
     IRenderDevice* m_device{ nullptr };
 };
