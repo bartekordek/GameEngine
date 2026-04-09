@@ -34,11 +34,23 @@ if (MSVC)
             OUTPUT_NAME ${PROJECT_NAME_DYNAMIC}
             SUFFIX ".exe"
     )
+    set_target_properties(
+        ${PROJECT_NAME_STATIC}
+        PROPERTIES
+            OUTPUT_NAME ${PROJECT_NAME_STATIC}
+            SUFFIX ".exe"
+    )
 else()
     set_target_properties(
         ${PROJECT_NAME_DYNAMIC}
         PROPERTIES
             OUTPUT_NAME ${PROJECT_NAME_DYNAMIC}
+            SUFFIX ".bin"
+    )
+    set_target_properties(
+        ${PROJECT_NAME_STATIC}
+        PROPERTIES
+            OUTPUT_NAME ${PROJECT_NAME_STATIC}
             SUFFIX ".bin"
     )
 endif()
