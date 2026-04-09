@@ -3,7 +3,6 @@
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "RunOnRenderThread.hpp"
-#include <gameengine/IGameEngine.hpp>
 #include "gameengine/Components/TransformComponent.hpp"
 #include "CUL/Log/ILogger.hpp"
 
