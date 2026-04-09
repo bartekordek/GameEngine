@@ -26,7 +26,8 @@ CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 
 LOGLW::Triangle* g_triangle{ nullptr };
 
-RT_Playground::RT_Playground( const LOGLW::WinData& inWinData ) : m_winData( inWinData )
+RT_Playground::RT_Playground( const LOGLW::WinData& inWinData ):
+    m_winData( inWinData )
 {
 }
 
@@ -108,7 +109,7 @@ void RT_Playground::timer()
     const std::size_t width = size.W;
     const std::size_t height = size.H;
 
-    static LOGLW::S_RGBA_F pix{0.f, 0.f, 0.f, 1.f};
+    static LOGLW::S_RGBA_F pix{ 0.f, 0.f, 0.f, 1.f };
     static glm::vec3 eye{ 0.f, 0.f, 4.f };
 
     for( size_t j = 0; j < height; j++ )
@@ -156,8 +157,6 @@ void RT_Playground::timer()
                 Vec3f dir = Vec3f( i, j, -1 );
                 dir = glm::normalize( dir );
 
-                const Vec3f ray = cast_ray( Vec3f( 0, 0, 0 ), dir, m_sphere );
-
                 pix.Red = j / float( height );
                 pix.Green = i / float( width );
                 pix.Blue = 0.f;
@@ -171,7 +170,7 @@ void RT_Playground::timer()
 
 void RT_Playground::onMouseEvent( const LOGLW::MouseData& mouseData )
 {
-    if (mouseData.isButtonDown(1))
+    if( mouseData.isButtonDown( 1 ) )
     {
         m_engine->getLoger()->logInfo( "Mouse: %d, %d", mouseData.getX(), mouseData.getY() );
         static LOGLW::S_RGBA_F color{ 1.f, 0.f, 0.f, 1.f };
@@ -299,7 +298,6 @@ bool Sphere::ray_intersect( const Vec3f& orig, const Vec3f& dir, float& t0 ) con
         return false;
     return true;
 }
-
 
 Vec3f cast_ray( const Vec3f& orig, const Vec3f& dir, const Sphere& sphere )
 {
