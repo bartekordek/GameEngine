@@ -103,8 +103,7 @@ void TextureFrameBufferOpenGL::beginCapture()
     glBindFramebuffer( GL_FRAMEBUFFER, m_framebufferColor );
     glEnable( GL_DEPTH_TEST );
 
-    //glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-    glClearColor( 1.f, 0.f, 1.f, 1.f );  // bright pink
+    glClearColor( 0.1f, 0.1f, 0.1f, 1.f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 }
 

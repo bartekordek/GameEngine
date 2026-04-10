@@ -43,17 +43,18 @@ texcoords, indices, etc.
 
 NAMESPACE_BEGIN( LOGLW )
 
+struct DataWrapper;
+
 using FloatData = std::vector<float>;
 using BuffIDType = std::uint32_t;
-template<typename Type>
-using Ptr = CUL::GUTILS::DumbPtr<Type>;
 
 class GAME_ENGINE_API VertexBuffer final:
     public IUtilityUser,
     public CUL::IName
 {
 public:
-    VertexBuffer( const VertexData& vertexData );
+    explicit VertexBuffer( const VertexData& vertexData );
+    explicit VertexBuffer( const DataWrapper& vertexData );
     void setVertexData( const VertexData& vertexData );
     void updateVertexData( const VertexData& vertexData );
     void updateVertexData( bool isRenderThread );

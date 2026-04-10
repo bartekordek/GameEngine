@@ -46,6 +46,13 @@ void IndexBuffer::loadData( const CUL::DataWrapper& inData )
     getDevice()->bufferData( m_id, m_data, BufferTypes::ELEMENT_ARRAY_BUFFER );
 }
 
+void IndexBuffer::loadData( const std::vector<std::uint32_t>& inData )
+{
+    m_data.createFrom( inData );
+    bind();
+    getDevice()->bufferData( m_id, m_data, BufferTypes::ELEMENT_ARRAY_BUFFER );
+}
+
 std::uint32_t IndexBuffer::getObjID() const
 {
     return m_id;

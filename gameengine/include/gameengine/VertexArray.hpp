@@ -56,6 +56,9 @@ public:
     VertexArray& operator=( const VertexArray& value ) = delete;
     VertexArray& operator=( VertexArray&& value ) = delete;
 
+    void addData( const DataWrapper& inData );
+    void addIndexData( const std::vector<std::uint32_t>& inData );
+
     BuffIDType getId() const;
     VertexBuffer* addVertexBuffer( const VertexData& data );
     void updateVertexBuffer( const VertexData& data );
@@ -113,10 +116,9 @@ private:
 
 
     std::unique_ptr<VertexData> m_vertexData;
+    std::unique_ptr<IndexBuffer> m_indexBuffer;
 
     std::vector<std::unique_ptr<VertexBuffer>> m_vbos;
-
-    std::vector<Ptr<IndexBuffer>> m_indexBuffers;
 
     std::vector < std::vector<unsigned>> m_indicesToPrepare;
     bool m_unbindBuffersAfterDraw{ false };

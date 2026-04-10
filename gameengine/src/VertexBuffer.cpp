@@ -13,6 +13,23 @@ VertexBuffer::VertexBuffer( const VertexData& vertexData ):
     init();
 }
 
+VertexBuffer::VertexBuffer( const DataWrapper& vertexData )
+{
+    AttributeMeta am;
+    am.Name = vertexData.Name;
+    am.DataOffset = reinterpret_cast<void*>( vertexData.Offset );
+    am.Index = vertexData.Index;
+    am.Size = vertexData.Size;
+    am.StrideBytes = vertexData.Stride;
+    am.Type = DataType::FLOAT;
+    m_vertexData.Attributes.emplace_back( am );
+    m_vertexData.primitiveType = vertexData.primitiveType;
+    m_vertexData.Data.createFrom( vertexData.Data );
+    m_vertexData.VAO = vertexData.VAO;
+
+    init();
+}
+
 void VertexBuffer::init()
 {
     RunOnRenderThread::getInstance().RunWaitForResult(

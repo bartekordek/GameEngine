@@ -811,6 +811,8 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
                     ImGui::Text( "Normalized: %s", meta.Normalized ? "true" : "false" );
                     ImGui::Text( "Stride: %d (%d * %s)", meta.StrideBytes, strideElCount, LOGLW::BasicTypes::toChar( meta.Type ) );
 
+
+                    //TODO: Wrong stride?
                     std::int32_t columnCount = meta.Size;
                     std::int32_t rowsCount = static_cast<std::int32_t>( vertexData.Data.getElementCount() ) / strideElCount;
 

@@ -16,6 +16,7 @@ class IndexBuffer final:
 public:
     GAME_ENGINE_API IndexBuffer();
     GAME_ENGINE_API void loadData( const CUL::DataWrapper& inData );
+    GAME_ENGINE_API void loadData( const std::vector<std::uint32_t>& inData );
     GAME_ENGINE_API const CUL::DataWrapper& getData() const;
     GAME_ENGINE_API std::uint32_t getObjID() const;
     GAME_ENGINE_API void bind();

@@ -90,6 +90,8 @@ void Quad::updateBuffers()
 
 void Quad::updateBuffers_impl()
 {
+    VertexArray* vao = getVao();
+
     const auto size = m_transformComponent->getSize();
 
     setSize( size.toGlmVec() );
@@ -99,42 +101,49 @@ void Quad::updateBuffers_impl()
         0, 1, 3,  // first Triangle
         1, 2, 3   // second Triangle
     };
+    vao->addIndexData( indices );
 
-    m_vboData.Indices.createFrom( indices );
-
-    m_vboData.Data.createFrom( m_shape.toVectorOfFloat() );
-
-    m_vboData.Attributes.clear();
-
-    AttributeMeta am;
-    am.Name = "pos";
-    am.Index = 0;
-    am.Size = 3;
-    am.Type = LOGLW::DataType::FLOAT;
-    am.StrideBytes = (int)CUL::MATH::Primitives::Quad::getStride();
-    m_vboData.Attributes.emplace_back( am );
-
-    am.Name = "nor";
-    am.Index = 1;
-    am.Size = 3;
-    am.Type = LOGLW::DataType::FLOAT;
-    am.StrideBytes = (int)CUL::MATH::Primitives::Quad::getStride();
-    am.DataOffset = reinterpret_cast<void*>( 3 * sizeof( float ) );
-    m_vboData.Attributes.emplace_back( am );
-
-    m_vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
-
-    m_vboData.VAO = getVao()->getId();
-
-    getVao()->updateVertexBuffer( m_vboData );
+    {
+        std::vector<float> verts;
+        for( const glm::vec3& pos : m_vertices )
+        {
+            verts.push_back( pos.x );
+            verts.push_back( pos.y );
+            verts.push_back( pos.z );
+        }
+        DataWrapper dw;
+        dw.Data = verts;
+        dw.Size = 3u;
+        dw.Name = "pos";
+        getVao()->addData( dw );
+    }
+    {
+        std::vector<float> norms;
+        for( const glm::vec3& nor : m_normals )
+        {
+            norms.push_back( nor.x );
+            norms.push_back( nor.y );
+            norms.push_back( nor.z );
+        }
+        DataWrapper dw;
+        dw.Data = norms;
+        dw.Size = 3u;
+        dw.Name = "nor";
+        getVao()->addData( dw );
+    }
 }
 
 void Quad::setSize( const glm::vec3& size )
 {
-    m_shape.data[0] = { size.x, size.y, 0.f, 0.f, 0.f, 1.f };
-    m_shape.data[1] = { size.x,    0.f, 0.f, 0.f, 0.f, 1.f };
-    m_shape.data[2] = { 0.f,       0.f, 0.f, 0.f, 0.f, 1.f };
-    m_shape.data[3] = { 0.f,    size.y, 0.f, 0.f, 0.f, 1.f };
+    m_vertices[0] = { size.x, size.y, 0.f };
+    m_vertices[1] = { size.x,    0.f, 0.f };
+    m_vertices[2] = { 0.f,       0.f, 0.f };
+    m_vertices[3] = { 0.f,    size.y, 0.f };
+
+    m_normals[0] = { 0.f, 0.f, 1.f };
+    m_normals[1] = { 0.f, 0.f, 1.f };
+    m_normals[2] = { 0.f, 0.f, 1.f };
+    m_normals[3] = { 0.f, 0.f, 1.f };
 }
 
 void Quad::createShaders()
@@ -153,7 +162,7 @@ void Quad::render()
 
     if( getDevice()->isLegacy() || getForceLegacy() )
     {
-        getDevice()->draw( m_shape, m_transformComponent->getModel(), m_color );
+        CUL::Assert::check( false, "Legacy mode is not supported for Quad!" );
     }
     else
     {
