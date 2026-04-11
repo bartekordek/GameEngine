@@ -2373,6 +2373,20 @@ ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
+    else if( shaderPath == "embedded_shaders/rt_basic.frag" )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/rt_basic.frag"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
+    else if( shaderPath == "embedded_shaders/rt_basic.vert" )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/rt_basic.vert"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
     else
     {
         CUL::Assert::simple( shaderPath.exists(), "Cannot find shader." );
