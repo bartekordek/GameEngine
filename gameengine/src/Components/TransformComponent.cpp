@@ -235,6 +235,12 @@ void TransformComponent::setScale( const glm::vec3& scale )
     changeSizeDelegate.execute();
 }
 
+void TransformComponent::move( const glm::vec3& inDiff )
+{
+    m_pos += inDiff;
+    changeSizeDelegate.execute();
+}
+
 TransformComponent::~TransformComponent()
 {
 }
