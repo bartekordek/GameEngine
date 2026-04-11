@@ -17,46 +17,47 @@ NAMESPACE_BEGIN( LOGLW )
 
 class IObject;
 
-class GAME_ENGINE_API TransformComponent final: public IComponent
+class TransformComponent final: public IComponent
 {
 public:
     using Pos = CUL::MATH::Point;
     using TranslationVector = CUL::MATH::Point;
 
-    TransformComponent( IObject* owner );
+    GAME_ENGINE_API TransformComponent( IObject* owner );
 
-    void setPositionToParent( const glm::vec3& position );
-    const glm::vec3 getPositionToParent() const;
+    GAME_ENGINE_API void setPositionToParent( const glm::vec3& position );
+    GAME_ENGINE_API const glm::vec3 getPositionToParent() const;
 
-    void setPositionAbsolute( const glm::vec3& position );
-    const glm::vec3 getPositionAbsolut() const;
+    GAME_ENGINE_API void setPositionAbsolute( const glm::vec3& position );
+    GAME_ENGINE_API const glm::vec3 getPositionAbsolut() const;
 
-    void setRotationToParent( const CUL::MATH::Rotation& rotation );
-    const CUL::MATH::Rotation getRotationToParent() const;
+    GAME_ENGINE_API void setRotationToParent( const CUL::MATH::Rotation& rotation );
+    GAME_ENGINE_API const CUL::MATH::Rotation getRotationToParent() const;
 
-    void setRotationAbsolute( const CUL::MATH::Rotation& rotation );
-    const CUL::MATH::Rotation getRotationAbsolute() const;
+    GAME_ENGINE_API void setRotationAbsolute( const CUL::MATH::Rotation& rotation );
+    GAME_ENGINE_API const CUL::MATH::Rotation getRotationAbsolute() const;
 
-    const glm::mat4 getModel() const;
+    GAME_ENGINE_API const glm::mat4 getModel() const;
 
-    void setSize( const Pos& size );
-    const Pos& getSize() const;
+    GAME_ENGINE_API void setSize( const Pos& size );
+    GAME_ENGINE_API const Pos& getSize() const;
 
-    const Pos& getPivot() const;
-    glm::vec3 getPivotNormalized();
-    void setPivot( const Pos& pivot );
-    void setPivotNormalized( const Pos& pivot );
+    GAME_ENGINE_API const Pos& getPivot() const;
+    GAME_ENGINE_API glm::vec3 getPivotNormalized();
+    GAME_ENGINE_API void setPivot( const Pos& pivot );
+    GAME_ENGINE_API void setPivotNormalized( const Pos& pivot );
 
-    void addOnChangeCallback( const String& callbackName, const std::function<void( const glm::mat4& model )> callback );
-    void removeCallback( const String& callbackName );
+    GAME_ENGINE_API void addOnChangeCallback( const String& callbackName, const std::function<void( const glm::mat4& model )> callback );
+    GAME_ENGINE_API void removeCallback( const String& callbackName );
 
     CUL::GUTILS::SimpleDelegate changeSizeDelegate;
-    void decomposeAndLogData( const glm::mat4& data ) const;
+    GAME_ENGINE_API void decomposeAndLogData( const glm::mat4& data ) const;
+    GAME_ENGINE_API const glm::vec3& getScale() const;
+    GAME_ENGINE_API void setScale( const glm::vec3& scale );
+    GAME_ENGINE_API void move( const glm::vec3& inDiff );
 
-    const glm::vec3& getScale() const;
-    void setScale( const glm::vec3& scale );
 
-    ~TransformComponent();
+    GAME_ENGINE_API ~TransformComponent();
 
 protected:
 private:
