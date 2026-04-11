@@ -1,26 +1,24 @@
 #include "rts.hpp"
 
-#include "gameengine/IGameEngine.hpp"
-#include "gameengine/EngineParams.hpp"
-#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Camera.hpp"
-#include "gameengine/IDebugOverlay.hpp"
-#include "gameengine/Primitives/Triangle.hpp"
-#include "gameengine/ExecuteType.hpp"
-#include "gameengine/Render/PointLight.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Cube.hpp"
+#include "gameengine/EngineParams.hpp"
+#include "gameengine/ExecuteType.hpp"
+#include "gameengine/IDebugOverlay.hpp"
+#include "gameengine/IGameEngine.hpp"
+#include "gameengine/Input/MouseData.hpp"
+#include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Primitives/Sphere.hpp"
+#include "gameengine/Primitives/Triangle.hpp"
 #include "gameengine/Render/ITextureFrameBuffer.hpp"
 #include "gameengine/Render/PixelFormats.hpp"
-#include "gameengine/Primitives/Quad.hpp"
-#include "gameengine/Render/PixelFormats.hpp"
+#include "gameengine/Render/PointLight.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Sprite.hpp"
 #include "gameengine/UI/UIService.hpp"
 #include "gameengine/UI/WidgetEditable.hpp"
-
 #include "gameengine/Windowing/IWindow.hpp"
-#include "gameengine/Input/MouseData.hpp"
 
 #include "CUL/ITimer.hpp"
 
@@ -28,10 +26,8 @@ CUL::MATH::Angle ang90( 90, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang180( 180, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 
-LOGLW::Triangle* g_triangle{ nullptr };
 
-RT_Playground::RT_Playground( const LOGLW::WinData& inWinData ):
-    m_winData( inWinData )
+RT_Playground::RT_Playground( const LOGLW::WinData& inWinData ) : m_winData( inWinData )
 {
 }
 
@@ -92,7 +88,6 @@ void RT_Playground::afterInit()
     m_engine->drawDebugInfo( false );
     m_engine->drawOrigin( false );
 
-    g_triangle = m_engine->createTriangle( nullptr );
     m_timer->runEveryPeriod(
         [this]()
         {
@@ -102,21 +97,34 @@ void RT_Playground::afterInit()
     auto fb = m_engine->getFrameBuffer();
     fb->setSize( m_mainWindow->getSize().W, m_mainWindow->getSize().H );
 
-    m_sphere = new LOGLW::CSphere( nullptr );
+    {
+        m_bulb = m_engine->createPointLight( nullptr );
+        m_bulb->setColor( CUL::Graphics::ColorE::YELLOW );
+        m_bulb->getTransform()->setPivot( { 0.5f, 0.5f, 0.f } );
+        m_bulb->getTransform()->setPositionToParent( { 0.f, 0.f, 2.f } );
+        m_bulb->getTransform()->setSize( { 0.9f, 0.9f, 0.9f } );
+        constexpr float initialScale = 0.02f;
+        m_bulb->getTransform()->setScale( { initialScale, initialScale, initialScale } );
+        m_bulb->setName( "m_bulb" );
+    }
 
-    LOGLW::ShaderProgram::ShadersData sd;
-    sd.FragmentShader = "embedded_shaders/basic_color.frag";
-    sd.VertexShader = "embedded_shaders/basic_pos.vert";
-
-    m_sphere->getProgram()->createFrom( LOGLW::EExecuteType::WaitForCompletion, sd );
-
-    m_pointLight = m_engine->createPointLight( nullptr );
+    {
+        m_quad = m_engine->createQuad( nullptr );
+        m_quad->setColor( CUL::Graphics::ColorE::YELLOW );
+        m_quad->setName( "Wall_with_light" );
+        LOGLW::ShaderProgram::ShadersData sd;
+        sd.FragmentShader = "embedded_shaders/rt_basic.frag";
+        sd.VertexShader = "embedded_shaders/rt_basic.vert";
+        m_quad->getProgram()->createFrom( LOGLW::EExecuteType::Now, sd );
+        m_quad->getProgram()->setUniform(
+            LOGLW::EExecuteType::Now, "eyePos", m_engine->getCamera().getEye() );
+        m_quad->getProgram()->setUniform(
+            LOGLW::EExecuteType::Now, "lightPos", m_bulb->getTransform()->getPositionAbsolut() );
+    }
 }
 
 void RT_Playground::timer()
 {
-
-
     m_time += 0.01f;
 }
 
@@ -124,7 +132,8 @@ void RT_Playground::onMouseEvent( const LOGLW::MouseData& mouseData )
 {
     if( mouseData.isButtonDown( 1 ) )
     {
-        m_engine->getLoger()->logInfo( "Mouse: %d, %d", mouseData.getX(), mouseData.getY() );
+        m_engine->getLoger()->logInfo(
+            "Mouse: %d, %d", mouseData.getX(), mouseData.getY() );
     }
     else if( mouseData.isButtonDown( 3 ) )
     {
@@ -160,6 +169,8 @@ void RT_Playground::onMouseEvent( const LOGLW::MouseData& mouseData )
 
 void RT_Playground::onKeyBoardEvent( const LOGLW::KeyboardState& key )
 {
+    constexpr float moveDelta = 2.0f;
+
     if( key.at( "Q" ) )
     {
         closeApp();
@@ -167,9 +178,19 @@ void RT_Playground::onKeyBoardEvent( const LOGLW::KeyboardState& key )
 
     if( key.at( "W" ) )
     {
+        m_bulb->getTransform()->move( { 0.f, moveDelta, 0.f } );
     }
     else if( key.at( "S" ) )
     {
+        m_bulb->getTransform()->move( { 0.f, -moveDelta, 0.f } );
+    }
+    else if( key.at( "A" ) )
+    {
+        m_bulb->getTransform()->move( { -moveDelta, 0.f, 0.f } );
+    }
+    else if( key.at( "D" ) )
+    {
+        m_bulb->getTransform()->move( { moveDelta, 0.f, 0.f } );
     }
     else if( key.at( "U" ) )
     {

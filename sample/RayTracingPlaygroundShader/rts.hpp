@@ -8,6 +8,7 @@
 #include "CUL/Math/Angle.hpp"
 #include "CUL/Math/Point.hpp"
 #include "CUL/Math/Rotation.hpp"
+
 #include "CUL/IMPORT_GLM.hpp"
 #include "CUL/STL_IMPORTS/STD_memory.hpp"
 
@@ -19,12 +20,13 @@ class ITimer;
 namespace LOGLW
 {
 class Camera;
+class CSphere;
 class IGameEngine;
 class IWidgetEditable;
-class MouseData;
 class IWindow;
-class CSphere;
+class MouseData;
 class PointLight;
+class Quad;
 }  // namespace LOGLW
 
 namespace LOGLW
@@ -35,8 +37,6 @@ namespace WindowEvent
 enum class Type : short;
 }
 }  // namespace LOGLW
-
-using Vec3f = glm::vec3;
 
 class RT_Playground final: public LOGLW::IMouseObserver, public LOGLW::IKeyboardObserver
 {
@@ -63,13 +63,14 @@ private:
     LOGLW::IWindow* m_mainWindow = nullptr;
     LOGLW::Camera* m_camera = nullptr;
 
-    LOGLW::CSphere* m_sphere{ nullptr };
-    LOGLW::PointLight* m_pointLight{ nullptr };
-
     glm::vec3 g_eyePos;
 
     std::unique_ptr<CUL::ITimer> m_timer;
 
     float m_time = 0.f;
     LOGLW::WinData m_winData;
+
+    LOGLW::Quad* m_quad = nullptr;
+    LOGLW::PointLight* m_bulb = nullptr;
+    glm::vec3 m_bulbPos{ 0.f, 0.f, 0.f };
 };
