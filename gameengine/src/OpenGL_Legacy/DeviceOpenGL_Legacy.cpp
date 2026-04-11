@@ -50,11 +50,10 @@ void DeviceOpenGL_Legacy::clearColorAndDepthBuffer()
 
 void DeviceOpenGL_Legacy::clearColorTo( const ColorS color )
 {
-    glClearColor(
-        static_cast<GLclampf>( color.getRF() ),
-        static_cast<GLclampf>( color.getGF() ),
-        static_cast<GLclampf>( color.getBF() ),
-        static_cast<GLclampf>( color.getAF() ) );
+    glClearColor( static_cast<GLclampf>( color.getRF() ),
+                  static_cast<GLclampf>( color.getGF() ),
+                  static_cast<GLclampf>( color.getBF() ),
+                  static_cast<GLclampf>( color.getAF() ) );
 }
 
 unsigned int DeviceOpenGL_Legacy::generateVertexArray( const int /*size*/ )
@@ -66,11 +65,17 @@ void DeviceOpenGL_Legacy::setClientState( ClientStateTypes /*cs*/, bool /*enable
 {
 }
 
-void DeviceOpenGL_Legacy::texCoordPointer( int /*coordinatesPerElement*/, DataType /*dataType*/, int /*stride*/, void* /*pointer*/ )
+void DeviceOpenGL_Legacy::texCoordPointer( int /*coordinatesPerElement*/,
+                                           DataType /*dataType*/,
+                                           int /*stride*/,
+                                           void* /*pointer*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::vertexPointer( int /*coordinatesPerElement*/, DataType /*dataType*/, int /*stride*/, void* /*pointer*/ )
+void DeviceOpenGL_Legacy::vertexPointer( int /*coordinatesPerElement*/,
+                                         DataType /*dataType*/,
+                                         int /*stride*/,
+                                         void* /*pointer*/ )
 {
 }
 
@@ -86,20 +91,24 @@ void DeviceOpenGL_Legacy::deleteBuffer( BufferTypes /*bufferType*/, unsigned& /*
 {
 }
 
-void DeviceOpenGL_Legacy::enableVertexAttribiute( unsigned /*programId*/, const String& /*attribName*/ )
+void DeviceOpenGL_Legacy::enableVertexAttribiute( unsigned /*programId*/,
+                                                  const String& /*attribName*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::disableVertexAttribiute( unsigned /*programId*/, const String& /*attribName*/ )
+void DeviceOpenGL_Legacy::disableVertexAttribiute( unsigned /*programId*/,
+                                                   const String& /*attribName*/ )
 {
 }
 
-int DeviceOpenGL_Legacy::getAttribLocation( unsigned /*programId*/, const String& /*attribName*/ )
+int DeviceOpenGL_Legacy::getAttribLocation( unsigned /*programId*/,
+                                            const String& /*attribName*/ )
 {
     return 0;
 }
 
-int DeviceOpenGL_Legacy::getUniformLocation( unsigned /*programId*/, const String& /*attribName*/ )
+int DeviceOpenGL_Legacy::getUniformLocation( unsigned /*programId*/,
+                                             const String& /*attribName*/ )
 {
     return 0;
 }
@@ -108,20 +117,28 @@ void DeviceOpenGL_Legacy::unbindBuffer( const BufferTypes /*bufferType*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::bindBuffer( const BufferTypes /*bufferType*/, unsigned /*bufferId*/ )
+void DeviceOpenGL_Legacy::bindBuffer( const BufferTypes /*bufferType*/,
+                                      unsigned /*bufferId*/ )
 {
 }
 
-unsigned int DeviceOpenGL_Legacy::generateBuffer( const BufferTypes /*type*/, const int /*size*/ )
+unsigned int DeviceOpenGL_Legacy::generateBuffer( const BufferTypes /*type*/,
+                                                  const int /*size*/ )
 {
     return 0;
 }
 
-void DeviceOpenGL_Legacy::drawElementsFromLastBuffer( const PrimitiveType /*primitiveType*/, const DataType /*dataType*/, unsigned /*count*/ )
+void DeviceOpenGL_Legacy::drawElementsFromLastBuffer(
+    const PrimitiveType /*primitiveType*/,
+    const DataType /*dataType*/,
+    unsigned /*count*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::drawArrays( unsigned /*vaoId*/, const PrimitiveType /*primitiveType*/, unsigned /*first*/, unsigned /*count*/ )
+void DeviceOpenGL_Legacy::drawArrays( unsigned /*vaoId*/,
+                                      const PrimitiveType /*primitiveType*/,
+                                      unsigned /*first*/,
+                                      unsigned /*count*/ )
 {
 }
 
@@ -133,7 +150,10 @@ void DeviceOpenGL_Legacy::enableVertexAttribArray( unsigned /*attributeId*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::setVertexPointer( int /*coordinatesPerVertex*/, DataType /*dataType*/, int /*stride*/, const void* /*data*/ )
+void DeviceOpenGL_Legacy::setVertexPointer( int /*coordinatesPerVertex*/,
+                                            DataType /*dataType*/,
+                                            int /*stride*/,
+                                            const void* /*data*/ )
 {
 }
 
@@ -145,7 +165,10 @@ void DeviceOpenGL_Legacy::draw( const QuadCUL& /*quad*/, const ColorS& /*color*/
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const QuadCUL& /*quad*/, const Point& /*translation*/, const CUL::MATH::Rotation& /*rotation*/, const ColorS& /*color*/ )
+void DeviceOpenGL_Legacy::draw( const QuadCUL& /*quad*/,
+                                const Point& /*translation*/,
+                                const CUL::MATH::Rotation& /*rotation*/,
+                                const ColorS& /*color*/ )
 {
 }
 
@@ -153,11 +176,13 @@ void DeviceOpenGL_Legacy::draw( const QuadCUL& /*quad*/, const QuadColors& /*col
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const QuadData& /*quad*/, const std::array<ColorS, 4>& /*color*/ )
+void DeviceOpenGL_Legacy::draw( const QuadData& /*quad*/,
+                                const std::array<ColorS, 4>& /*color*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const CUL::MATH::Primitives::Line& /*values*/, const ColorS& /*color*/ )
+void DeviceOpenGL_Legacy::draw( const CUL::MATH::Primitives::Line& /*values*/,
+                                const ColorS& /*color*/ )
 {
 }
 
@@ -169,11 +194,13 @@ void DeviceOpenGL_Legacy::draw( const LineData& /*values*/, const ColorS& /*colo
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const TriangleData& /*values*/, const std::array<ColorS, 3>& /*color*/ )
+void DeviceOpenGL_Legacy::draw( const TriangleData& /*values*/,
+                                const std::array<ColorS, 3>& /*color*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const TriangleCUL& /*quad*/, const std::array<ColorS, 4>& /*color*/ )
+void DeviceOpenGL_Legacy::draw( const TriangleCUL& /*quad*/,
+                                const std::array<ColorS, 4>& /*color*/ )
 {
 }
 
@@ -189,11 +216,15 @@ void DeviceOpenGL_Legacy::draw( const Point& /*unused*/, const ColorS& /*unused*
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const QuadCUL& /*unused*/, const glm::mat4& /*unused*/, const ColorS& /*unused*/ )
+void DeviceOpenGL_Legacy::draw( const QuadCUL& /*unused*/,
+                                const glm::mat4& /*unused*/,
+                                const ColorS& /*unused*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::draw( const TriangleCUL& /*unused*/, const glm::mat4& /*unused*/, const ColorS& /*unused*/ )
+void DeviceOpenGL_Legacy::draw( const TriangleCUL& /*unused*/,
+                                const glm::mat4& /*unused*/,
+                                const ColorS& /*unused*/ )
 {
 }
 
@@ -201,7 +232,9 @@ void DeviceOpenGL_Legacy::translate( const Point& /*unused*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::translate( const float /*unused*/, const float /*unused*/, const float /*unused*/ )
+void DeviceOpenGL_Legacy::translate( const float /*unused*/,
+                                     const float /*unused*/,
+                                     const float /*unused*/ )
 {
 }
 
@@ -209,7 +242,10 @@ void DeviceOpenGL_Legacy::rotate( const CUL::MATH::Rotation& /*unused*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::rotate( const float /*unused*/, const float /*unused*/, const float /*unused*/, const float /*unused*/ )
+void DeviceOpenGL_Legacy::rotate( const float /*unused*/,
+                                  const float /*unused*/,
+                                  const float /*unused*/,
+                                  const float /*unused*/ )
 {
 }
 
@@ -246,7 +282,9 @@ void DeviceOpenGL_Legacy::bindTexture( const unsigned int /*unused*/ )
 {
 }
 
-void DeviceOpenGL_Legacy::setTextureParameter( uint8_t /*unused*/, const TextureParameters /*unused*/, const TextureFilterType /*unused*/ )
+void DeviceOpenGL_Legacy::setTextureParameter( uint8_t /*unused*/,
+                                               const TextureParameters /*unused*/,
+                                               const TextureFilterType /*unused*/ )
 {
 }
 
