@@ -2,11 +2,11 @@
 
 namespace LOGLW
 {
-CScene::CScene()
+IScene::IScene()
 {
 }
 
-CScene::~CScene()
+IScene::~IScene()
 {
 }
 }  // namespace LOGLW

@@ -25,6 +25,12 @@ PointLight::PointLight( IObject* parent ):
         {
             init();
         } );
+
+    m_transformComponent->PositionChangeDelegate.addDelegate(
+        [this]( float x, float y, float z )
+        {
+            broadcastLightSourcePositionChange( x, y, z );
+        } );
 }
 
 void PointLight::init()

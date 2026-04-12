@@ -22,6 +22,7 @@ namespace LOGLW
 class Camera;
 class CSphere;
 class IGameEngine;
+class IScene;
 class IWidgetEditable;
 class IWindow;
 class MouseData;
@@ -73,4 +74,7 @@ private:
     LOGLW::Quad* m_quad = nullptr;
     LOGLW::PointLight* m_bulb = nullptr;
     glm::vec3 m_bulbPos{ 0.f, 0.f, 0.f };
+
+
+    LOGLW::IScene* m_scene{ nullptr };
 };

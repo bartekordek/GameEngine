@@ -7,6 +7,7 @@
 #include "CUL/Math/Rotation.hpp"
 #include <CUL/String/StringWrapper.hpp>
 #include "CUL/GenericUtils/SimpleDelegate.hpp"
+#include "CUL/GenericUtils/DelegateTemplate.hpp"
 
 #include "CUL/STL_IMPORTS/STD_functional.hpp"
 #include "CUL/STL_IMPORTS/STD_map.hpp"
@@ -14,6 +15,8 @@
 #include "CUL/IMPORT_GLM.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
+
+using DPosChangeDelegate = CUL::GUTILS::DelegateTemplateThreeParam<float, float, float>;
 
 class IObject;
 
@@ -51,6 +54,8 @@ public:
     GAME_ENGINE_API void removeCallback( const String& callbackName );
 
     CUL::GUTILS::SimpleDelegate changeSizeDelegate;
+    DPosChangeDelegate PositionChangeDelegate;
+
     GAME_ENGINE_API void decomposeAndLogData( const glm::mat4& data ) const;
     GAME_ENGINE_API const glm::vec3& getScale() const;
     GAME_ENGINE_API void setScale( const glm::vec3& scale );

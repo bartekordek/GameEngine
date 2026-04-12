@@ -5,24 +5,19 @@
 
 namespace LOGLW
 {
-class CScene;
-class IGameEngine;
+class IScene;
 
-class CSceneStore
+class ISceneStore
 {
 public:
-    GAME_ENGINE_API CScene* createScene( const char* inSceneName );
-    GAME_ENGINE_API void destroyScene( CScene* scene );
-    GAME_ENGINE_API void destroyScene( const char* inSceneName );
-    CUL_NONCOPYABLE( CSceneStore )
+    GAME_ENGINE_API ISceneStore();
+    GAME_ENGINE_API virtual IScene* createScene( const char* inSceneName ) = 0;
+    GAME_ENGINE_API virtual void destroyScene( IScene* scene ) = 0;
+    GAME_ENGINE_API virtual void destroyScene( const char* inSceneName ) = 0;
+    GAME_ENGINE_API virtual ~ISceneStore();
+    CUL_NONCOPYABLE( ISceneStore )
 
 protected:
 private:
-    friend class IGameEngine;
-
-    CSceneStore( IGameEngine& engine );
-    ~CSceneStore();
-
-    IGameEngine& m_engine;
 };
 }  // namespace LOGLW

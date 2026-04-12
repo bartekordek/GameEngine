@@ -11,6 +11,7 @@
 #include "gameengine/IRenderDevice.hpp"
 
 #include "UI/UIServiceConcrete.hpp"
+#include "Scene/SceneStoreConcrete.hpp"
 
 #include "CUL/GenericUtils/LckPrim.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
@@ -181,7 +182,6 @@ private:
     std::thread m_renderingLoopThread;
     std::thread m_taskLoopThread;
 
-    // CUL::GUTILS::ValueChangeHook<bool> m_isPerspective = true;
     SafeBool m_runRenderLoop = true;
     SafeBool m_clearEveryFrame = true;
     SafeBool m_clearModelView = true;
@@ -202,12 +202,11 @@ private:
 
     bool m_hasBeenInitialized = false;
     bool m_userInitialized = false;
-    SafeBool m_drawQuad = false;
 
     std::map<String, CUL::GUTILS::Version> m_renderersVersions;
 
-    int m_everyX = 0;
-    int m_everyXMax = 4;
+    ISceneStore& getSceneStore() override;
+    SceneStoreConcrete m_sceneStore;
 
 private:  // Deleted
     GameEngineConcrete() = delete;

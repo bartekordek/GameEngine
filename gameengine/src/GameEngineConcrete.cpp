@@ -1030,9 +1030,8 @@ void GameEngineConcrete::release()
     m_logger->log( "GameEngineConcrete::release()... Done." );
 }
 
-void GameEngineConcrete::drawQuad( const bool draw )
+void GameEngineConcrete::drawQuad( const bool  )
 {
-    m_drawQuad = draw;
 }
 
 void GameEngineConcrete::clearModelViewEveryFrame( const bool enable )
@@ -1179,6 +1178,11 @@ void GameEngineConcrete::runPostRenderTasks()
         m_postRenderTasks.pop();
         task();
     }
+}
+
+ISceneStore& GameEngineConcrete::getSceneStore()
+{
+    return m_sceneStore;
 }
 
 GameEngineConcrete::~GameEngineConcrete()

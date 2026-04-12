@@ -11,16 +11,12 @@ using namespace LOGLW;
 TransformComponent::TransformComponent( IObject* owner ):
     m_owner( owner )
 {
-    // changeSizeDelegate.addDelegate(
-    //     [this]()
-    //     {
-    //         // printCurrentState();
-    //     } );
 }
 
 void TransformComponent::setPositionToParent( const glm::vec3& position )
 {
     m_pos = position;
+    PositionChangeDelegate.execute( position.x, position.y, position.z );
 }
 
 const glm::vec3 TransformComponent::getPositionToParent() const
@@ -37,11 +33,13 @@ void TransformComponent::setPositionAbsolute( const glm::vec3& position )
         {
             const auto parentAbsolutePos = parent->getTransform()->getPositionAbsolut();
             m_pos = position - parentAbsolutePos;
+            PositionChangeDelegate.execute( position.x, position.y, position.z );
             return;
         }
     }
 
     m_pos = position;
+    PositionChangeDelegate.execute( position.x, position.y, position.z );
 }
 
 const glm::vec3 TransformComponent::getPositionAbsolut() const
@@ -238,7 +236,7 @@ void TransformComponent::setScale( const glm::vec3& scale )
 void TransformComponent::move( const glm::vec3& inDiff )
 {
     m_pos += inDiff;
-    changeSizeDelegate.execute();
+    PositionChangeDelegate.execute( m_pos.x, m_pos.y, m_pos.z );
 }
 
 TransformComponent::~TransformComponent()

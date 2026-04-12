@@ -14,6 +14,8 @@
 #include "gameengine/Render/ITextureFrameBuffer.hpp"
 #include "gameengine/Render/PixelFormats.hpp"
 #include "gameengine/Render/PointLight.hpp"
+#include "gameengine/Scene/Scene.hpp"
+#include "gameengine/Scene/SceneStore.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Sprite.hpp"
 #include "gameengine/UI/UIService.hpp"
@@ -72,6 +74,9 @@ void RT_Playground::run()
 
 void RT_Playground::afterInit()
 {
+    m_scene = m_engine->getSceneStore().createScene( "main" );
+
+
     m_mainWindow = m_engine->getMainWindow();
     m_mainWindow->setBackgroundColor( LOGLW::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
     const auto& winSize = m_mainWindow->getSize();
@@ -98,7 +103,7 @@ void RT_Playground::afterInit()
     fb->setSize( m_mainWindow->getSize().W, m_mainWindow->getSize().H );
 
     {
-        m_bulb = m_engine->createPointLight( nullptr );
+        m_bulb = m_scene->createPointLight( nullptr );
         m_bulb->setColor( CUL::Graphics::ColorE::YELLOW );
         m_bulb->getTransform()->setPivot( { 0.5f, 0.5f, 0.f } );
         m_bulb->getTransform()->setPositionToParent( { 0.f, 0.f, 2.f } );
@@ -109,7 +114,8 @@ void RT_Playground::afterInit()
     }
 
     {
-        m_quad = m_engine->createQuad( nullptr );
+        //m_quad = m_engine->createQuad( nullptr );
+        m_quad = m_scene->createQuad( nullptr );
         m_quad->setColor( CUL::Graphics::ColorE::YELLOW );
         m_quad->setName( "Wall_with_light" );
         LOGLW::ShaderProgram::ShadersData sd;
@@ -191,6 +197,14 @@ void RT_Playground::onKeyBoardEvent( const LOGLW::KeyboardState& key )
     else if( key.at( "D" ) )
     {
         m_bulb->getTransform()->move( { moveDelta, 0.f, 0.f } );
+    }
+    else if( key.at( "=" ) )
+    {
+        m_bulb->getTransform()->move( { 0.f, 0.f, moveDelta } );
+    }
+    else if( key.at( "-" ) )
+    {
+        m_bulb->getTransform()->move( { 0.f, 0.f, -moveDelta } );
     }
     else if( key.at( "U" ) )
     {

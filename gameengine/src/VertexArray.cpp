@@ -305,7 +305,14 @@ void VertexArray::setName( const char* name, ... )
     char buffer[bufferSize];
     va_list args;
     va_start( args, name );
-    vsnprintf( buffer, bufferSize, name, args );
+    int written = vsnprintf( buffer, bufferSize, name, args );
+
+    if( written < 0 || written >= static_cast<int>( bufferSize ) )
+    {
+        // truncated or error
+        // VERY useful debug signal
+        auto x = 0;
+    }
     va_end( args );
     setName( CUL::StringWr( buffer ) );
 }
