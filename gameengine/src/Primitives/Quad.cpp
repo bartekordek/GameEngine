@@ -115,7 +115,7 @@ void Quad::updateBuffers_impl()
         dw.Data = verts;
         dw.Size = 3u;
         dw.Name = "pos";
-        getVao()->addData( dw );
+        getVao()->updateData( dw );
     }
     {
         std::vector<float> norms;
@@ -129,7 +129,7 @@ void Quad::updateBuffers_impl()
         dw.Data = norms;
         dw.Size = 3u;
         dw.Name = "nor";
-        getVao()->addData( dw );
+        getVao()->updateData( dw );
     }
 }
 

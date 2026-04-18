@@ -2,6 +2,7 @@
 #include "gameengine/ILightSource.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IRenderable.hpp"
+#include "gameengine/Primitives/Sphere.hpp"
 #include "gameengine/Primitives/Quad.hpp"
 #include "gameengine/Render/PointLight.hpp"
 
@@ -10,6 +11,21 @@ namespace LOGLW
 
 SceneConcrete::SceneConcrete()
 {
+}
+
+CSphere* SceneConcrete::createSphere( IObject* inParent )
+{
+    CSphere* result{ nullptr };
+
+    std::unique_ptr<CSphere> sphere = std::make_unique<CSphere>( inParent );
+    result = sphere.get();
+    {
+        std::lock_guard<std::mutex> lock( m_objectsMtx );
+        m_objects[result] = std::move( sphere );
+    }
+    attachToEveryLightSource( result );
+
+    return result;
 }
 
 Quad* SceneConcrete::createQuad( IObject* parent )

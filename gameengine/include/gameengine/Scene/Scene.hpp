@@ -6,6 +6,7 @@
 namespace LOGLW
 {
 
+    class CSphere;
 class ILightSource;
 class IObject;
 class IRenderable;
@@ -17,6 +18,7 @@ class IScene
 public:
     GAME_ENGINE_API IScene();
 
+    GAME_ENGINE_API virtual CSphere* createSphere( IObject* inParent ) = 0;
     GAME_ENGINE_API virtual Quad* createQuad( IObject* inParent ) = 0;
     GAME_ENGINE_API virtual PointLight* createPointLight( IObject* inParent ) = 0;
     GAME_ENGINE_API virtual void addObject( IRenderable* inObject ) = 0;

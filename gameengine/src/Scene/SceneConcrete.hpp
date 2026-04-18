@@ -16,6 +16,7 @@ public:
     CUL_NONCOPYABLE( SceneConcrete )
 protected:
 private:
+    CSphere* createSphere( IObject* inParent );
     Quad* createQuad( IObject* inParent ) override;
     PointLight* createPointLight( IObject* inParent ) override;
     void addObject( IRenderable* inObject ) override;

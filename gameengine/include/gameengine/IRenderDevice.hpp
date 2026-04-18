@@ -236,6 +236,9 @@ public:
     virtual void bufferData( BufferDataId bufferId, const float vertices[], BufferTypes type );
     virtual void bufferData( BufferDataId bufferId, const std::vector<TextureData2D>& data, const BufferTypes type );
     virtual void bufferSubdata( BufferDataId bufferId, const BufferTypes type, std::vector<TextureData2D>& data );
+    virtual void bufferSubdata( BufferDataId bufferId,
+                                const BufferTypes type,
+                                void* inData, std::size_t inDataSize );
 
     virtual void setClientState( ClientStateTypes cs, bool enabled ) = 0;
     virtual void texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer ) = 0;

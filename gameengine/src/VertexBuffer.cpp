@@ -15,6 +15,12 @@ VertexBuffer::VertexBuffer( const VertexData& vertexData ):
 
 VertexBuffer::VertexBuffer( const DataWrapper& vertexData )
 {
+    updateVertexData( vertexData );
+    
+}
+
+void VertexBuffer::updateVertexData( const DataWrapper& vertexData )
+{
     AttributeMeta am;
     am.Name = vertexData.Name;
     am.DataOffset = reinterpret_cast<void*>( vertexData.Offset );
@@ -26,7 +32,7 @@ VertexBuffer::VertexBuffer( const DataWrapper& vertexData )
     m_vertexData.primitiveType = vertexData.primitiveType;
     m_vertexData.Data.createFrom( vertexData.Data );
     m_vertexData.VAO = vertexData.VAO;
-
+    m_mainAttributeName = vertexData.Name;
     init();
 }
 
@@ -38,6 +44,11 @@ void VertexBuffer::init()
             createVboBuffer();
             loadData();
         } );
+}
+
+const String VertexBuffer::getAttributeName() const
+{
+    return m_mainAttributeName;
 }
 
 void VertexBuffer::onNameChange( const String& newName )
@@ -62,7 +73,12 @@ void VertexBuffer::onNameChange( const String& newName )
 void VertexBuffer::createVboBuffer()
 {
     CUL::Assert::check( m_vertexData.VBO == 0u, "VERTEX DATA ALREADY CREATED!" );
-    m_vertexData.VBO = getDevice()->generateBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
+
+    if( m_vertexData.VBO == 0u )
+    {
+        m_vertexData.VBO =
+            getDevice()->generateBuffer( LOGLW::BufferTypes::ARRAY_BUFFER );
+    }
 }
 
 void VertexBuffer::setVertexData( const VertexData& vertexData )

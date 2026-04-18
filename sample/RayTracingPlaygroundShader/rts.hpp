@@ -71,6 +71,7 @@ private:
     float m_time = 0.f;
     LOGLW::WinData m_winData;
 
+    LOGLW::CSphere* m_sphere = nullptr;
     LOGLW::Quad* m_quad = nullptr;
     LOGLW::PointLight* m_bulb = nullptr;
     glm::vec3 m_bulbPos{ 0.f, 0.f, 0.f };

@@ -114,7 +114,6 @@ void RT_Playground::afterInit()
     }
 
     {
-        //m_quad = m_engine->createQuad( nullptr );
         m_quad = m_scene->createQuad( nullptr );
         m_quad->setColor( CUL::Graphics::ColorE::YELLOW );
         m_quad->setName( "Wall_with_light" );
@@ -126,6 +125,12 @@ void RT_Playground::afterInit()
             LOGLW::EExecuteType::Now, "eyePos", m_engine->getCamera().getEye() );
         m_quad->getProgram()->setUniform(
             LOGLW::EExecuteType::Now, "lightPos", m_bulb->getTransform()->getPositionAbsolut() );
+        m_quad->getTransform()->setSize( { 40.f, 40.f, 1.f } );
+    }
+
+    {
+        m_sphere = m_scene->createSphere( nullptr );
+        m_sphere->getTransform()->setPositionAbsolute({ 8.f, 8.f, 8.f });
     }
 }
 

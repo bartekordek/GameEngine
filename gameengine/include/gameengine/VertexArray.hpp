@@ -57,6 +57,7 @@ public:
     VertexArray& operator=( VertexArray&& value ) = delete;
 
     void addData( const DataWrapper& inData );
+    void updateData( const DataWrapper& inData );
     void addIndexData( const std::vector<std::uint32_t>& inData );
 
     BuffIDType getId() const;
