@@ -1657,15 +1657,22 @@ void DeviceOpenGL::bufferDataImpl( const void* data, const GLenum target, const 
 
 void DeviceOpenGL::bufferSubdata( BufferDataId bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
 {
+    size_t dataSize = data.size() * sizeof( data.front() );
+    bufferSubdata( bufferId, type, data.data(), dataSize );
+}
+
+void DeviceOpenGL::bufferSubdata( BufferDataId bufferId,
+                                  const BufferTypes type,
+                                  void* data,
+                                  std::size_t dataSize )
+{
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
-
     log( "bufferSubdata" );
     bindBuffer( type, bufferId );
-    size_t dataSize = data.size() * sizeof( data.front() );
-    glBufferSubData( GL_ARRAY_BUFFER, 0, dataSize, data.data() );
+    glBufferSubData( static_cast<GLenum>(type), 0, dataSize, data );
 }
 
 unsigned int DeviceOpenGL::generateAndBindBuffer( const BufferTypes bufferType, const int size )
