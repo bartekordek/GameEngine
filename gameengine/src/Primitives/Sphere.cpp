@@ -138,7 +138,7 @@ void CSphere::fillVerticesNormalsTex()
 
     CUL::CULInterface::getInstance()->getLogger()->logVariable( CUL::LOG::Severity::Warn, "CSphere::fillVerticesNormalsTex." );
 
-    const float radius = m_transformComponent->getSize().x();
+    const float radius = m_transformComponent->getSize().x;
 
     float x, y, z, xy;                            // vertex position
     float nx, ny, nz, lengthInv = 1.0f / radius;  // vertex normal

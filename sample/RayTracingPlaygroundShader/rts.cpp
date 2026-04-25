@@ -28,6 +28,10 @@ CUL::MATH::Angle ang90( 90, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang180( 180, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 
+constexpr bool g_createSphere{ true };
+constexpr bool g_createLightedQuad{ true };
+constexpr bool g_createRegularQuad{ true };
+
 
 RT_Playground::RT_Playground( const LOGLW::WinData& inWinData ) : m_winData( inWinData )
 {
@@ -113,6 +117,15 @@ void RT_Playground::afterInit()
         m_bulb->setName( "m_bulb" );
     }
 
+    if( g_createRegularQuad )
+    {
+        m_regularQuad = m_engine->createQuad( nullptr );
+        m_regularQuad->setColor( CUL::Graphics::ColorE::BLUE );
+        m_regularQuad->getTransform()->setPositionAbsolute( { -10.f, 0.f, -1.f } );
+        m_regularQuad->getTransform()->setSize( { 10.f, 10.f, 1.f } );
+    }
+
+    if( g_createLightedQuad )
     {
         m_quad = m_scene->createQuad( nullptr );
         m_quad->setColor( CUL::Graphics::ColorE::YELLOW );
@@ -125,12 +138,16 @@ void RT_Playground::afterInit()
             LOGLW::EExecuteType::Now, "eyePos", m_engine->getCamera().getEye() );
         m_quad->getProgram()->setUniform(
             LOGLW::EExecuteType::Now, "lightPos", m_bulb->getTransform()->getPositionAbsolut() );
-        m_quad->getTransform()->setSize( { 40.f, 40.f, 1.f } );
     }
 
+    if( g_createSphere )
     {
         m_sphere = m_scene->createSphere( nullptr );
         m_sphere->getTransform()->setPositionAbsolute({ 8.f, 8.f, 8.f });
+    }
+
+    {
+       // m_quad->getTransform()->setSize( { 40.f, 40.f, 1.f } );
     }
 }
 

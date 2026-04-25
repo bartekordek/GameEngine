@@ -16,7 +16,6 @@ VertexBuffer::VertexBuffer( const VertexData& vertexData ):
 VertexBuffer::VertexBuffer( const DataWrapper& vertexData )
 {
     updateVertexData( vertexData );
-    
 }
 
 void VertexBuffer::updateVertexData( const DataWrapper& vertexData )
@@ -28,6 +27,7 @@ void VertexBuffer::updateVertexData( const DataWrapper& vertexData )
     am.Size = vertexData.Size;
     am.StrideBytes = vertexData.Stride;
     am.Type = DataType::FLOAT;
+    //m_vertexData.Attributes.clear();
     m_vertexData.Attributes.emplace_back( am );
     m_vertexData.primitiveType = vertexData.primitiveType;
     m_vertexData.Data.createFrom( vertexData.Data );
@@ -72,8 +72,6 @@ void VertexBuffer::onNameChange( const String& newName )
 
 void VertexBuffer::createVboBuffer()
 {
-    CUL::Assert::check( m_vertexData.VBO == 0u, "VERTEX DATA ALREADY CREATED!" );
-
     if( m_vertexData.VBO == 0u )
     {
         m_vertexData.VBO =
@@ -126,19 +124,25 @@ void VertexBuffer::updateVertexData( const VertexData& vertexData )
 
 void VertexBuffer::updateVertexData( bool isRenderThread )
 {
-    if( isRenderThread )
-    {
-        getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
-    }
-    else
-    {
-        RunOnRenderThread::getInstance().RunWaitForResult(
-            [this]()
+    RunOnRenderThread::getInstance().RunWaitForResult(
+        [this]()
+        {
+            getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vertexData.VAO );
+            if( m_dataUploaded )
             {
-                getDevice()->bindBuffer( BufferTypes::VERTEX_ARRAY, m_vertexData.VAO );
-                getDevice()->bufferData( m_vertexData.VBO, m_vertexData.Data, LOGLW::BufferTypes::ARRAY_BUFFER );
-            } );
-    }
+                getDevice()->bufferSubdata( m_vertexData.VBO,
+                                            LOGLW::BufferTypes::ARRAY_BUFFER,
+                                            m_vertexData.Data.getData(),
+                                            m_vertexData.Data.getSize() );
+            }
+            else
+            {
+                getDevice()->bufferData( m_vertexData.VBO,
+                                         m_vertexData.Data,
+                                         LOGLW::BufferTypes::ARRAY_BUFFER );
+                m_dataUploaded = true;
+            }
+        } );
 }
 
 void VertexBuffer::render()

@@ -84,6 +84,7 @@ private:
 
     String m_mainAttributeName;
     CUL::CTaskAccumulator m_bufferTasks;
+    bool m_dataUploaded{ false };
     VertexData m_vertexData;
     std::unique_ptr<IndexBuffer> m_indexBuffer;
     std::atomic<bool> m_load = true;

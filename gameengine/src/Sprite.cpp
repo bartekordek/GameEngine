@@ -42,7 +42,7 @@ Sprite::Sprite( IObject* parent, bool forceLegacy ):
         [this]()
         {
             const auto size = m_transformComponent->getSize();
-            setSize( size.toGlmVec() );
+            setSize( size );
             updateBuffers();
         } );
 
@@ -153,7 +153,7 @@ void Sprite::setUV( const UV& inUV, std::size_t index )
 {
     m_uvList[index] = inUV;
     const auto size = m_transformComponent->getSize();
-    setSize( size.toGlmVec() );
+    setSize( size );
     updateBuffers_impl();
 }
 

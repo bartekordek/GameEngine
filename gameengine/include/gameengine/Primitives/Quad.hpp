@@ -42,6 +42,7 @@ private:
     void updateBuffers();
     void updateBuffers_impl();
     void setSize( const glm::vec3& size );
+    void updateSizeBuffers();
 
     std::array<glm::vec3, 4> m_vertices;
     std::array<glm::vec3, 4> m_normals;

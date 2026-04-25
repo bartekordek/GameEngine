@@ -37,7 +37,8 @@ Quad::Quad( Camera& /*camera*/, IObject* parent, bool forceLegacy ):
     m_transformComponent->changeSizeDelegate.addDelegate(
         [this]()
         {
-            updateBuffers();
+            setSize( m_transformComponent->getSize() );
+            updateSizeBuffers();
         } );
 }
 
@@ -94,7 +95,7 @@ void Quad::updateBuffers_impl()
 
     const auto size = m_transformComponent->getSize();
 
-    setSize( size.toGlmVec() );
+    setSize( size );
 
     std::vector<std::uint32_t> indices = {
         // note that we start from 0!
@@ -103,6 +104,11 @@ void Quad::updateBuffers_impl()
     };
     vao->addIndexData( indices );
 
+    updateSizeBuffers();
+}
+
+void Quad::updateSizeBuffers()
+{
     {
         std::vector<float> verts;
         for( const glm::vec3& pos : m_vertices )

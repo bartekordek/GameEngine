@@ -194,7 +194,7 @@ void TransformComponent::setSize( const Pos& size )
     changeSizeDelegate.execute();
 }
 
-const TransformComponent::Pos& TransformComponent::TransformComponent::getSize() const
+const glm::vec3& TransformComponent::TransformComponent::getSize() const
 {
     return m_size;
 }

@@ -43,7 +43,7 @@ public:
     GAME_ENGINE_API const glm::mat4 getModel() const;
 
     GAME_ENGINE_API void setSize( const Pos& size );
-    GAME_ENGINE_API const Pos& getSize() const;
+    GAME_ENGINE_API const glm::vec3& getSize() const;
 
     GAME_ENGINE_API const Pos& getPivot() const;
     GAME_ENGINE_API glm::vec3 getPivotNormalized();

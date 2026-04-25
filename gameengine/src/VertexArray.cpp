@@ -73,12 +73,6 @@ void VertexArray::onNameChange( const CUL::StringWr& inName )
 
 void VertexArray::updateData( const DataWrapper& inData )
 {
-    if( m_vbos.empty() )
-    {
-        addData( inData );
-        return;
-    }
-
     auto it = std::find_if( m_vbos.begin(),
                             m_vbos.end(),
                             [&inData]( const std::unique_ptr<VertexBuffer>& current)
@@ -91,11 +85,7 @@ void VertexArray::updateData( const DataWrapper& inData )
         return;
     }
 
-    VertexBuffer* vb = it->get();
-
-    VertexData vd;
-
-    vb->updateVertexData(vd);
+    it->get()->updateVertexData( inData );
 }
 
 void VertexArray::addData( const DataWrapper& inData )
