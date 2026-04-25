@@ -1668,7 +1668,8 @@ void DeviceOpenGL::bufferSubdata( BufferDataId bufferId,
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
-        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+        const CUL::ThreadString threadName = CUL::ThreadUtil::getInstance().getThreadName();
+        CUL::Assert::check( false, "NOT IN THE RENDER THREAD [%s].", threadName.c_str() );
     }
     log( "bufferSubdata" );
     bindBuffer( type, bufferId );
