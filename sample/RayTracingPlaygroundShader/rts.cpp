@@ -147,7 +147,7 @@ void RT_Playground::afterInit()
     }
 
     {
-       // m_quad->getTransform()->setSize( { 40.f, 40.f, 1.f } );
+       m_quad->getTransform()->setSize( { 40.f, 40.f, 1.f } );
     }
 }
 

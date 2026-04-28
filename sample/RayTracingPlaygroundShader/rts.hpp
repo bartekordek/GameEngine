@@ -39,7 +39,9 @@ enum class Type : short;
 }
 }  // namespace LOGLW
 
-class RT_Playground final: public LOGLW::IMouseObserver, public LOGLW::IKeyboardObserver
+class RT_Playground final
+    : public LOGLW::IMouseObserver
+    , public LOGLW::IKeyboardObserver
 {
 public:
     RT_Playground( const LOGLW::WinData& inWinData );
@@ -76,7 +78,6 @@ private:
     LOGLW::Quad* m_quad = nullptr;
     LOGLW::PointLight* m_bulb = nullptr;
     glm::vec3 m_bulbPos{ 0.f, 0.f, 0.f };
-
 
     LOGLW::IScene* m_scene{ nullptr };
 };
