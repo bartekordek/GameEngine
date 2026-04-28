@@ -71,71 +71,58 @@ void CWidgetTexture::init()
     m_device->setTextureParameter( static_cast<std::uint32_t>( m_textureId ), TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
     m_device->setTextureParameter( static_cast<std::uint32_t>( m_textureId ), TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
 
-    m_vertexData->VAO = getVao()->getId();
-    m_device->bindBuffer( BufferTypes::VERTEX_ARRAY, getVao()->getId() );
-    m_device->enableVertexAttribArray( 0 );
-    m_device->enableVertexAttribArray( 1 );
-
-    struct UVx
-    {
-        float X;
-        float Y;
-    };
-
-    std::array<UVx, 4> m_uvList;
-    m_uvList[0] = { 0.f, 0.f };
-    m_uvList[1] = { 1.f, 0.f };
-    m_uvList[2] = { 1.f, 1.f };
-    m_uvList[3] = { 0.f, 1.f };
 
     const float min = -1.f;
     const float max = 1.f;
     const float zVal = 0.f;
-    std::array<std::array<float, 5>, 4> vertexData;
-    vertexData = { min, max, 0.f, m_uvList[0].X, m_uvList[0].Y, max, max, 0.f, m_uvList[1].X, m_uvList[1].Y,
-                   max, min, 0.f, m_uvList[2].X, m_uvList[2].Y, min, min, 0.f, m_uvList[3].X, m_uvList[3].Y };
+    constexpr glm::vec2 size{ 1.f, 1.f };
+    m_vertices[0] = {  size.x,  size.y, 0.f };
+    m_vertices[1] = {  size.x, -size.y, 0.f };
+    m_vertices[2] = { -size.x, -size.y, 0.f };
+    m_vertices[3] = { -size.x,  size.y, 0.f };
 
-    std::vector<std::uint32_t> indices = {
-        // note that we start from 0!
-        0, 1, 2,  // first Triangle
-        2, 3, 0   // second Triangle
-    };
+    m_uv[0] = { 1.f, 1.f };
+    m_uv[1] = { 1.f, 0.f };
+    m_uv[2] = { 0.f, 0.f };
+    m_uv[3] = { 0.f, 1.f };
 
-    VertexData m_vboData;
-    m_vboData.Indices.createFrom( indices );
-
-    FloatData fd;
-    for( const auto& data : vertexData )
     {
-        for( const auto& dataRow : data )
-        {
-            fd.push_back( dataRow );
-        }
+        std::vector<std::uint32_t> indices = {
+            // note that we start from 0!
+            0, 1, 3,  // first Triangle
+            1, 2, 3   // second Triangle
+        };
+        getVao()->addIndexData( indices );
     }
 
-    m_vboData.Data.createFrom( fd );
+    {
+        std::vector<float> verts;
+        for( const glm::vec3& pos : m_vertices )
+        {
+            verts.push_back( pos.x );
+            verts.push_back( pos.y );
+            verts.push_back( pos.z );
+        }
+        DataWrapper dw;
+        dw.Data = verts;
+        dw.Size = 3u;
+        dw.Name = "aPos";
+        getVao()->updateData( dw );
+    }
+    {
+        std::vector<float> uvs;
+        for( const glm::vec2& uv : m_uv )
+        {
+            uvs.push_back( uv.x );
+            uvs.push_back( uv.y );
+        }
+        DataWrapper dw;
+        dw.Data = uvs;
+        dw.Size = 2u;
+        dw.Name = "aTexCoord";
+        getVao()->updateData( dw );
+    }
 
-    m_vboData.Attributes.clear();
-
-    AttributeMeta am;
-    am.Name = "pos";
-    am.Index = 0;
-    am.Size = 3;
-    am.Type = LOGLW::DataType::FLOAT;
-    am.StrideBytes = 5 * sizeof( float );
-    m_vboData.Attributes.emplace_back( am );
-
-    am.Name = "tex";
-    am.Index = 1;
-    am.Size = 2;
-    am.DataOffset = reinterpret_cast<void*>( 3 * sizeof( float ) );
-    m_vboData.Attributes.emplace_back( am );
-
-    m_vboData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
-
-    m_vboData.VAO = getVao()->getId();
-
-    getVao()->updateVertexBuffer( m_vboData );
     getVao()->setProgram( m_shaderProgram );
 
     getVao()->setName( "WidgetTexture" );
