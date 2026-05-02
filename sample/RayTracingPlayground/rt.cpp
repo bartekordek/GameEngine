@@ -19,6 +19,7 @@
 #include "gameengine/Input/MouseData.hpp"
 
 #include "CUL/ITimer.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 
 CUL::MATH::Angle ang90( 90, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang180( 180, CUL::MATH::Angle::Type::DEGREE );
@@ -92,18 +93,18 @@ void RT_Playground::afterInit()
     m_widget = dynamic_cast<LOGLW::IWidgetEditable*>( m_engine->getUIService().createWidget() );
 
     g_triangle = m_engine->createTriangle( nullptr );
-    m_timer->runEveryPeriod(
-        [this]()
+    m_engine->LogicFrameDelegate.addDelegate(
+        [this]( float dt )
         {
-            timer();
-        },
-        40000 );
+            calculate( dt );
+        } );
     auto fb = m_engine->getFrameBuffer();
     fb->setSize( m_mainWindow->getSize().W, m_mainWindow->getSize().H );
 }
 
-void RT_Playground::timer()
+void RT_Playground::calculate( float /*dt*/ )
 {
+    ProfilerScope( "RT_Playground_calculate" );
     const auto size = m_engine->getMainWindow()->getSize();
     constexpr float screenZ = 0.f;  // screen plane at z = 0
     const std::size_t width = size.W;
@@ -114,8 +115,10 @@ void RT_Playground::timer()
 
     for( size_t j = 0; j < height; j++ )
     {
+        ProfilerScope( "RT_Playground_calculate_h" );
         for( size_t i = 0; i < width; i++ )
         {
+            ProfilerScope( "RT_Playground_calculate_w" );
             std::size_t type{ 1u };
             if( type == 0u )
             {
@@ -131,8 +134,8 @@ void RT_Playground::timer()
 
                 glm::vec3 intersectionPoint;
                 glm::vec3 intersectionNormal;
-                if( glm::intersectRaySphere( eye,                   // ray origin
-                                             rayDir,                // normalized direction
+                if( glm::intersectRaySphere( eye,     // ray origin
+                                             rayDir,  // normalized direction
                                              m_sphere.getCenter(),  // sphere center
                                              m_sphere.getRadius(),  // radius
                                              intersectionPoint,     // output hit position

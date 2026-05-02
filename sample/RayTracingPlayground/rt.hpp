@@ -92,7 +92,7 @@ private:
     void onMouseEvent( const LOGLW::MouseData& mouseData );
     void onKeyBoardEvent( const LOGLW::KeyboardState& key );
     void onWindowEvent( const LOGLW::WindowEvent::Type type );
-    void timer();
+    void calculate( float dt );
 
     LOGLW::IGameEngine* m_engine = nullptr;
     LOGLW::IWindow* m_mainWindow = nullptr;

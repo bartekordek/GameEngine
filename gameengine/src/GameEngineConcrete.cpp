@@ -122,8 +122,35 @@ GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool ):
         m_initTasks.push( initTask );
     }
 
+    m_renderFrameTimeManager = std::make_unique<FrameTimeManager>();
+    m_asyncLogicFrameTimeManager = std::make_unique<FrameTimeManager>();
+
     setFpsLimit( 60.f );
-    FrameTimeManager::getInstance().setSamplesCount( 2048 );
+    m_renderFrameTimeManager->setSamplesCount( 2048 );
+
+    m_asyncGameLoopThread = std::thread( &GameEngineConcrete::asyncGameLoop, this );
+}
+
+void GameEngineConcrete::asyncGameLoop()
+{
+    getCul()->getThreadUtils().setThreadName( "AsyncGameLoop" );
+
+    auto timer = CUL::TimerFactory::getChronoTimer( m_logger );
+    float startTime = timer->getElapsed().getMs();
+    float currentTime = startTime;
+    while( m_runGameLoop )
+    {
+        m_asyncLogicFrameTimeManager->startFrame();
+        currentTime = timer->getElapsed().getMs();
+        asyncGameLoopIteration( currentTime - startTime );
+        startTime = currentTime;
+        m_asyncLogicFrameTimeManager->endFrame();
+    }
+}
+
+void GameEngineConcrete::asyncGameLoopIteration( float dt )
+{
+    LogicFrameDelegate.execute( dt );
 }
 
 void GameEngineConcrete::registerObjectForUtility()
@@ -150,6 +177,8 @@ void GameEngineConcrete::startRenderingLoop()
 
 void GameEngineConcrete::stopRenderingLoop()
 {
+    m_runGameLoop = false;
+
     m_logger->log( "GameEngineConcrete::stopRenderingLoop()..." );
 
     m_runRenderLoop = false;
@@ -282,11 +311,11 @@ void GameEngineConcrete::renderLoop()
     {
         ProfilerScope( "GameEngineConcrete::renderLoop" );
 
-        FrameTimeManager::getInstance().startFrame();
+        m_renderFrameTimeManager->startFrame();
         runPreRenderTasks();
         renderFrame();
         runPostRenderTasks();
-        FrameTimeManager::getInstance().endFrame();
+        m_renderFrameTimeManager->endFrame();   
         FrameEnd;
     }
 
@@ -535,9 +564,9 @@ void GameEngineConcrete::renderInfo()
         ImGui::Text( "FPS (Imgui): %4.2f", ImGui::GetIO().Framerate );
         ImGui::Text( "FrameTime: %4.2f ms", 1000.f / ImGui::GetIO().Framerate );
 
-        ImGui::Text( "Average frame ms: %f", FrameTimeManager::getInstance().geAvgFrameTimeMS() );
-        ImGui::Text( "Target frame ms: %f", FrameTimeManager::getInstance().getTargetFrameTimeMS() );
-        ImGui::Text( "Average FPS: %f", FrameTimeManager::getInstance().getAvgFPS() );
+        ImGui::Text( "Average frame ms: %f", m_renderFrameTimeManager->geAvgFrameTimeMS() );
+        ImGui::Text( "Target frame ms: %f", m_renderFrameTimeManager->getTargetFrameTimeMS() );
+        ImGui::Text( "Average FPS: %f", m_renderFrameTimeManager->getAvgFPS() );
 
         drawObjectsInfo( debugInfoWidth, debugInfoHeight );
     }
@@ -1146,12 +1175,12 @@ CUL::CULInterface* GameEngineConcrete::getCul()
 
 void GameEngineConcrete::setFpsLimit( float maxFps )
 {
-    FrameTimeManager::getInstance().setTargetFPS( maxFps );
+    m_renderFrameTimeManager->setTargetFPS( maxFps );
 }
 
 float GameEngineConcrete::getFpsLimit() const
 {
-    return FrameTimeManager::getInstance().getTargetFPS();
+    return m_renderFrameTimeManager->getTargetFPS();
 }
 
 void GameEngineConcrete::runPreRenderTasks()

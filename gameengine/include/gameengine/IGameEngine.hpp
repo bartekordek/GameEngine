@@ -72,6 +72,9 @@ using IImageLoader = CUL::Graphics::IImageLoader;
 using EmptyFunctionCallback = std::function<void()>;
 using IPreRenderTask = CUL::GUTILS::ITask;
 
+//CUL::GUTILS::DelegateTemplateTwoParam<float, float> guiFrameDelegate;
+using DLogicFrameDelegate = CUL::GUTILS::DelegateTemplateOneParam<float>;
+
 class IGameEngine: public LOGLW::IMouseObservable, public LOGLW::IKeyboardObservable, public LOGLW::IWindowEventObservable
 {
 public:
@@ -159,6 +162,7 @@ public:
     GAME_ENGINE_API void setGuiContext( ImGuiContext* const inContext );
 
     CUL::GUTILS::DelegateTemplateTwoParam<float, float> guiFrameDelegate;
+    DLogicFrameDelegate LogicFrameDelegate;
 
     // Shaders
     GAME_ENGINE_API class ShaderProgram* createProgram();

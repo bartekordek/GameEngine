@@ -1,12 +1,11 @@
 #pragma once
 
-#include "CUL/GenericUtils/Singleton.hpp"
 #include "CUL/Math/VariableWithAverageValue.hpp"
 #include "CUL/STL_IMPORTS/STD_chrono.hpp"
 
 namespace LOGLW
 {
-class FrameTimeManager final: public CUL::Singleton<FrameTimeManager>
+class FrameTimeManager
 {
 public:
     FrameTimeManager();
@@ -35,7 +34,6 @@ public:
 
 protected:
 private:
-
 
     float m_targetFrameTimeNs{ 0u };
     float m_lastFrameTimeNs{ 0u };

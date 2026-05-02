@@ -20,6 +20,7 @@
 #include "CUL/ITimer.hpp"
 #include "CUL/GenericUtils/Version.hpp"
 #include "CUL/Math/VariableWithAverageValue.hpp"
+#include "CUL/Threading/ThreadWrap.hpp"
 
 #include "CUL/STL_IMPORTS/STD_set.hpp"
 #include "CUL/STL_IMPORTS/STD_array.hpp"
@@ -38,6 +39,7 @@ NAMESPACE_BEGIN( LOGLW )
 
 class Camera;
 class DebugSystemBase;
+class FrameTimeManager;
 
 using SafeBool = CUL::GUTILS::LckPrim<bool>;
 template <typename Type>
@@ -70,7 +72,10 @@ struct DebugValueRow
     std::function<void( void )> onChange;
 };
 
-class GameEngineConcrete final: public IGameEngine, private IDebugOverlay, private LOGLW::ISDLEventObserver, private ITextureFactory
+class GameEngineConcrete final: public IGameEngine,
+                                private IDebugOverlay,
+                                private LOGLW::ISDLEventObserver,
+                                private ITextureFactory
 {
 public:
     GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool legacy );
@@ -93,7 +98,10 @@ private:
     void setViewport( const Viewport& viewport, const bool instant = false ) override;
 
     Sprite* createSprite( const String& path, bool withVBO = false ) override;
-    Sprite* createSprite( unsigned* data, unsigned width, unsigned height, bool withVBO = false ) override;
+    Sprite* createSprite( unsigned* data,
+                          unsigned width,
+                          unsigned height,
+                          bool withVBO = false ) override;
 
     void removeObject( IObject* object ) override;
 
@@ -124,7 +132,9 @@ private:
     void prepareProjection();
     void setEyePos( const glm::vec3& pos ) override;
     void renderObjects();
-    void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const String& name );
+    void drawObjects( std::set<IObject*>& shownList,
+                      IObject* currentObject,
+                      const String& name );
     bool drawValues( glm::vec3& inOutValue, const String& inName );
     void drawSpriteData( Sprite* inSprite );
 
@@ -147,15 +157,18 @@ private:
 
     // ITextureFactory
     ITextureFactory* getTextureFactory() override;
-    ITexture* createTexture( const CUL::FS::Path& path, const bool rgba = false ) override;
+    ITexture* createTexture( const CUL::FS::Path& path,
+                             const bool rgba = false ) override;
 
     // LOGLW::IMouseObservable
-    void addMouseEventCallback( const LOGLW::IMouseObservable::MouseCallback& callback ) override;
+    void addMouseEventCallback(
+        const LOGLW::IMouseObservable::MouseCallback& callback ) override;
     void registerMouseEventListener( LOGLW::IMouseObserver* observer ) override;
     void unregisterMouseEventListener( LOGLW::IMouseObserver* observer ) override;
     LOGLW::MouseData& getMouseData() override;
 
-    void registerKeyboardEventCallback( const std::function<void( const LOGLW::KeyboardState& key )>& callback ) override;
+    void registerKeyboardEventCallback(
+        const std::function<void( const LOGLW::KeyboardState& key )>& callback ) override;
 
     void registerKeyboardEventListener( LOGLW::IKeyboardObserver* observer ) override;
     void unregisterKeyboardEventListener( LOGLW::IKeyboardObserver* observer ) override;
@@ -179,6 +192,7 @@ private:
 
     CUIServiceConcrete m_uiService;
 
+    std::unique_ptr<FrameTimeManager> m_renderFrameTimeManager;
     std::thread m_renderingLoopThread;
     std::thread m_taskLoopThread;
 
@@ -207,6 +221,12 @@ private:
 
     ISceneStore& getSceneStore() override;
     SceneStoreConcrete m_sceneStore;
+
+    bool m_runGameLoop{ true };
+    std::thread m_asyncGameLoopThread;
+    std::unique_ptr<FrameTimeManager> m_asyncLogicFrameTimeManager;
+    void asyncGameLoop();
+    void asyncGameLoopIteration( float dt );
 
 private:  // Deleted
     GameEngineConcrete() = delete;
