@@ -102,6 +102,7 @@ void VertexArray::addData( const DataWrapper& inData )
 
 void VertexArray::addIndexData( const std::vector<std::uint32_t>& inData )
 {
+    bind();
     if( m_indexBuffer == nullptr )
     {
         m_indexBuffer = std::make_unique<IndexBuffer>();
