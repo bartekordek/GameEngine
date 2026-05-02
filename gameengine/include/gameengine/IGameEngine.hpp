@@ -45,6 +45,7 @@ class IDebugOverlay;
 class IObject;
 class IRenderable;
 class IRenderDevice;
+class ISceneStore;
 class ITextureFactory;
 class ITexture;
 class ITextureFrameBuffer;
@@ -175,6 +176,9 @@ public:
     GAME_ENGINE_API virtual bool drawObjectsInfo( float& width, float& high ) = 0;
     GAME_ENGINE_API const ITextureFrameBuffer* getFrameBuffer() const;
     GAME_ENGINE_API ITextureFrameBuffer* getFrameBuffer();
+
+
+    GAME_ENGINE_API virtual ISceneStore& getSceneStore() = 0;
 
     GAME_ENGINE_API virtual ~IGameEngine();
 

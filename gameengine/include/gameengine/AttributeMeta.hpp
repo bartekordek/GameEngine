@@ -37,12 +37,25 @@ struct AttributeMeta
 
 struct VertexData
 {
-    LOGLW::PrimitiveType primitiveType = LOGLW::PrimitiveType::NONE;
+    LOGLW::PrimitiveType primitiveType = LOGLW::PrimitiveType::TRIANGLES;
     std::uint32_t VBO = 0u;
     std::uint32_t VAO = 0u;
     std::vector<AttributeMeta> Attributes;
     CUL::DataWrapper Data;
     CUL::DataWrapper Indices;
+};
+
+struct DataWrapper
+{
+    LOGLW::PrimitiveType primitiveType = LOGLW::PrimitiveType::TRIANGLES;
+    std::string Name;
+    std::size_t Size{ 0u };
+    std::size_t Stride{ 0u };
+    std::size_t Offset{ 0u };
+    std::size_t Index{ 0u };
+    std::uint32_t VBO = 0u;
+    std::uint32_t VAO = 0u;
+    std::vector<float> Data;
 };
 
 NAMESPACE_END( LOGLW )

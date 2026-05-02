@@ -95,6 +95,10 @@ private:
     void bufferData( BufferDataId bufferId, const float vertices[], BufferTypes type ) override;
     void bufferDataImpl( const void* data, const GLenum target, const GLsizeiptr dataSize );
     void bufferSubdata( BufferDataId bufferId, const BufferTypes type, std::vector<TextureData2D>& data ) override;
+    void bufferSubdata( BufferDataId bufferId,
+                        const BufferTypes type,
+                        void* inData,
+                        std::size_t inDataSize ) override;
     void updateTextureData( const TextureInfo& ti, void* data ) override;
 
     void setUniformValue( int uniformLocation, float value ) override;

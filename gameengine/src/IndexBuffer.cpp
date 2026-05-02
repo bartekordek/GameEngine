@@ -46,6 +46,26 @@ void IndexBuffer::loadData( const CUL::DataWrapper& inData )
     getDevice()->bufferData( m_id, m_data, BufferTypes::ELEMENT_ARRAY_BUFFER );
 }
 
+void IndexBuffer::loadData( const std::vector<std::uint32_t>& inData )
+{
+    const bool wasEmpty = m_data.getIsEmpty();
+
+    m_data.createFrom( inData );
+    bind();
+    if( wasEmpty )
+    {
+        getDevice()->bufferData( m_id, m_data, BufferTypes::ELEMENT_ARRAY_BUFFER );
+    }
+    else
+    {
+        constexpr std::size_t sizeOfElement = sizeof( std::uint32_t );
+        getDevice()->bufferSubdata( m_id,
+                                    BufferTypes::ELEMENT_ARRAY_BUFFER,
+                                    m_data.getData(),
+                                    sizeOfElement * m_data.getSize() );
+    }
+}
+
 std::uint32_t IndexBuffer::getObjID() const
 {
     return m_id;

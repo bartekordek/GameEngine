@@ -229,7 +229,6 @@ void SDL2WrapperImpl::refreshScreen()
         window.second->updateScreenBuffers();
     }
 }
-#include "CUL/STL_IMPORTS/STD_iostream.hpp"
 void SDL2WrapperImpl::runEventLoop()
 {
     m_culInterface->getThreadUtils().setThreadName( "SDL2WrapperImpl::runEventLoop()/main" );

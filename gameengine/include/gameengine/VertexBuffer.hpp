@@ -43,18 +43,20 @@ texcoords, indices, etc.
 
 NAMESPACE_BEGIN( LOGLW )
 
+struct DataWrapper;
+
 using FloatData = std::vector<float>;
 using BuffIDType = std::uint32_t;
-template<typename Type>
-using Ptr = CUL::GUTILS::DumbPtr<Type>;
 
 class GAME_ENGINE_API VertexBuffer final:
     public IUtilityUser,
     public CUL::IName
 {
 public:
-    VertexBuffer( const VertexData& vertexData );
+    explicit VertexBuffer( const VertexData& vertexData );
+    explicit VertexBuffer( const DataWrapper& vertexData );
     void setVertexData( const VertexData& vertexData );
+    void updateVertexData( const DataWrapper& vertexData );
     void updateVertexData( const VertexData& vertexData );
     void updateVertexData( bool isRenderThread );
     void render();
@@ -63,6 +65,7 @@ public:
     void bind();
     const VertexData& getData() const;
     VertexData& getData();
+    const String getAttributeName() const;
     ~VertexBuffer();
 
     VertexBuffer( const VertexBuffer& value ) = delete;
@@ -79,7 +82,9 @@ private:
     void loadData();
     void release();
 
+    String m_mainAttributeName;
     CUL::CTaskAccumulator m_bufferTasks;
+    bool m_dataUploaded{ false };
     VertexData m_vertexData;
     std::unique_ptr<IndexBuffer> m_indexBuffer;
     std::atomic<bool> m_load = true;

@@ -5,26 +5,29 @@
 
 using namespace LOGLW;
 
-TextureConcrete::TextureConcrete(
-    IRenderDevice* utility,
-    CUL::Graphics::IImageLoader* imageLoader,
-    const CUL::FS::Path& path ):
-    m_utility( utility ),
-    m_il( imageLoader )
+TextureConcrete::TextureConcrete( IRenderDevice* utility,
+                                  CUL::Graphics::IImageLoader* imageLoader,
+                                  const CUL::FS::Path& path )
+    : m_utility( utility ), m_il( imageLoader )
 {
     m_image = m_il->loadImage( path );
     auto info = m_image->getImageInfo();
 
     m_texInfo.data = m_image->getData();
-    m_texInfo.size = glm::vec2( static_cast<float>( info.size.width ), static_cast<float>( info.size.height ) );
+    m_texInfo.size = glm::vec2( static_cast<float>( info.size.width ),
+                                static_cast<float>( info.size.height ) );
     m_texInfo.internalFormat = info.pixelFormat;
     m_texInfo.dataFormat = info.pixelFormat;
 
     m_textureId = static_cast<decltype( m_textureId )>( utility->generateTexture() );
-    utility->bindTexture(static_cast<const unsigned int>(m_textureId));
-    utility->setTextureData(static_cast<std::uint8_t>(m_textureId), m_texInfo );
-    utility->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
-    utility->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
+    utility->bindTexture( static_cast<const unsigned int>( m_textureId ) );
+    utility->setTextureData( static_cast<std::uint8_t>( m_textureId ), m_texInfo );
+    utility->setTextureParameter( static_cast<std::uint8_t>( m_textureId ),
+                                  TextureParameters::MAG_FILTER,
+                                  TextureFilterType::LINEAR );
+    utility->setTextureParameter( static_cast<std::uint8_t>( m_textureId ),
+                                  TextureParameters::MIN_FILTER,
+                                  TextureFilterType::LINEAR );
     utility->bindTexture( 0 );
 
     calculateQuads();

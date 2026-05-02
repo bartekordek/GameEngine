@@ -88,7 +88,7 @@ void Triangle::createBuffers()
 {
     const auto size = m_transformComponent->getSize();
 
-    setSize( size.toGlmVec() );
+    setSize( size );
 
     VertexData vboData;
     std::vector<std::uint32_t> uintData = {

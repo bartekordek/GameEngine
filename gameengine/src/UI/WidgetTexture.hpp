@@ -2,6 +2,7 @@
 
 #include "gameengine/UI/WidgetEditable.hpp"
 #include "gameengine/Render/PixelFormats.hpp"
+#include "CUL/IMPORT_GLM.hpp"
 #include "CUL/STL_IMPORTS/STD_memory.hpp"
 
 namespace LOGLW
@@ -33,5 +34,7 @@ private:
     std::vector<S_RGBA_I> m_pixelData;
     std::unique_ptr<VertexData> m_vertexData;
     IRenderDevice* m_device{ nullptr };
+    std::array<glm::vec3, 4> m_vertices;
+    std::array<glm::vec2, 4> m_uv;
 };
 }  // namespace LOGLW

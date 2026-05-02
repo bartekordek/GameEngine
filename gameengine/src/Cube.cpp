@@ -38,17 +38,11 @@ Cube::Cube( Camera* camera, bool forceLegacy ):
 
 void Cube::init()
 {
-    const std::string fragmentShaderSource =
-#include "models/cube.obj"
-        ;
-
-    std::istringstream ss( fragmentShaderSource ); 
-    rapidobj::Result result = rapidobj::ParseStream( ss );
+    rapidobj::Result result = rapidobj::ParseFile( "res/cube.obj" );
     if( result.error )
     {
         const auto errorString = result.error.code.message();
-        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Error, "res/sphere.obj reading object error: %s", errorString.c_str() );
-        CUL::Assert::check( false, "Failed to load cube model cube.obj." );
+        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Error, "res/cube.obj reading object error: %s", errorString.c_str() );
     }
 
     struct Vertex

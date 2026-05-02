@@ -811,6 +811,8 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
                     ImGui::Text( "Normalized: %s", meta.Normalized ? "true" : "false" );
                     ImGui::Text( "Stride: %d (%d * %s)", meta.StrideBytes, strideElCount, LOGLW::BasicTypes::toChar( meta.Type ) );
 
+
+                    //TODO: Wrong stride?
                     std::int32_t columnCount = meta.Size;
                     std::int32_t rowsCount = static_cast<std::int32_t>( vertexData.Data.getElementCount() ) / strideElCount;
 
@@ -1028,9 +1030,8 @@ void GameEngineConcrete::release()
     m_logger->log( "GameEngineConcrete::release()... Done." );
 }
 
-void GameEngineConcrete::drawQuad( const bool draw )
+void GameEngineConcrete::drawQuad( const bool  )
 {
-    m_drawQuad = draw;
 }
 
 void GameEngineConcrete::clearModelViewEveryFrame( const bool enable )
@@ -1177,6 +1178,11 @@ void GameEngineConcrete::runPostRenderTasks()
         m_postRenderTasks.pop();
         task();
     }
+}
+
+ISceneStore& GameEngineConcrete::getSceneStore()
+{
+    return m_sceneStore;
 }
 
 GameEngineConcrete::~GameEngineConcrete()

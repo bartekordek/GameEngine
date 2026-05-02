@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gameengine/IObject.hpp"
+#include "gameengine/ILightSource.hpp"
 #include "CUL/Graphics/Color.hpp"
 
 namespace LOGLW
@@ -8,7 +9,7 @@ namespace LOGLW
 class TransformComponent;
 class VertexArray;
 
-class PointLight final: public IObject
+class PointLight final: public IObject, public ILightSource
 {
 public:
     GAME_ENGINE_API PointLight( IObject* parent );

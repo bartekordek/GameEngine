@@ -25,17 +25,21 @@ PointLight::PointLight( IObject* parent ):
         {
             init();
         } );
+
+    m_transformComponent->PositionChangeDelegate.addDelegate(
+        [this]( float x, float y, float z )
+        {
+            broadcastLightSourcePositionChange( x, y, z );
+        } );
 }
 
 void PointLight::init()
 {
-    //rapidobj::
     rapidobj::Result result = rapidobj::ParseFile( "res/sphere.obj" );
     if( result.error )
     {
         const auto errorString = result.error.code.message();
-        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Error, "res/sphere.obj reading object error: %s",
-                                                      errorString.c_str() );
+        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Error, "res/sphere.obj reading object error: %s", errorString.c_str() );
     }
 
     const auto& positions = result.attributes.positions;
@@ -50,7 +54,7 @@ void PointLight::init()
     {
         indices.push_back( static_cast<std::uint32_t>( indice.position_index ) );
     }
-    vboData.Indices.createFrom( indices );
+    getVao()->addIndexData( indices );
 
     vboData.VAO = getVao()->getId();
     getVao()->addVertexBuffer( vboData );

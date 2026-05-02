@@ -56,13 +56,10 @@ void CSphere::init()
     am.Index = 0;
     am.Size = 3;
     am.Type = LOGLW::DataType::FLOAT;
-    am.StrideBytes = 3 * sizeof( float );
+    //am.StrideBytes = 3 * sizeof( float );
     vd.Attributes.push_back( am );
 
-    CUL::DataWrapper indices;
-    indices.createFrom( m_indices );
-
-    vd.Indices = indices;
+    vao->addIndexData( m_indices );
     m_verticesVbo = vao->addVertexBuffer( vd );
 
     ShaderProgram::ShadersData sd;
@@ -141,7 +138,7 @@ void CSphere::fillVerticesNormalsTex()
 
     CUL::CULInterface::getInstance()->getLogger()->logVariable( CUL::LOG::Severity::Warn, "CSphere::fillVerticesNormalsTex." );
 
-    const float radius = m_transformComponent->getSize().x();
+    const float radius = m_transformComponent->getSize().x;
 
     float x, y, z, xy;                            // vertex position
     float nx, ny, nz, lengthInv = 1.0f / radius;  // vertex normal

@@ -219,6 +219,14 @@ void IRenderDevice::bufferSubdata( BufferDataId, const BufferTypes, std::vector<
     throw std::logic_error( "Method not implemented" );
 }
 
+void IRenderDevice::bufferSubdata( BufferDataId /*bufferId*/,
+                                   const BufferTypes /*type*/,
+                                   void* /*inData*/,
+                                   std::size_t /*inDataSize*/ )
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
 void IRenderDevice::bufferData( BufferDataId, const std::vector<TextureData2D>&, const BufferTypes )
 {
     throw std::logic_error( "Method not implemented" );

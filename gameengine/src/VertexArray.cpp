@@ -1,6 +1,7 @@
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/IRenderDevice.hpp"
+#include "gameengine/IndexBuffer.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "RunOnRenderThread.hpp"
 #include "CUL/Proifling/Profiler.hpp"
@@ -68,6 +69,44 @@ void VertexArray::onNameChange( const CUL::StringWr& inName )
                 ++index;
             }
         } );
+}
+
+void VertexArray::updateData( const DataWrapper& inData )
+{
+    auto it = std::find_if( m_vbos.begin(),
+                            m_vbos.end(),
+                            [&inData]( const std::unique_ptr<VertexBuffer>& current)
+                            {
+                                return current->getAttributeName().equals( inData.Name );
+                            } );
+    if( it == m_vbos.end() )
+    {
+        addData( inData );
+        return;
+    }
+
+    it->get()->updateVertexData( inData );
+}
+
+void VertexArray::addData( const DataWrapper& inData )
+{
+    bind();
+    DataWrapper inDataCopy = inData;
+    inDataCopy.VAO = m_vaoId;
+    inDataCopy.Index = m_vbos.size();
+    auto vbo = new VertexBuffer( inDataCopy );
+    m_vbos.emplace_back( vbo );
+}
+
+
+
+void VertexArray::addIndexData( const std::vector<std::uint32_t>& inData )
+{
+    if( m_indexBuffer == nullptr )
+    {
+        m_indexBuffer = std::make_unique<IndexBuffer>();
+    }
+    m_indexBuffer->loadData( inData );
 }
 
 BuffIDType VertexArray::getId() const
@@ -143,11 +182,6 @@ void VertexArray::render()
 
     bind();
 
-    for( size_t i = 0; i < vbosCount; ++i )
-    {
-        m_vbos[i]->bind();
-    }
-
     CUL::Assert::check( m_shaderProgram != nullptr, "There is no shader matching this vbo." );
 
     if( m_shaderProgram->getIsLinked() == false )
@@ -157,9 +191,18 @@ void VertexArray::render()
 
     m_shaderProgram->enable();
 
-    for( size_t i = 0; i < vbosCount; ++i )
+    if( IndexBuffer* ib = m_indexBuffer.get() )
     {
-        m_vbos[i]->render();
+        ib->bind();
+        getDevice()->drawElements( m_vertexData->primitiveType,
+                                   m_indexBuffer->getData() );
+    }
+    else
+    {
+        getDevice()->drawArrays( m_vaoId,
+                                 m_vertexData->primitiveType,
+                                 0,
+                                 static_cast<std::uint32_t>( m_vertexData->Data.getSize() ) );
     }
 
     if( m_unbindBuffersAfterDraw )
@@ -281,7 +324,14 @@ void VertexArray::setName( const char* name, ... )
     char buffer[bufferSize];
     va_list args;
     va_start( args, name );
-    vsnprintf( buffer, bufferSize, name, args );
+    int written = vsnprintf( buffer, bufferSize, name, args );
+
+    if( written < 0 || written >= static_cast<int>( bufferSize ) )
+    {
+        // truncated or error
+        // VERY useful debug signal
+        auto x = 0;
+    }
     va_end( args );
     setName( CUL::StringWr( buffer ) );
 }
@@ -292,10 +342,12 @@ void VertexArray::setName( const CUL::StringWr& inName )
     std::uint16_t id{ 0u };
     for( std::unique_ptr<VertexBuffer>& vbo : m_vbos )
     {
-        constexpr std::size_t bufferSize{ 512u };
-        char buffer[bufferSize];
-        snprintf( buffer, bufferSize, "%s/vbo%d", *getName(), id++ );
-        vbo->setName( buffer );
+        vbo->setName( "%s/vbo%d", *getName(), id++ );
+    }
+
+    if( m_indexBuffer )
+    {
+        m_indexBuffer->setName( "%s/index_buffer", *getName() );
     }
 }
 

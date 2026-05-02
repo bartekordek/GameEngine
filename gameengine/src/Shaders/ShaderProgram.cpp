@@ -325,7 +325,6 @@ CShaderTypes::ShaderType ShaderProgram::getType() const
 
 void ShaderProgram::setUniform( EExecuteType inEt, const String& inName, UniformValue inValue )
 {
-    getDevice()->useProgram( m_shaderProgramId );
     switch( inEt )
     {
         case EExecuteType::Now:
@@ -349,6 +348,8 @@ void ShaderProgram::setUniform( EExecuteType inEt, const String& inName, Uniform
 
 void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
 {
+    getDevice()->useProgram( m_shaderProgramId );
+
     const auto it = m_uniformMapping.find( inName );
 
     ShaderVariable* sv{ nullptr };

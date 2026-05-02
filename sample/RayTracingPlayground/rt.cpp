@@ -123,11 +123,11 @@ void RT_Playground::timer()
             }
             else if( type == 1u )
             {
-                float ndcX = ( i + 0.5f ) / width * 2.f - 1.f;
-                float ndcY = 1.f - ( j + 0.5f ) / height * 2.f;
+                const float ndcX = ( i + 0.5f ) / width * 2.f - 1.f;
+                const float ndcY = 1.f - ( j + 0.5f ) / height * 2.f;
 
-                glm::vec3 pointOnScreen = glm::vec3( ndcX, ndcY, screenZ );
-                glm::vec3 rayDir = glm::normalize( pointOnScreen - eye );
+                const glm::vec3 pointOnScreen = glm::vec3( ndcX, ndcY, screenZ );
+                const glm::vec3 rayDir = glm::normalize( pointOnScreen - eye );
 
                 glm::vec3 intersectionPoint;
                 glm::vec3 intersectionNormal;

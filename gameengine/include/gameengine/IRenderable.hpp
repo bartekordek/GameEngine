@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gameengine/IEngineUser.hpp"
+#include "CUL/GenericUtils/NonCopyable.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
 
@@ -10,10 +11,6 @@ class GAME_ENGINE_API IRenderable: public IEngineUser
 {
 public:
     IRenderable( bool renderOnMyOwn );
-    IRenderable( const IRenderable& value ) = delete;
-    IRenderable( IRenderable&& value ) = delete;
-    IRenderable& operator=( const IRenderable& value ) = delete;
-    IRenderable& operator=( IRenderable&& value ) = delete;
 
     void toggleRenderOnMyOwn( bool inEnable );
 
@@ -24,6 +21,7 @@ public:
 
     virtual ~IRenderable();
 
+    CUL_NONCOPYABLE( IRenderable )
 protected:
 private:
     IObject* m_object{ nullptr };

@@ -1657,15 +1657,23 @@ void DeviceOpenGL::bufferDataImpl( const void* data, const GLenum target, const 
 
 void DeviceOpenGL::bufferSubdata( BufferDataId bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
 {
+    size_t dataSize = data.size() * sizeof( data.front() );
+    bufferSubdata( bufferId, type, data.data(), dataSize );
+}
+
+void DeviceOpenGL::bufferSubdata( BufferDataId bufferId,
+                                  const BufferTypes type,
+                                  void* data,
+                                  std::size_t dataSize )
+{
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
-        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
+        const CUL::ThreadString threadName = CUL::ThreadUtil::getInstance().getThreadName();
+        CUL::Assert::check( false, "NOT IN THE RENDER THREAD [%s].", threadName.c_str() );
     }
-
     log( "bufferSubdata" );
     bindBuffer( type, bufferId );
-    size_t dataSize = data.size() * sizeof( data.front() );
-    glBufferSubData( GL_ARRAY_BUFFER, 0, dataSize, data.data() );
+    glBufferSubData( static_cast<GLenum>(type), 0, dataSize, data );
 }
 
 unsigned int DeviceOpenGL::generateAndBindBuffer( const BufferTypes bufferType, const int size )
@@ -2370,6 +2378,20 @@ ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath
     {
         const std::string vertexShaderSource =
 #include "embedded_shaders/camera_orto.vert"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
+    else if( shaderPath == "embedded_shaders/rt_basic.frag" )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/rt_basic.frag"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
+    else if( shaderPath == "embedded_shaders/rt_basic.vert" )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/rt_basic.vert"
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }

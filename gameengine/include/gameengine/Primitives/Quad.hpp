@@ -42,8 +42,11 @@ private:
     void updateBuffers();
     void updateBuffers_impl();
     void setSize( const glm::vec3& size );
+    void updateSizeBuffers();
 
-    CUL::MATH::Primitives::Quad m_shape;
+    std::array<glm::vec3, 4> m_vertices;
+    std::array<glm::vec3, 4> m_normals;
+
     glm::mat4 m_model;
     VertexData m_vboData;
 

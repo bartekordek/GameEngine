@@ -30,7 +30,9 @@ class Cube final: public IObject, public IUtilityUser
 public:
     GAME_ENGINE_API Cube( Camera* camera, bool forceLegacy );
 
-    GAME_ENGINE_API void setImage( unsigned wallIndex, const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader );
+    GAME_ENGINE_API void setImage( unsigned wallIndex,
+                                   const CUL::FS::Path& imagePath,
+                                   CUL::Graphics::IImageLoader* imageLoader );
     GAME_ENGINE_API void setColor( const CUL::Graphics::ColorS& color );
     GAME_ENGINE_API void setName( const CUL::StringWr& name ) override;
 
@@ -46,12 +48,10 @@ private:
     TransformComponent* m_transformComponent{ nullptr };
     bool m_initialized = false;
 
-    
     Camera* m_camera{ nullptr };
     IGameEngine& m_engine;
 
     std::mutex m_renderMutex;
-
 
     CUL::Graphics::ColorS m_color;
 

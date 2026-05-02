@@ -108,7 +108,6 @@ void RegularSDL2Window::fetchSreenData()
     m_windowData.WindowRes = m_windowData.CurrentRes;
 }
 
-#include "CUL/STL_IMPORTS/STD_iostream.hpp"
 void RegularSDL2Window::toggleFpsCounter( bool on, short unsigned everyNsecond )
 {
     if( on )

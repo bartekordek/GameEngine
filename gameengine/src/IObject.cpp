@@ -46,7 +46,8 @@ void IObject::onNameChange( const String& newName )
 
     if( m_vao )
     {
-        m_vao->setName( "%s/vao", *newName );
+        const std::string newNamePtr = *newName;
+        m_vao->setName( "%s/vao", newNamePtr.c_str() );
     }
 
     if( m_shaderProgram )

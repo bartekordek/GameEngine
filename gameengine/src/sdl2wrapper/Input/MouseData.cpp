@@ -140,7 +140,7 @@ MouseData::~MouseData()
 {
 }
 
-CUL::StringWr MouseData::getSerializationContent( CUL::CounterType tabsSize, const bool ) const
+CUL::StringWr MouseData::getSerializationContent( CUL::CounterType /*tabsSize*/, const bool ) const
 {
     return CUL::StringWr( CUL_STR( "" ) );
 }
