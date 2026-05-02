@@ -6,7 +6,7 @@
 namespace LOGLW
 {
 
-    class CSphere;
+class CSphere;
 class ILightSource;
 class IObject;
 class IRenderable;
