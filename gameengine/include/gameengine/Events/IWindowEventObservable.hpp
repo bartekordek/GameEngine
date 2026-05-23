@@ -5,6 +5,8 @@
 
 NAMESPACE_BEGIN( LOGLW )
 
+class IWindowEventObserver;
+
 using WindowCallback = std::function<void( const WindowEvent::Type wEt )>;
 
 class GAME_ENGINE_API IWindowEventObservable
@@ -13,6 +15,7 @@ public:
     IWindowEventObservable() = default;
 
     virtual void registerWindowEventCallback( const WindowCallback& callback ) = 0;
+    virtual void registerWindowEventListener( IWindowEventObserver* observer ) = 0;
 
     virtual ~IWindowEventObservable() = default;
 

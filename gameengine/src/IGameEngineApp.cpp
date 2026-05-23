@@ -1,4 +1,5 @@
 #include "gameengine/IGameEngineApp.hpp"
+#include "gameengine/EngineParams.hpp"
 #include "gameengine/IGameEngine.hpp"
 #include "gameengine/Windowing/IWindow.hpp"
 
@@ -28,27 +29,19 @@ IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width, unsigned height
     windowData.Name = winName;
 
     init( windowData, fullscreen, configPath, legacy );
-
-    if( orientation == LOGLW::IGameEngineApp::WinOrientation::CENTER )
-    {
-        auto screenSize = m_sdlw->getMainWindow()->getCurrentScreenNativeResolution();
-        WinPos newPos{ static_cast<std::int32_t>( ( screenSize.W - width ) / 2 ),
-                       static_cast<std::int32_t>( ( screenSize.H - height ) / 2 ) };
-        m_sdlw->getMainWindow()->setPos( newPos );
-    }
 }
 
 void IGameEngineApp::init( const LOGLW::WinData& windowData, bool fullscreen, const char* configPath, bool legacy )
 {
-    m_sdlw.reset( LOGLW::ISDL2Wrapper::createSDL2Wrapper() );
-    m_sdlw->init( windowData, configPath );
-    m_sdlw->registerWindowEventListener( this );
-    m_sdlw->registerKeyboardEventListener( this );
-    m_sdlw->registerMouseEventListener( this );
-
-    m_oglw.reset( LOGLW::IGameEngine::createGameEngine( m_sdlw.get(), legacy ) );
+    LOGLW::EngineParams params;
+    params.ConfigPath = configPath;
+    params.WinDataVal = windowData;
+    m_oglw.reset( LOGLW::IGameEngine::createGameEngine( params ) );
     m_logger = m_oglw->getLoger();
     m_device = m_oglw->getDevice();
+    m_oglw->registerKeyboardEventListener( this );
+    m_oglw->registerMouseEventListener( this );
+    m_oglw->registerWindowEventListener( this );
 
     m_oglw->onInitialize(
         [this]()
@@ -60,8 +53,6 @@ void IGameEngineApp::init( const LOGLW::WinData& windowData, bool fullscreen, co
         {
             customFrame();
         } );
-
-    m_sdlw->getMainWindow()->setFullscreen( fullscreen );
 
     // LOGLW::ProjectionData g_projectionData;
     // const auto& winSize = m_sdlw->getMainWindow()->getSize();
@@ -79,7 +70,7 @@ void IGameEngineApp::init( const LOGLW::WinData& windowData, bool fullscreen, co
 void IGameEngineApp::run()
 {
     m_oglw->startRenderingLoop();
-    m_sdlw->runEventLoop();
+    m_oglw->runEventLoop();
 }
 
 void IGameEngineApp::logicThread()
@@ -96,8 +87,12 @@ void IGameEngineApp::logicThread()
     }
 }
 
-void IGameEngineApp::onWindowEvent( const LOGLW::WindowEvent::Type )
+void IGameEngineApp::onWindowEvent( const LOGLW::WindowEvent::Type inType )
 {
+    if( inType == LOGLW::WindowEvent::Type::CLOSE )
+    {
+        close();
+    }
 }
 
 void IGameEngineApp::onKeyBoardEvent( const LOGLW::KeyboardState& )
@@ -117,7 +112,7 @@ void IGameEngineApp::close()
     m_runLogicThread = false;
     m_logicThread.join();
     m_oglw->stopRenderingLoop();
-    m_sdlw->stopEventLoop();
+    m_oglw->stopEventLoop();
 }
 
 void IGameEngineApp::setLogicThreadSleep( int sleepInMs )

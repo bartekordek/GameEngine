@@ -50,7 +50,6 @@ protected:
     class CUL::LOG::ILogger* m_logger = nullptr;
     class IRenderDevice* m_device = nullptr;
 
-    std::unique_ptr<LOGLW::ISDL2Wrapper> m_sdlw;
     std::unique_ptr<IGameEngine> m_oglw;
 
     int m_logicThreadSleepMs = 4;

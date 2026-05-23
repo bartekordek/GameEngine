@@ -183,6 +183,11 @@ void GameEngineConcrete::stopRenderingLoop()
 
     m_runRenderLoop = false;
 
+    if( m_asyncGameLoopThread.joinable() )
+    {
+        m_asyncGameLoopThread.join();
+    }
+
     if( m_taskLoopThread.joinable() )
     {
         m_taskLoopThread.join();
@@ -1166,6 +1171,11 @@ bool GameEngineConcrete::isKeyUp( const String& keyName ) const
 void GameEngineConcrete::registerWindowEventCallback( const LOGLW::WindowCallback& callback )
 {
     m_sdlW->registerWindowEventCallback( callback );
+}
+
+void GameEngineConcrete::registerWindowEventListener( LOGLW::IWindowEventObserver* observer )
+{
+    m_sdlW->registerWindowEventListener( observer );
 }
 
 CUL::CULInterface* GameEngineConcrete::getCul()

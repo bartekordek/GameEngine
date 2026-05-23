@@ -176,6 +176,7 @@ private:
     bool isKeyUp( const String& keyName ) const override;
 
     void registerWindowEventCallback( const LOGLW::WindowCallback& callback ) override;
+    void registerWindowEventListener( IWindowEventObserver* observer ) override;
 
     std::unique_ptr<DebugSystemBase> m_debugSystem;
 
