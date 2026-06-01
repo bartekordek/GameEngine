@@ -163,6 +163,7 @@ public:
 
     CUL::GUTILS::DelegateTemplateTwoParam<float, float> guiFrameDelegate;
     DLogicFrameDelegate LogicFrameDelegate;
+    CUL::GUTILS::DelegateTemplateGuardedTwoParam<std::uint32_t, std::uint32_t> OnWindowsResize;
 
     // Shaders
     GAME_ENGINE_API class ShaderProgram* createProgram();
