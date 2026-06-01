@@ -380,13 +380,8 @@ void GameEngineConcrete::showExtensions()
     m_logger->log( "Extension count: " + std::to_string( extensionList.size() ) );
 }
 
-void GameEngineConcrete::setupProjectionData( uint16_t width, uint16_t height )
+void GameEngineConcrete::setupProjectionData( uint16_t /*width*/, uint16_t /*height*/ )
 {
-    Camera projectionData;
-    projectionData.setSize( { width, height } );
-    projectionData.setEyePos( glm::vec3( 0.0f, 0.0f, 220.0f ) );
-    projectionData.setCenter( glm::vec3( 0.f, 0.f, 0.0f ) );
-    projectionData.setUp( glm::vec3( 0.0f, 1.0f, 0.0f ) );
 }
 
 void GameEngineConcrete::renderFrame()
