@@ -50,7 +50,12 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/deps/CUL)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/deps/rapidobj)
 
-find_package(GLUT REQUIRED)
+message("Adding modules...")
+set(ADDITIOANL_MODULES ${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules)
+message("Additional modules path: ${ADDITIOANL_MODULES}")
+list(APPEND CMAKE_MODULE_PATH "${ADDITIOANL_MODULES}")
+include(${ADDITIOANL_MODULES}/Findfreeglut.cmake)
+
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLFW REQUIRED)
@@ -65,6 +70,8 @@ set(GLFW_HOME ${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw)
 set(GLEW_INCLUDE_DIR ${GLEW_HOME}/include )
 set(GLEW_INCLUDE_DIRS ${GLEW_HOME}/include)
 set(GLFW_INCLUDE_DIR ${GLFW_HOME}/include)
+
+
 
 list(APPEND CMAKE_MODULE_PATH ${GLEW_HOME})
 set(GLFW_LIBRARY_TYPE STATIC CACHE STRING "BUILD STATIC" FORCE)
