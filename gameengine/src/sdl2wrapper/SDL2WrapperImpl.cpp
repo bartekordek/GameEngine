@@ -1,9 +1,8 @@
 #include "SDL2WrapperImpl.hpp"
+#include "gameengine/IGameEngine.hpp"
 #include "gameengine/Input/IKeyboardObserver.hpp"
 #include "gameengine/Input/IMouseObserver.hpp"
 #include "gameengine/Events/IWindowEventListener.hpp"
-
-#include "TextureSDL.hpp"
 
 #include "sdl2wrapper/IMPORT_SDL.hpp"
 
@@ -353,6 +352,12 @@ void SDL2WrapperImpl::handleWindowEvent( const SDL_Event& sdlEvent )
             eventType = WindowEventType::MOVED;
             m_mainWindow->fetchSreenData();
         }
+        else if( sdlEvent.window.event == SDL_WINDOWEVENT_RESIZED )
+        {
+            IGameEngine::getInstance()->OnWindowsResize.execute(
+                static_cast<std::uint32_t>( sdlEvent.window.data1 ),
+                static_cast<std::uint32_t>( sdlEvent.window.data2 ) );
+        }
     }
 
     notifyWindowEventListeners( eventType );
@@ -492,29 +497,6 @@ bool SDL2WrapperImpl::isKeyUp( const String& keyName ) const
 KeyboardState& SDL2WrapperImpl::getKeyStates()
 {
     return m_keys;
-}
-
-ISprite* SDL2WrapperImpl::createSprite( const CUL::FS::Path& objPath, IWindow* targetWindow ) const
-{
-    return targetWindow->createSprite( objPath );
-}
-
-CUL::Graphics::ITexture* SDL2WrapperImpl::createTexture( const CUL::FS::Path& objPath, IWindow* targetWindow ) const
-{
-    if( IWindow::Type::SDL_WIN == targetWindow->getType() )
-    {
-        return targetWindow->createTexture( objPath );
-    }
-    return nullptr;
-}
-
-ISprite* SDL2WrapperImpl::createSprite( CUL::Graphics::ITexture* tex, IWindow* targetWindow ) const
-{
-    if( IWindow::Type::SDL_WIN == targetWindow->getType() )
-    {
-        return targetWindow->createSprite( tex );
-    }
-    return nullptr;
 }
 
 IWindow* SDL2WrapperImpl::getMainWindow() const

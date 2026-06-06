@@ -1,7 +1,4 @@
 #include "RegularSDL2Window.hpp"
-#include "TextureSDL.hpp"
-#include "Sprite.hpp"
-#include "TextureSDL.hpp"
 #include "CUL/Filesystem/FSApi.hpp"
 
 #include "gameengine/ISDL2Wrapper.hpp"
@@ -263,60 +260,6 @@ IWindow::Type RegularSDL2Window::getType() const
     return IWindow::Type::SDL_WIN;
 }
 
-ISprite* RegularSDL2Window::createSprite( const CUL::FS::Path& objPath )
-{
-    ISprite* result = nullptr;
-    CUL::Assert::simple( objPath.getPath() != "", "EMTPY PATH." );
-    auto it = m_textures.find( objPath.getPath() );
-    if( m_textures.end() == it )
-    {
-        auto tex = createTexture( objPath );
-        result = createSprite( tex );
-    }
-    else
-    {
-        auto tex = it->second.get();
-        result = createSprite( tex );
-    }
-    return result;
-}
-
-CUL::Graphics::ITexture* RegularSDL2Window::createTexture( const CUL::FS::Path& objPath )
-{
-    CUL::Graphics::ITexture* result = nullptr;
-    CUL::Assert::simple( objPath.getPath() != "", "EMTPY PATH." );
-    auto it = m_textures.find( objPath.getPath() );
-    if( m_textures.end() == it )
-    {
-        auto surface = createSurface( objPath );
-        auto tex = createTexture( surface.first, objPath );
-        SDL_FreeSurface( surface.first );
-        surface.first = nullptr;
-
-        delete surface.second;
-        surface.second = nullptr;
-        result = tex;
-    }
-    else
-    {
-        result = it->second.get();
-    }
-    return result;
-}
-
-ISprite* RegularSDL2Window::createSprite( CUL::Graphics::ITexture* tex )
-{
-#if SDL2WRAPPER_SPRITE
-    auto spritePtr = new Sprite();
-    spritePtr->setTexture( tex );
-    addObject( spritePtr );
-    return spritePtr;
-#else   // #if SDL2WRAPPER_SPRITE
-    (void*)tex;
-    return nullptr;
-#endif  // #if SDL2WRAPPER_SPRITE
-}
-
 SurfaceImage RegularSDL2Window::createSurface( const CUL::FS::Path& path )
 {
     SurfaceImage surfaceImage;
@@ -373,27 +316,6 @@ SurfaceImage RegularSDL2Window::createSurface( const CUL::FS::Path& path )
     surfaceImage.second = image;
 
     return surfaceImage;
-}
-
-CUL::Graphics::ITexture* RegularSDL2Window::createTexture( SDL_Surface* surface, const CUL::FS::Path& path )
-{
-    m_logger->logInfo( "Creating texture from: %s", *path.getPath() );
-    // CUL::Assert::simple( nullptr != m_renderer, "RENDERER NOT READY!\n" );
-    CUL::Assert::simple( nullptr != surface, "SURFACE IS NULL!\n" );
-
-    // auto texSDL = new TextureSDL();
-
-    // auto const tex = SDL_CreateTextureFromSurface( m_renderer, surface );
-    // CUL::Assert::simple(
-    //     nullptr != tex,
-    //     "Cannot create texture from " +
-    //     path.getPath() +
-    //     " does not exist." );
-
-    // texSDL->setTexture( tex, path );
-    // m_textures[path.getPath()] = std::unique_ptr<ITexture>( texSDL );
-    // return texSDL;
-    return nullptr;
 }
 
 void RegularSDL2Window::addObject( CUL::Graphics::IObject* object )

@@ -135,7 +135,7 @@ void EditableTexture::init()
         m_ti->textureId = static_cast<decltype( m_ti->textureId )>( m_textureId );
         m_ti->initialized = true;
         
-        getDevice()->setTextureData( m_textureId, *m_ti );
+        getDevice()->setTextureData( static_cast<std::uint32_t>( m_textureId ), *m_ti );
     }
 
     getDevice()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );

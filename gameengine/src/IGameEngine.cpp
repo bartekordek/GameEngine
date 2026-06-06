@@ -57,7 +57,10 @@ IGameEngine* IGameEngine::createGameEngine( const EngineParams& engineParam )
 
 void IGameEngine::initialize()
 {
+    IWindow* mainWindow = getMainWindow();
+    const WinSize winSize = mainWindow->getSize();
     m_camera = std::make_unique<Camera>();
+    m_camera->setSize( WindowSize{ winSize.W, winSize.H } );
 
     {
         std::lock_guard<std::mutex> lock( m_initTasksMtx );
@@ -69,11 +72,10 @@ void IGameEngine::initialize()
         }
     }
 
-    IWindow* mainWindow = getMainWindow();
+    
 
     if( mainWindow->getCurrentRendererType() == RenderTypes::RendererType::OPENGL_MODERN )
     {
-        const WinSize winSize = mainWindow->getSize();
         m_frameBufferTexture = std::make_unique<TextureFrameBufferOpenGL>( *getDevice(), winSize.W, winSize.H );
     }
 }

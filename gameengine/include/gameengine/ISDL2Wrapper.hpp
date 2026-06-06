@@ -58,11 +58,6 @@ public:
     const std::map<RenderTypes::RendererType, int>& getRenderersList() const;
     virtual void printAvailableRenderers() const = 0;
 
-    virtual CUL::Graphics::ITexture* createTexture( const CUL::FS::Path& path, IWindow* targetWindow ) const = 0;
-    virtual ISprite* createSprite( const CUL::FS::Path& path, IWindow* targetWindow ) const = 0;
-
-    virtual ISprite* createSprite( CUL::Graphics::ITexture* tex, IWindow* targetWindow ) const = 0;
-
     virtual IWindow* getMainWindow() const = 0;
 
     virtual unsigned int getInputLatency() const = 0;

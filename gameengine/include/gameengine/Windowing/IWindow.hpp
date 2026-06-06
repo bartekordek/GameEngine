@@ -99,10 +99,6 @@ public:
 
     virtual Type getType() const = 0;
 
-    virtual CUL::Graphics::ITexture* createTexture( const CUL::FS::Path& path ) = 0;
-    virtual ISprite* createSprite( const CUL::FS::Path& path ) = 0;
-    virtual ISprite* createSprite( CUL::Graphics::ITexture* tex ) = 0;
-
     void setWindowID( unsigned id );
     unsigned int getWindowID() const;
 

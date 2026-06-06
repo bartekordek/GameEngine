@@ -106,10 +106,6 @@ private:
     void notifyWindowEventListeners( const WindowEventType e );
     void notifyWindowEventCallbacks( const WindowEventType e );
 
-    CUL::Graphics::ITexture* createTexture( const CUL::FS::Path& path, IWindow* targetWindow ) const override;
-    ISprite* createSprite( const CUL::FS::Path& path, IWindow* targetWindow ) const override;
-    ISprite* createSprite( CUL::Graphics::ITexture* tex, IWindow* targetWindow ) const override;
-
     DumbPtr<WindowCreatorConcrete> m_windowFactory;
     WinData m_windowData;
     SDL_Renderer* m_renderer = nullptr;

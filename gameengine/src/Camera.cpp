@@ -1,4 +1,5 @@
 #include "gameengine/Camera.hpp"
+#include "gameengine/IGameEngine.hpp"
 
 using namespace LOGLW;
 
@@ -8,6 +9,11 @@ Camera::Camera()
         [this]()
         {
             toggleProjectionChanged( true );
+        } );
+    IGameEngine::getInstance()->OnWindowsResize.addDelegate(
+        [this]( std::uint32_t width, std::uint32_t height )
+        {
+            setSize( WindowSize{ static_cast<std::int32_t>( width ), static_cast<std::int32_t>( height ) } );
         } );
 }
 

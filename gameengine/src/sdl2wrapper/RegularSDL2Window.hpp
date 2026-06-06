@@ -44,7 +44,6 @@ protected:
 private:
     SDL_Window* createWindow( const WinData& winDatae );
     SurfaceImage createSurface( const CUL::FS::Path& path );
-    CUL::Graphics::ITexture* createTexture( SDL_Surface* surface, const CUL::FS::Path& path );
     void destroyObjects();
     const WinSize& getCurrentScreenNativeResolution() const override;
 
@@ -76,10 +75,6 @@ private:
     void updateScreenBuffers() override;
 
     IWindow::Type getType() const override;
-
-    CUL::Graphics::ITexture* createTexture( const CUL::FS::Path& path ) override;
-    ISprite* createSprite( const CUL::FS::Path& path ) override;
-    ISprite* createSprite( CUL::Graphics::ITexture* tex ) override;
 
     ColorS getBackgroundColor() const override;
     void setFullscreen( bool fullscreen ) override;
