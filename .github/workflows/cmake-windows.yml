@@ -18,15 +18,11 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Create Build Environment
-        shell: cmd
-        run: cmake -E make_directory ${{github.workspace}}//Build-Windows
-
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        working-directory: ${{github.workspace}}/Build-Windows
-        run: cmake .. -DCMAKE_BUILD_TYPE=Debug -DTRACY_ENABLE=0
+        working-directory: ${{github.workspace}}
+        run: cmake -DCMAKE_POLICY_VERSION_MINIMUM="3.5" -DTRACY_ENABLE=0 -S . -B Build-Windows
 
       - name: Build playgroundApp_dynamic
         # Build your program with the given configuration

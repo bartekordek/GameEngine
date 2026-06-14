@@ -76,6 +76,33 @@
             }
         },
         {
+            "label": "[WINDOWS][CMAKE][CREATE][NoTracy]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
+                "-DTRACY_ENABLE=0",
+                "-S",
+                ".",
+                "-B Build-Windows"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
             "label": "[LINUX][CMAKE][CREATE][DEBUG]",
             "type": "shell",
             "command": "./CreateProjects.sh Debug",
