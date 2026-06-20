@@ -28,6 +28,7 @@
 *~ml
 *cache
 Build-*
+Build_*
 build/*
 CMakeFiles/
 deps/Makefile

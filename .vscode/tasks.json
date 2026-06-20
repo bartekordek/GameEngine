@@ -2,14 +2,46 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "2.0.0",
+    "inputs": [
+        {
+            "id": "configuration",
+            "type": "pickString",
+            "description": "Select configuration",
+            "options": [
+                "Debug",
+                "Release",
+                "RelWithDebInfo"
+            ],
+            "default": "Debug"
+        },
+        {
+            "id": "platform",
+            "type": "pickString",
+            "description": "Select platform",
+            "options": [
+                "Win64",
+                "Linux"
+            ]
+        },
+        {
+            "id": "tracy_enabled",
+            "type": "pickString",
+            "description": "Toggle tracy",
+            "options": [
+                "ON",
+                "OFF"
+            ],
+            "default": "OFF"
+        }
+    ],
     "tasks": [
         {
-            "label": "[Windows][Build][Debug][RayTracingPlayground_static]",
+            "label": "[Build][Debug][RayTracingPlayground_static]",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "Build-Windows",
+                "Build_Win64",
                 "--config",
                 "DEBUG",
                 "--target",
@@ -28,44 +60,50 @@
             ]
         },
         {
-            "label": "[Windows][Build][Debug][All]",
+            "label": "[CMake][Create]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                ".",
+                "-B Build_${input:platform}",
+                "-DENABLE_TRACY=${input:tracy_enabled}",
+                "-DCMAKE_BUILD_TYPE=${input:configuration}"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "revealProblems": "onProblem",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "label": "[CMake][Build][all]",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "Build-Windows",
+                "Build_${input:platform}",
                 "--config",
-                "DEBUG"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ]
-        },
-        {
-            "label": "[WINDOWS][CMAKE][CREATE][DEBUG]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "cmake",
-                "-S",
-                ".",
-                "-B Build-Windows"
+                "${input:configuration}",
+                "-j16"
             ],
             "group": {
                 "kind": "build",
-                "isDefault": true
             },
             "presentation": {
                 "echo": true,
                 "reveal": "always",
+                "revealProblems": "onProblem",
                 "focus": true,
                 "panel": "dedicated",
                 "showReuseMessage": false,
@@ -73,54 +111,8 @@
             },
             "options": {
                 "cwd": "${workspaceFolder}"
-            }
-        },
-        {
-            "label": "[WINDOWS][CMAKE][CREATE][NoTracy]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "-DCMAKE_POLICY_VERSION_MINIMUM=3.5",
-                "-DTRACY_ENABLE=0",
-                "-S",
-                ".",
-                "-B Build-Windows"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
             },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "options": {
-                "cwd": "${workspaceFolder}"
-            }
-        },
-        {
-            "label": "[LINUX][CMAKE][CREATE][DEBUG]",
-            "type": "shell",
-            "command": "./CreateProjects.sh Debug",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "options": {
-                "cwd": "${workspaceFolder}"
-            }
+            "dependsOn": "[CMake][Create]",
         },
         {
             "label": "[Windows][Build][shader_editor_static][Debug]",
@@ -128,7 +120,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "Build-Windows",
+                "Build_Win64",
                 "--config",
                 "Debug",
                 "-j16",
@@ -148,62 +140,12 @@
             ]
         },
         {
-            "label": "[LINUX][DEBUG][BUILLD][shader_editor_static]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build-Linux",
-                "--config",
-                "DEBUG",
-                "-j16",
-                "--target",
-                "shader_editor_static"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ]
-        },
-        {
-            "label": "[LINUX][DEBUG][BUILLD][libsdl2wrapper_dynamic]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build-Linux",
-                "--config",
-                "DEBUG",
-                "-j16",
-                "--target",
-                "libsdl2wrapper_dynamic"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ]
-        },
-        {
             "label": "[WINDOWS][DEBUG][BUILLD][sdl2wrapper_static]",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "Build-Windows",
+                "Build_Win64",
                 "--config",
                 "DEBUG",
                 "-j16",
@@ -228,32 +170,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "Build-Windows",
-                "--config",
-                "DEBUG",
-                "-j16",
-                "--target",
-                "libsdl2wrapperTestApp_dynamic"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ]
-        },
-        {
-            "label": "[LINUX][DEBUG][BUILLD][libsdl2wrapperTestApp_dynamic]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build-Linux",
+                "Build_Win64",
                 "--config",
                 "DEBUG",
                 "-j16",
@@ -278,7 +195,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "Build-Windows",
+                "Build_Win64",
                 "--config",
                 "DEBUG",
                 "-j16",
@@ -303,7 +220,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "Build-Windows",
+                "Build_Win64",
                 "--config",
                 "DEBUG",
                 "-j16",
@@ -323,62 +240,12 @@
             ]
         },
         {
-            "label": "[LINUX][DEBUG][BUILLD][gameengine_dynamic]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build-Linux",
-                "--config",
-                "DEBUG",
-                "-j16",
-                "--target",
-                "gameengine_dynamic"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "[LINUX][DEBUG][BUILLD][gameengine_static]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build-Linux",
-                "--config",
-                "DEBUG",
-                "-j16",
-                "--target",
-                "gameengine_static"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
             "label": "[WINDOWS][DEBUG][BUILLD][playgroundApp_dynamic]",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "Build-Windows",
+                "Build_Win64",
                 "--config",
                 "DEBUG",
                 "-j16",
@@ -403,7 +270,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "Build-Windows",
+                "Build_Win64",
                 "--config",
                 "DEBUG",
                 "-j16",
@@ -423,37 +290,12 @@
             ]
         },
         {
-            "label": "[LINUX][DEBUG][BUILLD][playgroundApp_dynamic",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build-Linux",
-                "--config",
-                "DEBUG",
-                "-j16",
-                "--target",
-                "playgroundApp_dynamic"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
             "label": "[WINDOWS][DEBUG][BUILLD][snake_dynamic]",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "Build-Windows",
+                "Build_Win64",
                 "--config",
                 "DEBUG",
                 "-j16",
@@ -478,108 +320,12 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "Build-Windows",
+                "Build_Win64",
                 "--config",
                 "DEBUG",
                 "-j16",
                 "--target",
                 "snake_static"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ]
-        },
-        {
-            "label": "[LINUX][DEBUG][BUILLD][snake_dynamic]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build-Linux",
-                "--config",
-                "DEBUG",
-                "-j1",
-                "--target",
-                "snake_dynamic"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "[LINUX][DEBUG][BUILLD][snake_static]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build-Linux",
-                "--config",
-                "DEBUG",
-                "-j1",
-                "--target",
-                "snake_static"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "[Linux][Debug][Build][All]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build-Linux",
-                "--config",
-                "DEBUG",
-                "-j16"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
-            "label": "[WINDOWS][DEBUG][BUILLD][ALL]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build-Windows",
-                "--config",
-                "DEBUG",
-                "-j16"
             ],
             "presentation": {
                 "echo": true,

@@ -1,25 +1,22 @@
 #include "rt.hpp"
 
-#include "gameengine/IGameEngine.hpp"
-#include "gameengine/EngineParams.hpp"
+#include "CUL/ITimer.hpp"
+#include "CUL/Proifling/Profiler.hpp"
 #include "gameengine/Camera.hpp"
-#include "gameengine/IDebugOverlay.hpp"
-#include "gameengine/Primitives/Triangle.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Cube.hpp"
-#include "gameengine/Render/ITextureFrameBuffer.hpp"
-#include "gameengine/Render/PixelFormats.hpp"
+#include "gameengine/EngineParams.hpp"
+#include "gameengine/IDebugOverlay.hpp"
+#include "gameengine/IGameEngine.hpp"
+#include "gameengine/Input/MouseData.hpp"
 #include "gameengine/Primitives/Quad.hpp"
+#include "gameengine/Primitives/Triangle.hpp"
+#include "gameengine/Render/ITextureFrameBuffer.hpp"
 #include "gameengine/Render/PixelFormats.hpp"
 #include "gameengine/Sprite.hpp"
 #include "gameengine/UI/UIService.hpp"
 #include "gameengine/UI/WidgetEditable.hpp"
-
 #include "gameengine/Windowing/IWindow.hpp"
-#include "gameengine/Input/MouseData.hpp"
-
-#include "CUL/ITimer.hpp"
-#include "CUL/Proifling/Profiler.hpp"
 
 CUL::MATH::Angle ang90( 90, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang180( 180, CUL::MATH::Angle::Type::DEGREE );
@@ -27,8 +24,7 @@ CUL::MATH::Angle ang270( 270, CUL::MATH::Angle::Type::DEGREE );
 
 LOGLW::Triangle* g_triangle{ nullptr };
 
-RT_Playground::RT_Playground( const LOGLW::WinData& inWinData ):
-    m_winData( inWinData )
+RT_Playground::RT_Playground( const LOGLW::WinData& inWinData ) : m_winData( inWinData )
 {
 }
 
@@ -90,7 +86,8 @@ void RT_Playground::afterInit()
 
     m_engine->drawDebugInfo( false );
     m_engine->drawOrigin( false );
-    m_widget = dynamic_cast<LOGLW::IWidgetEditable*>( m_engine->getUIService().createWidget() );
+    m_widget =
+        dynamic_cast<LOGLW::IWidgetEditable*>( m_engine->getUIService().createWidget() );
 
     g_triangle = m_engine->createTriangle( nullptr );
     m_engine->LogicFrameDelegate.addDelegate(
@@ -132,7 +129,7 @@ void RT_Playground::calculate( float /*dt*/ )
                 const glm::vec3 pointOnScreen = glm::vec3( ndcX, ndcY, screenZ );
                 const glm::vec3 rayDir = glm::normalize( pointOnScreen - eye );
 
-                glm::vec3 intersectionPoint;
+                static glm::vec3 intersectionPoint;
                 glm::vec3 intersectionNormal;
                 if( glm::intersectRaySphere( eye,     // ray origin
                                              rayDir,  // normalized direction
@@ -175,9 +172,12 @@ void RT_Playground::onMouseEvent( const LOGLW::MouseData& mouseData )
 {
     if( mouseData.isButtonDown( 1 ) )
     {
-        m_engine->getLoger()->logInfo( "Mouse: %d, %d", mouseData.getX(), mouseData.getY() );
+        m_engine->getLoger()->logInfo(
+            "Mouse: %d, %d", mouseData.getX(), mouseData.getY() );
         static LOGLW::S_RGBA_F color{ 1.f, 0.f, 0.f, 1.f };
-        m_widget->updatePixel( static_cast<std::size_t>( mouseData.getX() ), static_cast<std::size_t>( mouseData.getY() ), color );
+        m_widget->updatePixel( static_cast<std::size_t>( mouseData.getX() ),
+                               static_cast<std::size_t>( mouseData.getY() ),
+                               color );
     }
     else if( mouseData.isButtonDown( 3 ) )
     {
@@ -221,12 +221,18 @@ void RT_Playground::onKeyBoardEvent( const LOGLW::KeyboardState& key )
     if( key.at( "W" ) )
     {
         m_sphere.move( Vec3f( 0.f, 0.f, -1.0f ) );
-        m_engine->getLoger()->logInfo( "Sphere pos: %f, %f, %f", m_sphere.getCenter().x, m_sphere.getCenter().y, m_sphere.getCenter().z );
+        m_engine->getLoger()->logInfo( "Sphere pos: %f, %f, %f",
+                                       m_sphere.getCenter().x,
+                                       m_sphere.getCenter().y,
+                                       m_sphere.getCenter().z );
     }
     else if( key.at( "S" ) )
     {
         m_sphere.move( Vec3f( 0.f, 0.f, 1.0f ) );
-        m_engine->getLoger()->logInfo( "Sphere pos: %f, %f, %f", m_sphere.getCenter().x, m_sphere.getCenter().y, m_sphere.getCenter().z );
+        m_engine->getLoger()->logInfo( "Sphere pos: %f, %f, %f",
+                                       m_sphere.getCenter().x,
+                                       m_sphere.getCenter().y,
+                                       m_sphere.getCenter().z );
     }
     else if( key.at( "U" ) )
     {
