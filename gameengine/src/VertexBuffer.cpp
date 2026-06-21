@@ -3,12 +3,11 @@
 #include "gameengine/AttributeMeta.hpp"
 #include "RunOnRenderThread.hpp"
 #include "gameengine/IRenderDevice.hpp"
-#include "CUL/Proifling/Profiler.hpp"
+#include "CUL/Profiling/Profiler.hpp"
 
 using namespace LOGLW;
 
-VertexBuffer::VertexBuffer( const VertexData& vertexData ):
-    m_vertexData( vertexData )
+VertexBuffer::VertexBuffer( const VertexData& vertexData ) : m_vertexData( vertexData )
 {
     init();
 }
@@ -27,7 +26,7 @@ void VertexBuffer::updateVertexData( const DataWrapper& vertexData )
     am.Size = vertexData.Size;
     am.StrideBytes = vertexData.Stride;
     am.Type = DataType::FLOAT;
-    //m_vertexData.Attributes.clear();
+    // m_vertexData.Attributes.clear();
     m_vertexData.Attributes.emplace_back( am );
     m_vertexData.primitiveType = vertexData.primitiveType;
     m_vertexData.Data.createFrom( vertexData.Data );
@@ -65,7 +64,8 @@ void VertexBuffer::onNameChange( const String& newName )
                 constexpr std::size_t bufferSize{ 1024u };
                 char buffer[bufferSize];
                 snprintf( buffer, bufferSize, "%s/index_buffer", *newName );
-                getDevice()->setObjectName( EObjectType::BUFFER, m_indexBuffer->getObjID(), buffer );
+                getDevice()->setObjectName(
+                    EObjectType::BUFFER, m_indexBuffer->getObjID(), buffer );
             }
         } );
 }
@@ -154,13 +154,17 @@ void VertexBuffer::render()
     {
         m_indexBuffer->bind();
         getDevice()->drawElements( m_vertexData.primitiveType, m_indexBuffer->getData() );
-        // getDevice()->drawElementsFromLastBuffer( m_vertexData.primitiveType, DataType::UNSIGNED_INT, m_indexBuffer->getData().size() );
+        // getDevice()->drawElementsFromLastBuffer( m_vertexData.primitiveType,
+        // DataType::UNSIGNED_INT, m_indexBuffer->getData().size() );
     }
     else
     {
         // TODO! need to check if there are actual trianiangles or other types.
-        getDevice()->drawArrays( m_vertexData.VAO, m_vertexData.primitiveType, 0,
-                                 static_cast<std::uint32_t>( m_vertexData.Data.getSize() ) );
+        getDevice()->drawArrays(
+            m_vertexData.VAO,
+            m_vertexData.primitiveType,
+            0,
+            static_cast<std::uint32_t>( m_vertexData.Data.getSize() ) );
     }
 }
 

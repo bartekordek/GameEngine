@@ -1,7 +1,7 @@
 #include "rt.hpp"
 
 #include "CUL/ITimer.hpp"
-#include "CUL/Proifling/Profiler.hpp"
+#include "CUL/Profiling/Profiler.hpp"
 #include "gameengine/Camera.hpp"
 #include "gameengine/Components/TransformComponent.hpp"
 #include "gameengine/Cube.hpp"

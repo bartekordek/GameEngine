@@ -31,7 +31,7 @@
 #include "CUL/ITimer.hpp"
 #include "CUL/Math/Utils.hpp"
 #include "CUL/JSON/INode.hpp"
-#include "CUL/Proifling/Profiler.hpp"
+#include "CUL/Profiling/Profiler.hpp"
 #include "CUL/String/StringUtil.hpp"
 
 #include "CUL/STL_IMPORTS/STD_iostream.hpp"
@@ -41,12 +41,12 @@
 #undef LoadImage
 using namespace LOGLW;
 
-GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool ):
-    m_sdlW( sdl2w ),
-    m_activeWindow( sdl2w->getMainWindow() ),
-    m_cul( sdl2w->getCul() ),
-    m_logger( sdl2w->getCul()->getLogger() ),
-    m_uiService( *this )
+GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool )
+    : m_sdlW( sdl2w )
+    , m_activeWindow( sdl2w->getMainWindow() )
+    , m_cul( sdl2w->getCul() )
+    , m_logger( sdl2w->getCul()->getLogger() )
+    , m_uiService( *this )
 {
     CUL::Assert::simple( nullptr != sdl2w, "NO SDL WRAPPER." );
     CUL::Assert::simple( nullptr != m_activeWindow, "NO WINDOW." );
@@ -55,7 +55,8 @@ GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool ):
     auto initTask = [this]()
     {
         DebugSystemParams params;
-        static_assert( (int)ETextureUnitIndex::UNIT_0 == GL_TEXTURE0, "Incorrect texture unit mapping." );
+        static_assert( (int)ETextureUnitIndex::UNIT_0 == GL_TEXTURE0,
+                       "Incorrect texture unit mapping." );
 
         m_imageLoader = m_cul->getImageLoader();
 
@@ -64,7 +65,8 @@ GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool ):
         const auto config = m_sdlW->getConfig();
         if( config )
         {
-            const CUL::ThreeState threeState = config->getValue( "OPENGL_FORCE_LEGACY" ).toBool();
+            const CUL::ThreeState threeState =
+                config->getValue( "OPENGL_FORCE_LEGACY" ).toBool();
             forceLegacy = threeState == CUL::ThreeState::True ? true : false;
         }
 
@@ -96,7 +98,8 @@ GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool ):
         registerObjectForUtility();
 
         m_glContext = m_renderDevice->initContextVersion( m_activeWindow );
-        m_logger->logInfo( "GameEngineConcrete::initialize(), OpenGL version: %s", m_glContext.glVersion.getUtfChar() );
+        m_logger->logInfo( "GameEngineConcrete::initialize(), OpenGL version: %s",
+                           m_glContext.glVersion.getUtfChar() );
 
         m_debugSystem.reset( DebugSystemBase::create( m_renderDevice->getType() ) );
 
@@ -113,9 +116,14 @@ GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool ):
                 } );
         }
 
-        CUL::ThreeState drawDebugInfo = config ? config->getValue( "DRAW_DEBUG_INFO" ).toBool() : CUL::ThreeState::Undetermined;
+        CUL::ThreeState drawDebugInfo =
+            config ? config->getValue( "DRAW_DEBUG_INFO" ).toBool()
+                   : CUL::ThreeState::Undetermined;
 
-        toggleDrawDebugInfo( ( drawDebugInfo == CUL::ThreeState::True || drawDebugInfo == CUL::ThreeState::Undetermined ) ? true : false );
+        toggleDrawDebugInfo( ( drawDebugInfo == CUL::ThreeState::True ||
+                               drawDebugInfo == CUL::ThreeState::Undetermined )
+                                 ? true
+                                 : false );
     };
     {
         std::lock_guard<std::mutex> lock( m_initTasksMtx );
@@ -202,7 +210,8 @@ void GameEngineConcrete::stopRenderingLoop()
 
 void GameEngineConcrete::onInitialize( const EmptyFunctionCallback& callback )
 {
-    CUL::Assert::simple( m_hasBeenInitialized == false, "Wrapper already initialized, no need in defining " );
+    CUL::Assert::simple( m_hasBeenInitialized == false,
+                         "Wrapper already initialized, no need in defining " );
     m_onInitializeCallback = callback;
 }
 
@@ -247,11 +256,15 @@ Sprite* GameEngineConcrete::createSprite( const String& path, bool )
     return sprite;
 }
 
-Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width, unsigned height, bool )
+Sprite* GameEngineConcrete::createSprite( unsigned* data,
+                                          unsigned width,
+                                          unsigned height,
+                                          bool )
 {
     auto sprite = new Sprite( nullptr, false );
     auto textureId = m_renderDevice->generateTexture();
-    sprite->LoadImage( (CUL::Graphics::DataType*)data, width, height, m_imageLoader, textureId );
+    sprite->LoadImage(
+        (CUL::Graphics::DataType*)data, width, height, m_imageLoader, textureId );
     m_renderDevice->bindTexture( textureId );
 
     const auto& ii = sprite->getImageInfo();
@@ -264,8 +277,10 @@ Sprite* GameEngineConcrete::createSprite( unsigned* data, unsigned width, unsign
     td.data = sprite->getData();
     m_renderDevice->setTextureData( textureId, td );
 
-    m_renderDevice->setTextureParameter( textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
-    m_renderDevice->setTextureParameter( textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
+    m_renderDevice->setTextureParameter(
+        textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
+    m_renderDevice->setTextureParameter(
+        textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
 
     m_renderDevice->bindTexture( 0 );
 
@@ -320,7 +335,7 @@ void GameEngineConcrete::renderLoop()
         runPreRenderTasks();
         renderFrame();
         runPostRenderTasks();
-        m_renderFrameTimeManager->endFrame();   
+        m_renderFrameTimeManager->endFrame();
         FrameEnd;
     }
 
@@ -343,7 +358,8 @@ void GameEngineConcrete::initialize()
     m_logger->log( "GameEngineConcrete::initialize()..." );
 
     const auto& winSize = m_activeWindow->getSize();
-    const float aspectRatio = static_cast<float>( winSize.W ) / static_cast<float>( winSize.H );
+    const float aspectRatio =
+        static_cast<float>( winSize.W ) / static_cast<float>( winSize.H );
     getCamera().setAspectRatio( aspectRatio );
 
     m_sdlW->registerSDLEventObserver( this );
@@ -445,7 +461,9 @@ void GameEngineConcrete::renderFrame()
     finishFrame();
 }
 
-void drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const String& name );
+void drawObjects( std::set<IObject*>& shownList,
+                  IObject* currentObject,
+                  const String& name );
 
 #if _MSC_VER
     #pragma warning( push )
@@ -460,7 +478,10 @@ void GameEngineConcrete::renderInfo()
     if( getDrawDebugInfo() )
     {
         String name = "INFO LOG";
-        ImGui::Begin( *name, nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
+        ImGui::Begin( *name,
+                      nullptr,
+                      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
+                          ImGuiWindowFlags_NoTitleBar );
         ImGui::SetWindowPos( { 0, 0 } );
 
         const auto& winSize = m_activeWindow->getSize();
@@ -478,16 +499,20 @@ void GameEngineConcrete::renderInfo()
         gpuCurrent /= 1024;
 
         ImGui::Text( "GPU USAGE:" );
-        const String val = String::createFromPrintf( "%f MB/%f MB", gpuCurrent, gputTotal );
+        const String val =
+            String::createFromPrintf( "%f MB/%f MB", gpuCurrent, gputTotal );
         ImGui::ProgressBar( gpuCurrent / gputTotal, ImVec2( 0.f, 0.f ), *val );
 
         auto res = false;
         {
-            static bool isPerspective = getCamera().getProjectionType() == LOGLW::ProjectionType::PERSPECTIVE;
+            static bool isPerspective =
+                getCamera().getProjectionType() == LOGLW::ProjectionType::PERSPECTIVE;
             res = ImGui::Checkbox( "Projection is Perspective", &isPerspective );
             if( res )
             {
-                getCamera().setProjectionType( isPerspective ? LOGLW::ProjectionType::PERSPECTIVE : LOGLW::ProjectionType::ORTO );
+                getCamera().setProjectionType( isPerspective
+                                                   ? LOGLW::ProjectionType::PERSPECTIVE
+                                                   : LOGLW::ProjectionType::ORTO );
                 getCamera().toggleProjectionChanged( true );
             }
         }
@@ -564,8 +589,10 @@ void GameEngineConcrete::renderInfo()
         ImGui::Text( "FPS (Imgui): %4.2f", ImGui::GetIO().Framerate );
         ImGui::Text( "FrameTime: %4.2f ms", 1000.f / ImGui::GetIO().Framerate );
 
-        ImGui::Text( "Average frame ms: %f", m_renderFrameTimeManager->geAvgFrameTimeMS() );
-        ImGui::Text( "Target frame ms: %f", m_renderFrameTimeManager->getTargetFrameTimeMS() );
+        ImGui::Text( "Average frame ms: %f",
+                     m_renderFrameTimeManager->geAvgFrameTimeMS() );
+        ImGui::Text( "Target frame ms: %f",
+                     m_renderFrameTimeManager->getTargetFrameTimeMS() );
         ImGui::Text( "Average FPS: %f", m_renderFrameTimeManager->getAvgFPS() );
 
         drawObjectsInfo( debugInfoWidth, debugInfoHeight );
@@ -612,7 +639,9 @@ bool GameEngineConcrete::drawObjectsInfo( float& width, float& high )
     return true;
 }
 
-void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* currentObject, const String& name )
+void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList,
+                                      IObject* currentObject,
+                                      const String& name )
 {
     if( shownList.find( currentObject ) != shownList.end() )
     {
@@ -621,7 +650,8 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
 
     if( name.empty() )
     {
-        CUL::Assert::simple( false, "GameEngineConcrete::drawObjects: object has no name." );
+        CUL::Assert::simple( false,
+                             "GameEngineConcrete::drawObjects: object has no name." );
     }
 
     constexpr std::size_t stringBufferLength{ 32u };
@@ -659,11 +689,16 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
             {
                 if( ImGui::TreeNode( "Uniforms" ) )
                 {
-                    const std::vector<String> uniformNames = shaderProgram->getUniformsNames();
+                    const std::vector<String> uniformNames =
+                        shaderProgram->getUniformsNames();
                     for( const String& uniformName : uniformNames )
                     {
-                        const auto& uniformVal = shaderProgram->getUniformValue( uniformName );
-                        ImGui::Text( "ID: %d, Name: %s, Type: %s", uniformVal.Id, *uniformVal.Name, *uniformVal.TypeName );
+                        const auto& uniformVal =
+                            shaderProgram->getUniformValue( uniformName );
+                        ImGui::Text( "ID: %d, Name: %s, Type: %s",
+                                     uniformVal.Id,
+                                     *uniformVal.Name,
+                                     *uniformVal.TypeName );
                         if( uniformVal.Type == LOGLW::DataType::FLOAT )
                         {
                             ImGui::SameLine();
@@ -673,7 +708,9 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
                         {
                             glm::vec3 value = std::get<glm::vec3>( uniformVal.Value );
 
-                            auto ManagerValue = [&fString, shaderProgram]( float& inOutValue, const String& uniformName )
+                            auto ManagerValue =
+                                [&fString, shaderProgram]( float& inOutValue,
+                                                           const String& uniformName )
                             {
                                 bool changed{ false };
 
@@ -681,14 +718,16 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
 
                                 ImGui::PushItemWidth( -1 );
 
-                                if( ImGui::InputText( *uniformName, stringBuffer, stringBufferLength ) )
+                                if( ImGui::InputText(
+                                        *uniformName, stringBuffer, stringBufferLength ) )
                                 {
                                     fString = stringBuffer;
                                     if( fString.isFloat() )
                                     {
                                         inOutValue = fString.toFloat();
                                         changed = true;
-                                        // shaderProgram->setUniform( uniformName, currentValue );
+                                        // shaderProgram->setUniform( uniformName,
+                                        // currentValue );
                                     }
                                 }
                                 else
@@ -701,20 +740,26 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
                             };
 
                             bool hasValueChanged{ false };
-                            hasValueChanged |= ManagerValue( value.x, uniformVal.Name + String( ".x" ) );
-                            hasValueChanged |= ManagerValue( value.y, uniformVal.Name + String( ".y" ) );
-                            hasValueChanged |= ManagerValue( value.z, uniformVal.Name + String( ".z" ) );
+                            hasValueChanged |=
+                                ManagerValue( value.x, uniformVal.Name + String( ".x" ) );
+                            hasValueChanged |=
+                                ManagerValue( value.y, uniformVal.Name + String( ".y" ) );
+                            hasValueChanged |=
+                                ManagerValue( value.z, uniformVal.Name + String( ".z" ) );
 
                             if( hasValueChanged )
                             {
-                                shaderProgram->setUniform( EExecuteType::Now, uniformName, value );
+                                shaderProgram->setUniform(
+                                    EExecuteType::Now, uniformName, value );
                             }
                         }
                         else if( uniformVal.Type == LOGLW::DataType::FLOAT_VEC4 )
                         {
                             glm::vec4 value = std::get<glm::vec4>( uniformVal.Value );
 
-                            auto ManagerValue = [&fString, shaderProgram]( float& inOutValue, const String& uniformName )
+                            auto ManagerValue =
+                                [&fString, shaderProgram]( float& inOutValue,
+                                                           const String& uniformName )
                             {
                                 bool changed{ false };
 
@@ -722,14 +767,16 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
 
                                 ImGui::PushItemWidth( -1 );
 
-                                if( ImGui::InputText( *uniformName, stringBuffer, stringBufferLength ) )
+                                if( ImGui::InputText(
+                                        *uniformName, stringBuffer, stringBufferLength ) )
                                 {
                                     fString = stringBuffer;
                                     if( fString.isFloat() )
                                     {
                                         inOutValue = fString.toFloat();
                                         changed = true;
-                                        // shaderProgram->setUniform( uniformName, currentValue );
+                                        // shaderProgram->setUniform( uniformName,
+                                        // currentValue );
                                     }
                                 }
                                 else
@@ -742,26 +789,38 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
                             };
 
                             bool hasValueChanged{ false };
-                            hasValueChanged |= ManagerValue( value.x, uniformVal.Name + String( ".x" ) );
-                            hasValueChanged |= ManagerValue( value.y, uniformVal.Name + String( ".y" ) );
-                            hasValueChanged |= ManagerValue( value.z, uniformVal.Name + String( ".z" ) );
-                            hasValueChanged |= ManagerValue( value.w, uniformVal.Name + String( ".w" ) );
+                            hasValueChanged |=
+                                ManagerValue( value.x, uniformVal.Name + String( ".x" ) );
+                            hasValueChanged |=
+                                ManagerValue( value.y, uniformVal.Name + String( ".y" ) );
+                            hasValueChanged |=
+                                ManagerValue( value.z, uniformVal.Name + String( ".z" ) );
+                            hasValueChanged |=
+                                ManagerValue( value.w, uniformVal.Name + String( ".w" ) );
 
                             if( hasValueChanged )
                             {
-                                shaderProgram->setUniform( EExecuteType::Now, uniformName, value );
+                                shaderProgram->setUniform(
+                                    EExecuteType::Now, uniformName, value );
                             }
                         }
                         else if( uniformVal.Type == LOGLW::DataType::FLOAT_MAT4 )
                         {
-                            glm::mat4 currentValue = std::get<glm::mat4>( uniformVal.Value );
+                            glm::mat4 currentValue =
+                                std::get<glm::mat4>( uniformVal.Value );
                             constexpr std::size_t bufferSize{ 32 };
                             char tableName[bufferSize];
-                            snprintf( tableName, bufferSize, "## %s - %s", *shaderProgram->getName(), *uniformName );
+                            snprintf( tableName,
+                                      bufferSize,
+                                      "## %s - %s",
+                                      *shaderProgram->getName(),
+                                      *uniformName );
 
-                            static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable |
-                                                           ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV |
-                                                           ImGuiTableFlags_ContextMenuInBody;
+                            static ImGuiTableFlags flags =
+                                ImGuiTableFlags_SizingStretchSame |
+                                ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersOuter |
+                                ImGuiTableFlags_BordersV |
+                                ImGuiTableFlags_ContextMenuInBody;
                             if( ImGui::BeginTable( tableName, 4, flags ) )
                             {
                                 for( std::int32_t row = 0; row < 4; ++row )
@@ -777,14 +836,22 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
                                         strcpy( buff, *fString );
                                         ImGui::PushItemWidth( -1 );
 
-                                        snprintf( labelBuffer, buffSize, "## r %d c %d", row, column );
-                                        if( ImGui::InputText( labelBuffer, buff, buffSize ) )
+                                        snprintf( labelBuffer,
+                                                  buffSize,
+                                                  "## r %d c %d",
+                                                  row,
+                                                  column );
+                                        if( ImGui::InputText(
+                                                labelBuffer, buff, buffSize ) )
                                         {
                                             fString = buff;
                                             if( fString.isFloat() )
                                             {
                                                 f0 = fString.toFloat();
-                                                shaderProgram->setUniform( EExecuteType::Now, uniformName, currentValue );
+                                                shaderProgram->setUniform(
+                                                    EExecuteType::Now,
+                                                    uniformName,
+                                                    currentValue );
                                             }
                                         }
                                         ImGui::PopItemWidth();
@@ -796,7 +863,8 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
                         else if( uniformVal.Type == LOGLW::DataType::SAMPLER_2D )
                         {
                             ImGui::SameLine();
-                            ImGui::Text( "val: %d", std::get<std::int32_t>( uniformVal.Value ) );
+                            ImGui::Text( "val: %d",
+                                         std::get<std::int32_t>( uniformVal.Value ) );
                         }
                     }
                     ImGui::TreePop();
@@ -809,7 +877,8 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
         {
             const std::size_t i{ 0u };
             LOGLW::VertexData& vertexData = vao->getVertexBuffer( i )->getData();
-            const char* primitiveType = LOGLW::BasicTypes::toChar( vertexData.primitiveType );
+            const char* primitiveType =
+                LOGLW::BasicTypes::toChar( vertexData.primitiveType );
             ImGui::Text( "Primitive type: %s", primitiveType );
             ImGui::Text( "VAO: %d, %s", vertexData.VAO, *vao->getName() );
             ImGui::Text( "VBO: %d", vertexData.VBO );
@@ -822,7 +891,8 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
 
                 if( ImGui::TreeNode( attNameStr ) )
                 {
-                    const std::int32_t dataTypSizeB = static_cast<std::int32_t>( LOGLW::BasicTypes::getSize( meta.Type ) );
+                    const std::int32_t dataTypSizeB = static_cast<std::int32_t>(
+                        LOGLW::BasicTypes::getSize( meta.Type ) );
                     const std::int32_t strideElCount = meta.StrideBytes / dataTypSizeB;
 
                     constexpr std::size_t textSize{ 16u };
@@ -838,30 +908,41 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
                     const char* typeName = LOGLW::BasicTypes::toChar( meta.Type );
                     ImGui::Text( "Data type: %s", typeName );
                     ImGui::Text( "Normalized: %s", meta.Normalized ? "true" : "false" );
-                    ImGui::Text( "Stride: %d (%d * %s)", meta.StrideBytes, strideElCount, LOGLW::BasicTypes::toChar( meta.Type ) );
+                    ImGui::Text( "Stride: %d (%d * %s)",
+                                 meta.StrideBytes,
+                                 strideElCount,
+                                 LOGLW::BasicTypes::toChar( meta.Type ) );
 
-
-                    //TODO: Wrong stride?
+                    // TODO: Wrong stride?
                     std::int32_t columnCount = meta.Size;
-                    std::int32_t rowsCount = static_cast<std::int32_t>( vertexData.Data.getElementCount() ) / strideElCount;
+                    std::int32_t rowsCount =
+                        static_cast<std::int32_t>( vertexData.Data.getElementCount() ) /
+                        strideElCount;
 
-                    static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable |
-                                                   ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV |
-                                                   ImGuiTableFlags_ContextMenuInBody;
+                    static ImGuiTableFlags flags =
+                        ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable |
+                        ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV |
+                        ImGuiTableFlags_ContextMenuInBody;
 
                     if( ImGui::BeginTable( "Data", columnCount, flags ) )
                     {
-                        std::uintptr_t offset = reinterpret_cast<std::uintptr_t>( meta.DataOffset );
-                        std::uintptr_t dataVal = reinterpret_cast<std::uintptr_t>( vertexData.Data.getData() );
+                        std::uintptr_t offset =
+                            reinterpret_cast<std::uintptr_t>( meta.DataOffset );
+                        std::uintptr_t dataVal =
+                            reinterpret_cast<std::uintptr_t>( vertexData.Data.getData() );
 
                         for( std::int32_t row = 0; row < rowsCount; ++row )
                         {
                             ImGui::TableNextRow();
                             for( std::int32_t column = 0; column < columnCount; ++column )
                             {
-                                std::uintptr_t current = dataVal + row * meta.StrideBytes + offset + column * dataTypSizeB;
-                                float* currentValueF = reinterpret_cast<float*>( current );
-                                // currentValue = firstValue + + column + ( meta.Stride / dataTypSizeB );
+                                std::uintptr_t current = dataVal +
+                                                         row * meta.StrideBytes + offset +
+                                                         column * dataTypSizeB;
+                                float* currentValueF =
+                                    reinterpret_cast<float*>( current );
+                                // currentValue = firstValue + + column + ( meta.Stride /
+                                // dataTypSizeB );
                                 float someFloat1{ 1.f };
                                 float someFloat0{ 0.f };
                                 float* someFloatAdd0 = &someFloat0;
@@ -876,8 +957,10 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList, IObject* cu
                                 // ImGui::Text( "%f", *currentValueF );
                                 constexpr std::size_t bufferSize{ 32u };
                                 char labelVal[bufferSize];
-                                snprintf( labelVal, bufferSize, "val [ %d, %d ]", row, column );
-                                if( ImGui::InputFloat( labelVal, currentValueF, 0.01f, 1.0f, "%4.4f" ) )
+                                snprintf(
+                                    labelVal, bufferSize, "val [ %d, %d ]", row, column );
+                                if( ImGui::InputFloat(
+                                        labelVal, currentValueF, 0.01f, 1.0f, "%4.4f" ) )
                                 {
                                     // m_engine.getLoger()->log( "Clicked!" );
                                 }
@@ -964,7 +1047,8 @@ bool GameEngineConcrete::drawValues( glm::vec3& inOutValue, const String& inName
     sprintf( labelBuffer, "##%s-s", *inName );
 
     constexpr float epsilon{ 0.00001 };
-    if( CUL::MATH::Utils::equals( inOutValue.x, inOutValue.y, epsilon ) && CUL::MATH::Utils::equals( inOutValue.x, inOutValue.z, epsilon ) )
+    if( CUL::MATH::Utils::equals( inOutValue.x, inOutValue.y, epsilon ) &&
+        CUL::MATH::Utils::equals( inOutValue.x, inOutValue.z, epsilon ) )
     {
         float valueAsOne = inOutValue.x;
         changed = ImGui::InputFloat( labelBuffer, &valueAsOne );
@@ -1059,7 +1143,7 @@ void GameEngineConcrete::release()
     m_logger->log( "GameEngineConcrete::release()... Done." );
 }
 
-void GameEngineConcrete::drawQuad( const bool  )
+void GameEngineConcrete::drawQuad( const bool )
 {
 }
 
@@ -1117,12 +1201,14 @@ ITextureFactory* GameEngineConcrete::getTextureFactory()
 ITexture* GameEngineConcrete::createTexture( const CUL::FS::Path& path, const bool )
 {
     // auto image = m_sdlW->getCul()->getImageLoader()->loadImage( path, rgba );
-    auto textureConcrete = new TextureConcrete( getDevice(), m_sdlW->getCul()->getImageLoader(), path );
+    auto textureConcrete =
+        new TextureConcrete( getDevice(), m_sdlW->getCul()->getImageLoader(), path );
     return textureConcrete;
 }
 
 // LOGLW::IMouseObservable
-void GameEngineConcrete::addMouseEventCallback( const LOGLW::IMouseObservable::MouseCallback& callback )
+void GameEngineConcrete::addMouseEventCallback(
+    const LOGLW::IMouseObservable::MouseCallback& callback )
 {
     m_sdlW->addMouseEventCallback( callback );
 }
@@ -1143,17 +1229,20 @@ LOGLW::MouseData& GameEngineConcrete::getMouseData()
 }
 
 // LOGLW::IKeyboardObservable
-void GameEngineConcrete::registerKeyboardEventCallback( const std::function<void( const LOGLW::KeyboardState& keyboardState )>& callback )
+void GameEngineConcrete::registerKeyboardEventCallback(
+    const std::function<void( const LOGLW::KeyboardState& keyboardState )>& callback )
 {
     m_sdlW->registerKeyboardEventCallback( callback );
 }
 
-void GameEngineConcrete::registerKeyboardEventListener( LOGLW::IKeyboardObserver* observer )
+void GameEngineConcrete::registerKeyboardEventListener(
+    LOGLW::IKeyboardObserver* observer )
 {
     m_sdlW->registerKeyboardEventListener( observer );
 }
 
-void GameEngineConcrete::unregisterKeyboardEventListener( LOGLW::IKeyboardObserver* observer )
+void GameEngineConcrete::unregisterKeyboardEventListener(
+    LOGLW::IKeyboardObserver* observer )
 {
     m_sdlW->unregisterKeyboardEventListener( observer );
 }
@@ -1163,12 +1252,14 @@ bool GameEngineConcrete::isKeyUp( const String& keyName ) const
     return m_sdlW->isKeyUp( keyName );
 }
 
-void GameEngineConcrete::registerWindowEventCallback( const LOGLW::WindowCallback& callback )
+void GameEngineConcrete::registerWindowEventCallback(
+    const LOGLW::WindowCallback& callback )
 {
     m_sdlW->registerWindowEventCallback( callback );
 }
 
-void GameEngineConcrete::registerWindowEventListener( LOGLW::IWindowEventObserver* observer )
+void GameEngineConcrete::registerWindowEventListener(
+    LOGLW::IWindowEventObserver* observer )
 {
     m_sdlW->registerWindowEventListener( observer );
 }

@@ -1,5 +1,5 @@
 #include "gameengine/Render/FrameTimeManager.hpp"
-#include "CUL/Proifling/Profiler.hpp"
+#include "CUL/Profiling/Profiler.hpp"
 #include "CUL/STL_IMPORTS/STD_thread.hpp"
 
 using namespace LOGLW;
@@ -68,11 +68,13 @@ void FrameTimeManager::endFrame()
 
     m_frameEnd = m_clock.now();
     const auto difference = m_frameEnd - m_frameStart;
-    m_lastFrameTimeNs = std::chrono::duration_cast<std::chrono::nanoseconds>( difference ).count();
+    m_lastFrameTimeNs =
+        std::chrono::duration_cast<std::chrono::nanoseconds>( difference ).count();
     static float differenceNs = m_targetFrameTimeNs - m_lastFrameTimeNs;
     if( differenceNs > 0 )
     {
-        std::this_thread::sleep_for( std::chrono::nanoseconds( static_cast<std::uint64_t>( differenceNs ) ) );
+        std::this_thread::sleep_for(
+            std::chrono::nanoseconds( static_cast<std::uint64_t>( differenceNs ) ) );
     }
     static float frameTime = m_lastFrameTimeNs + differenceNs;
     m_samples.add( frameTime );

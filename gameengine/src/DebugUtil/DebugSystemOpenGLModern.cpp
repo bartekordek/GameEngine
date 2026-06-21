@@ -2,7 +2,7 @@
 
 #include "LOGLWAdditionalDeps/ImportImgui.hpp"
 #include "DebugUtil/DebugSystemParams.hpp"
-#include "CUL/Proifling/Profiler.hpp"
+#include "CUL/Profiling/Profiler.hpp"
 #include "CUL/GenericUtils/SimpleAssert.hpp"
 
 using namespace LOGLW;
@@ -51,7 +51,8 @@ void DebugSystemOpenGLModern::frame()
     }
 }
 
-void DebugSystemOpenGLModern::addRenderCallback( const std::function<void( void )> renderDebugCallback )
+void DebugSystemOpenGLModern::addRenderCallback(
+    const std::function<void( void )> renderDebugCallback )
 {
     std::lock_guard<std::mutex> locker( m_callbacksMtx );
     m_callbacks.push_back( renderDebugCallback );

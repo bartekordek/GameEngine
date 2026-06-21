@@ -14,7 +14,7 @@
 #include "CUL/Threading/ThreadUtil.hpp"
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/Filesystem/RegularFile.hpp"
-#include "CUL/Proifling/Profiler.hpp"
+#include "CUL/Profiling/Profiler.hpp"
 
 #include "CUL/STL_IMPORTS/STD_sstream.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -24,7 +24,11 @@ using namespace LOGLW;
 static CUL::CULInterface* g_interface = nullptr;
 static CUL::LOG::ILogger* g_loggerOGL = nullptr;
 
-void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length,
+void APIENTRY glDebugOutput( GLenum source,
+                             GLenum type,
+                             unsigned int id,
+                             GLenum severity,
+                             GLsizei length,
                              const char*  // message
                              ,
                              const void*  // userParam
@@ -114,13 +118,19 @@ const char* toString( GLenum type )
     }
 }
 
-void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message,
+void APIENTRY glDebugOutput( GLenum source,
+                             GLenum type,
+                             unsigned int id,
+                             GLenum severity,
+                             GLsizei length,
+                             const char* message,
                              const void* userParam )
 {
     if( id == 131185 )
     {
-        // Buffer detailed info: Buffer object [x] (bound to GL_ARRAY_BUFFER_ARB, usage hint is GL_STATIC_DRAW) will use VIDEO memory as the
-        // source for buffer object operations.
+        // Buffer detailed info: Buffer object [x] (bound to GL_ARRAY_BUFFER_ARB, usage
+        // hint is GL_STATIC_DRAW) will use VIDEO memory as the source for buffer object
+        // operations.
         // https://stackoverflow.com/questions/62248552/opengl-debug-context-warning-will-use-video-memory-as-the-source-for-buffer-o
         // can be safely ignored.
         return;
@@ -239,7 +249,11 @@ GLenum glCheckError_( const char* file, int line )
                 break;
         }
 
-        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Error, "File: %s, line: %s, error: %s", file, line, error );
+        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Error,
+                                                      "File: %s, line: %s, error: %s",
+                                                      file,
+                                                      line,
+                                                      error );
         hasError = true;
     }
 
@@ -249,14 +263,18 @@ GLenum glCheckError_( const char* file, int line )
 }
 #define glCheckError() glCheckError_( __FILE__, __LINE__ )
 
-void APIENTRY glDebugOutput( GLenum source, GLenum type, unsigned int id, GLenum severity, GLsizei length, const char* message,
+void APIENTRY glDebugOutput( GLenum source,
+                             GLenum type,
+                             unsigned int id,
+                             GLenum severity,
+                             GLsizei length,
+                             const char* message,
                              const void* userParam );
 
 String enumToString( const GLenum val );
 GLuint toGluint( unsigned value );
 
-DeviceOpenGL::DeviceOpenGL( bool forceLegacy ):
-    IRenderDevice( forceLegacy )
+DeviceOpenGL::DeviceOpenGL( bool forceLegacy ) : IRenderDevice( forceLegacy )
 {
     log( "DeviceOpenGL::DeviceOpenGL();" );
 
@@ -267,7 +285,8 @@ ContextInfo DeviceOpenGL::initContextVersion( LOGLW::IWindow* window )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
-        CUL::CULInterface::getInstance()->getThreadUtils().setThreadName( "RenderThread" );
+        CUL::CULInterface::getInstance()->getThreadUtils().setThreadName(
+            "RenderThread" );
         if( !RunOnRenderThread::getInstance().getIsRenderThread() )
         {
             CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
@@ -286,9 +305,13 @@ ContextInfo DeviceOpenGL::initContextVersion( LOGLW::IWindow* window )
 
     if( error != 0 )
     {
-        String errorContent( reinterpret_cast<const char*>( glewGetErrorString( error ) ) );
+        String errorContent(
+            reinterpret_cast<const char*>( glewGetErrorString( error ) ) );
 
-        CUL::Assert::check( GLEW_OK == error, "GLEW error: %s, %s", errorContent.getUtfChar(), result.glVersion.getUtfChar() );
+        CUL::Assert::check( GLEW_OK == error,
+                            "GLEW error: %s, %s",
+                            errorContent.getUtfChar(),
+                            result.glVersion.getUtfChar() );
     }
 
     if( glDebugMessageCallbackARB )
@@ -436,7 +459,10 @@ void DeviceOpenGL::setViewport( const Viewport& viewport )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
-    glViewport( viewport.pos.getX(), viewport.pos.getY(), viewport.size.getWidth(), viewport.size.getHeight() );
+    glViewport( viewport.pos.getX(),
+                viewport.pos.getY(),
+                viewport.size.getWidth(),
+                viewport.size.getHeight() );
 }
 
 #ifdef _MSC_VER
@@ -474,7 +500,8 @@ void DeviceOpenGL::lookAt( const Pos3Dd& eye, const Pos3Dd& center, const Pos3Dd
 std::uint32_t DeviceOpenGL::createProgram( const String& name )
 {
     const auto programId = static_cast<unsigned int>( glCreateProgram() );
-    CUL::LOG::ILogger::getInstance().logInfo( "[DeviceOpenGL] glCreateProgram: %d", programId );
+    CUL::LOG::ILogger::getInstance().logInfo( "[DeviceOpenGL] glCreateProgram: %d",
+                                              programId );
 
     if( 0 == programId )
     {
@@ -564,12 +591,13 @@ ShaderTypes DeviceOpenGL::getShaderType( const String& fileExtension )
     .frag - a fragment shader
     .comp - a compute shader
     */
-    if( fileExtension.equals( "frag" ) || fileExtension.equals( ".frag" ) || fileExtension.equals( ".fs" ) || fileExtension.equals( "fs" ) )
+    if( fileExtension.equals( "frag" ) || fileExtension.equals( ".frag" ) ||
+        fileExtension.equals( ".fs" ) || fileExtension.equals( "fs" ) )
     {
         return static_cast<ShaderTypes>( GL_FRAGMENT_SHADER );
     }
-    else if( fileExtension.equals( "vert" ) || fileExtension.equals( ".vert" ) || fileExtension.equals( ".vs" ) ||
-             fileExtension.equals( "vs" ) )
+    else if( fileExtension.equals( "vert" ) || fileExtension.equals( ".vert" ) ||
+             fileExtension.equals( ".vs" ) || fileExtension.equals( "vs" ) )
     {
         return static_cast<ShaderTypes>( GL_VERTEX_SHADER );
     }
@@ -596,7 +624,8 @@ bool DeviceOpenGL::attachShader( unsigned programId, unsigned shaderId )
 
 void DeviceOpenGL::dettachShader( unsigned programId, unsigned shaderId )
 {
-    CUL::LOG::ILogger::getInstance().logInfo( "glDetachShader( %d, %d );", programId, shaderId );
+    CUL::LOG::ILogger::getInstance().logInfo(
+        "glDetachShader( %d, %d );", programId, shaderId );
 
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -714,7 +743,8 @@ void DeviceOpenGL::setActiveTextureUnit( ETextureUnitIndex textureUnitIndex )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    // log( String( "setActiveTextureUnit( " ) + String( (int)textureUnitIndex ) + String( " );" ) );
+    // log( String( "setActiveTextureUnit( " ) + String( (int)textureUnitIndex ) + String(
+    // " );" ) );
 
     GLenum textureId = static_cast<GLenum>( textureUnitIndex );
 
@@ -756,7 +786,10 @@ int DeviceOpenGL::getUniformLocation( unsigned programId, const String& attribNa
     return attribLocation;
 }
 
-void DeviceOpenGL::drawArrays( unsigned vaoId, const PrimitiveType primitiveType, unsigned first, unsigned count )
+void DeviceOpenGL::drawArrays( unsigned vaoId,
+                               const PrimitiveType primitiveType,
+                               unsigned first,
+                               unsigned count )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -790,7 +823,9 @@ void DeviceOpenGL::drawArrays( unsigned vaoId, const PrimitiveType primitiveType
         CUL::Assert::simple( false, "TODO: Write formula." );
     }
 
-    glDrawArrays( static_cast<GLenum>( primitiveType ), static_cast<GLint>( first ), static_cast<GLsizei>( elementsCount ) );
+    glDrawArrays( static_cast<GLenum>( primitiveType ),
+                  static_cast<GLint>( first ),
+                  static_cast<GLsizei>( elementsCount ) );
 }
 
 void DeviceOpenGL::vertexAttribPointer( const VertexData& meta )
@@ -852,8 +887,15 @@ void DeviceOpenGL::setTextureData( std::uint32_t textureId, const TextureInfo& t
     }
 
     bindTexture( textureId );
-    glTexImage2D( GL_TEXTURE_2D, ti.level, (GLint)ti.internalFormat, static_cast<GLsizei>(ti.size.x), static_cast<GLsizei>(ti.size.y), ti.border, (GLenum)ti.dataFormat,
-                  (GLenum)GL_UNSIGNED_BYTE, ti.data );
+    glTexImage2D( GL_TEXTURE_2D,
+                  ti.level,
+                  (GLint)ti.internalFormat,
+                  static_cast<GLsizei>( ti.size.x ),
+                  static_cast<GLsizei>( ti.size.y ),
+                  ti.border,
+                  (GLenum)ti.dataFormat,
+                  (GLenum)GL_UNSIGNED_BYTE,
+                  ti.data );
 }
 
 void DeviceOpenGL::rotate( const CUL::MATH::Rotation& rotation )
@@ -882,7 +924,10 @@ void DeviceOpenGL::draw( const CUL::MATH::Primitives::Line& values, const ColorS
     glEnd();
 }
 
-void DeviceOpenGL::rotate( const float angleDeg, const float x, const float y, const float z )
+void DeviceOpenGL::rotate( const float angleDeg,
+                           const float x,
+                           const float y,
+                           const float z )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -916,7 +961,10 @@ void DeviceOpenGL::checkLastCommandForErrors()
 
     if( GL_NO_ERROR != err )
     {
-        CUL::Assert::check( false, "Error on last command, error numer: %d, error string: %s", err, errorAsString );
+        CUL::Assert::check( false,
+                            "Error on last command, error numer: %d, error string: %s",
+                            err,
+                            errorAsString );
     }
 }
 
@@ -960,7 +1008,9 @@ void DeviceOpenGL::setAttribValue( int, const String& )
     CUL::Assert::simple( false, "NOT YET IMPLEMENTED." );
 }
 
-UniformValue DeviceOpenGL::getUniformValue( std::int32_t inProgramId, std::int32_t inUniformId, DataType inDataType )
+UniformValue DeviceOpenGL::getUniformValue( std::int32_t inProgramId,
+                                            std::int32_t inUniformId,
+                                            DataType inDataType )
 {
     UniformValue result;
     if( inDataType == DataType::FLOAT )
@@ -1127,7 +1177,10 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const QuadCUL& texQuad )
     glEnd();
 }
 
-void DeviceOpenGL::draw( const QuadCUL& quad, const Point& translation, const CUL::MATH::Rotation& rotation, const ColorS& color )
+void DeviceOpenGL::draw( const QuadCUL& quad,
+                         const Point& translation,
+                         const CUL::MATH::Rotation& rotation,
+                         const ColorS& color )
 {
     matrixStackPush();
 
@@ -1140,7 +1193,9 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const Point& translation, const CU
     matrixStackPop();
 }
 
-void DeviceOpenGL::draw( const QuadCUL& quad, const glm::mat4& model, const ColorS& color )
+void DeviceOpenGL::draw( const QuadCUL& quad,
+                         const glm::mat4& model,
+                         const ColorS& color )
 {
     matrixStackPush();
 
@@ -1150,7 +1205,9 @@ void DeviceOpenGL::draw( const QuadCUL& quad, const glm::mat4& model, const Colo
     matrixStackPop();
 }
 
-void DeviceOpenGL::draw( const TriangleCUL& triangle, const glm::mat4& model, const ColorS& color )
+void DeviceOpenGL::draw( const TriangleCUL& triangle,
+                         const glm::mat4& model,
+                         const ColorS& color )
 {
     matrixStackPush();
 
@@ -1300,9 +1357,11 @@ void DeviceOpenGL::draw( const LineData& values, const LineColors& color )
     else
     {
         glBegin( GL_LINES );
-        glColor4f( color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
+        glColor4f(
+            color[0].getRF(), color[0].getGF(), color[0].getBF(), color[0].getAF() );
         glVertex3f( values[0][0], values[0][1], values[0][2] );
-        glColor4f( color[1].getRF(), color[1].getGF(), color[1].getBF(), color[1].getAF() );
+        glColor4f(
+            color[1].getRF(), color[1].getGF(), color[1].getBF(), color[1].getAF() );
         glVertex3f( values[1][0], values[1][1], values[1][2] );
         glEnd();
     }
@@ -1364,7 +1423,9 @@ void DeviceOpenGL::clearColorTo( const ColorS color )
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    glClearColor( static_cast<GLclampf>( color.getRF() ), static_cast<GLclampf>( color.getGF() ), static_cast<GLclampf>( color.getBF() ),
+    glClearColor( static_cast<GLclampf>( color.getRF() ),
+                  static_cast<GLclampf>( color.getGF() ),
+                  static_cast<GLclampf>( color.getBF() ),
                   static_cast<GLclampf>( color.getAF() ) );
 }
 
@@ -1390,7 +1451,10 @@ void DeviceOpenGL::setClientState( ClientStateTypes cs, bool enabled )
     }
 }
 
-void DeviceOpenGL::texCoordPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
+void DeviceOpenGL::texCoordPointer( int coordinatesPerElement,
+                                    DataType dataType,
+                                    int stride,
+                                    void* pointer )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -1403,9 +1467,8 @@ void DeviceOpenGL::texCoordPointer( int coordinatesPerElement, DataType dataType
     size - Specifies the number of coordinates per array element.
     Must be 1, 2, 3, or 4. The initial value is 4.
 
-    type -  Specifies the data type of each texture coordinate.Symbolic constants GL_SHORT,
-    GL_INT, GL_FLOAT, or GL_DOUBLE are accepted.
-    The initial value is GL_FLOAT.
+    type -  Specifies the data type of each texture coordinate.Symbolic constants
+    GL_SHORT, GL_INT, GL_FLOAT, or GL_DOUBLE are accepted. The initial value is GL_FLOAT.
 
     stride - Specifies the byte offset between consecutive texture coordinate sets.
     If stride is 0, the array elements are understood to be tightly packed.
@@ -1416,7 +1479,10 @@ void DeviceOpenGL::texCoordPointer( int coordinatesPerElement, DataType dataType
     */
 }
 
-void DeviceOpenGL::vertexPointer( int coordinatesPerElement, DataType dataType, int stride, void* pointer )
+void DeviceOpenGL::vertexPointer( int coordinatesPerElement,
+                                  DataType dataType,
+                                  int stride,
+                                  void* pointer )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -1427,9 +1493,8 @@ void DeviceOpenGL::vertexPointer( int coordinatesPerElement, DataType dataType, 
     size - Specifies the number of coordinates per array element.
     Must be 1, 2, 3, or 4. The initial value is 4.
 
-    type -  Specifies the data type of each texture coordinate.Symbolic constants GL_SHORT,
-    GL_INT, GL_FLOAT, or GL_DOUBLE are accepted.
-    The initial value is GL_FLOAT.
+    type -  Specifies the data type of each texture coordinate.Symbolic constants
+    GL_SHORT, GL_INT, GL_FLOAT, or GL_DOUBLE are accepted. The initial value is GL_FLOAT.
 
     stride - Specifies the byte offset between consecutive texture coordinate sets.
     If stride is 0, the array elements are understood to be tightly packed.
@@ -1497,30 +1562,44 @@ unsigned int DeviceOpenGL::generateVertexArray( const int size )
     return vao;
 }
 
-void DeviceOpenGL::bufferData( BufferDataId bufferId, const CUL::MATH::Primitives::Quad& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( BufferDataId bufferId,
+                               const CUL::MATH::Primitives::Quad& data,
+                               const BufferTypes type )
 {
     bindBuffer( type, bufferId );
     auto dataVal = (void*)( &data.data );
-    bufferDataImpl( dataVal, static_cast<GLenum>( type ), static_cast<GLsizeiptr>( 4 * sizeof( QuadCUL::PointType ) ) );
+    bufferDataImpl( dataVal,
+                    static_cast<GLenum>( type ),
+                    static_cast<GLsizeiptr>( 4 * sizeof( QuadCUL::PointType ) ) );
 }
 
-void DeviceOpenGL::bufferData( BufferDataId bufferId, const CUL::DataWrapper& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( BufferDataId bufferId,
+                               const CUL::DataWrapper& data,
+                               const BufferTypes type )
 {
     constexpr std::size_t size_gl_int = sizeof( GLuint );
     constexpr std::size_t size_normal32Size = sizeof( std::uint32_t );
     constexpr std::size_t size_un = sizeof( unsigned );
 
     bindBuffer( type, bufferId );
-    bufferDataImpl( data.getData(), static_cast<GLenum>( type ), static_cast<GLsizeiptr>( data.getSize() ) );
+    bufferDataImpl( data.getData(),
+                    static_cast<GLenum>( type ),
+                    static_cast<GLsizeiptr>( data.getSize() ) );
 }
 
-void DeviceOpenGL::bufferData( BufferDataId bufferId, const std::vector<float>& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( BufferDataId bufferId,
+                               const std::vector<float>& data,
+                               const BufferTypes type )
 {
     bindBuffer( type, bufferId );
-    bufferDataImpl( data.data(), static_cast<GLenum>( type ), static_cast<GLsizeiptr>( data.size() * sizeof( float ) ) );
+    bufferDataImpl( data.data(),
+                    static_cast<GLenum>( type ),
+                    static_cast<GLsizeiptr>( data.size() * sizeof( float ) ) );
 }
 
-void DeviceOpenGL::bufferData( BufferDataId bufferId, const std::vector<TextureData2D>& data, const BufferTypes type )
+void DeviceOpenGL::bufferData( BufferDataId bufferId,
+                               const std::vector<TextureData2D>& data,
+                               const BufferTypes type )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -1528,10 +1607,15 @@ void DeviceOpenGL::bufferData( BufferDataId bufferId, const std::vector<TextureD
     }
 
     bindBuffer( type, bufferId );
-    glBufferData( static_cast<GLenum>( type ), data.size() * sizeof( TextureData2D ), data.data(), GL_DYNAMIC_DRAW );
+    glBufferData( static_cast<GLenum>( type ),
+                  data.size() * sizeof( TextureData2D ),
+                  data.data(),
+                  GL_DYNAMIC_DRAW );
 }
 
-void DeviceOpenGL::bufferDataImpl( const void* data, const GLenum target, const GLsizeiptr dataSize )
+void DeviceOpenGL::bufferDataImpl( const void* data,
+                                   const GLenum target,
+                                   const GLsizeiptr dataSize )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -1542,12 +1626,12 @@ void DeviceOpenGL::bufferDataImpl( const void* data, const GLenum target, const 
     Creates and initializes a buffer object's data store
     */
     log( "glBufferData" );
-    glBufferData( target,         // Specifies the target to which the buffer object is bound for
-                                  // glBufferData.
-                  dataSize,       // Specifies the size in bytes of the buffer object's new
-                                  // data store.
-                  data,           // Specifies a pointer to data that will be copied into the data
-                                  // store for initialization, or NULL if no data is to be copied.
+    glBufferData( target,  // Specifies the target to which the buffer object is bound for
+                           // glBufferData.
+                  dataSize,  // Specifies the size in bytes of the buffer object's new
+                             // data store.
+                  data,  // Specifies a pointer to data that will be copied into the data
+                         // store for initialization, or NULL if no data is to be copied.
                   GL_STATIC_DRAW  // usage - Specifies the expected usage pattern of the
                                   // data store.
     );
@@ -1655,7 +1739,9 @@ void DeviceOpenGL::bufferDataImpl( const void* data, const GLenum target, const 
     */
 }
 
-void DeviceOpenGL::bufferSubdata( BufferDataId bufferId, const BufferTypes type, std::vector<TextureData2D>& data )
+void DeviceOpenGL::bufferSubdata( BufferDataId bufferId,
+                                  const BufferTypes type,
+                                  std::vector<TextureData2D>& data )
 {
     size_t dataSize = data.size() * sizeof( data.front() );
     bufferSubdata( bufferId, type, data.data(), dataSize );
@@ -1668,15 +1754,17 @@ void DeviceOpenGL::bufferSubdata( BufferDataId bufferId,
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
-        const CUL::ThreadString threadName = CUL::ThreadUtil::getInstance().getThreadName();
+        const CUL::ThreadString threadName =
+            CUL::ThreadUtil::getInstance().getThreadName();
         CUL::Assert::check( false, "NOT IN THE RENDER THREAD [%s].", threadName.c_str() );
     }
     log( "bufferSubdata" );
     bindBuffer( type, bufferId );
-    glBufferSubData( static_cast<GLenum>(type), 0, dataSize, data );
+    glBufferSubData( static_cast<GLenum>( type ), 0, dataSize, data );
 }
 
-unsigned int DeviceOpenGL::generateAndBindBuffer( const BufferTypes bufferType, const int size )
+unsigned int DeviceOpenGL::generateAndBindBuffer( const BufferTypes bufferType,
+                                                  const int size )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -1688,7 +1776,8 @@ unsigned int DeviceOpenGL::generateAndBindBuffer( const BufferTypes bufferType, 
     return bufferId;
 }
 
-unsigned int DeviceOpenGL::generateElementArrayBuffer( const std::vector<unsigned int>& data, const int size )
+unsigned int DeviceOpenGL::generateElementArrayBuffer(
+    const std::vector<unsigned int>& data, const int size )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -1698,7 +1787,10 @@ unsigned int DeviceOpenGL::generateElementArrayBuffer( const std::vector<unsigne
     const auto ebo = generateBuffer( BufferTypes::ELEMENT_ARRAY_BUFFER, size );
     bindBuffer( BufferTypes::ELEMENT_ARRAY_BUFFER, ebo );
     log( "glBufferData" );
-    glBufferData( GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>( data.size() * sizeof( unsigned int ) ), data.data(), GL_STATIC_DRAW );
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER,
+                  static_cast<GLsizeiptr>( data.size() * sizeof( unsigned int ) ),
+                  data.data(),
+                  GL_STATIC_DRAW );
 
     /*
 glVertexAttribPointer - define an array of generic vertex attribute data
@@ -1728,7 +1820,9 @@ GL_ARRAY_BUFFER target. The initial value is 0.
     return ebo;
 }
 
-void DeviceOpenGL::bufferData( BufferDataId bufferId, const float vertices[], BufferTypes bufferType )
+void DeviceOpenGL::bufferData( BufferDataId bufferId,
+                               const float vertices[],
+                               BufferTypes bufferType )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -1747,11 +1841,15 @@ void DeviceOpenGL::enableVertexAttribiute( unsigned programId, const String& att
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    const auto attributeLocation = DeviceOpenGL::getAttribLocation( programId, attribName );
+    const auto attributeLocation =
+        DeviceOpenGL::getAttribLocation( programId, attribName );
     glEnableVertexAttribArray( attributeLocation );
 }
 
-void DeviceOpenGL::setVertexPointer( int coordinatesPerVertex, DataType dataType, int stride, const void* data )
+void DeviceOpenGL::setVertexPointer( int coordinatesPerVertex,
+                                     DataType dataType,
+                                     int stride,
+                                     const void* data )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -1794,7 +1892,8 @@ void DeviceOpenGL::disableVertexAttribiute( unsigned programId, const String& at
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    const auto attributeLocation = DeviceOpenGL::getAttribLocation( programId, attribName );
+    const auto attributeLocation =
+        DeviceOpenGL::getAttribLocation( programId, attribName );
     glDisableVertexAttribArray( attributeLocation );
 }
 
@@ -1920,7 +2019,8 @@ unsigned int DeviceOpenGL::generateBuffer( const BufferTypes bufferType, const i
     if( BufferTypes::VERTEX_ARRAY == bufferType )
     {
         glGenVertexArrays( size, &bufferId );
-        CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, "glGenVertexArrays id: %d", bufferId );
+        CUL::LOG::ILogger::getInstance().logVariable(
+            CUL::LOG::Severity::Info, "glGenVertexArrays id: %d", bufferId );
     }
     else
     {
@@ -1930,24 +2030,36 @@ unsigned int DeviceOpenGL::generateBuffer( const BufferTypes bufferType, const i
     return bufferId;
 }
 
-void DeviceOpenGL::drawElements( const PrimitiveType type, const CUL::DataWrapper& inData )
+void DeviceOpenGL::drawElements( const PrimitiveType type,
+                                 const CUL::DataWrapper& inData )
 {
-    CUL::Assert::simple( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) == true,
-                         "NOT IN THE RENDER THREAD." );
+    CUL::Assert::simple(
+        CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo(
+            "RenderThread" ) == true,
+        "NOT IN THE RENDER THREAD." );
 
     const std::size_t elementsCount = inData.getElementCount();
 
     if( inData.getType() == CUL::ETypes::Float )
     {
-        glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( elementsCount ), GL_FLOAT, inData.getData() );
+        glDrawElements( static_cast<GLenum>( type ),
+                        static_cast<GLsizei>( elementsCount ),
+                        GL_FLOAT,
+                        inData.getData() );
     }
     else if( inData.getType() == CUL::ETypes::Int32 )
     {
-        glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( elementsCount ), GL_INT, 0 );
+        glDrawElements( static_cast<GLenum>( type ),
+                        static_cast<GLsizei>( elementsCount ),
+                        GL_INT,
+                        0 );
     }
     else if( inData.getType() == CUL::ETypes::Uint32 )
     {
-        glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( elementsCount ), GL_UNSIGNED_INT, 0 );
+        glDrawElements( static_cast<GLenum>( type ),
+                        static_cast<GLsizei>( elementsCount ),
+                        GL_UNSIGNED_INT,
+                        0 );
     }
     else
     {
@@ -1987,24 +2099,33 @@ void DeviceOpenGL::drawElements( const PrimitiveType type, const CUL::DataWrappe
     // maintain their previous values.
 }
 
-void DeviceOpenGL::drawElements( const PrimitiveType type, const std::vector<float>& data )
+void DeviceOpenGL::drawElements( const PrimitiveType type,
+                                 const std::vector<float>& data )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    glDrawElements( static_cast<GLenum>( type ), static_cast<GLsizei>( data.size() ), GL_FLOAT, data.data() );
+    glDrawElements( static_cast<GLenum>( type ),
+                    static_cast<GLsizei>( data.size() ),
+                    GL_FLOAT,
+                    data.data() );
 }
 
-void DeviceOpenGL::drawElementsFromLastBuffer( const PrimitiveType primitiveType, const DataType dataType, unsigned count )
+void DeviceOpenGL::drawElementsFromLastBuffer( const PrimitiveType primitiveType,
+                                               const DataType dataType,
+                                               unsigned count )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
         CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
     }
 
-    glDrawElements( static_cast<GLenum>( primitiveType ), static_cast<GLsizei>( count ), static_cast<GLenum>( dataType ), nullptr );
+    glDrawElements( static_cast<GLenum>( primitiveType ),
+                    static_cast<GLsizei>( count ),
+                    static_cast<GLenum>( dataType ),
+                    nullptr );
 }
 
 void DeviceOpenGL::enableVertexAttribArray( unsigned attributeId )
@@ -2053,8 +2174,8 @@ std::vector<std::string> DeviceOpenGL::listExtensions()
     if( extensions )
     {
         String wat( reinterpret_cast<const char*>( extensions ) );
-        auto extensionVecImpl = wat.split(' ');
-        for (const auto& inValue : extensionVecImpl)
+        auto extensionVecImpl = wat.split( ' ' );
+        for( const auto& inValue : extensionVecImpl )
         {
             extensionsVec.push_back( inValue.getSTDString() );
         }
@@ -2150,7 +2271,9 @@ void DeviceOpenGL::bindTexture( const unsigned int textureId )
     glBindTexture( GL_TEXTURE_2D, textureId );
 }
 
-void DeviceOpenGL::setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val )
+void DeviceOpenGL::setTextureParameter( uint8_t textureId,
+                                        const TextureParameters type,
+                                        const TextureFilterType val )
 {
     if( !RunOnRenderThread::getInstance().getIsRenderThread() )
     {
@@ -2202,7 +2325,8 @@ void DeviceOpenGL::matrixStackPop()
 
 DeviceOpenGL::~DeviceOpenGL()
 {
-    CUL::Assert::simple( 0 == m_currentMatrix, "ERROR PUSH COUNT IS NOT EQUAL TO POP COUNT." );
+    CUL::Assert::simple( 0 == m_currentMatrix,
+                         "ERROR PUSH COUNT IS NOT EQUAL TO POP COUNT." );
 }
 
 void* DeviceOpenGL::getNativeDevice()
@@ -2307,7 +2431,9 @@ void DeviceOpenGL::initDebugUI()
     throw std::logic_error( "The method or operation is not implemented." );
 }
 
-ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath, bool assertOnErrors, String& errorMessage )
+ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath,
+                                            bool assertOnErrors,
+                                            String& errorMessage )
 {
     ShaderUnit* result = findShader( shaderPath );
     if( result != nullptr )
@@ -2318,12 +2444,17 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath, boo
     return createShaderUnitForce( shaderPath, assertOnErrors, errorMessage );
 }
 
-ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath, bool assertOnErrors, String& errorMessage )
+ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath,
+                                                 bool assertOnErrors,
+                                                 String& errorMessage )
 {
-    CUL::Assert::simple( RunOnRenderThread::getInstance().getIsRenderThread() == true, "NOT IN THE RENDER THREAD." );
+    CUL::Assert::simple( RunOnRenderThread::getInstance().getIsRenderThread() == true,
+                         "NOT IN THE RENDER THREAD." );
 
     std::unique_ptr<ShaderUnit> newShader = std::make_unique<ShaderUnit>();
-    newShader->File.reset( CUL::CULInterface::getInstance()->getFF()->createRegularFileRawPtr( shaderPath ) );
+    newShader->File.reset(
+        CUL::CULInterface::getInstance()->getFF()->createRegularFileRawPtr(
+            shaderPath ) );
 
     if( shaderPath == "embedded_shaders/basic_color.frag" )
     {
@@ -2406,7 +2537,8 @@ ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath
     newShader->Type = CShaderTypes::getShaderType( extension );
 
     const auto oglShaderType = getShaderType( extension );
-    const auto id = static_cast<unsigned int>( glCreateShader( static_cast<GLenum>( oglShaderType ) ) );
+    const auto id = static_cast<unsigned int>(
+        glCreateShader( static_cast<GLenum>( oglShaderType ) ) );
 
     auto& shaderCode = *newShader->File;
     const auto codeLength = static_cast<GLint>( shaderCode.getLinesCount() );
@@ -2423,7 +2555,8 @@ ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath
         glGetShaderInfoLog( id, sizeof( eLog ), nullptr, eLog );
         auto errorAsString = std::string( eLog );
         errorMessage = "Error compiling shader: " + errorAsString + "\n";
-        errorMessage += "Shader Path: " + shaderCode.getPath().getPath().getSTDString() + "\n";
+        errorMessage +=
+            "Shader Path: " + shaderCode.getPath().getPath().getSTDString() + "\n";
         if( assertOnErrors )
         {
             customAssert( false, errorMessage );
@@ -2486,10 +2619,19 @@ LOGLW::RenderTypes::RendererType DeviceOpenGL::getType() const
 
 void DeviceOpenGL::updateTextureData( const TextureInfo& ti, void* data )
 {
-    glTexSubImage2D( GL_TEXTURE_2D, 0, 0, 0, static_cast<GLsizei>(ti.size.x), static_cast<GLsizei>(ti.size.y), GL_RGBA, GL_UNSIGNED_BYTE, data );
+    glTexSubImage2D( GL_TEXTURE_2D,
+                     0,
+                     0,
+                     0,
+                     static_cast<GLsizei>( ti.size.x ),
+                     static_cast<GLsizei>( ti.size.y ),
+                     GL_RGBA,
+                     GL_UNSIGNED_BYTE,
+                     data );
 }
 
-std::vector<AttributeInfo> DeviceOpenGL::fetchProgramAttributeInfo( std::int32_t inProgramId ) const
+std::vector<AttributeInfo> DeviceOpenGL::fetchProgramAttributeInfo(
+    std::int32_t inProgramId ) const
 {
     std::vector<AttributeInfo> result;
 
@@ -2505,7 +2647,8 @@ std::vector<AttributeInfo> DeviceOpenGL::fetchProgramAttributeInfo( std::int32_t
     {
         GLsizei nameLength;
         GLenum variableType;
-        glGetActiveAttrib( inProgramId, (GLuint)i, bufSize, &nameLength, &size, &variableType, name );
+        glGetActiveAttrib(
+            inProgramId, (GLuint)i, bufSize, &nameLength, &size, &variableType, name );
 
         AttributeInfo info;
         info.ID = i;
@@ -2520,7 +2663,8 @@ std::vector<AttributeInfo> DeviceOpenGL::fetchProgramAttributeInfo( std::int32_t
     return result;
 }
 
-std::vector<UniformInfo> DeviceOpenGL::fetchProgramUniformsInfo( std::int32_t inProgramId ) const
+std::vector<UniformInfo> DeviceOpenGL::fetchProgramUniformsInfo(
+    std::int32_t inProgramId ) const
 {
     std::vector<UniformInfo> result;
 
@@ -2536,7 +2680,8 @@ std::vector<UniformInfo> DeviceOpenGL::fetchProgramUniformsInfo( std::int32_t in
     {
         GLsizei nameLength;
         GLenum variableType;
-        glGetActiveUniform( inProgramId, (GLuint)i, bufSize, &nameLength, &size, &variableType, name );
+        glGetActiveUniform(
+            inProgramId, (GLuint)i, bufSize, &nameLength, &size, &variableType, name );
 
         UniformInfo info;
         info.ID = i;
@@ -2551,7 +2696,9 @@ std::vector<UniformInfo> DeviceOpenGL::fetchProgramUniformsInfo( std::int32_t in
     return result;
 }
 
-bool DeviceOpenGL::fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t inProgramId, const String& inUniformName )
+bool DeviceOpenGL::fetchUniformInfo( UniformInfo& inOutUniformInfo,
+                                     std::int32_t inProgramId,
+                                     const String& inUniformName )
 {
     GLint size{ 0 };  // size of the variable
 
@@ -2565,7 +2712,8 @@ bool DeviceOpenGL::fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t
     {
         GLsizei nameLength;
         GLenum variableType;
-        glGetActiveUniform( inProgramId, (GLuint)i, bufSize, &nameLength, &size, &variableType, name );
+        glGetActiveUniform(
+            inProgramId, (GLuint)i, bufSize, &nameLength, &size, &variableType, name );
 
         if( inUniformName == name )
         {
@@ -2580,7 +2728,9 @@ bool DeviceOpenGL::fetchUniformInfo( UniformInfo& inOutUniformInfo, std::int32_t
     return false;
 }
 
-void DeviceOpenGL::setObjectName( EObjectType objectType, std::uint32_t objectId, const String& name )
+void DeviceOpenGL::setObjectName( EObjectType objectType,
+                                  std::uint32_t objectId,
+                                  const String& name )
 {
     GLenum oglType = 0;
     switch( objectType )

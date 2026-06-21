@@ -7,7 +7,7 @@
 #include "CUL/ITimer.hpp"
 
 #include "sdl2wrapper/IMPORT_SDL.hpp"
-#include "CUL/Proifling/Profiler.hpp"
+#include "CUL/Profiling/Profiler.hpp"
 
 using namespace LOGLW;
 
@@ -21,12 +21,14 @@ using IPivot = CUL::MATH::IPivot;
     #pragma warning( push )
     #pragma warning( disable : 5045 )
 #endif
-RegularSDL2Window::RegularSDL2Window( const WinData& winData, ISDL2Wrapper* wrapper, CUL::CULInterface* culInterface ):
-    m_windowData( winData ),
-    m_wrapper( wrapper ),
-    m_culInterface( culInterface ),
-    m_fsApi( culInterface->getFS() ),
-    m_logger( culInterface->getLogger() )
+RegularSDL2Window::RegularSDL2Window( const WinData& winData,
+                                      ISDL2Wrapper* wrapper,
+                                      CUL::CULInterface* culInterface )
+    : m_windowData( winData )
+    , m_wrapper( wrapper )
+    , m_culInterface( culInterface )
+    , m_fsApi( culInterface->getFS() )
+    , m_logger( culInterface->getLogger() )
 {
     m_window = createWindow( winData );
 
@@ -46,7 +48,7 @@ SDL_Window* RegularSDL2Window::createWindow( const WinData& winData )
     setCurrentRendererType( winData.RendererType );
     auto& winName = winData.Name;
 
-    m_logger->logInfo( "Creating window with:");
+    m_logger->logInfo( "Creating window with:" );
     m_logger->logInfo( "Pos: %d, %d", pos.X, pos.Y );
     m_logger->logInfo( "Size %d, %d", currentRes.W, currentRes.H );
     SDL_Window* result = nullptr;
@@ -68,15 +70,22 @@ SDL_Window* RegularSDL2Window::createWindow( const WinData& winData )
     auto winTargetName = winName;
     if( winTargetName.empty() )
     {
-        winTargetName = "Window: " + std::to_string( currentRes.W ) + "x" + std::to_string( currentRes.H );
+        winTargetName = "Window: " + std::to_string( currentRes.W ) + "x" +
+                        std::to_string( currentRes.H );
     }
 
-    result = SDL_CreateWindow( winTargetName.getUtfChar(), pos.X, pos.Y, targetWidth, targetHeight, windowFlags );
+    result = SDL_CreateWindow( winTargetName.getUtfChar(),
+                               pos.X,
+                               pos.Y,
+                               targetWidth,
+                               targetHeight,
+                               windowFlags );
     if( nullptr == result )
     {
         auto sdlError = SDL_GetError();
         String s_sdlError( sdlError );
-        m_logger->logVariable( CUL::LOG::Severity::Critical, "SDL ERROR: [%s]", *s_sdlError );
+        m_logger->logVariable(
+            CUL::LOG::Severity::Critical, "SDL ERROR: [%s]", *s_sdlError );
         CUL::Assert::simple( false, "The Window has not been initialized." );
     }
     else
@@ -101,7 +110,8 @@ void RegularSDL2Window::fetchSreenData()
 
     setWindowID( winId );
 
-    m_windowData.NativeRes = { (std::uint16_t)nativeDisplayMode.w, (std::uint16_t)nativeDisplayMode.h };
+    m_windowData.NativeRes = { (std::uint16_t)nativeDisplayMode.w,
+                               (std::uint16_t)nativeDisplayMode.h };
     m_windowData.WindowRes = m_windowData.CurrentRes;
 }
 
@@ -196,7 +206,8 @@ void RegularSDL2Window::renderAll()
     //        // TODO: WTF?
     //        auto const texSDLW = dynamic_cast<TextureSDL*>( tex );
 
-    //        const double angle = sprite->getAngle().getValueD(CUL::MATH::Angle::Type::DEGREE);
+    //        const double angle =
+    //        sprite->getAngle().getValueD(CUL::MATH::Angle::Type::DEGREE);
 
     //        SDL_Point center;
     //        center.x = static_cast<int>( pivot.X );
@@ -307,11 +318,17 @@ SurfaceImage RegularSDL2Window::createSurface( const CUL::FS::Path& path )
             break;
     }
 
-    surfaceImage.first = SDL_CreateRGBSurfaceWithFormatFrom( (void*)image->getData(), imageInfo.size.width, imageInfo.size.height,
-                                                             imageInfo.depth, imageInfo.pitch, pixelFormat );
+    surfaceImage.first = SDL_CreateRGBSurfaceWithFormatFrom( (void*)image->getData(),
+                                                             imageInfo.size.width,
+                                                             imageInfo.size.height,
+                                                             imageInfo.depth,
+                                                             imageInfo.pitch,
+                                                             pixelFormat );
 
-    CUL::Assert::check( nullptr != surfaceImage.first, "Cannot create surf: %s", *path.getPath() );
-    CUL::Assert::check( 0 != surfaceImage.first->pixels, "Cannot create surf: %s", *path.getPath() );
+    CUL::Assert::check(
+        nullptr != surfaceImage.first, "Cannot create surf: %s", *path.getPath() );
+    CUL::Assert::check(
+        0 != surfaceImage.first->pixels, "Cannot create surf: %s", *path.getPath() );
 
     surfaceImage.second = image;
 

@@ -14,12 +14,11 @@
 #include "CUL/ObjectRegistry.hpp"
 
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
-#include "CUL/Proifling/Profiler.hpp"
+#include "CUL/Profiling/Profiler.hpp"
 
 using namespace LOGLW;
 
-ShaderProgram::ShaderProgram():
-    m_engine( *IGameEngine::getInstance() )
+ShaderProgram::ShaderProgram() : m_engine( *IGameEngine::getInstance() )
 {
     create();
 }
@@ -64,7 +63,8 @@ void ShaderProgram::onNameChange( const String& newName )
     m_tasks.addTask(
         [this, newName]()
         {
-            getDevice()->setObjectName( EObjectType::PROGRAM, m_shaderProgramId, newName );
+            getDevice()->setObjectName(
+                EObjectType::PROGRAM, m_shaderProgramId, newName );
         } );
 }
 
@@ -122,12 +122,15 @@ void ShaderProgram::releaseShaderUnits()
     m_shaders.clear();
 }
 
-SCompilationResult ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString )
+SCompilationResult ShaderProgram::reCompileShader( EExecuteType inEt,
+                                                   const String& shaderPathString )
 {
     return reCompileShader( inEt, shaderPathString, true );
 }
 
-SCompilationResult ShaderProgram::reCompileShader( EExecuteType inEt, const String& shaderPathString, bool assertOnErrors )
+SCompilationResult ShaderProgram::reCompileShader( EExecuteType inEt,
+                                                   const String& shaderPathString,
+                                                   bool assertOnErrors )
 {
     SCompilationResult result;
 
@@ -157,7 +160,9 @@ SCompilationResult ShaderProgram::reCompileShader( EExecuteType inEt, const Stri
     return result;
 }
 
-SCompilationResult ShaderProgram::reCompileShaderImpl( EExecuteType inEt, const String& inShaderPathString, bool assertOnErrors )
+SCompilationResult ShaderProgram::reCompileShaderImpl( EExecuteType inEt,
+                                                       const String& inShaderPathString,
+                                                       bool assertOnErrors )
 {
     SCompilationResult result;
 
@@ -180,12 +185,15 @@ SCompilationResult ShaderProgram::reCompileShaderImpl( EExecuteType inEt, const 
     return result;
 }
 
-SCompilationResult ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath )
+SCompilationResult ShaderProgram::compileShader( EExecuteType inEt,
+                                                 const String& shaderPath )
 {
     return compileShader( inEt, shaderPath, true );
 }
 
-SCompilationResult ShaderProgram::compileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors )
+SCompilationResult ShaderProgram::compileShader( EExecuteType inEt,
+                                                 const String& shaderPath,
+                                                 bool assertOnErrors )
 {
     SCompilationResult result;
 
@@ -204,7 +212,6 @@ SCompilationResult ShaderProgram::compileShader( EExecuteType inEt, const String
     m_shaders[type] = si;
     result.State = si.SU->State;
 
-
     return result;
 }
 
@@ -213,7 +220,8 @@ void ShaderProgram::attachShader( EExecuteType inEt, std::uint32_t id )
     switch( inEt )
     {
         case LOGLW::EExecuteType::None:
-            CUL::Assert::check( false, "ShaderProgram::attachShader: wrong execution type: None." );
+            CUL::Assert::check(
+                false, "ShaderProgram::attachShader: wrong execution type: None." );
             break;
         case LOGLW::EExecuteType::WaitForCompletion:
             RunOnRenderThread::getInstance().RunWaitForResult(
@@ -223,13 +231,16 @@ void ShaderProgram::attachShader( EExecuteType inEt, std::uint32_t id )
                 } );
             break;
         case LOGLW::EExecuteType::ExecuteOnRenderThread:
-            CUL::Assert::check( false, "ShaderProgram::attachShader: cannot link in OnRenderThread mode." );
+            CUL::Assert::check(
+                false,
+                "ShaderProgram::attachShader: cannot link in OnRenderThread mode." );
             break;
         case LOGLW::EExecuteType::Now:
             getDevice()->attachShader( m_shaderProgramId, id );
             break;
         default:
-            CUL::Assert::check( false, "ShaderProgram::attachShader: wrong execution type." );
+            CUL::Assert::check( false,
+                                "ShaderProgram::attachShader: wrong execution type." );
             break;
     }
 }
@@ -274,7 +285,8 @@ void ShaderProgram::linkImpl()
     m_linked = true;
     m_uniformMapping.clear();  // Might have changed on link.
 
-    const auto attributes = getDevice()->fetchProgramAttributeInfo( static_cast<std::int32_t>( m_shaderProgramId ) );
+    const auto attributes = getDevice()->fetchProgramAttributeInfo(
+        static_cast<std::int32_t>( m_shaderProgramId ) );
     for( const auto& attribute : attributes )
     {
         ShaderVariable sv;
@@ -323,7 +335,9 @@ CShaderTypes::ShaderType ShaderProgram::getType() const
     return m_type;
 }
 
-void ShaderProgram::setUniform( EExecuteType inEt, const String& inName, UniformValue inValue )
+void ShaderProgram::setUniform( EExecuteType inEt,
+                                const String& inName,
+                                UniformValue inValue )
 {
     switch( inEt )
     {
@@ -342,7 +356,8 @@ void ShaderProgram::setUniform( EExecuteType inEt, const String& inName, Uniform
             break;
         }
         default:
-            CUL::Assert::check( false, "ShaderProgram::setUniform, not implemented execution type." );
+            CUL::Assert::check(
+                false, "ShaderProgram::setUniform, not implemented execution type." );
     }
 }
 
@@ -355,7 +370,8 @@ void ShaderProgram::setUniformImpl( const String& inName, UniformValue inValue )
     ShaderVariable* sv{ nullptr };
     if( it == m_uniformMapping.end() )
     {
-        const std::int32_t location = getDevice()->getUniformLocation( m_shaderProgramId, inName );
+        const std::int32_t location =
+            getDevice()->getUniformLocation( m_shaderProgramId, inName );
 
         if( location == -1 )
         {
@@ -481,7 +497,8 @@ void ShaderProgram::disable()
     }
 }
 
-EShaderUnitState ShaderProgram::getShaderUnitState( CShaderTypes::ShaderType inType ) const
+EShaderUnitState ShaderProgram::getShaderUnitState(
+    CShaderTypes::ShaderType inType ) const
 {
     const auto it = m_shaders.find( inType );
     if( it == m_shaders.end() )
@@ -501,7 +518,8 @@ const ShaderProgram::ShaderVariable& ShaderProgram::getUniformValue( const Strin
     {
         return result;
     }
-    LOGLW::UniformValue uv = getDevice()->getUniformValue( m_shaderProgramId, result.Id, result.Type );
+    LOGLW::UniformValue uv =
+        getDevice()->getUniformValue( m_shaderProgramId, result.Id, result.Type );
     result.Applied = true;
     result.Value = uv;
 
@@ -534,7 +552,9 @@ void ShaderProgram::release()
             getDevice()->removeProgram( m_shaderProgramId );
         };
 
-        if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+        if( CUL::CULInterface::getInstance()
+                ->getThreadUtils()
+                .getIsCurrentThreadNameEqualTo( "RenderThread" ) )
         {
             removeShaderTask();
         }

@@ -10,14 +10,13 @@
 #include "gameengine/AttributeMeta.hpp"
 #include "RunOnRenderThread.hpp"
 #include "CUL/Graphics/IImageLoader.hpp"
-#include "CUL/Proifling/Profiler.hpp"
+#include "CUL/Profiling/Profiler.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
 
 using namespace LOGLW;
 
-Sprite::Sprite( IObject* parent, bool forceLegacy ):
-    IObject( "", forceLegacy )
+Sprite::Sprite( IObject* parent, bool forceLegacy ) : IObject( "", forceLegacy )
 {
     m_transformComponent = getTransform();
     setParent( parent );
@@ -27,7 +26,8 @@ Sprite::Sprite( IObject* parent, bool forceLegacy ):
     m_uvList[2] = { 1.f, 1.f };
     m_uvList[3] = { 0.f, 1.f };
 
-    m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
+    m_transformComponent =
+        static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     constexpr float size = 4.f;
     m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
     // TODO: add normals
@@ -52,10 +52,13 @@ Sprite::Sprite( IObject* parent, bool forceLegacy ):
 void Sprite::onNameChange( const String& newName )
 {
     IObject::onNameChange( newName );
-    getDevice()->setObjectName( EObjectType::TEXTURE, static_cast<std::uint32_t>( m_textureId ), getName() + "/texture" );
+    getDevice()->setObjectName( EObjectType::TEXTURE,
+                                static_cast<std::uint32_t>( m_textureId ),
+                                getName() + "/texture" );
 }
 
-void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoader* imageLoader )
+void Sprite::LoadImage( const CUL::FS::Path& imagePath,
+                        CUL::Graphics::IImageLoader* imageLoader )
 {
     m_image = imageLoader->loadImage( imagePath );
     const auto& ii = getImageInfo();
@@ -64,21 +67,29 @@ void Sprite::LoadImage( const CUL::FS::Path& imagePath, CUL::Graphics::IImageLoa
     m_textureInfo->size.x = ii.canvasSize.width;
     m_textureInfo->size.y = ii.canvasSize.height;
     m_textureInfo->data = getData();
-    m_textureInfo->textureId = static_cast<decltype( m_textureInfo->textureId )>( m_textureId );
+    m_textureInfo->textureId =
+        static_cast<decltype( m_textureInfo->textureId )>( m_textureId );
     m_textureInfo->initialized = true;
 
     getDevice()->setTextureData( m_textureId, *m_textureInfo );
-    getDevice()->setTextureParameter( m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
-    getDevice()->setTextureParameter( m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
+    getDevice()->setTextureParameter(
+        m_textureId, TextureParameters::MAG_FILTER, TextureFilterType::LINEAR );
+    getDevice()->setTextureParameter(
+        m_textureId, TextureParameters::MIN_FILTER, TextureFilterType::LINEAR );
 
-    const float maxImensionSize = std::max( m_textureInfo->size.x, m_textureInfo->size.y );
+    const float maxImensionSize =
+        std::max( m_textureInfo->size.x, m_textureInfo->size.y );
     const float newRectWidth = m_textureInfo->size.x / maxImensionSize;
     const float newRectHeight = m_textureInfo->size.y / maxImensionSize;
 
     m_transformComponent->setSize( { newRectWidth, newRectHeight, 0.f } );
 }
 
-void Sprite::LoadImage( CUL::Graphics::DataType* data, unsigned width, unsigned height, CUL::Graphics::IImageLoader* imageLoader, unsigned )
+void Sprite::LoadImage( CUL::Graphics::DataType* data,
+                        unsigned width,
+                        unsigned height,
+                        CUL::Graphics::IImageLoader* imageLoader,
+                        unsigned )
 {
     m_image = imageLoader->loadImage( (unsigned char*)data, width, height );
 
@@ -161,8 +172,12 @@ void Sprite::updateBuffers_impl()
 {
     std::vector<std::uint32_t> indices = {
         // note that we start from 0!
-        0, 1, 2,  // first Triangle
-        2, 3, 0   // second Triangle
+        0,
+        1,
+        2,  // first Triangle
+        2,
+        3,
+        0  // second Triangle
     };
     m_vboData.Indices.createFrom( indices );
 
@@ -202,9 +217,10 @@ void Sprite::updateBuffers_impl()
 
 void Sprite::setSize( const glm::vec3& size )
 {
-    m_vertexData = {
-        0.0f,   size.y, 0.0f, m_uvList[0].X, m_uvList[0].Y, size.x, size.y, 0.0f, m_uvList[1].X, m_uvList[1].Y,
-                     size.x, 0.0f,   0.0f, m_uvList[2].X, m_uvList[2].Y, 0.0f,   0.0f,   0.0f, m_uvList[3].X, m_uvList[3].Y };
+    m_vertexData = { 0.0f,   size.y, 0.0f, m_uvList[0].X, m_uvList[0].Y,
+                     size.x, size.y, 0.0f, m_uvList[1].X, m_uvList[1].Y,
+                     size.x, 0.0f,   0.0f, m_uvList[2].X, m_uvList[2].Y,
+                     0.0f,   0.0f,   0.0f, m_uvList[3].X, m_uvList[3].Y };
 }
 
 const std::array<UV, 4>& Sprite::getUV() const
@@ -259,7 +275,8 @@ void Sprite::setTransformationAndColor()
     shaderProgram->runOnRenderingThread(
         [this, shaderProgram, projectionMatrix, viewMatrix, model]()
         {
-            shaderProgram->setUniform( EExecuteType::Now, "projection", projectionMatrix );
+            shaderProgram->setUniform(
+                EExecuteType::Now, "projection", projectionMatrix );
             shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix );
             shaderProgram->setUniform( EExecuteType::Now, "model", model );
             shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4() );

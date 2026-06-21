@@ -4,7 +4,7 @@
 #include "gameengine/IndexBuffer.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "RunOnRenderThread.hpp"
-#include "CUL/Proifling/Profiler.hpp"
+#include "CUL/Profiling/Profiler.hpp"
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
@@ -23,7 +23,8 @@ void addVertex( VertexArray* inVertex )
 void removeVertex( VertexArray* inVertex )
 {
     std::lock_guard<std::mutex> locker( g_vertexListMtx );
-    const auto it = std::find_if( g_vertexList.begin(), g_vertexList.end(),
+    const auto it = std::find_if( g_vertexList.begin(),
+                                  g_vertexList.end(),
                                   [inVertex]( VertexArray* current )
                                   {
                                       return inVertex == current;
@@ -35,8 +36,7 @@ void removeVertex( VertexArray* inVertex )
     }
 }
 
-VertexArray::VertexArray():
-    IRenderable( false )
+VertexArray::VertexArray() : IRenderable( false )
 {
     m_vertexData = std::make_unique<VertexData>();
 
@@ -75,7 +75,7 @@ void VertexArray::updateData( const DataWrapper& inData )
 {
     auto it = std::find_if( m_vbos.begin(),
                             m_vbos.end(),
-                            [&inData]( const std::unique_ptr<VertexBuffer>& current)
+                            [&inData]( const std::unique_ptr<VertexBuffer>& current )
                             {
                                 return current->getAttributeName().equals( inData.Name );
                             } );
@@ -97,8 +97,6 @@ void VertexArray::addData( const DataWrapper& inData )
     auto vbo = new VertexBuffer( inDataCopy );
     m_vbos.emplace_back( vbo );
 }
-
-
 
 void VertexArray::addIndexData( const std::vector<std::uint32_t>& inData )
 {
@@ -127,9 +125,11 @@ void VertexArray::setProgram( ShaderProgram* inProgram )
 
 void VertexArray::createShader( const CUL::FS::Path& path )
 {
-    CUL::Assert::check( path.exists(), "File %s does not exist.", path.getPath().getUtfChar() );
+    CUL::Assert::check(
+        path.exists(), "File %s does not exist.", path.getPath().getUtfChar() );
 
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo(
+            "RenderThread" ) )
     {
         if( !m_shaderProgram )
         {
@@ -183,7 +183,8 @@ void VertexArray::render()
 
     bind();
 
-    CUL::Assert::check( m_shaderProgram != nullptr, "There is no shader matching this vbo." );
+    CUL::Assert::check( m_shaderProgram != nullptr,
+                        "There is no shader matching this vbo." );
 
     if( m_shaderProgram->getIsLinked() == false )
     {
@@ -200,10 +201,11 @@ void VertexArray::render()
     }
     else
     {
-        getDevice()->drawArrays( m_vaoId,
-                                 m_vertexData->primitiveType,
-                                 0,
-                                 static_cast<std::uint32_t>( m_vertexData->Data.getSize() ) );
+        getDevice()->drawArrays(
+            m_vaoId,
+            m_vertexData->primitiveType,
+            0,
+            static_cast<std::uint32_t>( m_vertexData->Data.getSize() ) );
     }
 
     if( m_unbindBuffersAfterDraw )
@@ -228,7 +230,8 @@ void VertexArray::updateVertexData( std::size_t inIndex )
 
 bool VertexArray::taskIsAlreadyPlaced( TaskType tt ) const
 {
-    return std::find( m_preRenderTasks.begin(), m_preRenderTasks.end(), tt ) != m_preRenderTasks.end();
+    return std::find( m_preRenderTasks.begin(), m_preRenderTasks.end(), tt ) !=
+           m_preRenderTasks.end();
 }
 
 void VertexArray::runTasks()
@@ -265,7 +268,9 @@ void VertexArray::runTasks()
                 {
                     auto shaderPath = m_shadersPaths.front();
 
-                    auto shaderFile = CUL::CULInterface::getInstance()->getFF()->createFileFromPath( shaderPath );
+                    auto shaderFile =
+                        CUL::CULInterface::getInstance()->getFF()->createFileFromPath(
+                            shaderPath );
                     shaderFile->load( true, true );
                     // auto shader = new Shader( *getEngine(), shaderFile );
                     throw std::logic_error( "Method not implemented" );
@@ -354,7 +359,8 @@ void VertexArray::setName( const CUL::StringWr& inName )
 
 VertexArray::~VertexArray()
 {
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo(
+            "RenderThread" ) )
     {
         release();
     }

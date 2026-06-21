@@ -9,7 +9,7 @@
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/AttributeMeta.hpp"
 #include "RunOnRenderThread.hpp"
-#include "CUL/Proifling/Profiler.hpp"
+#include "CUL/Profiling/Profiler.hpp"
 
 #include "CUL/IMPORT_GLM.hpp"
 
@@ -17,13 +17,14 @@
 
 using namespace LOGLW;
 
-Quad::Quad( Camera& /*camera*/, IObject* parent, bool forceLegacy ):
-    IObject( "", forceLegacy )
+Quad::Quad( Camera& /*camera*/, IObject* parent, bool forceLegacy )
+    : IObject( "", forceLegacy )
 {
     m_transformComponent = getTransform();
     setParent( parent );
 
-    m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
+    m_transformComponent =
+        static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     constexpr float size = 4.f;
     m_transformComponent->setSize( CUL::MATH::Point( size, size, 0.f ) );
     // TODO: add normals
@@ -99,8 +100,12 @@ void Quad::updateBuffers_impl()
 
     std::vector<std::uint32_t> indices = {
         // note that we start from 0!
-        0, 1, 3,  // first Triangle
-        1, 2, 3   // second Triangle
+        0,
+        1,
+        3,  // first Triangle
+        1,
+        2,
+        3  // second Triangle
     };
     vao->addIndexData( indices );
 
@@ -142,9 +147,9 @@ void Quad::updateSizeBuffers()
 void Quad::setSize( const glm::vec3& size )
 {
     m_vertices[0] = { size.x, size.y, 0.f };
-    m_vertices[1] = { size.x,    0.f, 0.f };
-    m_vertices[2] = { 0.f,       0.f, 0.f };
-    m_vertices[3] = { 0.f,    size.y, 0.f };
+    m_vertices[1] = { size.x, 0.f, 0.f };
+    m_vertices[2] = { 0.f, 0.f, 0.f };
+    m_vertices[3] = { 0.f, size.y, 0.f };
 
     m_normals[0] = { 0.f, 0.f, 1.f };
     m_normals[1] = { 0.f, 0.f, 1.f };
@@ -197,7 +202,8 @@ void Quad::setTransformationAndColor()
     shaderProgram->runOnRenderingThread(
         [this, shaderProgram, projectionMatrix, viewMatrix, model]()
         {
-            shaderProgram->setUniform( EExecuteType::Now, "projection", projectionMatrix );
+            shaderProgram->setUniform(
+                EExecuteType::Now, "projection", projectionMatrix );
             shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix );
             shaderProgram->setUniform( EExecuteType::Now, "model", model );
             shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4() );
@@ -206,7 +212,8 @@ void Quad::setTransformationAndColor()
 
 Quad::~Quad()
 {
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo(
+            "RenderThread" ) )
     {
         release();
     }
