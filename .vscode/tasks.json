@@ -68,7 +68,8 @@
                 ".",
                 "-B Build_${input:platform}",
                 "-DENABLE_TRACY=${input:tracy_enabled}",
-                "-DCMAKE_BUILD_TYPE=${input:configuration}"
+                "-DCMAKE_BUILD_TYPE=${input:configuration}",
+                "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
             ],
             "group": {
                 "kind": "build",
