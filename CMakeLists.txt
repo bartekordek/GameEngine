@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.0.0)
 project(game_engine_main)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 set(OGLW_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(OGLW_BUILD_ROOT ${CMAKE_SOURCE_DIR})
 set(OGLW_RES_DIR ${OGLW_ROOT}/res)
@@ -25,6 +27,7 @@ set(FREEGLUT_REPLACE_GLUT ON CACHE BOOL "REPLACE GLUT" FORCE)
 set(FREEGLUT_BUILD_DEMOS OFF CACHE BOOL "DO NOT BUILD DEMOS" FORCE)
 set(FREEGLUT_BUILD_SHARED_LIBS OFF CACHE BOOL "DO NOT BUILD SHARED" FORCE)
 add_subdirectory(${OGLW_DEPS_ROOT}/freeglut-3.2.1)
+set_property(TARGET freeglut_static PROPERTY FOLDER "deps")
 
 # Add sub directories
 set( SDL2_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/deps/SDL/include )
@@ -52,6 +55,7 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 find_package(GLFW REQUIRED)
 find_package(freeglut REQUIRED)
+
 
 set(GLM_INCLUDE_DIR $ENV{GLM_INCLUDE_DIR})
 set(GLM_INCLUDE_DIRS $ENV{GLM_INCLUDE_DIRS})
@@ -86,3 +90,7 @@ add_subdirectory(sample/RayTracingPlayground)
 add_subdirectory(sample/RayTracingPlaygroundShader)
 add_subdirectory(TemplateApp)
 add_subdirectory(tools/shader_editor)
+
+set_property(TARGET glew PROPERTY FOLDER "deps")
+set_property(TARGET glew_s PROPERTY FOLDER "deps")
+set_property(TARGET glewinfo PROPERTY FOLDER "deps")
