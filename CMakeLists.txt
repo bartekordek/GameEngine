@@ -40,7 +40,15 @@ set(SDL_STATIC ON CACHE BOOL "" FORCE)
 set(SDL_TEST OFF CACHE BOOL "" FORCE)
 set(SDL2_DISABLE_SDL2MAIN ON CACHE BOOL "" FORCE)
 add_subdirectory( ${CMAKE_CURRENT_SOURCE_DIR}/deps/SDL )
+set_property(TARGET sdl_headers_copy PROPERTY FOLDER "deps/SDL2")
+set_property(TARGET SDL2 PROPERTY FOLDER "deps/SDL2")
+set_property(TARGET SDL2-static PROPERTY FOLDER "deps/SDL2")
+set_property(TARGET uninstall PROPERTY FOLDER "deps/SDL2")
+
+
 add_subdirectory(deps)
+set_property(TARGET LOGLW-AdditionalDeps PROPERTY FOLDER "deps")
+
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/deps/CUL)
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/deps/rapidobj)
@@ -53,7 +61,6 @@ include(${ADDITIOANL_MODULES}/Findfreeglut.cmake)
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-find_package(GLFW REQUIRED)
 find_package(freeglut REQUIRED)
 
 
@@ -62,17 +69,11 @@ set(GLM_INCLUDE_DIRS $ENV{GLM_INCLUDE_DIRS})
 
 set(GLEW_HOME ${CMAKE_CURRENT_SOURCE_DIR}/deps/glew-2.1.0)
 set(ENV{GLEW_HOME} ${GLEW_HOME})
-set(GLFW_HOME ${CMAKE_CURRENT_SOURCE_DIR}/deps/glfw)
 set(GLEW_INCLUDE_DIR ${GLEW_HOME}/include )
 set(GLEW_INCLUDE_DIRS ${GLEW_HOME}/include)
-set(GLFW_INCLUDE_DIR ${GLFW_HOME}/include)
-
-
-
 list(APPEND CMAKE_MODULE_PATH ${GLEW_HOME})
-set(GLFW_LIBRARY_TYPE STATIC CACHE STRING "BUILD STATIC" FORCE)
+set(BUILD_UTILS OFF CACHE BOOL "" FORCE)
 add_subdirectory(${GLEW_HOME}/build/cmake)
-add_subdirectory(${GLFW_HOME})
 
 option(RENDER_OPENGL_CORE "Enable Opengl" ON)
 
@@ -93,4 +94,3 @@ add_subdirectory(tools/shader_editor)
 
 set_property(TARGET glew PROPERTY FOLDER "deps")
 set_property(TARGET glew_s PROPERTY FOLDER "deps")
-set_property(TARGET glewinfo PROPERTY FOLDER "deps")

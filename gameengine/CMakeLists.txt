@@ -11,7 +11,6 @@ set(CMAKE_CXX_STANDARD 20)
 cmake_policy(SET CMP0069 NEW)
 
 include_directories( SYSTEM ${GLEW_INCLUDE_DIR} )
-include_directories( SYSTEM ${GLFW_INCLUDE_DIR} )
 include_directories( SYSTEM ${GLM_INCLUDE_DIR} )
 include_directories( SYSTEM ${OGLW_DEPS_ROOT}/CUL/libcul/inc )
 include_directories( SYSTEM ${OGLW_DEPS_ROOT}/SDL/include )
@@ -59,7 +58,6 @@ set( DEPENDENCIES_STATIC
 PUBLIC LOGLW-AdditionalDeps
 PUBLIC cul_static
 PUBLIC glew_s
-PUBLIC glfw
 PUBLIC freeglut_static
 PUBLIC SDL2-static
 PRIVATE rapidobj
@@ -69,7 +67,6 @@ set( DEPENDENCIES_DYNAMIC
 PUBLIC LOGLW-AdditionalDeps
 PUBLIC cul_dynamic
 PUBLIC glew
-PUBLIC glfw
 PUBLIC freeglut_static
 PUBLIC SDL2
 PRIVATE rapidobj

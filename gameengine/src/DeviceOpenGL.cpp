@@ -1,37 +1,35 @@
 #include "DeviceOpenGL.hpp"
 
-#include "gameengine/IGameEngine.hpp"
-#include "gameengine/Camera.hpp"
-#include "gameengine/Viewport.hpp"
-#include "gameengine/AttributeMeta.hpp"
-#include "gameengine/Shaders/ShaderProgram.hpp"
-#include "gameengine/Shaders/ShaderUnit.hpp"
-#include "gameengine/Windowing/IWindow.hpp"
-
-#include "RunOnRenderThread.hpp"
 #include "CUL/CULInterface.hpp"
-#include "CUL/GenericUtils/SimpleAssert.hpp"
-#include "CUL/Threading/ThreadUtil.hpp"
 #include "CUL/Filesystem/FileFactory.hpp"
 #include "CUL/Filesystem/RegularFile.hpp"
+#include "CUL/GenericUtils/SimpleAssert.hpp"
 #include "CUL/Profiling/Profiler.hpp"
-
 #include "CUL/STL_IMPORTS/STD_sstream.hpp"
 #include "CUL/STL_IMPORTS/STD_vector.hpp"
+#include "CUL/Threading/ThreadUtil.hpp"
+#include "RunOnRenderThread.hpp"
+#include "gameengine/AttributeMeta.hpp"
+#include "gameengine/Camera.hpp"
+#include "gameengine/IGameEngine.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
+#include "gameengine/Shaders/ShaderUnit.hpp"
+#include "gameengine/Viewport.hpp"
+#include "gameengine/Windowing/IWindow.hpp"
 
 using namespace LOGLW;
 
 static CUL::CULInterface* g_interface = nullptr;
 static CUL::LOG::ILogger* g_loggerOGL = nullptr;
 
-void APIENTRY glDebugOutput( GLenum source,
-                             GLenum type,
-                             unsigned int id,
-                             GLenum severity,
-                             GLsizei length,
-                             const char*  // message
-                             ,
-                             const void*  // userParam
+void glDebugOutput( GLenum source,
+                    GLenum type,
+                    unsigned int id,
+                    GLenum severity,
+                    GLsizei length,
+                    const char*  // message
+                    ,
+                    const void*  // userParam
 );
 
 const char* toString( GLenum type )
@@ -118,13 +116,13 @@ const char* toString( GLenum type )
     }
 }
 
-void APIENTRY glDebugOutput( GLenum source,
-                             GLenum type,
-                             unsigned int id,
-                             GLenum severity,
-                             GLsizei length,
-                             const char* message,
-                             const void* userParam )
+void glDebugOutput( GLenum source,
+                    GLenum type,
+                    unsigned int id,
+                    GLenum severity,
+                    GLsizei length,
+                    const char* message,
+                    const void* userParam )
 {
     if( id == 131185 )
     {
@@ -263,13 +261,13 @@ GLenum glCheckError_( const char* file, int line )
 }
 #define glCheckError() glCheckError_( __FILE__, __LINE__ )
 
-void APIENTRY glDebugOutput( GLenum source,
-                             GLenum type,
-                             unsigned int id,
-                             GLenum severity,
-                             GLsizei length,
-                             const char* message,
-                             const void* userParam );
+void glDebugOutput( GLenum source,
+                    GLenum type,
+                    unsigned int id,
+                    GLenum severity,
+                    GLsizei length,
+                    const char* message,
+                    const void* userParam );
 
 String enumToString( const GLenum val );
 GLuint toGluint( unsigned value );
