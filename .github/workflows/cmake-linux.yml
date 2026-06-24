@@ -43,4 +43,4 @@ jobs:
     - name: Build Projects
       # Build your program with the given configuration
       working-directory: ${{github.workspace}}
-      run: cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} --target playgroundApp_dynamic snake_dynamic playgroundApp_static snake_static
+      run: cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} --target playgroundApp_dynamic snake_dynamic playgroundApp_static snake_static -j18
