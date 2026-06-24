@@ -36,16 +36,14 @@
     ],
     "tasks": [
         {
-            "label": "[Build][Debug][RayTracingPlayground_static]",
+            "label": "[CMake][Build][WholeRepo]",
             "type": "shell",
             "command": "cmake",
             "args": [
                 "--build",
-                "Build_Win64",
+                "Build_${input:platform}",
                 "--config",
-                "DEBUG",
-                "--target",
-                "RayTracingPlayground_static"
+                "${input:configuration}",
             ],
             "presentation": {
                 "echo": true,
@@ -78,7 +76,7 @@
                 "echo": true,
                 "reveal": "always",
                 "revealProblems": "onProblem",
-                "focus": true,
+                "focus": false,
                 "panel": "dedicated",
                 "showReuseMessage": false,
                 "clear": true
