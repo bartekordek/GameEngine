@@ -1,18 +1,16 @@
 #pragma once
 
-#include "gameengine/Components/IComponent.hpp"
-#include "gameengine/Defines.hpp"
+#include <CUL/String/StringWrapper.hpp>
 
+#include "CUL/GenericUtils/DelegateTemplate.hpp"
+#include "CUL/GenericUtils/SimpleDelegate.hpp"
+#include "CUL/IMPORT_GLM.hpp"
 #include "CUL/Math/Point.hpp"
 #include "CUL/Math/Rotation.hpp"
-#include <CUL/String/StringWrapper.hpp>
-#include "CUL/GenericUtils/SimpleDelegate.hpp"
-#include "CUL/GenericUtils/DelegateTemplate.hpp"
-
 #include "CUL/STL_IMPORTS/STD_functional.hpp"
 #include "CUL/STL_IMPORTS/STD_map.hpp"
-
-#include "CUL/IMPORT_GLM.hpp"
+#include "gameengine/Components/IComponent.hpp"
+#include "gameengine/Defines.hpp"
 
 NAMESPACE_BEGIN( LOGLW )
 
@@ -45,12 +43,14 @@ public:
     GAME_ENGINE_API void setSize( const Pos& size );
     GAME_ENGINE_API const glm::vec3& getSize() const;
 
-    GAME_ENGINE_API const Pos& getPivot() const;
+    GAME_ENGINE_API const glm::vec3& getPivot() const;
     GAME_ENGINE_API glm::vec3 getPivotNormalized();
     GAME_ENGINE_API void setPivot( const Pos& pivot );
     GAME_ENGINE_API void setPivotNormalized( const Pos& pivot );
 
-    GAME_ENGINE_API void addOnChangeCallback( const String& callbackName, const std::function<void( const glm::mat4& model )> callback );
+    GAME_ENGINE_API void addOnChangeCallback(
+        const String& callbackName,
+        const std::function<void( const glm::mat4& model )> callback );
     GAME_ENGINE_API void removeCallback( const String& callbackName );
 
     CUL::GUTILS::SimpleDelegate changeSizeDelegate;
@@ -60,7 +60,6 @@ public:
     GAME_ENGINE_API const glm::vec3& getScale() const;
     GAME_ENGINE_API void setScale( const glm::vec3& scale );
     GAME_ENGINE_API void move( const glm::vec3& inDiff );
-
 
     GAME_ENGINE_API ~TransformComponent();
 
