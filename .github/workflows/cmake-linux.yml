@@ -5,6 +5,7 @@ on: [push, pull_request]
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Debug
+  BUILD_DIR: Build_Linux
 
 jobs:
   build:
@@ -27,48 +28,19 @@ jobs:
     - name: Update env
       run: sudo apt-get update -y
 
-    - name: Check env 0
-      run: gcc -v
-
     - name: Update gcc
       run: sudo apt install g++ g++-14 gcc-14 && sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 800 --slave /usr/bin/g++ g++ /usr/bin/g++-14
-
-    - name: Check env 1
-      run: gcc -v
 
     - name: Install Linux prequisities
       run: sudo apt install mesa-common-dev libxi-dev libglu1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libgtk-3-0 libgtk-3-dev
 
     - name: Configure CMake
-      # Use a bash shell so we can use the same syntax for environment variable
-      # access regardless of the host operating system
-      shell: bash
-      working-directory: ${{github.workspace}}/Build-Linux
-      # Note the current convention is to use the -S and -B options here to specify source
-      # and build directories, but this is only available with CMake 3.13 and higher.
-      # The CMake binaries on the Github Actions machines are (as of this writing) 3.12
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTRACY_ENABLE=0
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
+      working-directory: ${{github.workspace}}
+      run: cmake -S . -B ${BUILD_DIR} -DENABLE_TRACY=OFF -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DCMAKE_POLICY_VERSION_MINIMUM="3.5"
 
-    - name: Build playgroundApp_dynamic
-      working-directory: ${{github.workspace}}//Build-Linux
-      shell: bash
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config ${BUILD_TYPE} -j16 --target playgroundApp_dynamic
-
-    - name: Build snake_dynamic
-      working-directory: ${{github.workspace}}//Build-Linux
-      shell: bash
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config ${BUILD_TYPE} -j16 --target snake_dynamic
-
-    - name: Build playgroundApp_static
-      working-directory: ${{github.workspace}}//Build-Linux
-      shell: bash
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config ${BUILD_TYPE} -j16 --target playgroundApp_static
-
-    - name: Build snake_static
-      working-directory: ${{github.workspace}}//Build-Linux
-      shell: bash
-      # Execute the build.  You can specify a specific target with "--target <NAME>"
-      run: cmake --build . --config ${BUILD_TYPE} -j16 --target snake_static
+    - name: Build Projects
+      # Build your program with the given configuration
+      working-directory: ${{github.workspace}}
+      run: cmake --build ${BUILD_DIR} --config ${BUILD_TYPE} --target playgroundApp_dynamic snake_dynamic playgroundApp_static snake_static
