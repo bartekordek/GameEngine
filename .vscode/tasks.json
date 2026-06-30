@@ -139,56 +139,6 @@
             ]
         },
         {
-            "label": "[WINDOWS][DEBUG][BUILLD][sdl2wrapper_static]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build_Win64",
-                "--config",
-                "DEBUG",
-                "-j16",
-                "--target",
-                "sdl2wrapper_static"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ]
-        },
-        {
-            "label": "[WINDOWS][DEBUG][BUILLD][libsdl2wrapperTestApp_dynamic]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build_Win64",
-                "--config",
-                "DEBUG",
-                "-j16",
-                "--target",
-                "libsdl2wrapperTestApp_dynamic"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ]
-        },
-        {
             "label": "[WINDOWS][DEBUG][BUILLD][gameengine_static]",
             "type": "shell",
             "command": "cmake",
