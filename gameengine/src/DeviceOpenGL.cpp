@@ -2489,6 +2489,13 @@ ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
+    else if( shaderPath == "embedded_shaders/fbo_bw.frag" )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/fbo_bw.frag"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
     else if( shaderPath == "embedded_shaders/fbo.vert" )
     {
         const std::string vertexShaderSource =
