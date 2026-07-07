@@ -27,6 +27,8 @@ IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width, unsigned height
     windowData.Name = "Test";
     windowData.CurrentRes = { (std::uint16_t)width, (std::uint16_t)height };
     windowData.Name = winName;
+    windowData.Pos.X = 128;
+    windowData.Pos.Y = 64;
 
     init( windowData, fullscreen, configPath, legacy );
 }

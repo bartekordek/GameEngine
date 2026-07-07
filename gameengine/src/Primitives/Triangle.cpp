@@ -116,11 +116,11 @@ void Triangle::setSize( const glm::vec3& )
 
 void Triangle::createShaders()
 {
-    auto shader = getProgram();
-    shader->compileShader( EExecuteType::Now, "embedded_shaders/basic_color.frag" );
-    shader->compileShader( EExecuteType::Now, "embedded_shaders/basic_pos.vert" );
-    shader->link( EExecuteType::Now );
-    shader->validate();
+    ShaderData sd;
+    sd.ShaderName = "TriangleShader";
+    sd.FragmentShader = "embedded_shaders/basic_color.frag";
+    sd.VertexShader = "embedded_shaders/basic_pos.vert";
+    setProgram( getEngine().createProgram( EExecuteType::WaitForCompletion, sd ) );
 }
 
 void Triangle::render()
