@@ -6,6 +6,8 @@
 
 namespace LOGLW
 {
+class ShaderProgram;
+
 class GAME_ENGINE_API ITextureFrameBuffer
 {
 public:
@@ -15,6 +17,8 @@ public:
     virtual void endCapture() = 0;
     virtual void drawCapture() = 0;
     virtual void setSize( std::int32_t inWidth, std::int32_t inHeight ) = 0;
+    virtual ShaderProgram* getShaderProgram() = 0;
+    virtual void setShaderProgram( ShaderProgram* inShaderProgram ) = 0;
 
     virtual ~ITextureFrameBuffer() = default;
 

@@ -101,24 +101,15 @@ void EditableTexture::init()
     if( !getDevice()->isLegacy() )
     {
         auto* gameEngine = IGameEngine::getInstance();
-        m_shaderProgram = gameEngine->createProgram();
 
-        const std::string vertexShaderSource =
-#include "embedded_shaders/camera.vert"
-            ;
+        ShaderData sd;
+        sd.ShaderName = "editable_texture/regular";
+        sd.FragmentShader = "embedded_shaders/camera.frag";
+        sd.VertexShader = "embedded_shaders/camera.vert";
 
-        const std::string fragmentShaderSource =
-#include "embedded_shaders/camera.frag"
-            ;
-
-        auto fragmentShader = gameEngine->createShader( "embedded_shaders/camera.frag", fragmentShaderSource );
-        auto vertexShader = gameEngine->createShader( "embedded_shaders/camera.vert", vertexShaderSource );
+        m_shaderProgram = gameEngine->createProgram( EExecuteType::WaitForCompletion, sd );
 
         throw std::logic_error( "Method not implemented" );
-        /*m_shaderProgram->attachShader( vertexShader );
-        m_shaderProgram->attachShader( fragmentShader );
-        m_shaderProgram->link();
-        m_shaderProgram->validate();*/
     }
 
     if( m_textureId == 0u )

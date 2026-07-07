@@ -22,6 +22,8 @@ public:
     void beginCapture() override;
     void endCapture() override;
     void drawCapture() override;
+    ShaderProgram* getShaderProgram() override;
+    void setShaderProgram( ShaderProgram* inShaderProgram ) override;
 
     ~TextureFrameBufferOpenGL();
 
@@ -38,12 +40,12 @@ private:
     std::uint32_t m_framebufferColor{ 0u };
     std::int32_t m_textureColor{ -1 };
 
-
     std::uint32_t m_framebufferDepthStencil{ 0u };
 
     TextureInfo m_ti;
     std::vector<std::uint32_t> m_fboData;
     ShaderProgram* m_shaderProgram{ nullptr };
+    std::vector<ShaderProgram*> m_shaderPrograms;
     VertexArray* m_vao{ nullptr };
 
     CUL_NONCOPYABLE( TextureFrameBufferOpenGL )

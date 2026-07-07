@@ -19,7 +19,6 @@ PointLight::PointLight( IObject* parent ):
     m_transformComponent = getTransform();
 
     setParent( parent );
-    getVao()->setProgram( getProgram() );
     RunOnRenderThread::getInstance().RunWaitForResult(
         [this]()
         {
@@ -59,13 +58,16 @@ void PointLight::init()
     vboData.VAO = getVao()->getId();
     getVao()->addVertexBuffer( vboData );
 
-    getProgram()->setName( getName() + "::program" );
-    String errorContent;
-    getProgram()->compileShader( EExecuteType::Now, "embedded_shaders/basic_color.frag" );
-    getProgram()->compileShader( EExecuteType::Now, "embedded_shaders/basic_pos.vert" );
-    getProgram()->link( EExecuteType::Now );
+
+    ShaderData sd;
+    sd.ShaderName.createFromPrintf( "%s_program", getName().getUtfChar() );
+    sd.FragmentShader = "embedded_shaders/basic_color.frag";
+    sd.VertexShader = "embedded_shaders/basic_pos.vert";
+
+    auto shader = getEngine().createProgram( EExecuteType::Now, sd );
+    setProgram( shader );
+
     constexpr float initialScale = 0.1f;
-    getProgram()->validate();
     getTransform()->setScale( { initialScale, initialScale, initialScale } );
     getTransform()->setPositionToParent( { 2.f, 2.f, 1.f } );
 }

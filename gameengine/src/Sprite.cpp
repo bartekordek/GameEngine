@@ -126,7 +126,6 @@ void Sprite::init()
     }
     else
     {
-        getVao()->setProgram( getProgram() );
         m_textureId = getDevice()->generateTexture();
         createBuffers();
         createShaders();
@@ -231,7 +230,7 @@ const std::array<UV, 4>& Sprite::getUV() const
 void Sprite::createShaders()
 {
     String errorContent;
-    ShaderProgram::ShadersData sd;
+    ShaderData sd;
     sd.FragmentShader = "embedded_shaders/camera.frag";
     sd.VertexShader = "embedded_shaders/camera.vert";
 
@@ -251,6 +250,7 @@ void Sprite::render()
     }
     else
     {
+        getProgram()->enable();
         setTransformationAndColor();
         getVao()->render();
 

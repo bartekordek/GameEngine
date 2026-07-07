@@ -27,16 +27,10 @@ class IConfigFile;
 NAMESPACE_END( GUTILS )
 NAMESPACE_END( CUL )
 
-NAMESPACE_BEGIN( LOGLW )
-class IWindow;
-class ISDL2Wrapper;
-struct WinSize;
-NAMESPACE_END( LOGLW )
-
 struct ImGuiContext;
 
-NAMESPACE_BEGIN( LOGLW )
-
+namespace LOGLW
+{
 class Anchor;
 class Camera;
 class Cube;
@@ -46,9 +40,12 @@ class IObject;
 class IRenderable;
 class IRenderDevice;
 class ISceneStore;
-class ITextureFactory;
+class ISDL2Wrapper;
 class ITexture;
+class ITextureFactory;
 class ITextureFrameBuffer;
+class IUIService;
+class IWindow;
 class Line;
 class PointLight;
 class ProjectionData;
@@ -56,26 +53,28 @@ class Quad;
 class ShaderProgram;
 class Sprite;
 class Triangle;
-class IUIService;
 class VertexArray;
 class VertexBuffer;
 class Viewport;
 struct ContextInfo;
 struct EngineParams;
+class ShaderData;
 struct VertexData;
-
+struct WinSize;
 using ColorS = CUL::Graphics::ColorS;
 using ColorE = CUL::Graphics::ColorE;
-
 using Vector3Di = CUL::MATH::Vector3Di;
 using IImageLoader = CUL::Graphics::IImageLoader;
 using EmptyFunctionCallback = std::function<void()>;
 using IPreRenderTask = CUL::GUTILS::ITask;
+enum class EExecuteType : std::int8_t;
 
-//CUL::GUTILS::DelegateTemplateTwoParam<float, float> guiFrameDelegate;
+// CUL::GUTILS::DelegateTemplateTwoParam<float, float> guiFrameDelegate;
 using DLogicFrameDelegate = CUL::GUTILS::DelegateTemplateOneParam<float>;
 
-class IGameEngine: public LOGLW::IMouseObservable, public LOGLW::IKeyboardObservable, public LOGLW::IWindowEventObservable
+class IGameEngine: public LOGLW::IMouseObservable,
+                   public LOGLW::IKeyboardObservable,
+                   public LOGLW::IWindowEventObservable
 {
 public:
     IGameEngine();
@@ -92,7 +91,8 @@ public:
     GAME_ENGINE_API virtual void setBackgroundColor( const ColorS& color ) = 0;
     GAME_ENGINE_API virtual void startRenderingLoop() = 0;
     GAME_ENGINE_API virtual void stopRenderingLoop() = 0;
-    GAME_ENGINE_API virtual void onInitialize( const EmptyFunctionCallback& callback ) = 0;
+    GAME_ENGINE_API virtual void onInitialize(
+        const EmptyFunctionCallback& callback ) = 0;
 
     GAME_ENGINE_API virtual IImageLoader* getImageLoader() = 0;
     GAME_ENGINE_API virtual IRenderDevice* getDevice() = 0;
@@ -105,7 +105,8 @@ public:
 
     GAME_ENGINE_API virtual void beforeFrame( const EmptyFunctionCallback& callback ) = 0;
     GAME_ENGINE_API virtual void setEyePos( const glm::vec3& pos ) = 0;
-    GAME_ENGINE_API virtual void setViewport( const Viewport& viewport, const bool instant = false ) = 0;
+    GAME_ENGINE_API virtual void setViewport( const Viewport& viewport,
+                                              const bool instant = false ) = 0;
 
     GAME_ENGINE_API virtual void drawQuad( const bool draw = true ) = 0;
 
@@ -125,8 +126,10 @@ public:
     // VBO HANDLE:
     GAME_ENGINE_API VertexBuffer* createVBO( const VertexData& vertexData );
 
-    GAME_ENGINE_API static IGameEngine* createGameEngine( LOGLW::ISDL2Wrapper* sdl2w, bool legacy = false );
-    GAME_ENGINE_API static IGameEngine* createGameEngine( const EngineParams& engineParam );
+    GAME_ENGINE_API static IGameEngine* createGameEngine( LOGLW::ISDL2Wrapper* sdl2w,
+                                                          bool legacy = false );
+    GAME_ENGINE_API static IGameEngine* createGameEngine(
+        const EngineParams& engineParam );
 
     GAME_ENGINE_API static IGameEngine* getInstance();
 
@@ -135,14 +138,20 @@ public:
 
     // Object Factory
     GAME_ENGINE_API Sprite* createSprite();
-    GAME_ENGINE_API virtual Sprite* createSprite( const String& path, bool withVBO = false ) = 0;
-    GAME_ENGINE_API virtual Sprite* createSprite( unsigned* data, unsigned width, unsigned height, bool withVBO = false ) = 0;
+    GAME_ENGINE_API virtual Sprite* createSprite( const String& path,
+                                                  bool withVBO = false ) = 0;
+    GAME_ENGINE_API virtual Sprite* createSprite( unsigned* data,
+                                                  unsigned width,
+                                                  unsigned height,
+                                                  bool withVBO = false ) = 0;
     GAME_ENGINE_API virtual void removeObject( IObject* object ) = 0;
-    GAME_ENGINE_API EditableTexture* createEditableTexture( uint16_t width, uint16_t height );
+    GAME_ENGINE_API EditableTexture* createEditableTexture( uint16_t width,
+                                                            uint16_t height );
     GAME_ENGINE_API Line* createLine( IObject* parent, bool forceLegacy );
     GAME_ENGINE_API Triangle* createTriangle( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API Quad* createQuad( IObject* parent, bool forceLegacy = false );
-    GAME_ENGINE_API PointLight* createPointLight( IObject* parent, bool forceLegacy = false );
+    GAME_ENGINE_API PointLight* createPointLight( IObject* parent,
+                                                  bool forceLegacy = false );
     GAME_ENGINE_API Anchor* createAnchor( IObject* parent, bool forceLegacy = false );
     GAME_ENGINE_API VertexArray* createVAO( const String& name = String( "" ) );
     GAME_ENGINE_API Cube* createCube( bool forceLegacy = false );
@@ -163,13 +172,16 @@ public:
 
     CUL::GUTILS::DelegateTemplateTwoParam<float, float> guiFrameDelegate;
     DLogicFrameDelegate LogicFrameDelegate;
-    CUL::GUTILS::DelegateTemplateGuardedTwoParam<std::uint32_t, std::uint32_t> OnWindowsResize;
+    CUL::GUTILS::DelegateTemplateGuardedTwoParam<std::uint32_t, std::uint32_t>
+        OnWindowsResize;
 
     // Shaders
-    GAME_ENGINE_API class ShaderProgram* createProgram();
+    GAME_ENGINE_API ShaderProgram* createProgram(
+        EExecuteType inEt, const ShaderData& inShaderData );
     GAME_ENGINE_API void removeProgram( ShaderProgram* program );
 
-    GAME_ENGINE_API ShaderProgram* createShader( const String& path, const String& source = "" );
+    GAME_ENGINE_API ShaderProgram* createShader( const String& path,
+                                                 const String& source = "" );
     GAME_ENGINE_API void removeShader( ShaderProgram* shader );
     GAME_ENGINE_API void removeShader( const String& path );
 
@@ -181,7 +193,6 @@ public:
     GAME_ENGINE_API virtual bool drawObjectsInfo( float& width, float& high ) = 0;
     GAME_ENGINE_API const ITextureFrameBuffer* getFrameBuffer() const;
     GAME_ENGINE_API ITextureFrameBuffer* getFrameBuffer();
-
 
     GAME_ENGINE_API virtual ISceneStore& getSceneStore() = 0;
 
@@ -216,6 +227,7 @@ protected:
     std::stack<std::function<void( void )>> m_postRenderTasks;
 
 private:
+    ShaderProgram* createProgram_impl( const ShaderData& inShaderData );
     ShaderProgram* findShader( const String& path ) const;
 
     std::unique_ptr<Camera> m_camera;
@@ -228,7 +240,7 @@ private:
 
     static IGameEngine* s_instance;
 
-    std::map<ShaderProgram*, std::unique_ptr<ShaderProgram>> m_shadersPrograms;
+    std::map<String, std::unique_ptr<ShaderProgram>> m_shadersPrograms;
     std::map<String, ShaderProgram*> m_shaders;
 
     ImGuiContext* m_ImGuiContext{ nullptr };
@@ -237,4 +249,4 @@ private:
     std::unique_ptr<ITextureFrameBuffer> m_frameBufferTexture;
 };
 
-NAMESPACE_END( LOGLW )
+}  // namespace LOGLW

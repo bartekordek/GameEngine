@@ -42,8 +42,9 @@ public:
     GAME_ENGINE_API TransformComponent* getTransform();
 
     GAME_ENGINE_API void removeByParent( bool enable );
-    GAME_ENGINE_API void createProgram();
     GAME_ENGINE_API ShaderProgram* getProgram();
+    GAME_ENGINE_API void setProgram( ShaderProgram* inProgram );
+
 
     GAME_ENGINE_API VertexArray* getVao();
     GAME_ENGINE_API void setVao( VertexArray* inVao );
@@ -62,7 +63,7 @@ private:
     void addParent( IObject* parent );
     void removeChild( IObject* child, bool lock );
     void createVaoImpl();
-    ShaderProgram* m_shaderProgram = nullptr;
+    ShaderProgram* m_shaderProgram{ nullptr };
     VertexArray* m_vao = nullptr;
     bool m_removeByParent = false;
     bool m_forceLegacy = false;

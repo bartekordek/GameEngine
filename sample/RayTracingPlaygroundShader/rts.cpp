@@ -32,7 +32,6 @@ constexpr bool g_createSphere{ true };
 constexpr bool g_createLightedQuad{ true };
 constexpr bool g_createRegularQuad{ true };
 
-
 RT_Playground::RT_Playground( const LOGLW::WinData& inWinData ) : m_winData( inWinData )
 {
 }
@@ -79,7 +78,6 @@ void RT_Playground::run()
 void RT_Playground::afterInit()
 {
     m_scene = m_engine->getSceneStore().createScene( "main" );
-
 
     m_mainWindow = m_engine->getMainWindow();
     m_mainWindow->setBackgroundColor( LOGLW::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
@@ -130,24 +128,25 @@ void RT_Playground::afterInit()
         m_quad = m_scene->createQuad( nullptr );
         m_quad->setColor( CUL::Graphics::ColorE::YELLOW );
         m_quad->setName( "Wall_with_light" );
-        LOGLW::ShaderProgram::ShadersData sd;
+        LOGLW::ShaderData sd;
         sd.FragmentShader = "embedded_shaders/rt_basic.frag";
         sd.VertexShader = "embedded_shaders/rt_basic.vert";
         m_quad->getProgram()->createFrom( LOGLW::EExecuteType::Now, sd );
         m_quad->getProgram()->setUniform(
             LOGLW::EExecuteType::Now, "eyePos", m_engine->getCamera().getEye() );
-        m_quad->getProgram()->setUniform(
-            LOGLW::EExecuteType::Now, "lightPos", m_bulb->getTransform()->getPositionAbsolut() );
+        m_quad->getProgram()->setUniform( LOGLW::EExecuteType::Now,
+                                          "lightPos",
+                                          m_bulb->getTransform()->getPositionAbsolut() );
     }
 
     if( g_createSphere )
     {
         m_sphere = m_scene->createSphere( nullptr );
-        m_sphere->getTransform()->setPositionAbsolute({ 8.f, 8.f, 8.f });
+        m_sphere->getTransform()->setPositionAbsolute( { 8.f, 8.f, 8.f } );
     }
 
     {
-       m_quad->getTransform()->setSize( { 40.f, 40.f, 1.f } );
+        m_quad->getTransform()->setSize( { 40.f, 40.f, 1.f } );
     }
 }
 

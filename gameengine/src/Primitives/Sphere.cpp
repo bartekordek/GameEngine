@@ -14,14 +14,15 @@
 
 using namespace LOGLW;
 
-CSphere::CSphere( IObject* parent ):
-    IObject( "Sphere", false )
+CSphere::CSphere( IObject* parent ) : IObject( "Sphere", false )
 {
     setParent( parent );
     init( 24, 72, 2.f );
 }
 
-void CSphere::init( std::int32_t inStackCount, std::int32_t inSectorCount, float inRadius )
+void CSphere::init( std::int32_t inStackCount,
+                    std::int32_t inSectorCount,
+                    float inRadius )
 {
     m_stackCount = inStackCount;
     m_sectorCount = inSectorCount;
@@ -42,7 +43,6 @@ void CSphere::init( std::int32_t inStackCount, std::int32_t inSectorCount, float
 void CSphere::init()
 {
     VertexArray* vao = getVao();
-    vao->setProgram( getProgram() );
     CUL::DataWrapper dw;
     dw.createFrom( m_vertices );
 
@@ -56,13 +56,13 @@ void CSphere::init()
     am.Index = 0;
     am.Size = 3;
     am.Type = LOGLW::DataType::FLOAT;
-    //am.StrideBytes = 3 * sizeof( float );
+    // am.StrideBytes = 3 * sizeof( float );
     vd.Attributes.push_back( am );
 
     vao->addIndexData( m_indices );
     m_verticesVbo = vao->addVertexBuffer( vd );
 
-    ShaderProgram::ShadersData sd;
+    ShaderData sd;
     sd.FragmentShader = "embedded_shaders/basic_color.frag";
     sd.VertexShader = "embedded_shaders/basic_pos.vert";
 
@@ -136,7 +136,8 @@ void CSphere::fillVerticesNormalsTex()
     m_normals.clear();
     m_texCoords.clear();
 
-    CUL::CULInterface::getInstance()->getLogger()->logVariable( CUL::LOG::Severity::Warn, "CSphere::fillVerticesNormalsTex." );
+    CUL::CULInterface::getInstance()->getLogger()->logVariable(
+        CUL::LOG::Severity::Warn, "CSphere::fillVerticesNormalsTex." );
 
     const float radius = m_transformComponent->getSize().x;
 
@@ -202,7 +203,8 @@ void CSphere::setTransformationAndColor()
     shaderProgram->runOnRenderingThread(
         [this, shaderProgram, projectionMatrix, viewMatrix, model]()
         {
-            shaderProgram->setUniform( EExecuteType::Now, "projection", projectionMatrix );
+            shaderProgram->setUniform(
+                EExecuteType::Now, "projection", projectionMatrix );
             shaderProgram->setUniform( EExecuteType::Now, "view", viewMatrix );
             shaderProgram->setUniform( EExecuteType::Now, "model", model );
             shaderProgram->setUniform( EExecuteType::Now, "color", m_color.getVec4() );

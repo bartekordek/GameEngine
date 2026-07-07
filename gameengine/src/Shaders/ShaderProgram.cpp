@@ -16,14 +16,28 @@
 #include "CUL/STL_IMPORTS/STD_atomic.hpp"
 #include "CUL/Profiling/Profiler.hpp"
 
-using namespace LOGLW;
+namespace LOGLW
+{
+const String& ShaderData::getHash() const
+{
+    if( m_hash.empty() )
+    {
+        const String concatenatedNames = String::createFromPrintf(
+            "%s_%s_%s",
+            ShaderName.empty() ? "NoName" : ShaderName.getUtfChar(),
+            VertexShader.empty() ? "NoVertexShader" : VertexShader.getUtfChar(),
+            FragmentShader.empty() ? "NoFragmentShader" : FragmentShader.getUtfChar() );
+        m_hash = concatenatedNames.calculateMD5();
+    }
+    return m_hash;
+}
 
 ShaderProgram::ShaderProgram() : m_engine( *IGameEngine::getInstance() )
 {
     create();
 }
 
-void ShaderProgram::createFrom( EExecuteType inEt, const ShadersData& inShaderData )
+void ShaderProgram::createFrom( EExecuteType inEt, const ShaderData& inShaderData )
 {
     if( inEt == EExecuteType::Now )
     {
@@ -47,7 +61,7 @@ void ShaderProgram::createFrom( EExecuteType inEt, const ShadersData& inShaderDa
     }
 }
 
-void ShaderProgram::createFromImpl( EExecuteType inEt, const ShadersData& inShaderData )
+void ShaderProgram::createFromImpl( EExecuteType inEt, const ShaderData& inShaderData )
 {
     releaseShaderUnits();
 
@@ -197,20 +211,39 @@ SCompilationResult ShaderProgram::compileShader( EExecuteType inEt,
 {
     SCompilationResult result;
 
-    const CUL::FS::Path path = shaderPath;
-    const auto extension = path.getExtension();
-    CShaderTypes::ShaderType type = CShaderTypes::getShaderType( extension );
-
-    ShaderInfo si;
-    si.Path = shaderPath;
-    String erorrMessage;
-    si.SU = getDevice()->createShaderUnit( shaderPath, assertOnErrors, erorrMessage );
-    if( si.SU->State == EShaderUnitState::Loaded )
+    auto compileTask = [this, &result, &shaderPath, assertOnErrors, inEt]()
     {
-        attachShader( inEt, si.SU->ID );
+        const CUL::FS::Path path = shaderPath;
+        const auto extension = path.getExtension();
+        CShaderTypes::ShaderType type = CShaderTypes::getShaderType( extension );
+
+        ShaderInfo si;
+        si.Path = shaderPath;
+        String erorrMessage;
+        si.SU = getDevice()->createShaderUnit( shaderPath, assertOnErrors, erorrMessage );
+        if( si.SU->State == EShaderUnitState::Loaded )
+        {
+            attachShader( inEt, si.SU->ID );
+        }
+        m_shaders[type] = si;
+        result.State = si.SU->State;
+    };
+
+    switch( inEt )
+    {
+        case EExecuteType::Now:
+        {
+            compileTask();
+            break;
+        }
+        case EExecuteType::WaitForCompletion:
+        {
+            RunOnRenderThread::getInstance().RunWaitForResult( compileTask );
+            break;
+        }
+        default:
+            CUL::Assert::check( false, "Unimplemented execution type." );
     }
-    m_shaders[type] = si;
-    result.State = si.SU->State;
 
     return result;
 }
@@ -597,3 +630,5 @@ std::int32_t ShaderProgram::getUniformLocation( const String& name ) const
 
     return it->second.Id;
 }
+
+}  // namespace LOGLW

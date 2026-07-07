@@ -113,44 +113,6 @@ BuffIDType VertexArray::getId() const
     return m_vaoId;
 }
 
-ShaderProgram* VertexArray::getProgram()
-{
-    return m_shaderProgram;
-}
-
-void VertexArray::setProgram( ShaderProgram* inProgram )
-{
-    m_shaderProgram = inProgram;
-}
-
-void VertexArray::createShader( const CUL::FS::Path& path )
-{
-    CUL::Assert::check(
-        path.exists(), "File %s does not exist.", path.getPath().getUtfChar() );
-
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo(
-            "RenderThread" ) )
-    {
-        if( !m_shaderProgram )
-        {
-            registerTask( TaskType::CREATE_PROGRAM );
-        }
-        m_shadersPaths.push( path );
-        registerTask( TaskType::ADD_SHADER );
-        runTasks();
-    }
-    else
-    {
-        std::lock_guard<std::mutex> guard( m_shadersMtx );
-        if( !m_shaderProgram )
-        {
-            registerTask( TaskType::CREATE_PROGRAM );
-        }
-        m_shadersPaths.push( path );
-        registerTask( TaskType::ADD_SHADER );
-    }
-}
-
 VertexBuffer* VertexArray::addVertexBuffer( const VertexData& data )
 {
     return createVBOs( data );
@@ -178,20 +140,9 @@ void VertexArray::render()
 {
     ProfilerScope( "VertexArray::render" );
 
-    runTasks();
     const size_t vbosCount = (size_t)m_vbos.size();
 
     bind();
-
-    CUL::Assert::check( m_shaderProgram != nullptr,
-                        "There is no shader matching this vbo." );
-
-    if( m_shaderProgram->getIsLinked() == false )
-    {
-        return;
-    }
-
-    m_shaderProgram->enable();
 
     if( IndexBuffer* ib = m_indexBuffer.get() )
     {
@@ -210,10 +161,6 @@ void VertexArray::render()
 
     if( m_unbindBuffersAfterDraw )
     {
-        if( m_shaderProgram )
-        {
-            m_shaderProgram->disable();
-        }
         unbind();
     }
 }
@@ -226,78 +173,6 @@ VertexBuffer* VertexArray::getVertexBuffer( std::size_t inIndex )
 void VertexArray::updateVertexData( std::size_t inIndex )
 {
     m_vbos[inIndex]->updateVertexData( false );
-}
-
-bool VertexArray::taskIsAlreadyPlaced( TaskType tt ) const
-{
-    return std::find( m_preRenderTasks.begin(), m_preRenderTasks.end(), tt ) !=
-           m_preRenderTasks.end();
-}
-
-void VertexArray::runTasks()
-{
-    std::lock_guard<std::mutex> tasksGuard( m_tasksMtx );
-    while( !m_preRenderTasks.empty() )
-    {
-        auto task = m_preRenderTasks.front();
-        if( task == TaskType::CREATE_VAO )
-        {
-            createVAO();
-        }
-        else if( task == TaskType::CREATE_PROGRAM )
-        {
-            if( !m_shaderProgram )
-            {
-                m_shaderProgram = getEngine().createProgram();
-            }
-        }
-        else if( task == TaskType::ADD_SHADER )
-        {
-            if( !m_shaderProgram )
-            {
-                if( !taskIsAlreadyPlaced( TaskType::CREATE_PROGRAM ) )
-                {
-                    m_preRenderTasks.push_back( TaskType::CREATE_PROGRAM );
-                }
-                m_preRenderTasks.push_back( TaskType::ADD_SHADER );
-            }
-            else
-            {
-                std::lock_guard<std::mutex> shadersGuard( m_shadersMtx );
-                while( !m_shadersPaths.empty() )
-                {
-                    auto shaderPath = m_shadersPaths.front();
-
-                    auto shaderFile =
-                        CUL::CULInterface::getInstance()->getFF()->createFileFromPath(
-                            shaderPath );
-                    shaderFile->load( true, true );
-                    // auto shader = new Shader( *getEngine(), shaderFile );
-                    throw std::logic_error( "Method not implemented" );
-                    // m_shaderProgram->attachShader( shader );
-
-                    m_shadersPaths.pop();
-                }
-                // m_shaderProgram->link();
-                throw std::logic_error( "Method not implemented" );
-            }
-        }
-
-        m_preRenderTasks.pop_front();
-    }
-}
-
-void VertexArray::registerTask( TaskType taskType )
-{
-    std::lock_guard<std::mutex> guard( m_tasksMtx );
-    if( taskType == TaskType::CREATE_PROGRAM )
-    {
-        if( taskIsAlreadyPlaced( taskType ) )
-        {
-            return;
-        }
-    }
-    m_preRenderTasks.push_back( taskType );
 }
 
 VertexBuffer* VertexArray::createVBOs( const VertexData& data )

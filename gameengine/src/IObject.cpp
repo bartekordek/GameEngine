@@ -16,7 +16,6 @@ IObject::IObject( const String& name, bool forceLegacy ):
     setObject( this );
 
     createVao();
-    createProgram();
 }
 
 void IObject::createVao()
@@ -34,11 +33,6 @@ void IObject::createVaoImpl()
     m_vao = getEngine().createVAO();
 }
 
-void IObject::createProgram()
-{
-    CUL::Assert::check( m_shaderProgram == nullptr, "m_shaderProgram already created!" );
-    m_shaderProgram = getEngine().createProgram();
-}
 
 void IObject::onNameChange( const String& newName )
 {
@@ -48,11 +42,6 @@ void IObject::onNameChange( const String& newName )
     {
         const std::string newNamePtr = *newName;
         m_vao->setName( "%s/vao", newNamePtr.c_str() );
-    }
-
-    if( m_shaderProgram )
-    {
-        m_shaderProgram->setName( "%s/shaderProgram", *newName );
     }
 }
 
@@ -150,6 +139,11 @@ ShaderProgram* IObject::getProgram()
     return m_shaderProgram;
 }
 
+void IObject::setProgram( ShaderProgram* inProgram )
+{
+    m_shaderProgram = inProgram;
+}
+
 VertexArray* IObject::getVao()
 {
     return m_vao;
@@ -192,8 +186,6 @@ IObject::~IObject()
     m_children.clear();
 
     deleteVao();
-
-    getEngine().removeProgram( m_shaderProgram );
     m_shaderProgram = nullptr;
 }
 

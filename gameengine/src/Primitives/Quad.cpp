@@ -65,8 +65,6 @@ void Quad::init()
     }
     else
     {
-        getVao()->setProgram( getProgram() );
-
         createBuffers();
         createShaders();
 
@@ -160,11 +158,11 @@ void Quad::setSize( const glm::vec3& size )
 void Quad::createShaders()
 {
     String errorContent;
-    ShaderProgram::ShadersData sd;
+    ShaderData sd;
+    sd.ShaderName = "quad/regular";
     sd.FragmentShader = "embedded_shaders/basic_color.frag";
     sd.VertexShader = "embedded_shaders/basic_pos.vert";
-
-    getProgram()->createFrom( EExecuteType::WaitForCompletion, sd );
+    setProgram( getEngine().createProgram( EExecuteType::WaitForCompletion, sd ) );
 }
 
 void Quad::render()
@@ -177,6 +175,7 @@ void Quad::render()
     }
     else
     {
+        getProgram()->enable();
         setTransformationAndColor();
 
         getVao()->render();

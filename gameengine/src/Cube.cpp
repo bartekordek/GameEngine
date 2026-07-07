@@ -11,15 +11,16 @@
 
 using namespace LOGLW;
 
-Cube::Cube( Camera* camera, bool forceLegacy ):
-    IObject( "Cube", forceLegacy ),
-    m_camera( camera ),
-    m_engine( getEngine() )
+Cube::Cube( Camera* camera, bool forceLegacy )
+    : IObject( "Cube", forceLegacy )
+    , m_camera( camera )
+    , m_engine( getEngine() )
 {
-    m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
+    m_transformComponent =
+        static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
 
-    getVao()->setProgram( getProgram() );
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo(
+            "RenderThread" ) )
     {
         init();
         m_initialized = true;

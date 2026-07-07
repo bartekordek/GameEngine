@@ -10,16 +10,17 @@
 
 using namespace LOGLW;
 
-Line::Line( Camera& camera, IObject* parent, bool forceLegacy ):
-    IObject( "Line", forceLegacy ),
-    m_camera( camera )
+Line::Line( Camera& camera, IObject* parent, bool forceLegacy )
+    : IObject( "Line", forceLegacy )
+    , m_camera( camera )
 {
     m_vertexData = std::make_unique<VertexData>();
 
     m_transformComponent = getTransform();
     setParent( parent );
 
-    m_transformComponent = static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
+    m_transformComponent =
+        static_cast<TransformComponent*>( getComponent( "TransformComponent" ) );
     const float size{ 2.f };
     m_transformComponent->setSize( CUL::MATH::Point( size, size, size ) );
     m_transformComponent->setPivot( { 0.f, 0.f, 0.f } );
@@ -33,7 +34,9 @@ Line::Line( Camera& camera, IObject* parent, bool forceLegacy ):
         {
         } );
 
-    if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice() &&
+        CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo(
+            "RenderThread" ) )
     {
         init();
     }
@@ -65,7 +68,8 @@ void Line::createBuffers()
 {
     m_vertexData->Data.createFrom( m_line.toVectorOfFloat() );
     m_vertexData->primitiveType = LOGLW::PrimitiveType::LINE_STRIP;
-    m_vertexData->Attributes.push_back( AttributeMeta( "pos", 0, 3, DataType::FLOAT, false, 3 * sizeof( float ), nullptr ) );
+    m_vertexData->Attributes.push_back( AttributeMeta(
+        "pos", 0, 3, DataType::FLOAT, false, 3 * sizeof( float ), nullptr ) );
 
     m_vertexData->VAO = getVao()->getId();
 
@@ -74,12 +78,12 @@ void Line::createBuffers()
 
 void Line::createShaders()
 {
-    getProgram()->setName( getName() + "/shader_program" );
-    ShaderProgram::ShadersData sd;
+    ShaderData sd;
+    sd.ShaderName.createFromPrintf( "%s/shaderprogram", getName().getUtfChar() );
     sd.FragmentShader = "embedded_shaders/basic_color.frag";
     sd.VertexShader = "embedded_shaders/basic_pos.vert";
-    getProgram()->createFrom( EExecuteType::Now, sd );
-    getVao()->setProgram( getProgram() );
+    auto program = getEngine().createProgram( EExecuteType::Now, sd );
+    setProgram( program );
 }
 
 void Line::render()
@@ -148,7 +152,8 @@ void Line::setLength( float length )
 
 Line::~Line()
 {
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo(
+            "RenderThread" ) )
     {
         release();
     }

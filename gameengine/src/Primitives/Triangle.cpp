@@ -52,8 +52,6 @@ Triangle::Triangle( Camera& camera, IObject* parent, bool forceLegacy ):
         {
             m_recreateBuffers = true;
         } );
-
-    getVao()->setProgram( getProgram() );
 }
 
 void Triangle::setColor( const CUL::Graphics::ColorS& color )

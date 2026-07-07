@@ -63,9 +63,6 @@ public:
     BuffIDType getId() const;
     VertexBuffer* addVertexBuffer( const VertexData& data );
     void updateVertexBuffer( const VertexData& data );
-    void createShader( const CUL::FS::Path& path );
-    ShaderProgram* getProgram();
-    void setProgram( ShaderProgram* inProgram );
     void render();
     VertexBuffer* getVertexBuffer( std::size_t inIndex );
     void updateVertexData( std::size_t inIndex );
@@ -82,21 +79,6 @@ protected:
     void onNameChange( const CUL::StringWr& inName ) override;
 
 private:
-    enum class TaskType : short
-    {
-        NONE = 0,
-        CREATE_VAO,
-        ADD_VBO,
-        CREATE_PROGRAM,
-        ADD_SHADER,
-        RENDER
-    };
-
-    bool taskIsAlreadyPlaced( TaskType tt ) const;
-
-    void runTasks();
-    void registerTask( TaskType taskType );
-
     std::mutex m_vbosMtx;
 
 
@@ -107,10 +89,6 @@ private:
 
     std::uint32_t m_vaoId = 0;
 
-    std::mutex m_tasksMtx;
-    std::deque<TaskType> m_preRenderTasks;
-
-    ShaderProgram* m_shaderProgram = nullptr;
     std::vector<std::unique_ptr<ShaderProgram>> m_shaders;
     std::mutex m_shadersMtx;
     std::queue<CUL::FS::Path> m_shadersPaths;

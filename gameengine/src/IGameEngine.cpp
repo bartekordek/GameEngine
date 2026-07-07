@@ -5,11 +5,13 @@
 #include "gameengine/Components/TransformComponent.hpp"
 
 #include "gameengine/Primitives/Line.hpp"
+#include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/Primitives/Triangle.hpp"
 #include "gameengine/Primitives/Quad.hpp"
 
 #include "gameengine/Cube.hpp"
 #include "gameengine/Render/PointLight.hpp"
+#include "gameengine/ExecuteType.hpp"
 #include "gameengine/Shaders/ShaderProgram.hpp"
 #include "gameengine/VertexArray.hpp"
 #include "gameengine/EngineParams.hpp"
@@ -20,6 +22,7 @@
 
 #include "gameengine/ISDL2Wrapper.hpp"
 #include "Render/TextureFrameBufferOpenGL.hpp"
+#include "RunOnRenderThread.hpp"
 #include "CUL/GenericUtils/ConsoleUtilities.hpp"
 
 #include "CUL/Filesystem/FileFactory.hpp"
@@ -72,11 +75,10 @@ void IGameEngine::initialize()
         }
     }
 
-    
-
     if( mainWindow->getCurrentRendererType() == RenderTypes::RendererType::OPENGL_MODERN )
     {
-        m_frameBufferTexture = std::make_unique<TextureFrameBufferOpenGL>( *getDevice(), winSize.W, winSize.H );
+        m_frameBufferTexture = std::make_unique<TextureFrameBufferOpenGL>(
+            *getDevice(), winSize.W, winSize.H );
     }
 }
 
@@ -229,16 +231,51 @@ void IGameEngine::drawOrigin( bool enable )
     }
 }
 
-ShaderProgram* IGameEngine::createProgram()
+ShaderProgram* IGameEngine::createProgram(
+    EExecuteType inEt, const ShaderData& inShaderData )
 {
-    ShaderProgram* result = new ShaderProgram();
-    m_shadersPrograms.insert( std::make_pair( result, std::unique_ptr<ShaderProgram>( result ) ) );
+    ShaderProgram* result{ nullptr };
+
+    if( inEt == EExecuteType::Now )
+    {
+        result = createProgram_impl( inShaderData );
+    }
+    else if( inEt == EExecuteType::WaitForCompletion )
+    {
+        RunOnRenderThread::getInstance().RunWaitForResult(
+            [this, &inShaderData, &result]()
+            {
+                result = createProgram_impl( inShaderData );
+            } );
+    }
+    else
+    {
+        CUL::Assert::check( false, "Unimplemented execution type." );
+    }
+    return result;
+}
+
+ShaderProgram* IGameEngine::createProgram_impl( const ShaderData& inShaderData )
+{
+    const String& hash = inShaderData.getHash();
+    auto it = m_shadersPrograms.find( hash );
+    if( it != m_shadersPrograms.end() )
+    {
+        return it->second.get();
+    }
+
+    auto shaderProgram = std::make_unique<ShaderProgram>();
+    shaderProgram->setName( inShaderData.ShaderName );
+    ShaderProgram* result = shaderProgram.get();
+    result->createFrom( EExecuteType::Now, inShaderData );
+    m_shadersPrograms.emplace( hash, std::move( shaderProgram ) );
     return result;
 }
 
 void IGameEngine::removeProgram( ShaderProgram* program )
 {
-    auto it = m_shadersPrograms.find( program );
+    auto it = m_shadersPrograms.find( program->getName() );
+
     if( it != m_shadersPrograms.end() )
     {
         m_shadersPrograms.erase( it );
@@ -247,36 +284,50 @@ void IGameEngine::removeProgram( ShaderProgram* program )
 
 void IGameEngine::addObjectToRender( IRenderable* renderable )
 {
-    const auto threadName = CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
+    const auto threadName =
+        CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
 
     constexpr std::size_t bufferSize{ 512 };
     char buffer[bufferSize];
-    snprintf( buffer, bufferSize, "IGameEngine::addObjectToRender: %p [%s]", renderable, threadName.c_str() );
+    snprintf( buffer,
+              bufferSize,
+              "IGameEngine::addObjectToRender: %p [%s]",
+              renderable,
+              threadName.c_str() );
 
     CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, buffer );
 
-    if( getDevice() && CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( getDevice() &&
+        CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo(
+            "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
-        CUL::Assert::simple( it == m_objectsToRender.end(), "Trying to add already added object." );
+        CUL::Assert::simple( it == m_objectsToRender.end(),
+                             "Trying to add already added object." );
         m_objectsToRender.insert( renderable );
     }
     else
     {
         std::lock_guard<std::mutex> lockGuard( m_objectsToRenderMtx );
         auto it = m_objectsToRender.find( renderable );
-        CUL::Assert::simple( it == m_objectsToRender.end(), "Trying to add already added object." );
+        CUL::Assert::simple( it == m_objectsToRender.end(),
+                             "Trying to add already added object." );
         m_objectsToRender.insert( renderable );
     }
 }
 
 void IGameEngine::removeObjectToRender( IRenderable* renderable )
 {
-    const auto threadName = CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
-    CUL::LOG::ILogger::getInstance().logVariable( CUL::LOG::Severity::Info, "IGameEngine::removeObjectToRender: %p [%s]", renderable,
-                                                  threadName.c_str() );
+    const auto threadName =
+        CUL::CULInterface::getInstance()->getThreadUtils().getThreadName();
+    CUL::LOG::ILogger::getInstance().logVariable(
+        CUL::LOG::Severity::Info,
+        "IGameEngine::removeObjectToRender: %p [%s]",
+        renderable,
+        threadName.c_str() );
 
-    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo( "RenderThread" ) )
+    if( CUL::CULInterface::getInstance()->getThreadUtils().getIsCurrentThreadNameEqualTo(
+            "RenderThread" ) )
     {
         auto it = m_objectsToRender.find( renderable );
         if( it != m_objectsToRender.end() )
@@ -291,7 +342,8 @@ void IGameEngine::removeObjectToRender( IRenderable* renderable )
 
         if( it == m_objectsToRender.end() )
         {
-            CUL::Assert::check( false, "Trying to remove already removed object: %p.", renderable );
+            CUL::Assert::check(
+                false, "Trying to remove already removed object: %p.", renderable );
         }
 
         m_objectsToRender.erase( renderable );
@@ -323,7 +375,8 @@ void IGameEngine::setGuiContext( ImGuiContext* const inContext )
     m_ImGuiContext = inContext;
 }
 
-ShaderProgram* IGameEngine::createShader( const String& /*path*/, const String& /*source*/ )
+ShaderProgram* IGameEngine::createShader( const String& /*path*/,
+                                          const String& /*source*/ )
 {
     // ShaderProgram* result = findShader( path );
 

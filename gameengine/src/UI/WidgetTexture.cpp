@@ -51,11 +51,11 @@ void CWidgetTexture::init()
         ++i;
     }
 
-    m_shaderProgram = gameEngine.createProgram();
-
-    m_shaderProgram->createFrom( EExecuteType::Now, { "embedded_shaders/camera_orto.vert", "embedded_shaders/camera_orto.frag" } );
-    m_shaderProgram->link( EExecuteType::Now );
-    m_shaderProgram->validate();
+    ShaderData sd;
+    sd.ShaderName = "widget_texture/regular";
+    sd.FragmentShader = "embedded_shaders/camera_orto.frag";
+    sd.VertexShader = "embedded_shaders/camera_orto.vert";
+    m_shaderProgram = gameEngine.createProgram( EExecuteType::Now, sd );
 
     m_textureId = static_cast<std::int32_t>( m_device->generateTexture() );
 
@@ -122,8 +122,6 @@ void CWidgetTexture::init()
         dw.Name = "aTexCoord";
         getVao()->updateData( dw );
     }
-
-    getVao()->setProgram( m_shaderProgram );
 
     getVao()->setName( "WidgetTexture" );
 }

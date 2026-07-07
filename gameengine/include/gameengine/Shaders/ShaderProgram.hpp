@@ -16,8 +16,8 @@
 
 #include "CUL/IMPORT_GLM.hpp"
 
-NAMESPACE_BEGIN( LOGLW )
-
+namespace LOGLW
+{
 class IGameEngine;
 enum class EExecuteType : std::int8_t;
 enum class EShaderUnitState : std::int8_t;
@@ -30,10 +30,22 @@ enum class EShaderProgramState : std::int8_t
     LinkError
 };
 
-class GAME_ENGINE_API ShaderProgram final:
-    private IUtilityUser,
-    public CUL::IName,
-    public CUL::IRegisterdObject
+class GAME_ENGINE_API ShaderData
+{
+public:
+    String ShaderName;
+    String VertexShader;
+    String FragmentShader;
+
+    const String& getHash() const;
+
+private:
+    mutable String m_hash;
+};
+
+class GAME_ENGINE_API ShaderProgram final: private IUtilityUser,
+                                           public CUL::IName,
+                                           public CUL::IRegisterdObject
 {
 public:
     struct ShaderVariable
@@ -47,22 +59,20 @@ public:
         bool Applied{ false };
     };
 
-    struct ShadersData
-    {
-        String VertexShader;
-        String FragmentShader;
-    };
-
     ShaderProgram();
-    void createFrom( EExecuteType inEt, const ShadersData& inShaderData );
+    void createFrom( EExecuteType inEt, const ShaderData& inShaderData );
 
     unsigned int getId() const;
 
     void compileLinkValidate( EExecuteType inEt );
     SCompilationResult compileShader( EExecuteType inEt, const String& shaderPath );
-    SCompilationResult compileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors);
+    SCompilationResult compileShader( EExecuteType inEt,
+                                      const String& shaderPath,
+                                      bool assertOnErrors );
     SCompilationResult reCompileShader( EExecuteType inEt, const String& shaderPath );
-    SCompilationResult reCompileShader( EExecuteType inEt, const String& shaderPath, bool assertOnErrors );
+    SCompilationResult reCompileShader( EExecuteType inEt,
+                                        const String& shaderPath,
+                                        bool assertOnErrors );
     void reCompileWholeShader( EExecuteType inEt );
 
     void setUniform( EExecuteType inEt, const String& inName, UniformValue inValue );
@@ -96,10 +106,12 @@ protected:
 
 private:
     void create();
-    void createFromImpl( EExecuteType inEt, const ShadersData& inShaderData );
+    void createFromImpl( EExecuteType inEt, const ShaderData& inShaderData );
     void reCompileWholeShaderImpl( EExecuteType inEt );
     void releaseShaderUnits();
-    SCompilationResult reCompileShaderImpl( EExecuteType inEt, const String& shaderPath, bool assertOnErrors );
+    SCompilationResult reCompileShaderImpl( EExecuteType inEt,
+                                            const String& shaderPath,
+                                            bool assertOnErrors );
     void setUniformImpl( const String& inName, UniformValue inValue );
     void linkImpl();
     void release();
@@ -118,8 +130,10 @@ private:
 
     IGameEngine& m_engine;
 
-    mutable std::unordered_map<String, ShaderVariable, CUL::STDStringWrapperHash> m_uniformMapping;
-    mutable std::unordered_map<String, ShaderVariable, CUL::STDStringWrapperHash> m_attributeMapping;
+    mutable std::unordered_map<String, ShaderVariable, CUL::STDStringWrapperHash>
+        m_uniformMapping;
+    mutable std::unordered_map<String, ShaderVariable, CUL::STDStringWrapperHash>
+        m_attributeMapping;
 
     bool m_linked{ false };
     CUL::CTaskAccumulator m_tasks;
@@ -130,4 +144,4 @@ private:
     ShaderProgram& operator=( ShaderProgram&& rhv ) = delete;
 };
 
-NAMESPACE_END( LOGLW )
+}  // namespace LOGLW
