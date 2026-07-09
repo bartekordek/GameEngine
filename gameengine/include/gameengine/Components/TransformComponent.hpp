@@ -21,13 +21,12 @@ class IObject;
 class TransformComponent final: public IComponent
 {
 public:
-    using Pos = CUL::MATH::Point;
     using TranslationVector = CUL::MATH::Point;
 
     GAME_ENGINE_API TransformComponent( IObject* owner );
 
     GAME_ENGINE_API void setPositionToParent( const glm::vec3& position );
-    GAME_ENGINE_API const glm::vec3 getPositionToParent() const;
+    GAME_ENGINE_API const glm::vec3& getPositionToParent() const;
 
     GAME_ENGINE_API void setPositionAbsolute( const glm::vec3& position );
     GAME_ENGINE_API const glm::vec3 getPositionAbsolut() const;
@@ -40,13 +39,13 @@ public:
 
     GAME_ENGINE_API const glm::mat4 getModel() const;
 
-    GAME_ENGINE_API void setSize( const Pos& size );
+    GAME_ENGINE_API void setSize( const glm::vec3& size );
     GAME_ENGINE_API const glm::vec3& getSize() const;
 
     GAME_ENGINE_API const glm::vec3& getPivot() const;
     GAME_ENGINE_API glm::vec3 getPivotNormalized();
-    GAME_ENGINE_API void setPivot( const Pos& pivot );
-    GAME_ENGINE_API void setPivotNormalized( const Pos& pivot );
+    GAME_ENGINE_API void setPivot( const glm::vec3& pivot );
+    GAME_ENGINE_API void setPivotNormalized( const glm::vec3& pivot );
 
     GAME_ENGINE_API void addOnChangeCallback(
         const String& callbackName,

@@ -18,7 +18,7 @@ void TransformComponent::setPositionToParent( const glm::vec3& position )
     PositionChangeDelegate.execute( position.x, position.y, position.z );
 }
 
-const glm::vec3 TransformComponent::getPositionToParent() const
+const glm::vec3& TransformComponent::getPositionToParent() const
 {
     return m_pos;
 }
@@ -158,9 +158,9 @@ const glm::vec3& TransformComponent::getPivot() const
     return m_pivot;
 }
 
-void TransformComponent::setPivot( const TransformComponent::Pos& pivot )
+void TransformComponent::setPivot( const glm::vec3& pivot )
 {
-    m_pivot = pivot.toGlmVec();
+    m_pivot = pivot;
     m_pivotNormalized.x =
         CUL::MATH::Utils::floatIsZero( m_size.x ) ? 0.f : m_pivot.x / m_size.x;
     m_pivotNormalized.y =
@@ -171,9 +171,9 @@ void TransformComponent::setPivot( const TransformComponent::Pos& pivot )
     changeSizeDelegate.execute();
 }
 
-void TransformComponent::setPivotNormalized( const Pos& pivot )
+void TransformComponent::setPivotNormalized( const glm::vec3& pivot )
 {
-    m_pivotNormalized = pivot.toGlmVec();
+    m_pivotNormalized = pivot;
     m_pivot = m_size * m_pivotNormalized;
 }
 
@@ -194,9 +194,9 @@ void TransformComponent::addOnChangeCallback(
     }
 }
 
-void TransformComponent::setSize( const Pos& size )
+void TransformComponent::setSize( const glm::vec3& size )
 {
-    m_size = size.toGlmVec();
+    m_size = size;
     m_pivot = m_size * m_pivotNormalized;
     changeSizeDelegate.execute();
 }

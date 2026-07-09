@@ -98,16 +98,31 @@ void Game::afterInit()
         const float xOffset = size / 2 - backgroundW / 2;
         const float yOffset = size / 2 - backgroundH / 2;
 
+        std::size_t i{ 0u };
+
         for( size_t row = 0; row < rowsCount; ++row )
         {
             for( size_t col = 0; col < colsCount; ++col )
             {
                 LOGLW::Quad* quad = m_oglw->createQuad( nullptr );
                 quad->getTransform()->setPivot( { 0.5f, 0.5f, 0.f } );
-                static float scale = 20.f;
+                static float scale = 1.f;
                 quad->getTransform()->setScale( { scale, scale, scale } );
+                quad->getTransform()->setSize( { size, size, size } );
 
                 quad->getTransform()->setPositionToParent( { xOffset + col * ( size + offset ), yOffset + row * ( size + offset ), 0.f } );
+
+                if( i % 2 == 0 )
+                {
+                    quad->setColor( LOGLW::ColorE::WHITE );
+                }
+                else
+                {
+                    quad->setColor( LOGLW::ColorE::BLACK );
+                }
+
+                ++i;
+
                 m_background[row][col] = quad;
                 ++index;
             }
