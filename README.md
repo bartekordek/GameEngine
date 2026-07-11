@@ -1,5 +1,5 @@
 [![Linux build](https://github.com/bartekordek/GameEngine/actions/workflows/cmake.yml/badge.svg)](https://github.com/bartekordek/GameEngine/actions/workflows/cmake.yml)
-[![Windows Build](https://github.com/bartekordek/GameEngine/actions/workflows/cmake-windows.yml/badge.svg)](https://github.com/bartekordek/GameEngine/actions/workflows/cmake-windows.yml)
+[![Windows Build](https://github.com/bartekordek/GameEngine/actions/workflows/cmake-win.yml/badge.svg)](https://github.com/bartekordek/GameEngine/actions/workflows/cmake-win.yml)
 
 # GameEngine
 

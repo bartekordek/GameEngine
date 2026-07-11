@@ -1,6 +1,14 @@
 name: Windows Build
 
-on: [push, pull_request]
+on:
+  push:
+    paths-ignore:
+      - '.github/workflows/cmake-linux.yml'
+      - '.vscode'
+  pull_request:
+    paths-ignore:
+      - '.github/workflows/cmake-linux.yml'
+      - '.vscode'
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)

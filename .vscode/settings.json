@@ -6,6 +6,6 @@
         "editor.defaultFormatter": "ms-vscode.cpptools"
     },
     "C_Cpp.clang_format_style": "file",
-    "C_Cpp.intelliSenseCachePath": "${workspaceFolder}/.vscode/intellisense",
+    "C_Cpp.intelliSenseCachePath": "${workspaceFolder}/.intellisense",
     "C_Cpp.intelliSenseCacheSize": 4096
 }
