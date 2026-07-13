@@ -66,7 +66,7 @@ void CSphere::init()
     sd.FragmentShader = "embedded_shaders/basic_color.frag";
     sd.VertexShader = "embedded_shaders/basic_pos.vert";
 
-    getProgram()->createFrom( EExecuteType::WaitForCompletion, sd );
+    setProgram( getEngine().createProgram( EExecuteType::WaitForCompletion, sd ) );
     m_color = CUL::Graphics::ColorE::RED;
 
     m_transformComponent->changeSizeDelegate.addDelegate(
@@ -187,6 +187,7 @@ void CSphere::fillVerticesNormalsTex()
 
 void CSphere::render()
 {
+    getProgram()->enable();
     setTransformationAndColor();
     getVao()->render();
 }
