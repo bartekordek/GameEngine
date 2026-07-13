@@ -143,7 +143,6 @@ void ShaderEditor::afterInit()
         currentPtr->Editor.SetLanguageDefinition( languageDefinition );
     }
 
-    m_vao = m_engine->createVAO( "ShaderEditor::vao" );
     LOGLW::VertexData vertData;
     // std::vector<std::uint32_t> indices = {
     //     // note that we start from 0!
@@ -186,12 +185,15 @@ void ShaderEditor::afterInit()
 
     vertData.primitiveType = LOGLW::PrimitiveType::TRIANGLES;
 
-    m_vao->addVertexBuffer( vertData );
-    m_vao->setProgram( m_engine->createProgram() );
-    m_vao->toggleRenderOnMyOwn( true );
+    LOGLW::ShaderData sd;
+    sd.ShaderName = "ShaderEditor::shader";
+    sd.FragmentShader = "fragmentShader.frag";
+    sd.VertexShader = "vertexShader.vert";
+    m_shader = m_engine->createProgram( LOGLW::EExecuteType::WaitForCompletion, sd );
     m_transformComponent = std::make_unique<LOGLW::TransformComponent>( nullptr );
 
     m_sphere = new LOGLW::CSphere( nullptr );
+    m_sphere->setProgram( m_shader );
 }
 
 void ShaderEditor::timer()
@@ -201,22 +203,24 @@ void ShaderEditor::timer()
 void ShaderEditor::guiIteration( float x, float y )
 {
     drawLeftWindow( x, y );
-    drawRightWindow( x, y );
+    //drawRightWindow( x, y );
 }
 
 void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
 {
     const static String name = "Left";
-    ImGui::Begin( *name, nullptr,
-                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
+    ImGui::Begin( *name,
+                  nullptr,
+                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+                      ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
 
     auto winSize = m_engine->getMainWindow()->getSize();
     const auto targetHeight = (float)winSize.H * 1.0f;
     const float menuWidth = (float)winSize.W * 0.3f;
-    const float editorWidth = menuWidth / 1.25f;
+    const float editorWidth = menuWidth / 1.f;
     const float editorHeight = targetHeight * 0.5f;
     // const float windowX = (float)winSize.w - menuWidth; // Left side.
-    const float windowX = x;
+    const float windowX = (float)winSize.W - editorWidth;
 
     ImGui::SetWindowPos( { windowX, 2.f } );
     ImGui::SetWindowSize( { menuWidth, targetHeight } );
@@ -242,23 +246,26 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
 
     if( ImGui::Button( "Link" ) )
     {
-        m_vao->getProgram()->link( LOGLW::EExecuteType::Now );
+        m_shader->link( LOGLW::EExecuteType::Now );
     }
 
     if( ImGui::Button( "Validate" ) )
     {
-        m_vao->getProgram()->validate();
+        m_shader->validate();
     }
 
-    if( m_vao->getProgram()->getIsLinked() )
+    if( m_shader->getIsLinked() )
     {
         if( ImGui::TreeNode( "Uniforms" ) )
         {
-            const std::vector<String> uniformNames = m_vao->getProgram()->getUniformsNames();
+            const std::vector<String> uniformNames = m_shader->getUniformsNames();
             for( const String& uniformName : uniformNames )
             {
-                const auto& uniformVal = m_vao->getProgram()->getUniformValue( uniformName );
-                ImGui::Text( "ID: %d, Name: %s, Type: %s", uniformVal.Id, *uniformVal.Name, *uniformVal.TypeName );
+                const auto& uniformVal = m_shader->getUniformValue( uniformName );
+                ImGui::Text( "ID: %d, Name: %s, Type: %s",
+                             uniformVal.Id,
+                             *uniformVal.Name,
+                             *uniformVal.TypeName );
                 if( uniformVal.Type == LOGLW::DataType::FLOAT )
                 {
                     ImGui::SameLine();
@@ -271,14 +278,20 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
                 }
                 if( uniformVal.Type == LOGLW::DataType::FLOAT_MAT4 )
                 {
-                    const glm::mat4 currentValue = std::get<glm::mat4>( uniformVal.Value );
+                    const glm::mat4 currentValue =
+                        std::get<glm::mat4>( uniformVal.Value );
                     constexpr std::size_t bufferSize{ 32u };
                     char tableName[bufferSize];
-                    snprintf( tableName, bufferSize, "%s - %s", *m_vao->getProgram()->getName(), *uniformName );
+                    snprintf( tableName,
+                              bufferSize,
+                              "%s - %s",
+                              *m_shader->getName(),
+                              *uniformName );
 
-                    static ImGuiTableFlags flags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable |
-                                                   ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV |
-                                                   ImGuiTableFlags_ContextMenuInBody;
+                    static ImGuiTableFlags flags =
+                        ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable |
+                        ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV |
+                        ImGuiTableFlags_ContextMenuInBody;
                     if( ImGui::BeginTable( tableName, 4, flags ) )
                     {
                         for( std::int32_t row = 0; row < 4; ++row )
@@ -306,12 +319,14 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
 void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
 {
     const static String name = "Right";
-    ImGui::Begin( *name, nullptr,
-                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
+    ImGui::Begin( *name,
+                  nullptr,
+                  ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize |
+                      ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar );
 
     auto winSize = m_engine->getMainWindow()->getSize();
     const auto targetHeight = (float)winSize.H * 1.0f;
-    const float menuWidth = (float)winSize.W * 0.3f;
+    const float menuWidth = (float)winSize.W * 0.1f;
     const float rightPadding = menuWidth + 0.f;
     const float windowX = (float)winSize.W - rightPadding;  // Right side.
 
@@ -323,13 +338,18 @@ void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
 
     ImGui::Text( "Eye pos: x: %f, y: %f, z: %f", eyePos.x, eyePos.y, eyePos.z );
     constexpr float toDeg = 180.f / CUL::Math::PI_F;
-    ImGui::Text( "Eye pos in spherical [rad]: theta: %f, phi: %f, r: %f", m_cameraPosSp.getTheta(), m_cameraPosSp.getPhi(),
+    ImGui::Text( "Eye pos in spherical [rad]: theta: %f, phi: %f, r: %f",
+                 m_cameraPosSp.getTheta(),
+                 m_cameraPosSp.getPhi(),
                  m_cameraPosSp.getR() );
-    ImGui::Text( "Eye pos in spherical [deg]: theta: %f, phi: %f, r: %f", m_cameraPosSp.getTheta() * toDeg, m_cameraPosSp.getPhi() * toDeg,
+    ImGui::Text( "Eye pos in spherical [deg]: theta: %f, phi: %f, r: %f",
+                 m_cameraPosSp.getTheta() * toDeg,
+                 m_cameraPosSp.getPhi() * toDeg,
                  m_cameraPosSp.getR() );
 
     float theta = m_cameraPosSp.getTheta();
-    if( ImGui::SliderFloat( "Theta Rad", &theta, 0.0f, CUL::MATH::SphericalCoord<float>::TwoPi * 0.5f ) )
+    if( ImGui::SliderFloat(
+            "Theta Rad", &theta, 0.0f, CUL::MATH::SphericalCoord<float>::TwoPi * 0.5f ) )
     {
         m_cameraPosSp.setTheta( theta );
         m_cameraPosSp.toCarthezian( m_eye.x, m_eye.y, m_eye.z );
@@ -346,7 +366,8 @@ void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
     }
 
     float phi = m_cameraPosSp.getPhi();
-    if( ImGui::SliderFloat( "Phi Rad", &phi, 0.f, CUL::MATH::SphericalCoord<float>::TwoPi * 0.5f ) )
+    if( ImGui::SliderFloat(
+            "Phi Rad", &phi, 0.f, CUL::MATH::SphericalCoord<float>::TwoPi * 0.5f ) )
     {
         m_cameraPosSp.setPhi( phi );
         m_cameraPosSp.toCarthezian( m_eye.x, m_eye.y, m_eye.z );
@@ -435,7 +456,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const String&
             editorState.File->overwriteContents( editorState.CachedText );
             editorState.File->saveFile();
 
-            auto result = m_vao->getProgram()->reCompileShader( LOGLW::EExecuteType::Now, editorState.File->getPath(), false );
+            auto result = m_shader->reCompileShader( LOGLW::EExecuteType::Now, editorState.File->getPath(), false );
             if( result.State == LOGLW::EShaderUnitState::Error )
             {
                 editorState.ShaderUnitState = EShaderUnitState::Error;
@@ -492,8 +513,7 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const String&
             editorState.CachedText = editorText;
         }
     }
-    LOGLW::ShaderProgram* program = m_vao->getProgram();
-    if( program && program->getIsLinked() )
+    if( m_shader->getIsLinked() )
     {
         const LOGLW::Camera& camera = m_engine->getCamera();
         const glm::mat4 projectionMatrix = camera.getProjectionMatrix();
@@ -503,9 +523,9 @@ void ShaderEditor::drawEditor( float x, float y, float w, float h, const String&
         m_transformComponent->setPositionAbsolute( { 1.f, 1.f, 0.f } );
         const glm::mat4 model = m_transformComponent->getModel();
 
-        program->setUniform( LOGLW::EExecuteType::Now, "projection", projectionMatrix );
-        program->setUniform( LOGLW::EExecuteType::Now, "view", viewMatrix );
-        program->setUniform( LOGLW::EExecuteType::Now, "model", model );
+        m_shader->setUniform( LOGLW::EExecuteType::Now, "projection", projectionMatrix );
+        m_shader->setUniform( LOGLW::EExecuteType::Now, "view", viewMatrix );
+        m_shader->setUniform( LOGLW::EExecuteType::Now, "model", model );
     }
 
     editorState.Editor.Render( *name, ImVec2( w, h ) );

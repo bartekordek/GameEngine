@@ -89,8 +89,9 @@ private:
 
     std::unordered_map<std::string, std::unique_ptr<EditorState>> m_editors;
 
-    LOGLW::VertexArray* m_vao{ nullptr };
     std::unique_ptr<LOGLW::TransformComponent> m_transformComponent;
+
+    LOGLW::ShaderProgram* m_shader{ nullptr };
 
     LOGLW::WinSize m_winSize;
     LOGLW::WinPos m_winPos;
