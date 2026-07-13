@@ -8,8 +8,8 @@ int main( int argc, char** argv )
     cu.setArgs( argc, argv );
 
     LOGLW::WinSize size;
-    size.W = 1920;
-    size.H = 1080;
+    size.W = 1400;
+    size.H = 800;
 
     LOGLW::WinPos pos;
     pos.X = 256;
