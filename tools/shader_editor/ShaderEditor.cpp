@@ -216,7 +216,7 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
 
     auto winSize = m_engine->getMainWindow()->getSize();
     const auto targetHeight = (float)winSize.H * 1.0f;
-    const float menuWidth = (float)winSize.W * 0.3f;
+    const float menuWidth = (float)winSize.W * 0.4f;
     const float editorWidth = menuWidth / 1.f;
     const float editorHeight = targetHeight * 0.5f;
     // const float windowX = (float)winSize.w - menuWidth; // Left side.
@@ -294,15 +294,21 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
                         ImGuiTableFlags_ContextMenuInBody;
                     if( ImGui::BeginTable( tableName, 4, flags ) )
                     {
+                        std::int32_t rowId{ 0 };
                         for( std::int32_t row = 0; row < 4; ++row )
                         {
+                            ImGui::PushID( rowId++ );
                             ImGui::TableNextRow();
+                            std::int32_t cellId{ 0 };
                             for( std::int32_t column = 0; column < 4; ++column )
                             {
+                                ImGui::PushID( cellId++ );
                                 ImGui::TableSetColumnIndex( column );
                                 float f0 = currentValue[row][column];
                                 ImGui::DragFloat( "df", &f0, 0.005f );
+                                ImGui::PopID();
                             }
+                            ImGui::PopID();
                         }
                         ImGui::EndTable();
                     }
