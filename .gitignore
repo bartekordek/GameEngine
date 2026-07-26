@@ -25,7 +25,6 @@
 *.sdf
 *.suo
 *.tlog
-*.txt
 *.VC.db
 *.VC.db*
 *~ml
