@@ -17,7 +17,8 @@ public:
         OPENGL_ES2,
         DIRECTX_9,
         DIRECTX_11,
-        DIRECTX_12
+        DIRECTX_12,
+        VULKAN,
     };
 
     static RendererType convertToEnum( const String& name );
