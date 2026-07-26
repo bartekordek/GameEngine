@@ -33,6 +33,10 @@ RenderTypes::RendererType RenderTypes::convertToEnum( const String& name )
     {
         return RendererType::OPENGL_ES2;
     }
+    else if( lowerStr.equals( CUL_STR( "vulkan" ) ) )
+    {
+        return RendererType::VULKAN;
+    }
 
     return RendererType::NONE;
 }
