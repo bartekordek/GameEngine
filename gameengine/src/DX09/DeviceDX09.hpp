@@ -96,8 +96,6 @@ private:
     void bindTexture( const unsigned int textureId ) override;
     void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) override;
     void updateTextureData( const TextureInfo& ti, void* data ) override;
-    void matrixStackPush() override;
-    void matrixStackPop() override;
     void toggleDebugOutput( bool enable ) override;
     void checkLastCommandForErrors() override;
 

@@ -187,9 +187,6 @@ private:
     void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) override;
     void freeTexture( std::uint32_t textureId ) override;
 
-    void matrixStackPush() override;
-    void matrixStackPop() override;
-
     bool m_legacy = false;
 
     unsigned int m_currentMatrix = 0;

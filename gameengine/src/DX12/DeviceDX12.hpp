@@ -127,8 +127,6 @@ private:
     void bindTexture( const unsigned int textureId ) override;
     void setTextureParameter( uint8_t textureId, const TextureParameters type, const TextureFilterType val ) override;
     void updateTextureData( const TextureInfo& ti, void* data ) override;
-    void matrixStackPush() override;
-    void matrixStackPop() override;
     unsigned getGPUTotalAvailableMemoryKb() override;
     unsigned getGPUCurrentAvailableMemoryKb() override;
     void toggleDebugOutput( bool enable ) override;

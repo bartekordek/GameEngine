@@ -312,8 +312,8 @@ public:
     virtual void updateTextureData( const TextureInfo& ti, void* data ) = 0;
     virtual void freeTexture( std::uint32_t textureId );
 
-    virtual void matrixStackPush() = 0;
-    virtual void matrixStackPop() = 0;
+    virtual void matrixStackPush();
+    virtual void matrixStackPop();
 
     CUL::GUTILS::Version getVersion() const;
 

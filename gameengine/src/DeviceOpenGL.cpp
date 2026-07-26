@@ -2297,30 +2297,6 @@ void DeviceOpenGL::freeTexture( std::uint32_t textureId )
     }
 }
 
-void DeviceOpenGL::matrixStackPush()
-{
-    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
-    {
-        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
-    }
-
-    log( "glPopMatrix();" );
-    glPushMatrix();
-    ++m_currentMatrix;
-}
-
-void DeviceOpenGL::matrixStackPop()
-{
-    if( !RunOnRenderThread::getInstance().getIsRenderThread() )
-    {
-        CUL::Assert::simple( false, "NOT IN THE RENDER THREAD." );
-    }
-
-    log( "glPopMatrix();" );
-    glPopMatrix();
-    --m_currentMatrix;
-}
-
 DeviceOpenGL::~DeviceOpenGL()
 {
     CUL::Assert::simple( 0 == m_currentMatrix,

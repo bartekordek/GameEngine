@@ -308,14 +308,6 @@ void DeviceDX09::updateTextureData( const TextureInfo& ti, void* data )
 {
 }
 
-void DeviceDX09::matrixStackPush()
-{
-}
-
-void DeviceDX09::matrixStackPop()
-{
-}
-
 void DeviceDX09::toggleDebugOutput( bool enable )
 {
 }

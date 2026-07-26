@@ -739,14 +739,6 @@ void DeviceDX12::setTextureParameter( uint8_t, const TextureParameters, const Te
 {
 }
 
-void DeviceDX12::matrixStackPush()
-{
-}
-
-void DeviceDX12::matrixStackPop()
-{
-}
-
 unsigned DeviceDX12::getGPUTotalAvailableMemoryKb()
 {
     return 0;
