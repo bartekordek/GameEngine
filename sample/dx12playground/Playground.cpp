@@ -67,74 +67,7 @@ void Playground::run()
 
 void Playground::afterInit()
 {
-    //m_engine->drawOrigin( true );
     m_engine->drawDebugInfo( true );
-
-    // m_mainWindow = m_engine->getMainWindow();
-    // m_mainWindow->setBackgroundColor( LOGLW::ColorS( 1.0f, 0.0f, 0.0f, 1.0f ) );
-    // const auto& winSize = m_mainWindow->getSize();
-
-    // m_camera = &m_engine->getCamera();
-
-    // m_camera->setSize( { winSize.getWidth(), winSize.getHeight() } );
-    // m_camera->setEyePos( { 0.0f, 0.0f, 32.f } );
-    // m_camera->setCenter( { 0.f, 0.f, -10.f } );
-    // m_camera->setZNear( 1.f );
-
-    // m_mainWindow->toggleFpsCounter( true, 8u );
-
-    // m_engine->drawDebugInfo( true );
-    // m_engine->drawOrigin( true );
-
-    // const float size = 32.f;
-    // LOGLW::TriangleData values;
-    // values[0] = LOGLW::PointType( size, -size, 0.0f );
-    // values[1] = LOGLW::PointType{ -size, -size, 0.0f };
-    // values[2] = LOGLW::PointType{ -size, size, 0.0f };
-
-    // const float z = 26.f;
-    // const float x = 1.f;
-    // const float yTriangle = -1.f;
-    // const float yCube = -3.f;
-
-    // m_triangleModern = m_engine->createTriangle( nullptr, false );
-    // m_triangleModern->setColor( LOGLW::ColorE::RED );
-    // m_triangleModern->getTransform()->setPositionAbsolute( { -x, yTriangle, z } );
-    // m_triangleModern->setName( "m_triangleModern" );
-
-    // m_triangleLegacy = m_engine->createTriangle( nullptr, true );
-    // m_triangleLegacy->setColor( LOGLW::ColorE::BLUE );
-    // m_triangleLegacy->getTransform()->setPositionAbsolute( { x, yTriangle, z } );
-    // m_triangleLegacy->setName( "m_triangleLegacy" );
-    //
-
-    // m_quadModern = m_engine->createQuad( nullptr );
-    // m_quadModern->setName( "m_quadModern" );
-    // m_quadModern->setColor( CUL::Graphics::ColorE::RED );
-    // m_quadModern->getTransform()->setPositionAbsolute( { 0.f, 4.f, z } );
-    // m_quadModern->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
-    // m_quadModern->getTransform()->setScale( { 1.f, 1.f, 0.f } );
-
-    // m_quadLegacy = m_engine->createQuad( nullptr, true );
-    // m_quadLegacy->setName( "m_quadLegacy" );
-    // m_quadLegacy->setColor( CUL::Graphics::ColorE::BLUE );
-    // m_quadLegacy->getTransform()->setPositionAbsolute( { 0.f, 2.f, z } );
-    // m_quadLegacy->getTransform()->setPivot( { 1.f, 0.5f, 0.f } );
-    // m_quadLegacy->getTransform()->setScale( { 1.f, 1.f, 0.f } );
-
-    // g_sprite = m_engine->getObjectFactory()->createSprite( "../../media/texture.png" );
-    // g_sprite->setName( "g_sprite" );
-    // g_sprite->getTransform()->setPositionToParent( { -0.2f, 0.f, 4.f } );
-
-    // m_cubeModern = m_engine->createCube( false );
-    // m_cubeModern->getTransform()->setPositionAbsolute( { -x, yCube, z } );
-    // m_cubeModern->setColor( CUL::Graphics::ColorE::BLUE );
-
-    // m_cubeLegacy = m_engine->createCube( true );
-    // m_cubeLegacy->getTransform()->setPositionAbsolute( { x, yCube, z } );
-    // m_cubeLegacy->setColor( CUL::Graphics::ColorE::RED );
-
-    // m_timer->runEveryPeriod( [this] (){timer(); }, 40000 );
 
     HRESULT hr = D3D12CreateDevice( nullptr, D3D_FEATURE_LEVEL_11_0, __uuidof( ID3D12Device ), (void**)&m_device );
 
