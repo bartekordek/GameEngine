@@ -185,6 +185,16 @@ std::vector<std::string> IRenderDevice::listExtensions()
     return result;
 }
 
+void IRenderDevice::matrixStackPush()
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
+void IRenderDevice::matrixStackPop()
+{
+    throw std::logic_error( "Method not implemented" );
+}
+
 unsigned IRenderDevice::getGPUTotalAvailableMemoryKb()
 {
     throw std::logic_error( "Method not implemented" );
