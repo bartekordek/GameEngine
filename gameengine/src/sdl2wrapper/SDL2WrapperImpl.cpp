@@ -5,6 +5,7 @@
 #include "gameengine/Events/IWindowEventListener.hpp"
 
 #include "sdl2wrapper/IMPORT_SDL.hpp"
+#include "CUL/GenericUtils/ConsoleUtilities.hpp"
 
 #include "CUL/ITimer.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
@@ -14,7 +15,8 @@
     #pragma warning( disable : 4710 )
 #endif
 
-using namespace LOGLW;
+namespace LOGLW
+{
 
 constexpr bool SDLBoolToCppBool( const SDL_bool value )
 {
@@ -44,7 +46,8 @@ void SDL2WrapperImpl::init( const WinData& wd, const CUL::FS::Path& configPath )
     m_configFile = m_culInterface->getConfig();
 
     m_logger->log( "Initializing SDL..." );
-    const auto sdlInitSuccess = SDL_Init( SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS );
+    const auto sdlInitSuccess =
+        SDL_Init( SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_EVENTS );
     if( 0 != sdlInitSuccess )
     {
         CUL::Assert::simple( false, SDL_GetError() );
@@ -55,17 +58,24 @@ void SDL2WrapperImpl::init( const WinData& wd, const CUL::FS::Path& configPath )
     m_logger->logInfo( "Available cache size: %d", SDL_GetCPUCacheLineSize() );
 
     const auto hasRDTSC = SDLBoolToCppBool( SDL_HasRDTSC() );
-    m_logger->logInfo( "CPU has the RDTSC instruction: %s,", hasRDTSC ? "true" : "false" );
+    m_logger->logInfo( "CPU has the RDTSC instruction: %s,",
+                       hasRDTSC ? "true" : "false" );
 
     m_logger->logInfo( "Available render drivers count: %d \n", fetchRenderTypes() );
 
-    m_logger->log( "#################################################################################" );
-    m_logger->log( "#################################################################################" );
+    m_logger->log(
+        "################################################################################"
+        "#" );
+    m_logger->log(
+        "################################################################################"
+        "#" );
     m_logger->log( "Renderers:" );
 
     if( m_windowData.RendererType == RenderTypes::RendererType::NONE )
     {
-        const String rendererName = m_configFile ? m_configFile->getValue( "RENDERER" ).getValue() : CUL_STR( "" );
+        const String rendererName = m_configFile
+                                        ? m_configFile->getValue( "RENDERER" ).getValue()
+                                        : CUL_STR( "" );
         if( rendererName.empty() )
         {
             m_windowData.RendererType = RenderTypes::RendererType::OPENGL_MODERN;
@@ -76,20 +86,54 @@ void SDL2WrapperImpl::init( const WinData& wd, const CUL::FS::Path& configPath )
         }
     }
 
+    auto& cu = CUL::GUTILS::ConsoleUtilities::getInstance();
+    const std::optional<CUL::String> rendererFlagValue =
+        cu.getFlagValue( CUL_STR( "-renderer" ) );
+    if( rendererFlagValue )
+    {
+        m_windowData.RendererType =
+            RenderTypes::convertToEnum( rendererFlagValue->getUtfChar() );
+    }
+
     m_windowFactory = new WindowCreatorConcrete( m_logger );
-    m_mainWindow = dynamic_cast<RegularSDL2Window*>( m_windowFactory->createWindow( m_windowData, this ) );
+    m_mainWindow = dynamic_cast<RegularSDL2Window*>(
+        m_windowFactory->createWindow( m_windowData, this ) );
     m_windows[m_mainWindow->getWindowID()] = std::unique_ptr<IWindow>( m_mainWindow );
 
     if( ( m_windowData.RendererType == RenderTypes::RendererType::DIRECTX_9 ) ||
         ( m_windowData.RendererType == RenderTypes::RendererType::DIRECTX_11 ) )
     {
         Uint32 flags = 0u;
-        m_renderer = SDL_CreateRenderer( m_mainWindow->getSDLWindow(), m_renderers[m_windowData.RendererType], flags );
+        m_renderer = SDL_CreateRenderer(
+            m_mainWindow->getSDLWindow(), m_renderers[m_windowData.RendererType], flags );
+    }
+    else if( m_windowData.RendererType == RenderTypes::RendererType::VULKAN )
+    {
+        const std::int32_t hasVulkan = SDL_Vulkan_LoadLibrary( nullptr );
+        if( hasVulkan != 0 )
+        {
+            CUL::Assert::simple( false, "Failed to load Vulkan library" );
+        }
+
+        uint32_t extensionCount;
+        const char** extensionNames = 0;
+        SDL_Vulkan_GetInstanceExtensions(
+            m_mainWindow->getSDLWindow(), &extensionCount, nullptr );
+        extensionNames = new const char*[extensionCount];
+        SDL_Vulkan_GetInstanceExtensions(
+            m_mainWindow->getSDLWindow(), &extensionCount, extensionNames );
+        for( uint32_t i = 0u; i < extensionCount; ++i )
+        {
+            m_logger->logInfo( "Vulkan extension: %s", extensionNames[i] );
+        }
+        delete[] extensionNames;
     }
 
     createKeys();
 
-    for( auto i = static_cast<MouseButtonIndex>( SDL_BUTTON_LEFT ); i <= static_cast<MouseButtonIndex>( SDL_BUTTON_X2 ); ++i )
+    for( auto i = static_cast<MouseButtonIndex>( SDL_BUTTON_LEFT );
+         i <= static_cast<MouseButtonIndex>( SDL_BUTTON_X2 );
+         ++i )
     {
         m_mouseData.setState( i, true );
     }
@@ -107,27 +151,36 @@ size_t SDL2WrapperImpl::fetchRenderTypes()
     SDL_RendererInfo renderInfo;
     for( size_t i = 0; i < renderDriversCount; ++i )
     {
-        m_logger->log( "#################################################################################" );
+        m_logger->log(
+            "############################################################################"
+            "#####" );
         if( SDL_GetRenderDriverInfo( i, &renderInfo ) != 0 )
         {
             CUL::Assert::check( 0, "Cannnot get driver info for index" );
         }
-       
+
         m_logger->logInfo( "Renderer name: %s", renderInfo.name );
-        m_logger->logInfo( "Max texture size: %d : %d ", renderInfo.max_texture_width, renderInfo.max_texture_height );
+        m_logger->logInfo( "Max texture size: %d : %d ",
+                           renderInfo.max_texture_width,
+                           renderInfo.max_texture_height );
         m_logger->logInfo( "Available texture formats: " );
-        for( Uint32 iTexFormat = 0; iTexFormat < renderInfo.num_texture_formats; ++iTexFormat )
+        for( Uint32 iTexFormat = 0; iTexFormat < renderInfo.num_texture_formats;
+             ++iTexFormat )
         {
-            m_logger->logInfo( "%s", SDL_GetPixelFormatName( renderInfo.texture_formats[iTexFormat] ) );
+            m_logger->logInfo(
+                "%s", SDL_GetPixelFormatName( renderInfo.texture_formats[iTexFormat] ) );
         }
 
-        m_logger->log( "#################################################################################\n" );
+        m_logger->log(
+            "############################################################################"
+            "#####\n" );
 
         m_renderers[RenderTypes::convertToEnum( renderInfo.name )] = i;
     }
 
     m_renderers[RenderTypes::RendererType::OPENGL_LEGACY] = 2;
     m_renderers[RenderTypes::RendererType::OPENGL_MODERN] = 2;
+    m_renderers[RenderTypes::RendererType::VULKAN] = 2137;
 
 #if defined( CUL_WINDOWS )
     m_renderers[RenderTypes::RendererType::DIRECTX_12] = renderDriversCount;
@@ -217,7 +270,9 @@ void SDL2WrapperImpl::printAvailableRenderers() const
     m_logger->log( "SDL2WrapperImpl::printAvailableRenderers():" );
     for( const auto& renderer : m_renderers )
     {
-        m_logger->logInfo( "Name: %s, id: %d", RenderTypes::convertToString( renderer.first ).getUtfChar(), renderer.second );
+        m_logger->logInfo( "Name: %s, id: %d",
+                           RenderTypes::convertToString( renderer.first ).getUtfChar(),
+                           renderer.second );
     }
 }
 
@@ -230,7 +285,8 @@ void SDL2WrapperImpl::refreshScreen()
 }
 void SDL2WrapperImpl::runEventLoop()
 {
-    m_culInterface->getThreadUtils().setThreadName( "SDL2WrapperImpl::runEventLoop()/main" );
+    m_culInterface->getThreadUtils().setThreadName(
+        "SDL2WrapperImpl::runEventLoop()/main" );
     m_logger->log( "SDL2WrapperImpl::runEventLoop()::Begin" );
 
     while( eventLoopActive )
@@ -333,7 +389,11 @@ void SDL2WrapperImpl::handleMouseEvent( const SDL_Event& event )
     else if( event.type == SDL_MOUSEWHEEL )
     {
         const auto we = event.wheel;
-        m_mouseData.setWheel( we.x, we.y, we.direction == SDL_MOUSEWHEEL_NORMAL ? LOGLW::WheelDirection::UP : LOGLW::WheelDirection::DOWN );
+        m_mouseData.setWheel( we.x,
+                              we.y,
+                              we.direction == SDL_MOUSEWHEEL_NORMAL
+                                  ? LOGLW::WheelDirection::UP
+                                  : LOGLW::WheelDirection::DOWN );
     }
 }
 
@@ -372,7 +432,8 @@ void SDL2WrapperImpl::notifyKeyboardCallbacks( const KeyboardState& key )
     }
 }
 
-void SDL2WrapperImpl::registerKeyboardEventCallback( const std::function<void( const KeyboardState& key )>& callback )
+void SDL2WrapperImpl::registerKeyboardEventCallback(
+    const std::function<void( const KeyboardState& key )>& callback )
 {
     m_keyCallbacks.push_back( callback );
 }
@@ -525,3 +586,4 @@ SDL2WrapperImpl::~SDL2WrapperImpl()
 #ifdef _MSC_VER
     #pragma warning( pop )
 #endif
+}  // namespace LOGLW

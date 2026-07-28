@@ -7,39 +7,23 @@ int main( int argc, char** argv )
     auto& cu = CUL::GUTILS::ConsoleUtilities::getInstance();
     cu.setArgs( argc, argv );
 
-    LOGLW::WinSize size;
-    size.W = 1400;
-    size.H = 800;
+    auto width =
+        cu.getFlagValue( "-w" ) ? cu.getFlagValue( "-w" ).value() : CUL_STR( "1280" );
+    auto height =
+        cu.getFlagValue( "-h" ) ? cu.getFlagValue( "-h" ).value() : CUL_STR( "800" );
 
-    LOGLW::WinPos pos;
-    pos.X = 256;
-    pos.Y = 32;
+    auto x = cu.getFlagValue( "-x" ) ? cu.getFlagValue( "-x" ).value() : CUL_STR( "256" );
+    auto y = cu.getFlagValue( "-y" ) ? cu.getFlagValue( "-y" ).value() : CUL_STR( "256" );
 
-    auto valW = cu.getFlagValue( "-w" ).string();
-    if( !valW.empty() )
-    {
-        size.W = std::stoi( valW );
-    }
+    LOGLW::WinData wd;
+    wd.WindowRes.W = static_cast<std::uint16_t>( width.toInt() );
+    wd.WindowRes.H = static_cast<std::uint16_t>( height.toInt() );
+    wd.Pos.X = x.toInt();
+    wd.Pos.Y = y.toInt();
 
-    auto valH = cu.getFlagValue( "-h" ).string();
-    if( !valH.empty() )
-    {
-        size.H = std::stoi( valH );
-    }
+    wd.CurrentRes = wd.WindowRes;
 
-    auto valX = cu.getFlagValue( "-x" ).string();
-    if( !valX.empty() )
-    {
-        pos.X = std::stoi( valX );
-    }
-
-    auto valY = cu.getFlagValue( "-y" ).string();
-    if( !valY.empty() )
-    {
-        pos.Y = std::stoi( valY );
-    }
-
-    ShaderEditor editor( size, pos );
+    ShaderEditor editor( wd.CurrentRes, wd.Pos );
     editor.run();
 
     return 0;

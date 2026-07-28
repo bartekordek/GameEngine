@@ -54,6 +54,46 @@ set_property( TARGET ${PROJECT_NAME_DYNAMIC} PROPERTY INTERPROCEDURAL_OPTIMIZATI
 set_property( TARGET ${PROJECT_NAME_DYNAMIC} PROPERTY INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL true )
 set_property( TARGET ${PROJECT_NAME_DYNAMIC} PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE true )
 
+if(Vulkan_FOUND)
+    find_program(GLSLC_EXECUTABLE
+        NAMES glslc
+        HINTS "$ENV{VULKAN_SDK}/Bin" "$ENV{VULKAN_SDK}/bin"
+    )
+
+    if(NOT GLSLC_EXECUTABLE)
+        message(FATAL_ERROR "glslc not found - make sure the Vulkan SDK is installed and VULKAN_SDK is set")
+    endif()
+
+    file(GLOB_RECURSE SHADER_SOURCES vk_shaders/*.vert vk_shaders/*.frag )
+    message("Found VK shader files:")
+    foreach(SHADER ${SHADER_SOURCES})
+        message(" - ${SHADER}")
+    endforeach()
+
+    get_filename_component(SHADER_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin ABSOLUTE)
+    message("Shader output directory: ${SHADER_OUTPUT_DIR}")
+
+    set(SPIRV_BINARY_FILES)
+    foreach(SHADER ${SHADER_SOURCES})
+        get_filename_component(FILE_NAME ${SHADER} NAME)
+        set(SPIRV "${SHADER_OUTPUT_DIR}/${FILE_NAME}.spv")
+
+        message("GE: Adding shader ${FILE_NAME}")
+        add_custom_command(
+            OUTPUT ${SPIRV}
+            COMMAND ${GLSLC_EXECUTABLE} ${SHADER} -o ${SPIRV}
+            DEPENDS ${SHADER}
+            COMMENT "Compiling shader ${FILE_NAME}"
+            VERBATIM
+        )
+        list(APPEND SPIRV_BINARY_FILES ${SPIRV})
+    endforeach()
+    add_custom_target(VulkanShaders DEPENDS ${SPIRV_BINARY_FILES})
+
+    add_dependencies(${PROJECT_NAME_STATIC} VulkanShaders)
+    add_dependencies(${PROJECT_NAME_DYNAMIC} VulkanShaders)
+endif()
+
 set( DEPENDENCIES_STATIC
 PUBLIC LOGLW-AdditionalDeps
 PUBLIC cul_static
@@ -72,6 +112,18 @@ PUBLIC SDL2
 PRIVATE rapidobj
 )
 
+if(Vulkan_FOUND)
+message("Vulkan found.")
+list(APPEND DEPENDENCIES_STATIC PRIVATE Vulkan::Vulkan)
+list(APPEND DEPENDENCIES_DYNAMIC PRIVATE Vulkan::Vulkan)
+target_compile_definitions(${PROJECT_NAME_STATIC} PRIVATE VULKAN_ENABLED=1)
+target_compile_definitions(${PROJECT_NAME_DYNAMIC} PRIVATE VULKAN_ENABLED=1)
+else()
+message("Vulkan not found.")
+target_compile_definitions(${PROJECT_NAME_STATIC} PRIVATE VULKAN_ENABLED=0)
+target_compile_definitions(${PROJECT_NAME_DYNAMIC} PRIVATE VULKAN_ENABLED=0)
+endif()
+
 if( MSVC )
     target_link_libraries( ${PROJECT_NAME_STATIC} ${DEPENDENCIES_STATIC} )
     target_link_libraries( ${PROJECT_NAME_DYNAMIC} ${DEPENDENCIES_DYNAMIC} )
@@ -81,12 +133,6 @@ else()
 endif()
 
 if( MSVC )
-#copy glew
-    if( ${CMAKE_BUILD_TYPE} MATCHES "Debug" )
-        set( GLEW_BIN glew32d.dll )
-    else()
-        set( GLEW_BIN glew32.dll )
-    endif()
     add_custom_command( TARGET ${PROJECT_NAME_DYNAMIC}
         POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/bin/$<CONFIG>" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIG>" )

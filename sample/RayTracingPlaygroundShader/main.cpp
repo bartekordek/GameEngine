@@ -6,33 +6,19 @@ int main( int argc, char** argv )
     auto& cu = CUL::GUTILS::ConsoleUtilities::getInstance();
     cu.setArgs( argc, argv );
 
+    auto width =
+        cu.getFlagValue( "-w" ) ? cu.getFlagValue( "-w" ).value() : CUL_STR( "1280" );
+    auto height =
+        cu.getFlagValue( "-h" ) ? cu.getFlagValue( "-h" ).value() : CUL_STR( "800" );
+
+    auto x = cu.getFlagValue( "-x" ) ? cu.getFlagValue( "-x" ).value() : CUL_STR( "256" );
+    auto y = cu.getFlagValue( "-y" ) ? cu.getFlagValue( "-y" ).value() : CUL_STR( "256" );
+
     LOGLW::WinData wd;
-    wd.Pos = { .X = 256, .Y = 256 };
-    wd.WindowRes = { .W = 1920u, .H = 1080u };
-
-    auto valW = cu.getFlagValue( "-w" ).string();
-    if( !valW.empty() )
-    {
-        wd.WindowRes.W = std::stoi( valW );
-    }
-
-    auto valH = cu.getFlagValue( "-h" ).string();
-    if( !valH.empty() )
-    {
-        wd.WindowRes.H = std::stoi( valH );
-    }
-
-    auto valX = cu.getFlagValue( "-x" ).string();
-    if( !valX.empty() )
-    {
-        wd.Pos.X = std::stoi( valX );
-    }
-
-    auto valY = cu.getFlagValue( "-y" ).string();
-    if( !valY.empty() )
-    {
-        wd.Pos.Y = std::stoi( valY );
-    }
+    wd.WindowRes.W = static_cast<std::uint16_t>( width.toInt() );
+    wd.WindowRes.H = static_cast<std::uint16_t>( height.toInt() );
+    wd.Pos.X = x.toInt();
+    wd.Pos.Y = y.toInt();
 
     wd.CurrentRes = wd.WindowRes;
 

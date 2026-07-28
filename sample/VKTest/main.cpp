@@ -1,17 +1,20 @@
 #include <iostream>
 #include <vector>
+#define SDL_MAIN_HANDLED
 #include <SDL.h>
+
 #include <SDL_vulkan.h>
 #include <vulkan/vulkan.hpp>
+
+
 #include <optional>
 #include <set>
 #include <fstream>
+#include <cstring>
+#include <algorithm>
+#include <limits>
+#include <stdexcept>
 
-#if defined( WIN32 )
-    #pragma comment( linker, "/subsystem:windows" )
-    #define VK_USE_PLATFORM_WIN32_KHR
-    #define PLATFORM_SURFACE_EXTENSION_NAME VK_KHR_WIN32_SURFACE_EXTENSION_NAME
-#endif  // #if defined(WIN32)
 
 #define APP_NAME "hello-triangle"
 #define ARRAY_SIZE( a ) ( sizeof( a ) / sizeof( a[0] ) )
@@ -114,7 +117,7 @@ private:
     {
         if( enableValidationLayers && !checkValidationLayerSupport() )
         {
-            throw std::runtime_error( "validation layers requested, but not available!" );
+            throw std::runtime_error( "validation layers requested but unavailable!" );
         }
 
         SDL_Init( SDL_INIT_VIDEO );
@@ -126,40 +129,41 @@ private:
                                      360,
                                      SDL_WINDOW_SHOWN | SDL_WINDOW_VULKAN );
 
-        uint32_t extensionCount;
-        const char** extensionNames = 0;
-        SDL_Vulkan_GetInstanceExtensions( m_window, &extensionCount, nullptr );
-        extensionNames = new const char*[extensionCount];
-        SDL_Vulkan_GetInstanceExtensions( m_window, &extensionCount, extensionNames );
-        const VkInstanceCreateInfo instInfo = {
-            VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,  // sType
-            nullptr,                                 // pNext
-            0,                                       // flags
-            nullptr,                                 // pApplicationInfo
-            0,                                       // enabledLayerCount
-            nullptr,                                 // ppEnabledLayerNames
-            extensionCount,                          // enabledExtensionCount
-            extensionNames,                          // ppEnabledExtensionNames
-        };
-        vkCreateInstance( &instInfo, nullptr, &m_vkInst );
-        SDL_Log( "Initialized with errors: %s", SDL_GetError() );
+        auto extensions = getRequiredExtensions();
+
+        VkApplicationInfo appInfo{};
+        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        appInfo.pApplicationName = APP_NAME;
+        appInfo.applicationVersion = VK_MAKE_VERSION( 1, 0, 0 );
+        appInfo.pEngineName = "No Engine";
+        appInfo.engineVersion = VK_MAKE_VERSION( 1, 0, 0 );
+        appInfo.apiVersion = VK_API_VERSION_1_3;
+
+        VkInstanceCreateInfo instInfo{};
+        instInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+        instInfo.pApplicationInfo = &appInfo;
+
+        instInfo.enabledExtensionCount = static_cast<uint32_t>( extensions.size() );
+        instInfo.ppEnabledExtensionNames = extensions.data();
+
+        if( enableValidationLayers )
+        {
+            instInfo.enabledLayerCount = static_cast<uint32_t>( validationLayers.size() );
+            instInfo.ppEnabledLayerNames = validationLayers.data();
+        }
+
+        if( vkCreateInstance( &instInfo, nullptr, &m_vkInst ) != VK_SUCCESS )
+        {
+            throw std::runtime_error( "failed to create instance!" );
+        }
     }
 
     void setupDebugMessenger()
     {
-        if( isInstanceExtensionSupported( VK_EXT_DEBUG_UTILS_EXTENSION_NAME ) )
-        {
-            std::cout << "VK_EXT_debug_utils is supported.\n";
-        }
-        else
-        {
-            std::cout << "VK_EXT_debug_utils is NOT supported.\n";
-        }
-
         if( !enableValidationLayers )
             return;
 
-        VkDebugUtilsMessengerCreateInfoEXT createInfo;
+        VkDebugUtilsMessengerCreateInfoEXT createInfo{};
         populateDebugMessengerCreateInfo( createInfo );
 
         if( CreateDebugUtilsMessengerEXT(
@@ -186,7 +190,7 @@ private:
     void createSurface()
     {
         if( SDL_Vulkan_CreateSurface( m_window, m_vkInst, &m_screenSurface ) !=
-            VK_SUCCESS )
+            SDL_TRUE )
         {
             throw std::runtime_error( "failed to create window surface!" );
         }
@@ -295,7 +299,7 @@ private:
 
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = m_surface;
+        createInfo.surface = m_screenSurface;
 
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
@@ -416,8 +420,8 @@ private:
 
     void createGraphicsPipeline()
     {
-        auto vertShaderCode = readFile( "shaders/vert.spv" );
-        auto fragShaderCode = readFile( "shaders/frag.spv" );
+        auto vertShaderCode = readFile( "shaders/shader.vert.spv" );
+        auto fragShaderCode = readFile( "shaders/shader.frag.spv" );
 
         VkShaderModule vertShaderModule = createShaderModule( vertShaderCode );
         VkShaderModule fragShaderModule = createShaderModule( fragShaderCode );
@@ -767,27 +771,27 @@ private:
         SwapChainSupportDetails details;
 
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-            device, m_surface, &details.capabilities );
+            device, m_screenSurface, &details.capabilities );
 
         uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR( device, m_surface, &formatCount, nullptr );
+        vkGetPhysicalDeviceSurfaceFormatsKHR( device, m_screenSurface, &formatCount, nullptr );
 
         if( formatCount != 0 )
         {
             details.formats.resize( formatCount );
             vkGetPhysicalDeviceSurfaceFormatsKHR(
-                device, m_surface, &formatCount, details.formats.data() );
+                device, m_screenSurface, &formatCount, details.formats.data() );
         }
 
         uint32_t presentModeCount;
         vkGetPhysicalDeviceSurfacePresentModesKHR(
-            device, m_surface, &presentModeCount, nullptr );
+            device, m_screenSurface, &presentModeCount, nullptr );
 
         if( presentModeCount != 0 )
         {
             details.presentModes.resize( presentModeCount );
             vkGetPhysicalDeviceSurfacePresentModesKHR(
-                device, m_surface, &presentModeCount, details.presentModes.data() );
+                device, m_screenSurface, &presentModeCount, details.presentModes.data() );
         }
 
         return details;
@@ -871,7 +875,8 @@ private:
             }
 
             VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR( device, i, m_surface, &presentSupport );
+            vkGetPhysicalDeviceSurfaceSupportKHR(
+                device, i, m_screenSurface, &presentSupport );
 
             if( presentSupport )
             {
@@ -889,9 +894,10 @@ private:
         return indices;
     }
 
-    std::vector<const char*> getRequiredExtensions()
+std::vector<const char*> getRequiredExtensions()
     {
         uint32_t extensionCount = 0;
+
         SDL_Vulkan_GetInstanceExtensions( m_window, &extensionCount, nullptr );
 
         std::vector<const char*> extensions( extensionCount );
@@ -900,6 +906,11 @@ private:
 
         if( enableValidationLayers )
         {
+            if( !isInstanceExtensionSupported( VK_EXT_DEBUG_UTILS_EXTENSION_NAME ) )
+            {
+                throw std::runtime_error( "VK_EXT_debug_utils not available!" );
+            }
+
             extensions.push_back( VK_EXT_DEBUG_UTILS_EXTENSION_NAME );
         }
 
@@ -963,6 +974,7 @@ private:
                    void* pUserData )
     {
         std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+        std::cout << "validation layer: " << pCallbackData->pMessage << std::endl;
 
         return VK_FALSE;
     }
@@ -1070,16 +1082,23 @@ private:
         createFramebuffers();
     }
 
-    void cleanup()
+   void cleanup()
     {
+        if( enableValidationLayers )
+        {
+            DestroyDebugUtilsMessengerEXT( m_vkInst, m_debugMessenger, nullptr );
+        }
+
         vkDestroyDevice( m_device, nullptr );
+
+        vkDestroySurfaceKHR( m_vkInst, m_screenSurface, nullptr );
+
         vkDestroyInstance( m_vkInst, nullptr );
+
         SDL_DestroyWindow( m_window );
 
         SDL_Vulkan_UnloadLibrary();
         SDL_Quit();
-
-        SDL_Log( "Cleaned up with errors: %s", SDL_GetError() );
     }
 
         void cleanupSwapChain()
@@ -1107,7 +1126,6 @@ private:
     VkPhysicalDevice m_mainPhysicalDevice{ VK_NULL_HANDLE };
     VkQueue m_graphicsQueue;
     VkQueue m_presentQueue;
-    VkSurfaceKHR m_surface;
     VkSwapchainKHR m_swapChain;
     std::vector<VkImage> m_swapChainImages;
     std::vector<VkImageView> m_swapChainImageViews;
@@ -1133,6 +1151,8 @@ void appMain()
 }
 
 #if defined( WIN32 )
+
+
 int WinMain( HINSTANCE /*hInst*/,
              HINSTANCE /*hPrevInst*/,
              const char* /*cmd*/,

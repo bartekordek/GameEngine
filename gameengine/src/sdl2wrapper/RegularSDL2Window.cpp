@@ -64,6 +64,11 @@ SDL_Window* RegularSDL2Window::createWindow( const WinData& winData )
         windowFlags |= SDL_WINDOW_RESIZABLE;
     }
 
+    if( winData.RendererType == RenderTypes::RendererType::VULKAN )
+    {
+        windowFlags |= SDL_WINDOW_VULKAN;
+    }
+
     const auto targetWidth = (int)( currentRes.W );
     const auto targetHeight = (int)( currentRes.H );
 

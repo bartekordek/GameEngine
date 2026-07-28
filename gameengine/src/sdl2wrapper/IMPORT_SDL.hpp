@@ -3,11 +3,11 @@
 #include "CUL/GenericUtils/DisableErros.hpp"
 CUL_MSVC_SKIP_DEFAULT_WARNING_BEGIN
 
-#define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <SDL_mouse.h>
 #include <SDL_surface.h>
 #include <SDL_syswm.h>
+#include <SDL_vulkan.h>
 #undef ABSOLUTE
 
 #ifdef _MSC_VER

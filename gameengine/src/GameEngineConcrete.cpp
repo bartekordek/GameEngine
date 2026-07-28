@@ -13,6 +13,7 @@
 #include "DeviceOpenGL.hpp"
 #include "DX12/DeviceDX12.hpp"
 #include "DX09/DeviceDX09.hpp"
+#include "Renderer/Vulkan/DeviceVulkan.hpp"
 
 #include "DebugUtil/DebugSystemBase.hpp"
 #include "DebugUtil/DebugSystemParams.hpp"
@@ -87,6 +88,12 @@ GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool )
 #else
             CUL::Assert::simple( false, "NOTE IMPLEMENTED." );
 #endif
+        }
+        else if( rendererType == LOGLW::RenderTypes::RendererType::VULKAN )
+        {
+#if VULKAN_ENABLED
+            m_renderDevice = new DeviceVulkan();
+#endif  // #if VULKAN_ENABLED
         }
         else
         {
@@ -465,10 +472,10 @@ void drawObjects( std::set<IObject*>& shownList,
                   IObject* currentObject,
                   const String& name );
 
-#if _MSC_VER
+    #if _MSC_VER
     #pragma warning( push )
     #pragma warning( disable : 4061 )
-#endif
+    #endif
 void GameEngineConcrete::renderInfo()
 {
     ProfilerScope( "GameEngineConcrete::renderInfo" );
@@ -600,9 +607,9 @@ void GameEngineConcrete::renderInfo()
     guiFrameDelegate.execute( debugInfoWidth, debugInfoWidth );
 }
 
-#if _MSC_VER
+    #if _MSC_VER
     #pragma warning( pop )
-#endif
+    #endif
 
 bool GameEngineConcrete::drawObjectsInfo( float& width, float& high )
 {
