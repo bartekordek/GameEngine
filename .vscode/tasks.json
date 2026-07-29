@@ -32,9 +32,46 @@
                 "OFF"
             ],
             "default": "OFF"
+        },
+        {
+            "id": "targets",
+            "type": "pickString",
+            "description": "Select project",
+            "options": [
+                "gameengine_dynamic",
+                "gameengine_static",
+                "playgroundApp_dynamic",
+                "playgroundApp_static",
+                "snake_dynamic",
+                "snake_static"
+            ]
         }
     ],
     "tasks": [
+        {
+            "label": "[CMake][Build][select_project]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build_${input:platform}",
+                "--config",
+                "${input:configuration}",
+                "--target",
+                "${input:targets}"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
         {
             "label": "[CMake][Build][WholeRepo]",
             "type": "shell",
@@ -77,6 +114,44 @@
                 "reveal": "always",
                 "revealProblems": "onProblem",
                 "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": {
+                "owner": "cmake",
+                "fileLocation": "absolute",
+                "pattern": {
+                    "regexp": "^CMake (Error|Warning) at (.+):(\\d+) .*",
+                    "severity": 1,
+                    "file": 2,
+                    "line": 3,
+                    "message": 0
+                }
+            }
+        },
+        {
+            "label": "[CMake][Build][all][NoCmakeReCreate]",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "Build_${input:platform}",
+                "--config",
+                "${input:configuration}",
+                "-j16"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "revealProblems": "onProblem",
+                "focus": true,
                 "panel": "dedicated",
                 "showReuseMessage": false,
                 "clear": true
