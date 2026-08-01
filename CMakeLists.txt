@@ -30,7 +30,7 @@ set_property(TARGET freeglut_static PROPERTY FOLDER "deps")
 # Add sub directories
 set( SDL2_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/deps/SDL/include )
 
-find_package(Vulkan)
+find_package(Vulkan COMPONENTS glslc)
 
 set(SDL_ALSA OFF CACHE BOOL "Disable SDL_FILESYSTEM in SDL" FORCE)
 set(SDL_CLOCK_GETTIME OFF CACHE BOOL "Disable clock_gettime in SDL" FORCE)
