@@ -306,6 +306,10 @@ ContextInfo DeviceOpenGL::initContextVersion( LOGLW::IWindow* window )
         String errorContent(
             reinterpret_cast<const char*>( glewGetErrorString( error ) ) );
 
+        CUL::LOG::ILogger::getInstance().logVariable(CUL::LOG::Severity::Error,
+                                                      "GLEW error: %s, %s",
+                                                      errorContent.getUtfChar(),
+                                                      result.glVersion.getUtfChar() );
         CUL::Assert::check( GLEW_OK == error,
                             "GLEW error: %s, %s",
                             errorContent.getUtfChar(),
