@@ -87,12 +87,12 @@ void SDL2WrapperImpl::init( const WinData& wd, const CUL::FS::Path& configPath )
     }
 
     auto& cu = CUL::GUTILS::ConsoleUtilities::getInstance();
-    const std::optional<CUL::String> rendererFlagValue =
+    const CUL::String rendererFlagValue =
         cu.getFlagValue( CUL_STR( "-renderer" ) );
-    if( rendererFlagValue )
+    if( !rendererFlagValue.empty() )
     {
         m_windowData.RendererType =
-            RenderTypes::convertToEnum( rendererFlagValue->getUtfChar() );
+            RenderTypes::convertToEnum( rendererFlagValue.getUtfChar() );
     }
 
     m_windowFactory = new WindowCreatorConcrete( m_logger );
