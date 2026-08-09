@@ -38,19 +38,18 @@ public:
         CUL::FS::JSONFilePtr jsonFile = ff->createJSONFileRawPtr( jsonPath );
         JSON::INode* children =  jsonFile->getChild( "files" );
 
-        auto cul = CUL::CULInterface::createInstance();
         CUL::SFArchiveMetadata md;
         for( const auto& child : children->getArray() )
         {
             CUL::SFile file;
-            file.Path = child->getString();
-            file.PathSize = file.Path.
-            std::unique_ptr<CUL::FS::IFile> fileLoaded(
-                cul->getFF()->createRegularFileRawPtr( file.Path ) );
-            fileLoaded->load( true, true );
-            const auto contentSize = fileLoaded->getSizeBytes();
-            file.Content.resize( contentSize.toUint64() );
-            file.Content = 
+            //file.Path = child->getString();
+            //file.PathSize = file.Path.
+            //std::unique_ptr<CUL::FS::IFile> fileLoaded(
+            //    cul->getFF()->createRegularFileRawPtr( file.Path ) );
+            //fileLoaded->load( true, true );
+            //const auto contentSize = fileLoaded->getSizeBytes();
+            //file.Content.resize( contentSize.toUint64() );
+            //file.Content = 
         }
 
         return 0;

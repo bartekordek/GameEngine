@@ -16,7 +16,7 @@
 #include "CUL/GenericUtils/LckPrim.hpp"
 #include "CUL/Threading/ThreadUtil.hpp"
 #include "CUL/GenericUtils/DumbPtr.hpp"
-#include "CUL/JSON/IJSONFile.hpp"
+#include "CUL/JSON/JSONFile.hpp"
 #include "CUL/ITimer.hpp"
 #include "CUL/GenericUtils/Version.hpp"
 #include "CUL/Math/VariableWithAverageValue.hpp"
