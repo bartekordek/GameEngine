@@ -3,13 +3,16 @@ name: Linux build
 on:
   push:
     paths-ignore:
-      - '.github/workflows/cmake-win.yml'
-      - '.vscode'
+      - '.github/workflows/cmake-linux.yml'
+      - '.gitignore'
+      - '.vscode/**'
+      - 'README.md'
   pull_request:
     paths-ignore:
-      - '.github/workflows/cmake-win.yml'
+      - '.github/workflows/cmake-linux.yml'
+      - '.gitignore'
       - '.vscode/**'
-
+      - 'README.md'
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
