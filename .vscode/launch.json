@@ -5,6 +5,24 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "[Windows][Debug][cooker]",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Build_Win64/Debug/cooker.exe",
+            "cwd": "${workspaceFolder}/cooker",
+            "symbolSearchPath": "${workspaceFolder}/Build_Win64/Debug/",
+            "args": [
+                "-jsonPath",
+                "../media/BasePak.json"
+            ],
+            "externalConsole": false,
+            "logging": {
+                "moduleLoad": false,
+                "trace": true,
+            },
+            "preLaunchTask": "[Win64][Debug][Build][cooker]"
+        },
+        {
             "name": "[Windows][Debug][shader_editor_static]",
             "type": "cppvsdbg",
             "request": "launch",

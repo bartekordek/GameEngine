@@ -38,6 +38,7 @@
             "type": "pickString",
             "description": "Select project",
             "options": [
+                "cooker",
                 "gameengine_dynamic",
                 "gameengine_static",
                 "playgroundApp_dynamic",
@@ -314,7 +315,7 @@
             ]
         },
         {
-            "label": "[WINDOWS][DEBUG][BUILLD][snake_dynamic]",
+            "label": "[Win64][Debug][Build][cooker]",
             "type": "shell",
             "command": "cmake",
             "args": [
@@ -324,32 +325,7 @@
                 "DEBUG",
                 "-j16",
                 "--target",
-                "snake_dynamic"
-            ],
-            "presentation": {
-                "echo": true,
-                "reveal": "always",
-                "focus": true,
-                "panel": "dedicated",
-                "showReuseMessage": false,
-                "clear": true
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ]
-        },
-        {
-            "label": "[WINDOWS][DEBUG][BUILLD][snake_static]",
-            "type": "shell",
-            "command": "cmake",
-            "args": [
-                "--build",
-                "Build_Win64",
-                "--config",
-                "DEBUG",
-                "-j16",
-                "--target",
-                "snake_static"
+                "cooker"
             ],
             "presentation": {
                 "echo": true,

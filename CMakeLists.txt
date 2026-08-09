@@ -89,6 +89,7 @@ if(MSVC)
     add_subdirectory(sample/test00)
 endif()
 
+add_subdirectory(cooker)
 add_subdirectory(sample/playgroundApp)
 add_subdirectory(sample/snake)
 add_subdirectory(sample/UI2D)
