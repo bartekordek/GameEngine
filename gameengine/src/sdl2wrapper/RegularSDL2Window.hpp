@@ -50,6 +50,7 @@ private:
     void toggleFpsCounter( bool on, short unsigned everyNsecond = 2 ) override;
     void closeInfoLoop();
     void infoLoop();
+    void onSetSize( std::uint32_t inWidth, std::uint32_t inHeight );
 
     std::atomic<bool> m_runInfoLoop = false;
     std::atomic<unsigned int> m_sleepTimeInfoLoop = 2u;

@@ -22,6 +22,7 @@ public:
     String Name;
     RenderTypes::RendererType RendererType{ RenderTypes::RendererType::NONE };
     bool Resizable{ false };
+    bool FullScreen{ false };
 
 protected:
 private:

@@ -49,7 +49,11 @@ IGameEngine* IGameEngine::createGameEngine( const EngineParams& engineParam )
 
     auto& cu = CUL::GUTILS::ConsoleUtilities::getInstance();
 
-    windowData.Resizable = cu.getDoesFlagExist( "-resizable" );
+    const auto resizableArg = cu.getFlagValue( "-resizable" );
+    if( !resizableArg.empty() )
+    {
+        windowData.Resizable = true;
+    }
 
     auto sdlWrap = LOGLW::ISDL2Wrapper::createSDL2Wrapper();
     sdlWrap->init( windowData, engineParam.ConfigPath );

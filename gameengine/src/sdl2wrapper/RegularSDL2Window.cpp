@@ -1,7 +1,9 @@
 #include "RegularSDL2Window.hpp"
 #include "CUL/Filesystem/FSApi.hpp"
 
+#include "gameengine/IGameEngine.hpp"
 #include "gameengine/ISDL2Wrapper.hpp"
+
 
 #include "CUL/Filesystem/FS.hpp"
 #include "CUL/ITimer.hpp"
@@ -265,10 +267,16 @@ const WinSize& RegularSDL2Window::getSize() const
 
 void RegularSDL2Window::setSize( const WinSize& size )
 {
-    m_windowData.CurrentRes = size;
+    onSetSize( size.W, size.H );
     SDL_SetWindowSize( m_window, size.W, size.H );
     // SDL_SetWindowDisplayMode( m_window, &m_nativeDisplayMode  );
     // SDL_RenderSetLogicalSize( m_renderer, size.w, size.h );
+}
+
+void RegularSDL2Window::onSetSize( std::uint32_t inWidth, std::uint32_t inHeight )
+{
+    m_windowData.CurrentRes.W = inWidth;
+    m_windowData.CurrentRes.H = inHeight;
 }
 
 IWindow::Type RegularSDL2Window::getType() const

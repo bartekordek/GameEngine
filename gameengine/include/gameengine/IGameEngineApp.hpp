@@ -33,6 +33,7 @@ public:
                     bool legacy );
     IGameEngineApp( bool fullscreen, unsigned width, unsigned height, WinOrientation orientation, const char* winName, const char* configPath,
                     bool legacy );
+    IGameEngineApp( const LOGLW::WinData& inWinData, const char* inConfigPath );
     IGameEngineApp( const IGameEngineApp& ) = delete;
     IGameEngineApp( IGameEngineApp&& ) = delete;
     IGameEngineApp& operator=( const IGameEngineApp& ) = delete;

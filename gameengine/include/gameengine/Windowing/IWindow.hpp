@@ -50,7 +50,6 @@ using Vector3Du = CUL::MATH::Vector3Du;
 using ColorS = CUL::Graphics::ColorS;
 using ColorE = CUL::Graphics::ColorE;
 using IName = CUL::IName;
-using String = String;
 
 using TextureMap = std::map<String, std::unique_ptr<CUL::Graphics::ITexture>>;
 
@@ -75,7 +74,9 @@ enum class GLContextFlag
     RESET_ISOLATION_FLAG = 0x0008
 };
 
-class GAME_ENGINE_API IWindow: public IRender, public IName, public CUL::Graphics::IObjectRegister
+class GAME_ENGINE_API IWindow: public IRender,
+                               public IName,
+                               public CUL::Graphics::IObjectRegister
 {
 public:
     enum class Type : char
@@ -96,6 +97,7 @@ public:
     virtual const WinSize& getSize() const = 0;
     virtual const WinSize& getCurrentScreenNativeResolution() const = 0;
     virtual void setSize( const WinSize& size ) = 0;
+    virtual void onSetSize( std::uint32_t /*inWidth*/, std::uint32_t /*inHeight*/ ) {};
 
     virtual Type getType() const = 0;
 

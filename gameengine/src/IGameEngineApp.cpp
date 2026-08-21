@@ -33,6 +33,12 @@ IGameEngineApp::IGameEngineApp( bool fullscreen, unsigned width, unsigned height
     init( windowData, fullscreen, configPath, legacy );
 }
 
+IGameEngineApp::IGameEngineApp( const LOGLW::WinData& inWinData,
+                                const char* inConfigPath )
+{
+    init( inWinData, inWinData.FullScreen, inConfigPath, false );
+}
+
 void IGameEngineApp::init( const LOGLW::WinData& windowData, bool fullscreen, const char* configPath, bool legacy )
 {
     LOGLW::EngineParams params;

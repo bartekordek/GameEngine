@@ -143,6 +143,10 @@ GameEngineConcrete::GameEngineConcrete( LOGLW::ISDL2Wrapper* sdl2w, bool )
     setFpsLimit( 60.f );
     m_renderFrameTimeManager->setSamplesCount( 2048 );
 
+    OnWindowsResize.addDelegate( [this] (std::uint32_t inWidth, std::uint32_t inHeight){
+            m_sdlW->getMainWindow()->onSetSize( inWidth, inHeight );
+        });
+
     m_asyncGameLoopThread = std::thread( &GameEngineConcrete::asyncGameLoop, this );
 }
 
@@ -673,7 +677,9 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList,
         {
             if( ImGui::TreeNode( *currentComponent->getName() ) )
             {
+#if !CUL_SHIPPING_BUILD
                 currentComponent->drawDebug();
+#endif  // CUL_SHIPPING_BUILD
                 ImGui::TreePop();
             }
         }
