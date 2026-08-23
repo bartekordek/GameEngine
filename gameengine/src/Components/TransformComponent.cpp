@@ -274,7 +274,7 @@ void TransformComponent::printCurrentState() const
     // + ToString( m_pivot ) );
 }
 
-#if !CUL_SHIPPING_BUILD
+#if !CUL_RELEASE && !CUL_RELWITHDEBINFO
 void TransformComponent::drawDebug()
 {
     ImGui::InputFloat3( "Position", &m_pos.x );
@@ -296,4 +296,4 @@ void TransformComponent::drawDebug()
         changeSizeDelegate.execute();
     }
 }
-#endif  // !CUL_SHIPPING_BUILD
+#endif  // #if !CUL_RELEASE && !CUL_RELWITHDEBINFO

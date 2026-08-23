@@ -1,6 +1,9 @@
 #cmake -DCMAKE_BUILD_TYPE=Debug
 cmake_minimum_required(VERSION 3.0.0)
 
+include(deps/CUL/cmake/CULConfigurations.cmake)
+include(deps/CUL/cmake/CULTargetHelpers.cmake)
+
 project(game_engine_main)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 

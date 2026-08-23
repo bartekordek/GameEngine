@@ -10,9 +10,9 @@ public:
     IComponent();
     virtual const CUL::StringWr& getName() const = 0;
 
-#if !CUL_SHIPPING_BUILD
+#if !CUL_RELEASE && !CUL_RELWITHDEBINFO
     virtual void drawDebug() = 0;
-#endif // !CUL_SHIPPING_BUILD
+#endif // #if !CUL_RELEASE && !CUL_RELWITHDEBINFO
 
     virtual ~IComponent();
 protected:

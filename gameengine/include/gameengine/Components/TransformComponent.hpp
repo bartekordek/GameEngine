@@ -69,9 +69,9 @@ private:
     glm::mat4 getRotation() const;
     void printCurrentState() const;
 
-#if !CUL_SHIPPING_BUILD
+#if !CUL_RELEASE && !CUL_RELWITHDEBINFO
     void drawDebug() override;
-#endif  // !CUL_SHIPPING_BUILD
+#endif  // #if !CUL_RELEASE && !CUL_RELWITHDEBINFO
 
     IObject* m_owner{ nullptr };
 
