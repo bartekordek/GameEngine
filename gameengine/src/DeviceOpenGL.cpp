@@ -2434,77 +2434,77 @@ ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath
         CUL::CULInterface::getInstance()->getFF()->createRegularFileRawPtr(
             shaderPath ) );
 
-    if( shaderPath == "embedded_shaders/basic_color.frag" )
+    if( shaderPath.equals( CUL_STR( "embedded_shaders/basic_color.frag" ) ) )
     {
         const std::string fragmentShaderSource =
 #include "embedded_shaders/basic_color.frag"
             ;
         newShader->File->loadFromStringNoEmptyLines( fragmentShaderSource, true );
     }
-    else if( shaderPath == "embedded_shaders/basic_pos.vert" )
+    else if( shaderPath.equals( CUL_STR( "embedded_shaders/basic_pos.vert" ) ) )
     {
         const std::string vertexShaderSource =
 #include "embedded_shaders/basic_pos.vert"
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
-    else if( shaderPath == "embedded_shaders/camera.frag" )
+    else if( shaderPath.equals( CUL_STR( "embedded_shaders/camera.frag" ) ) )
     {
         const std::string fragmentShaderSource =
 #include "embedded_shaders/camera.frag"
             ;
         newShader->File->loadFromStringNoEmptyLines( fragmentShaderSource, true );
     }
-    else if( shaderPath == "embedded_shaders/camera.vert" )
+    else if( shaderPath.equals( CUL_STR( "embedded_shaders/camera.vert" ) ) )
     {
         const std::string vertexShaderSource =
 #include "embedded_shaders/camera.vert"
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
-    else if( shaderPath == "embedded_shaders/fbo.frag" )
+    else if( shaderPath.equals( CUL_STR( "embedded_shaders/fbo.frag" ) ) )
     {
         const std::string vertexShaderSource =
 #include "embedded_shaders/fbo.frag"
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
-    else if( shaderPath == "embedded_shaders/fbo_bw.frag" )
+    else if( shaderPath.equals( CUL_STR( "embedded_shaders/fbo_bw.frag" ) ) )
     {
         const std::string vertexShaderSource =
 #include "embedded_shaders/fbo_bw.frag"
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
-    else if( shaderPath == "embedded_shaders/fbo.vert" )
+    else if( shaderPath.equals( CUL_STR( "embedded_shaders/fbo.vert" ) ) )
     {
         const std::string vertexShaderSource =
 #include "embedded_shaders/fbo.vert"
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
-    else if( shaderPath == "embedded_shaders/camera_orto.frag" )
+    else if( shaderPath.equals( CUL_STR( "embedded_shaders/camera_orto.frag" ) ) )
     {
         const std::string vertexShaderSource =
 #include "embedded_shaders/camera_orto.frag"
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
-    else if( shaderPath == "embedded_shaders/camera_orto.vert" )
+    else if( shaderPath.equals( CUL_STR( "embedded_shaders/camera_orto.vert" ) ) )
     {
         const std::string vertexShaderSource =
 #include "embedded_shaders/camera_orto.vert"
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
-    else if( shaderPath == "embedded_shaders/rt_basic.frag" )
+    else if( shaderPath.equals( CUL_STR( "embedded_shaders/rt_basic.frag" ) ) )
     {
         const std::string vertexShaderSource =
 #include "embedded_shaders/rt_basic.frag"
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
-    else if( shaderPath == "embedded_shaders/rt_basic.vert" )
+    else if( shaderPath.equals( CUL_STR( "embedded_shaders/rt_basic.vert" ) ) )
     {
         const std::string vertexShaderSource =
 #include "embedded_shaders/rt_basic.vert"

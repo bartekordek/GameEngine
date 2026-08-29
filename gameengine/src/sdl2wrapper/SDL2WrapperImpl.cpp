@@ -36,11 +36,11 @@ SDL2WrapperImpl::SDL2WrapperImpl()
     #pragma warning( disable : 5045 )
 #endif
 
-void SDL2WrapperImpl::init( const WinData& wd, const CUL::FS::Path& configPath )
+void SDL2WrapperImpl::init( const WinData& wd, const CUL::StringWr& inConfigPath )
 {
     m_windowData = wd;
 
-    m_culInterface = CUL::CULInterface::createInstance( configPath );
+    m_culInterface = CUL::CULInterface::createInstance( inConfigPath );
     m_logger = m_culInterface->getLogger();
 
     m_configFile = m_culInterface->getConfig();

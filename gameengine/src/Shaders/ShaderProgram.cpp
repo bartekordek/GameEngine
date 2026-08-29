@@ -213,14 +213,14 @@ SCompilationResult ShaderProgram::compileShader( EExecuteType inEt,
 
     auto compileTask = [this, &result, &shaderPath, assertOnErrors, inEt]()
     {
-        const CUL::FS::Path path = shaderPath;
+        const CUL::FS::Path path{ shaderPath };
         const auto extension = path.getExtension();
         CShaderTypes::ShaderType type = CShaderTypes::getShaderType( extension );
 
         ShaderInfo si;
         si.Path = shaderPath;
         String erorrMessage;
-        si.SU = getDevice()->createShaderUnit( shaderPath, assertOnErrors, erorrMessage );
+        si.SU = getDevice()->createShaderUnit( path, assertOnErrors, erorrMessage );
         if( si.SU->State == EShaderUnitState::Loaded )
         {
             attachShader( inEt, si.SU->ID );

@@ -39,7 +39,7 @@ public:
 
 protected:
 private:
-    void init( const WinData& wd, const CUL::FS::Path& configPath = "" ) override;
+    void init( const WinData& wd, const CUL::StringWr& inConfigPath ) override;
     size_t fetchRenderTypes();
 
     void registerSDLEventObserver( ISDLEventObserver* eventObserver ) override;

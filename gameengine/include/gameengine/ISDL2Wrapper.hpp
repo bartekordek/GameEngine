@@ -50,7 +50,7 @@ class GAME_ENGINE_API ISDL2Wrapper: public IKeyboardObservable, public IMouseObs
 public:
     ISDL2Wrapper();
 
-    virtual void init( const WinData& wd, const CUL::FS::Path& configPath = "" ) = 0;
+    virtual void init( const WinData& wd, const CUL::StringWr& inConfigPath ) = 0;
     virtual void refreshScreen() = 0;
     virtual void renderFrame( bool clearContext = true, bool refreshWindow = true ) = 0;
     virtual void clearWindows() = 0;

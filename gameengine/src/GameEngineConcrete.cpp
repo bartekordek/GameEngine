@@ -262,9 +262,9 @@ Sprite* GameEngineConcrete::createSprite( const String& path, bool )
 {
     auto sprite = new Sprite( nullptr, false );
 
-    CUL::FS::Path fsPath = path;
+    const CUL::FS::Path fsPath{ path };
     CUL::Assert::check( fsPath.exists(), "File %s, does not exist.", *path );
-    sprite->LoadImage( path, m_imageLoader );
+    sprite->LoadImage( fsPath, m_imageLoader );
 
     return sprite;
 }

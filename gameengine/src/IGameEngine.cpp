@@ -56,7 +56,7 @@ IGameEngine* IGameEngine::createGameEngine( const EngineParams& engineParam )
     }
 
     auto sdlWrap = LOGLW::ISDL2Wrapper::createSDL2Wrapper();
-    sdlWrap->init( windowData, engineParam.ConfigPath );
+    sdlWrap->init( windowData, { engineParam.ConfigPath.getValue() } );
 
     s_instance = new GameEngineConcrete( sdlWrap, engineParam.legacy );
     return s_instance;

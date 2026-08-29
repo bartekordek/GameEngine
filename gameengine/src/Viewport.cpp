@@ -1,7 +1,6 @@
 #include "gameengine/Viewport.hpp"
 
 using namespace LOGLW;
-using String = String;
 
 Viewport::Viewport()
 {
