@@ -2422,7 +2422,7 @@ ShaderUnit* DeviceOpenGL::createShaderUnit( const CUL::FS::Path& shaderPath,
     return createShaderUnitForce( shaderPath, assertOnErrors, errorMessage );
 }
 
-ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath,
+ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& inShaderPath,
                                                  bool assertOnErrors,
                                                  String& errorMessage )
 {
@@ -2432,7 +2432,9 @@ ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath
     std::unique_ptr<ShaderUnit> newShader = std::make_unique<ShaderUnit>();
     newShader->File.reset(
         CUL::CULInterface::getInstance()->getFF()->createRegularFileRawPtr(
-            shaderPath ) );
+            inShaderPath ) );
+    CUL::FS::Path shaderPath = inShaderPath;
+    shaderPath.convertToSlash();
 
     if( shaderPath.equals( CUL_STR( "embedded_shaders/basic_color.frag" ) ) )
     {
@@ -2473,6 +2475,13 @@ ShaderUnit* DeviceOpenGL::createShaderUnitForce( const CUL::FS::Path& shaderPath
     {
         const std::string vertexShaderSource =
 #include "embedded_shaders/fbo_bw.frag"
+            ;
+        newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
+    }
+    else if( shaderPath.equals( CUL_STR( "embedded_shaders/fbo.frag" ) ) )
+    {
+        const std::string vertexShaderSource =
+#include "embedded_shaders/fbo.frag"
             ;
         newShader->File->loadFromStringNoEmptyLines( vertexShaderSource, true );
     }
