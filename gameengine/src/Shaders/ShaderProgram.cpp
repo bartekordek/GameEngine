@@ -189,8 +189,9 @@ SCompilationResult ShaderProgram::reCompileShaderImpl( EExecuteType inEt,
     if( si.SU )
     {
         const std::uint32_t shaderId = si.SU->ID;
-        getDevice()->deleteShaderUnit( si.SU );
+        // Detach before delete — GL object must still be valid for detach.
         detachShader( inEt, shaderId );
+        getDevice()->deleteShaderUnit( si.SU );
         si.SU = nullptr;
     }
 
