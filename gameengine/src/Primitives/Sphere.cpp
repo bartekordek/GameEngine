@@ -56,7 +56,7 @@ void CSphere::init()
     am.Index = 0;
     am.Size = 3;
     am.Type = LOGLW::DataType::FLOAT;
-    // am.StrideBytes = 3 * sizeof( float );
+    am.StrideBytes = 3 * sizeof( float );
     vd.Attributes.push_back( am );
 
     vao->addIndexData( m_indices );

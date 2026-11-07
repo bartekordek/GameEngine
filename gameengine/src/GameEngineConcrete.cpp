@@ -908,7 +908,13 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList,
                 {
                     const std::int32_t dataTypSizeB = static_cast<std::int32_t>(
                         LOGLW::BasicTypes::getSize( meta.Type ) );
-                    const std::int32_t strideElCount = meta.StrideBytes / dataTypSizeB;
+                    // OpenGL: stride 0 means tightly packed (Size * sizeof(Type)).
+                    const std::int32_t effectiveStrideBytes =
+                        meta.StrideBytes != 0
+                            ? meta.StrideBytes
+                            : meta.Size * dataTypSizeB;
+                    const std::int32_t strideElCount =
+                        dataTypSizeB > 0 ? effectiveStrideBytes / dataTypSizeB : 0;
 
                     constexpr std::size_t textSize{ 16u };
                     char textInput[textSize];
@@ -928,18 +934,20 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList,
                                  strideElCount,
                                  LOGLW::BasicTypes::toChar( meta.Type ) );
 
-                    // TODO: Wrong stride?
                     std::int32_t columnCount = meta.Size;
                     std::int32_t rowsCount =
-                        static_cast<std::int32_t>( vertexData.Data.getElementCount() ) /
-                        strideElCount;
+                        strideElCount > 0
+                            ? static_cast<std::int32_t>(
+                                  vertexData.Data.getElementCount() ) /
+                                  strideElCount
+                            : 0;
 
                     static ImGuiTableFlags flags =
                         ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_Resizable |
                         ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV |
                         ImGuiTableFlags_ContextMenuInBody;
 
-                    if( ImGui::BeginTable( "Data", columnCount, flags ) )
+                    if( columnCount > 0 && ImGui::BeginTable( "Data", columnCount, flags ) )
                     {
                         std::uintptr_t offset =
                             reinterpret_cast<std::uintptr_t>( meta.DataOffset );
@@ -951,9 +959,9 @@ void GameEngineConcrete::drawObjects( std::set<IObject*>& shownList,
                             ImGui::TableNextRow();
                             for( std::int32_t column = 0; column < columnCount; ++column )
                             {
-                                std::uintptr_t current = dataVal +
-                                                         row * meta.StrideBytes + offset +
-                                                         column * dataTypSizeB;
+                                std::uintptr_t current =
+                                    dataVal + row * effectiveStrideBytes + offset +
+                                    column * dataTypSizeB;
                                 float* currentValueF =
                                     reinterpret_cast<float*>( current );
                                 // currentValue = firstValue + + column + ( meta.Stride /
