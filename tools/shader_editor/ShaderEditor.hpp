@@ -11,6 +11,9 @@
 #include "CUL/Math/SphericalCoord.hpp"
 #include "CUL/IMPORT_GLM.hpp"
 #include "CUL/STL_IMPORTS/STD_memory.hpp"
+#include "CUL/STL_IMPORTS/STD_vector.hpp"
+#include "CUL/STL_IMPORTS/STD_string.hpp"
+#include "CUL/STL_IMPORTS/STD_utility.hpp"
 
 namespace CUL
 {
@@ -78,6 +81,8 @@ private:
     void drawLeftWindow( float x, float y );
     void drawRightWindow( float x, float y );
     void drawEditor( float x, float y, float w, float h, const String& name );
+    void drawCreateUniformPopup();
+    std::vector<std::pair<std::string, std::string>> parseDeclaredUniforms() const;
 
     LOGLW::IGameEngine* m_engine{ nullptr };
     LOGLW::IWindow* m_mainWindow{ nullptr };

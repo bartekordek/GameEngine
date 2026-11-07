@@ -29,6 +29,8 @@
 #include "CUL/Threading/ThreadUtil.hpp"
 
 #include "CUL/STL_IMPORTS/STD_cmath.hpp"
+#include "CUL/STL_IMPORTS/STD_algorithm.hpp"
+#include "CUL/STL_IMPORTS/STD_cctype.hpp"
 
 CUL::MATH::Angle ang90( 90, CUL::MATH::Angle::Type::DEGREE );
 CUL::MATH::Angle ang180( 180, CUL::MATH::Angle::Type::DEGREE );
@@ -258,6 +260,12 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
     {
         if( ImGui::TreeNode( "Uniforms" ) )
         {
+            if( ImGui::Button( "Add Uniform" ) )
+            {
+                ImGui::OpenPopup( "Create_Uniform" );
+            }
+            drawCreateUniformPopup();
+
             const std::vector<String> uniformNames = m_shader->getUniformsNames();
             for( const String& uniformName : uniformNames )
             {
@@ -320,6 +328,344 @@ void ShaderEditor::drawLeftWindow( float x, float /*y*/ )
 
     float xx, yy;
     m_engine->drawObjectsInfo( xx, yy );
+}
+
+namespace
+{
+bool isIdentChar( char c )
+{
+    return std::isalnum( static_cast<unsigned char>( c ) ) != 0 || c == '_';
+}
+
+LOGLW::DataType glslTypeToDataType( const std::string& type )
+{
+    if( type == "float" )
+        return LOGLW::DataType::FLOAT;
+    if( type == "int" )
+        return LOGLW::DataType::INT;
+    if( type == "vec2" )
+        return LOGLW::DataType::FLOAT_VEC2;
+    if( type == "vec3" )
+        return LOGLW::DataType::FLOAT_VEC3;
+    if( type == "vec4" )
+        return LOGLW::DataType::FLOAT_VEC4;
+    if( type == "mat2" )
+        return LOGLW::DataType::FLOAT_MAT2;
+    if( type == "mat3" )
+        return LOGLW::DataType::FLOAT_MAT3;
+    if( type == "mat4" )
+        return LOGLW::DataType::FLOAT_MAT4;
+    if( type == "sampler1D" )
+        return LOGLW::DataType::SAMPLER_1D;
+    if( type == "sampler2D" )
+        return LOGLW::DataType::SAMPLER_2D;
+    return LOGLW::DataType::NONE;
+}
+
+void appendUniformsFromSource( const std::string& source,
+                               std::vector<std::pair<std::string, std::string>>& out )
+{
+    std::size_t pos = 0;
+    while( pos < source.size() )
+    {
+        const std::size_t u = source.find( "uniform", pos );
+        if( u == std::string::npos )
+            break;
+
+        const bool boundaryBefore =
+            u == 0 || !isIdentChar( source[u - 1] );
+        const bool boundaryAfter =
+            u + 7 >= source.size() || !isIdentChar( source[u + 7] );
+        if( !boundaryBefore || !boundaryAfter )
+        {
+            pos = u + 7;
+            continue;
+        }
+
+        // Skip if this "uniform" sits on a // comment line.
+        const std::size_t lineStart = source.rfind( '\n', u );
+        const std::size_t commentPos = source.find(
+            "//", lineStart == std::string::npos ? 0 : lineStart );
+        if( commentPos != std::string::npos && commentPos < u )
+        {
+            pos = u + 7;
+            continue;
+        }
+
+        std::size_t i = u + 7;
+        while( i < source.size() &&
+               std::isspace( static_cast<unsigned char>( source[i] ) ) )
+            ++i;
+
+        const std::size_t typeStart = i;
+        while( i < source.size() && isIdentChar( source[i] ) )
+            ++i;
+        const std::string type = source.substr( typeStart, i - typeStart );
+
+        while( i < source.size() &&
+               std::isspace( static_cast<unsigned char>( source[i] ) ) )
+            ++i;
+
+        const std::size_t nameStart = i;
+        while( i < source.size() && isIdentChar( source[i] ) )
+            ++i;
+        const std::string name = source.substr( nameStart, i - nameStart );
+
+        // Skip uniform blocks: uniform ... Name {
+        std::size_t look = i;
+        while( look < source.size() &&
+               std::isspace( static_cast<unsigned char>( source[look] ) ) )
+            ++look;
+        const bool isBlock = look < source.size() && source[look] == '{';
+
+        if( !isBlock && !type.empty() && !name.empty() )
+        {
+            const bool already =
+                std::any_of( out.begin(),
+                             out.end(),
+                             [&name]( const auto& p )
+                             {
+                                 return p.second == name;
+                             } );
+            if( !already )
+                out.emplace_back( type, name );
+        }
+
+        pos = i;
+    }
+}
+}  // namespace
+
+std::vector<std::pair<std::string, std::string>>
+ShaderEditor::parseDeclaredUniforms() const
+{
+    std::vector<std::pair<std::string, std::string>> declared;
+    for( const auto& [editorName, editorState] : m_editors )
+    {
+        (void)editorName;
+        if( !editorState )
+            continue;
+        appendUniformsFromSource( editorState->CachedText.getSTDString(),
+                                  declared );
+    }
+    return declared;
+}
+
+void ShaderEditor::drawCreateUniformPopup()
+{
+    static char nameBuf[64]{};
+    static float floatVal{ 0.f };
+    static int intVal{ 0 };
+    static float vec3Val[3]{ 0.f, 0.f, 0.f };
+    static float vec4Val[4]{ 1.f, 1.f, 1.f, 1.f };
+    static char statusMsg[192]{};
+
+    if( !ImGui::BeginPopupModal( "Create_Uniform",
+                                 nullptr,
+                                 ImGuiWindowFlags_AlwaysAutoResize ) )
+    {
+        return;
+    }
+
+    ImGui::TextUnformatted(
+        "Set an active uniform (OpenGL drops unused ones)." );
+    ImGui::Separator();
+
+    const auto declared = parseDeclaredUniforms();
+    const auto activeNames = m_shader->getUniformsNames();
+
+    if( !declared.empty() &&
+        ImGui::BeginCombo( "Declared",
+                           nameBuf[0] != '\0' ? nameBuf : "Select..." ) )
+    {
+        for( const auto& [glslType, glslName] : declared )
+        {
+            const bool isActive =
+                std::find( activeNames.begin(),
+                           activeNames.end(),
+                           String( glslName.c_str() ) ) != activeNames.end();
+            char label[96];
+            snprintf( label,
+                      IM_ARRAYSIZE( label ),
+                      "%s %s%s",
+                      glslType.c_str(),
+                      glslName.c_str(),
+                      isActive ? "" : " (optimized out)" );
+            const bool selected = ( glslName == nameBuf );
+            if( ImGui::Selectable( label, selected ) )
+            {
+                snprintf( nameBuf, IM_ARRAYSIZE( nameBuf ), "%s", glslName.c_str() );
+                statusMsg[0] = '\0';
+            }
+            if( selected )
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndCombo();
+    }
+
+    const bool enterPressed = ImGui::InputText(
+        "Name",
+        nameBuf,
+        IM_ARRAYSIZE( nameBuf ),
+        ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsNoBlank );
+
+    const String uniformName = nameBuf;
+    const bool isActive =
+        nameBuf[0] != '\0' &&
+        std::find( activeNames.begin(), activeNames.end(), uniformName ) !=
+            activeNames.end();
+
+    const auto declaredIt = std::find_if(
+        declared.begin(),
+        declared.end(),
+        [&]( const auto& p )
+        {
+            return p.second == nameBuf;
+        } );
+    const bool isDeclared = declaredIt != declared.end();
+
+    LOGLW::DataType dataType{ LOGLW::DataType::NONE };
+    std::string typeLabel = "-";
+
+    if( isActive )
+    {
+        const auto& uniformVal = m_shader->getUniformValue( uniformName );
+        dataType = uniformVal.Type;
+        typeLabel = *uniformVal.TypeName;
+        ImGui::Text( "Type: %s (active)", typeLabel.c_str() );
+    }
+    else if( isDeclared )
+    {
+        typeLabel = declaredIt->first;
+        dataType = glslTypeToDataType( declaredIt->first );
+        ImGui::Text( "Type: %s (from source)", typeLabel.c_str() );
+        ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 1.f, 0.75f, 0.2f, 1.f ) );
+        ImGui::TextWrapped(
+            "Declared but not active. OpenGL optimized it out "
+            "(unused). Use it in the shader, then Compile + Link." );
+        ImGui::PopStyleColor();
+    }
+    else if( nameBuf[0] != '\0' )
+    {
+        ImGui::TextDisabled( "Type: (not declared / not active)" );
+    }
+    else
+    {
+        ImGui::TextDisabled( "Type: -" );
+    }
+
+    const bool canEdit = isActive;
+    if( canEdit )
+    {
+        switch( dataType )
+        {
+            case LOGLW::DataType::FLOAT:
+                ImGui::DragFloat( "Value", &floatVal, 0.01f );
+                break;
+            case LOGLW::DataType::SAMPLER_1D:
+            case LOGLW::DataType::SAMPLER_2D:
+                ImGui::DragInt( "Value", &intVal, 1.f );
+                break;
+            case LOGLW::DataType::FLOAT_VEC3:
+                ImGui::DragFloat3( "Value", vec3Val, 0.01f );
+                break;
+            case LOGLW::DataType::FLOAT_VEC4:
+                ImGui::ColorEdit4( "Value",
+                                   vec4Val,
+                                   ImGuiColorEditFlags_Float |
+                                       ImGuiColorEditFlags_HDR );
+                break;
+            case LOGLW::DataType::FLOAT_MAT4:
+                ImGui::TextDisabled( "Uses identity matrix." );
+                break;
+            default:
+                ImGui::TextDisabled( "Editing this type is not supported yet." );
+                break;
+        }
+    }
+
+    if( statusMsg[0] != '\0' )
+    {
+        ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 1.f, 0.35f, 0.35f, 1.f ) );
+        ImGui::TextWrapped( "%s", statusMsg );
+        ImGui::PopStyleColor();
+    }
+
+    const auto tryCreate = [&]()
+    {
+        statusMsg[0] = '\0';
+        if( nameBuf[0] == '\0' )
+        {
+            snprintf( statusMsg, IM_ARRAYSIZE( statusMsg ), "Name is required." );
+            return;
+        }
+        if( !isActive )
+        {
+            if( isDeclared )
+            {
+                snprintf( statusMsg,
+                          IM_ARRAYSIZE( statusMsg ),
+                          "'%s' was optimized out. Reference it in the shader, "
+                          "then Compile + Link.",
+                          nameBuf );
+            }
+            else
+            {
+                snprintf( statusMsg,
+                          IM_ARRAYSIZE( statusMsg ),
+                          "'%s' not found in source or linked program.",
+                          nameBuf );
+            }
+            return;
+        }
+
+        LOGLW::UniformValue value;
+        switch( dataType )
+        {
+            case LOGLW::DataType::FLOAT:
+                value = floatVal;
+                break;
+            case LOGLW::DataType::SAMPLER_1D:
+            case LOGLW::DataType::SAMPLER_2D:
+                value = intVal;
+                break;
+            case LOGLW::DataType::FLOAT_VEC3:
+                value = glm::vec3( vec3Val[0], vec3Val[1], vec3Val[2] );
+                break;
+            case LOGLW::DataType::FLOAT_VEC4:
+                value = glm::vec4( vec4Val[0], vec4Val[1], vec4Val[2], vec4Val[3] );
+                break;
+            case LOGLW::DataType::FLOAT_MAT4:
+                value = glm::mat4( 1.f );
+                break;
+            default:
+                snprintf( statusMsg,
+                          IM_ARRAYSIZE( statusMsg ),
+                          "Unsupported type: %s",
+                          typeLabel.c_str() );
+                return;
+        }
+
+        m_shader->setUniform( LOGLW::EExecuteType::Now, uniformName, value );
+
+        nameBuf[0] = '\0';
+        floatVal = 0.f;
+        intVal = 0;
+        vec3Val[0] = vec3Val[1] = vec3Val[2] = 0.f;
+        vec4Val[0] = vec4Val[1] = vec4Val[2] = vec4Val[3] = 1.f;
+        ImGui::CloseCurrentPopup();
+    };
+
+    if( ImGui::Button( "Create", ImVec2( 120.f, 0.f ) ) || enterPressed )
+        tryCreate();
+    ImGui::SameLine();
+    if( ImGui::Button( "Cancel", ImVec2( 120.f, 0.f ) ) )
+    {
+        statusMsg[0] = '\0';
+        ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::EndPopup();
 }
 
 void ShaderEditor::drawRightWindow( float /*x*/, float /*y*/ )
