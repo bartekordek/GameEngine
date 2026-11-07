@@ -3,12 +3,14 @@ name: Linux build
 on:
   push:
     paths-ignore:
+      - '.cursor/**'
       - '.github/workflows/cmake-linux.yml'
       - '.gitignore'
       - '.vscode/**'
       - 'README.md'
   pull_request:
     paths-ignore:
+      - '.cursor/**'
       - '.github/workflows/cmake-linux.yml'
       - '.gitignore'
       - '.vscode/**'
