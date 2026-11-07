@@ -1,0 +1,21 @@
+---
+description: Always verify code changes with builds and tests (GameEngine + CUL)
+alwaysApply: true
+---
+
+# Verify changes with builds and tests
+
+After any code change you make:
+
+1. **Always** run a test build that exercises the changed targets (prefer this repo's cmake/`tasks.json` flow; do not rely on Visual Studio UI).
+2. **If possible**, run existing unit/integration tests for the touched area.
+3. Prefer verifying on **both Windows and Linux/WSL** when the change is not platform-specific.
+4. For CUL changes under `deps/CUL`, also follow CUL's verify/build/test guidance (`libculTests` from `runDir`).
+
+## Host projects
+
+If DuplicateFinder (or another host) would benefit from a unit-test suite analogous to CUL's `libculTests`, **tell Bartłomiej** instead of silently scaffolding a large harness.
+
+## Confirmation in the reply
+
+When finishing work that changed code, briefly state what was built and which tests ran (or why tests could not run).
