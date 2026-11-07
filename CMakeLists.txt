@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.0.0)
 
 include(deps/CUL/cmake/CULConfigurations.cmake)
 include(deps/CUL/cmake/CULTargetHelpers.cmake)
+include(cmake/GameEngineTargetHelpers.cmake)
 
 project(game_engine_main)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -82,6 +83,11 @@ set(GLEW_INCLUDE_DIRS ${GLEW_HOME}/include)
 list(APPEND CMAKE_MODULE_PATH ${GLEW_HOME})
 set(BUILD_UTILS OFF CACHE BOOL "" FORCE)
 add_subdirectory(${GLEW_HOME}/build/cmake)
+
+# Silence warnings for GameEngine deps/ (SDL, freeglut, GLEW, imgui, rapidobj, …).
+# CUL first-party (libcul*) is excluded so CUL warning cleanup remains visible;
+# CUL's nested deps are already silenced by CUL itself.
+ge_silence_warnings_for_deps_dir( ${OGLW_DEPS_ROOT} )
 
 option(RENDER_OPENGL_CORE "Enable Opengl" ON)
 

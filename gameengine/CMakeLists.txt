@@ -24,6 +24,10 @@ endforeach()
 if( MSVC )
     add_compile_options( /Wall )
     add_compile_options( /MP )
+    # Treat SYSTEM / angle-bracket includes (deps headers) as external under /Wall.
+    add_compile_options( /external:W0 /external:anglebrackets )
+    add_compile_options( /wd5045 )  # Spectre mitigation notes (same as CUL libcul)
+    add_compile_options( /wd5045 )  # Spectre mitigation notes (same as CUL libcul)
 
     add_compile_options("$<$<CONFIG:RelWithDebInfo>:/Ot>")
     add_compile_options("$<$<CONFIG:RelWithDebInfo>:/Oi>")
