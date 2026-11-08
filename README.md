@@ -25,6 +25,25 @@ The project is structured in a modular way to allow iterative
 development and experimentation without being locked into a specific
 engine architecture.
 
+## Dependencies
+
+Vendored third-party code lives under `deps/` (SDL, freeglut, GLEW, imgui, rapidobj, CUL, …).
+
+### Third-party warning policy
+
+GameEngine keeps **full warnings** for first-party code under `gameengine/` (and samples/tools). Vendored code under `deps/` is treated as third-party: we silence its compile warnings in CMake instead of fixing upstream noise.
+
+How it works (Windows + Linux):
+
+1. **Compiling dependency sources** — After all `deps/` subdirectories are added, `ge_silence_warnings_for_deps_dir()` (see `cmake/GameEngineTargetHelpers.cmake`) walks every CMake target whose `SOURCE_DIR` is under `deps/` and applies:
+   - MSVC: `/W0`
+   - GCC / Clang: `-w`  
+   On CMake ≥ 3.25 those targets are also marked `SYSTEM`.
+2. **CUL exception** — Targets under `deps/CUL/libcul` and `deps/CUL/libculTests` are **not** silenced here, so CUL first-party warnings stay visible when building GameEngine. Nested CUL dependencies are already silenced by CUL’s own `cul_silence_warnings_for_deps_dir()` (see `deps/CUL/README.md`).
+3. **Including dependency headers from our code** — `gameengine` uses `include_directories(SYSTEM …)` for GLEW/GLM/CUL/SDL/freeglut. On MSVC it also enables `/external:W0` and `/external:anglebrackets` so those headers do not spam `/Wall`.
+
+First-party targets (`gameengine_static`, samples, cooker, …) are added **after** the deps silence pass.
+
 ## Build System
 
 The project uses CMake as its primary build system.
